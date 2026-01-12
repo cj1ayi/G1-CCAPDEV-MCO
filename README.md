@@ -11,3 +11,5 @@
 | **`build`**    | Modify Makefile or compilation setup |
 | **`docs`**     | Update README, specs, or comments |
 | **`chore`**    | Non-code maintenance (renaming files, updating `.gitignore`) |
+
+> *[See conventional commits:](https://www.conventionalcommits.org/en/v1.0.0/)*
