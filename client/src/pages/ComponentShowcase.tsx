@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
+import { Badge } from '@/components/ui/Badge' 
+import { Avatar } from '@/components/ui/Avatar'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card'
 import { Plus, ArrowRight, Mail, Trash2, Search, Settings } from 'lucide-react'
 
@@ -184,9 +186,50 @@ export const ComponentShowcase = () => {
         </Card>
         </div>
         </section>
+
+        {/* Badge Section */}
+        <section className="space-y-4">
+        <h2 className="text-2xl font-bold">Badge</h2>
+        <div className="flex flex-wrap gap-2">
+        <Badge>Default</Badge>
+        <Badge variant="secondary">Secondary</Badge>
+        <Badge variant="outline">Outline</Badge>
+        <Badge variant="success">Success</Badge>
+        <Badge variant="warning">Warning</Badge>
+        <Badge variant="danger">Danger</Badge>
+        <Badge variant="info">Info</Badge>
+        </div>
+        <div className="flex flex-wrap gap-2 items-center">
+        <Badge size="sm">Small</Badge>
+        <Badge size="md">Medium</Badge>
+        <Badge size="lg">Large</Badge>
+        </div>
+        </section>
+
+        {/* Avatar Section */}
+        <section className="space-y-4">
+        <h2 className="text-2xl font-bold">Avatar</h2>
+        <div className="flex flex-wrap gap-4 items-center">
+        <Avatar size="sm" name="John Doe" />
+        <Avatar size="md" name="Jane Smith" />
+        <Avatar size="lg" name="Bob Wilson" />
+        <Avatar size="xl" name="Alice Brown" />
+        <Avatar 
+            size="2xl" 
+            src="https://shreks.corneroftheinter.net?img=png" 
+            alt="Beautiful Man" 
+        />
+        <Avatar 
+        size="2xl" 
+        src="https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
+        alt="Never Gonna Give You Up" 
+        />
+        </div>
+        </section>
         </div>
         </div> 
     )
 }
 
 export default ComponentShowcase
+
