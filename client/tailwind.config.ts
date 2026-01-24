@@ -15,7 +15,7 @@ export default {
         'background-light': '#f2f4f3',
         'background-dark': '#0f0f0f',
         'surface-light': '#ffffff',
-        'surface-dark': '#1a1a1a',
+        'surface-dark': '#111927',
         'border-light': '#dae7e0',
         'border-dark': '#333333',
         'dlsu-gold': '#C1A624',
