@@ -1,10 +1,14 @@
-import { HTMLAttributes } from 'react'
+import { HTMLAttributes, ReactNode } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn, getInitials } from '@/lib/utils'
 import { User } from 'lucide-react'
 
 const avatarVariants = cva(
-  'inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-semibold overflow-hidden',
+  [
+    'inline-flex items-center justify-center rounded-full',
+    'bg-gray-200 dark:bg-gray-700 text-gray-600',
+    'dark:text-gray-300 font-semibold overflow-hidden',
+  ],
   {
     variants: {
       size: {
@@ -27,26 +31,29 @@ export interface AvatarProps
   src?: string
   alt?: string
   name?: string
-  fallback?: React.ReactNode
+  fallback?: ReactNode
 }
 
-export const Avatar = ({ 
-  className, 
-  size, 
-  src, 
-  alt, 
+export const Avatar = ({
+  className,
+  size,
+  src,
+  alt,
   name,
   fallback,
-  ...props 
+  ...props
 }: AvatarProps) => {
   const initials = name ? getInitials(name) : null
 
   return (
-    <div className={cn(avatarVariants({ size }), className)} {...props}>
+    <div 
+      className={cn(avatarVariants({ size }), className)} 
+      {...props}
+    >
       {src ? (
-        <img 
-          src={src} 
-          alt={alt || name || 'Avatar'} 
+        <img
+          src={src}
+          alt={alt || name || 'Avatar'}
           className="h-full w-full object-cover"
         />
       ) : fallback ? (
@@ -54,13 +61,15 @@ export const Avatar = ({
       ) : initials ? (
         <span>{initials}</span>
       ) : (
-        <User className={cn(
-          size === 'sm' && 'h-4 w-4',
-          size === 'md' && 'h-5 w-5',
-          size === 'lg' && 'h-6 w-6',
-          size === 'xl' && 'h-8 w-8',
-          size === '2xl' && 'h-12 w-12',
-        )} />
+        <User
+          className={cn(
+            size === 'sm' && 'h-4 w-4',
+            size === 'md' && 'h-5 w-5',
+            size === 'lg' && 'h-6 w-6',
+            size === 'xl' && 'h-8 w-8',
+            size === '2xl' && 'h-12 w-12'
+          )}
+        />
       )}
     </div>
   )
