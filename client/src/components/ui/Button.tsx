@@ -5,17 +5,18 @@ import { Loader2 } from 'lucide-react'
 
 const buttonVariants = cva(
   [
-    'inline-flex items-center justify-center rounded-lg font-bold',
-    'transition-all duration-200 focus:outline-none focus:ring-2',
-    'focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
-    'active:scale-[0.98]',
+    'inline-flex items-center justify-center rounded-lg font-bold relative',
+    'transition-all duration-200 disabled:opacity-50',
+    'disabled:pointer-events-none select-none touch-manipulation',
+    'active:scale-[0.96] outline-none focus-visible:ring-2',
+    'focus-visible:ring-offset-2 ring-offset-background',
   ],
   {
     variants: {
       variant: {
         primary: [
           'bg-primary text-white hover:bg-primary-dark shadow-md',
-          'shadow-primary/20 focus:ring-primary/20',
+          'shadow-primary/20 focus-visible:ring-primary',
         ],
         secondary: [
           'bg-white dark:bg-white/5 border border-gray-200',
@@ -28,7 +29,7 @@ const buttonVariants = cva(
         ],
         danger: [
           'bg-red-600 text-white hover:bg-red-700 shadow-md',
-          'shadow-red-600/20 focus:ring-red-600/20',
+          'focus-visible:ring-red-600'
         ],
         outline: [
           'border border-primary text-primary',
@@ -37,7 +38,7 @@ const buttonVariants = cva(
       },
       size: {
         sm: 'h-9 px-4 text-sm gap-1.5',
-        md: 'h-10 px-5 text-sm gap-2',
+        md: 'h-11 px-6 text-sm gap-2',
         lg: 'h-14 px-8 text-base gap-3',
       },
       fullWidth: {
@@ -52,8 +53,8 @@ const buttonVariants = cva(
 )
 
 interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+extends ButtonHTMLAttributes<HTMLButtonElement>,
+VariantProps<typeof buttonVariants> {
   isLoading?: boolean
   leftIcon?: ReactNode
   rightIcon?: ReactNode
@@ -73,32 +74,34 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       disabled,
       as: Component = 'button',
-      ...rest
+        ...rest
     } = props
 
     const isDisabled = isLoading || disabled
 
     return (
       <Component
-        ref={ref}
-        disabled={isDisabled}
-        className={cn(
-          buttonVariants({ variant, size, fullWidth, className })
-        )}
-        {...rest}
+      ref={ref}
+      disabled={isDisabled}
+      className={cn(
+        buttonVariants({ variant, size, fullWidth, className })
+      )}
+      {...rest}
       >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Loading...</span>
-          </>
-        ) : (
-          <>
-            {leftIcon && <span className="shrink-0">{leftIcon}</span>}
-            <span className="truncate">{children}</span>
-            {rightIcon && <span className="shrink-0">{rightIcon}</span>}
-          </>
-        )}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        </div> 
+      )}
+
+      <div className={cn(
+        "flex items-center justify-center gap-2 w-full",
+        isLoading ? "opacity-0" : "opacity-100"
+      )}>
+      {leftIcon && <span className="shrink-0">{leftIcon}</span>} 
+      <span className="truncate">{children}</span>
+      {rightIcon && <span className="shrink-0">{rightIcon}</span>}
+      </div>
       </Component>
     )
   }
