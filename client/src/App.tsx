@@ -8,7 +8,8 @@ import {
   Signup,
   Search,
   ComponentShowcase,
-  TestPosts
+  TestPosts,
+  TestComments
 } from './pages'
 
 const App = () => {
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/search" element={<Search />} />
         <Route path="/test-posts" element={<TestPosts />} />
+        <Route path="/test-comments" element={<TestComments />} />
       </Routes>
     </BrowserRouter>
   )
