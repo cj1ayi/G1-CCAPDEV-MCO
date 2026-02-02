@@ -4,14 +4,7 @@ import {
   DropdownItem,
   DropdownSeparator
 } from '@/components/ui'
-import {
-  ChevronUp,
-  ChevronDown,
-  MessageCircle,
-  MoreHorizontal,
-  Edit,
-  Trash2
-} from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface CommentCardProps {
@@ -28,8 +21,9 @@ export interface CommentCardProps {
   createdAt: string
   isUpvoted?: boolean
   isDownvoted?: boolean
-  isEdited?: boolean
   isOwner?: boolean
+  isOP?: boolean
+  badge?: string
   onUpvote?: () => void
   onDownvote?: () => void
   onReply?: () => void
@@ -47,8 +41,9 @@ const CommentCard = ({
   createdAt,
   isUpvoted = false,
   isDownvoted = false,
-  isEdited = false,
   isOwner = false,
+  isOP = false,
+  badge,
   onUpvote,
   onDownvote,
   onReply,
@@ -60,39 +55,87 @@ const CommentCard = ({
   const score = upvotes - downvotes
   const maxDepth = 5
 
+  // Safety check for required author prop
+  if (!author) {
+    console.error('CommentCard: Missing required author prop')
+    return null
+  }
+
   return (
     <div
       className={cn(
         'group',
-        depth > 0 &&
-          'ml-6 md:ml-8 border-l-2 border-gray-200 dark:border-gray-800 pl-4'
+        depth > 0 && [
+          'ml-6 md:ml-8 pl-4',
+          'border-l-2 border-gray-200 dark:border-gray-800',
+          'hover:border-gray-300 dark:hover:border-gray-600',
+          'transition-colors'
+        ]
       )}
     >
       <div className="py-3">
         {/* Comment Header */}
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2">
-            <Avatar size="sm" name={author.name} src={author.avatar} />
-            <span className={cn(
-                "text-sm font-semibold text-gray-900",
-                "dark:text-white hover:underline cursor-pointer"
+        <div
+          className={cn(
+            'flex items-center justify-between gap-2 mb-2'
+          )}
+        >
+          <div className="flex items-center gap-2 flex-wrap">
+            <Avatar
+              size={depth === 0 ? 'md' : 'sm'}
+              name={author.name}
+              src={author.avatar}
+            />
+            <span
+              className={cn(
+                'text-sm font-semibold',
+                'text-gray-900 dark:text-white',
+                'hover:underline cursor-pointer'
               )}
             >
               u/{author.username}
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span
+              className={cn(
+                'text-xs text-gray-500 dark:text-gray-400'
+              )}
+            >
               •
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span
+              className={cn(
+                'text-xs text-gray-500 dark:text-gray-400'
+              )}
+            >
               {createdAt}
             </span>
-            {isEdited && (
-              <>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  •
-                </span>
-                <span className="text-xs italic text-gray-400">edited</span>
-              </>
+
+            {/* OP Badge */}
+            {isOP && (
+              <span
+                className={cn(
+                  'px-1.5 py-0.5 rounded',
+                  'text-[10px] font-bold',
+                  'bg-green-100 text-green-700',
+                  'dark:bg-green-900/30 dark:text-green-400'
+                )}
+              >
+                OP
+              </span>
+            )}
+
+            {/* User Badge (Senior, Moderator, etc.) */}
+            {badge && (
+              <span
+                className={cn(
+                  'px-1.5 py-0.5 rounded',
+                  'text-[10px] font-bold',
+                  'bg-yellow-100 text-yellow-700',
+                  'dark:bg-yellow-900/30 dark:text-yellow-400'
+                )}
+              >
+                {badge}
+              </span>
             )}
           </div>
 
@@ -100,18 +143,23 @@ const CommentCard = ({
           {isOwner && (
             <Dropdown
               trigger={
-                <button className={cn(
-                    "p-1 hover:bg-gray-100 dark:hover:bg-gray-800",
-                    "rounded opacity-0 group-hover:opacity-100",
-                    "transition-opacity"
+                <button
+                  className={cn(
+                    'p-1 rounded',
+                    'hover:bg-gray-100 dark:hover:bg-gray-800',
+                    'opacity-0 group-hover:opacity-100',
+                    'transition-opacity'
                   )}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                  <MoreHorizontal
+                    className="h-4 w-4 text-gray-500"
+                  />
                 </button>
               }
             >
-              <DropdownItem 
-                icon={<Edit className="h-4 w-4" />} 
+              <DropdownItem
+                icon={<Edit className="h-4 w-4" />}
                 onClick={onEdit}
               >
                 Edit Comment
@@ -129,9 +177,10 @@ const CommentCard = ({
         </div>
 
         {/* Comment Content */}
-        <div className={cn(
-            "text-sm text-gray-700 dark:text-gray-300",
-            "leading-relaxed mb-2"
+        <div
+          className={cn(
+            'text-sm text-gray-700 dark:text-gray-300',
+            'leading-relaxed mb-2'
           )}
         >
           {content}
@@ -146,11 +195,23 @@ const CommentCard = ({
               className={cn(
                 'p-1 rounded transition-colors',
                 isUpvoted
-                  ? 'text-[#FF6B35] bg-orange-50 dark:bg-orange-900/20'
-                  : 'text-gray-400 hover:text-[#FF6B35] hover:bg-orange-50 dark:hover:bg-orange-900/20'
+                  ? 'text-[#FF6B35]'
+                  : [
+                      'text-gray-400 hover:text-[#FF6B35]',
+                      'hover:bg-gray-200 dark:hover:bg-gray-700'
+                    ]
               )}
             >
-              <ChevronUp className="h-4 w-4" />
+              <span
+                className="material-symbols-outlined text-[16px]"
+                style={
+                  isUpvoted
+                    ? { fontVariationSettings: "'FILL' 1" }
+                    : undefined
+                }
+              >
+                shift
+              </span>
             </button>
 
             <span
@@ -158,8 +219,9 @@ const CommentCard = ({
                 'text-xs font-bold min-w-[24px] text-center',
                 isUpvoted && 'text-[#FF6B35]',
                 isDownvoted && 'text-[#4A90E2]',
-                !isUpvoted && !isDownvoted && 
-                'text-gray-600 dark:text-gray-400'
+                !isUpvoted &&
+                  !isDownvoted &&
+                  'text-gray-600 dark:text-gray-400'
               )}
             >
               {score}
@@ -170,11 +232,26 @@ const CommentCard = ({
               className={cn(
                 'p-1 rounded transition-colors',
                 isDownvoted
-                  ? 'text-[#4A90E2] bg-blue-50 dark:bg-blue-900/20'
-                  : 'text-gray-400 hover:text-[#4A90E2] hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                  ? 'text-[#4A90E2]'
+                  : [
+                      'text-gray-400 hover:text-[#4A90E2]',
+                      'hover:bg-gray-200 dark:hover:bg-gray-700'
+                    ]
               )}
             >
-              <ChevronDown className="h-4 w-4" />
+              <span
+                className={cn(
+                  'material-symbols-outlined text-[16px]',
+                  'rotate-180'
+                )}
+                style={
+                  isDownvoted
+                    ? { fontVariationSettings: "'FILL' 1" }
+                    : undefined
+                }
+              >
+                shift
+              </span>
             </button>
           </div>
 
@@ -183,12 +260,18 @@ const CommentCard = ({
             <button
               onClick={onReply}
               className={cn(
-                "flex items-center gap-1 text-xs font-bold",
-                "text-gray-500 dark:text-gray-400 hover:text-primary",
-                "hover:bg-primary/10 px-2 py-1 rounded transition-colors"
+                'flex items-center gap-1',
+                'text-xs font-bold',
+                'text-gray-500 dark:text-gray-400',
+                'hover:text-primary hover:bg-primary/10',
+                'px-2 py-1 rounded transition-colors'
               )}
             >
-              <MessageCircle className="h-3 w-3" />
+              <span
+                className="material-symbols-outlined text-[14px]"
+              >
+                chat_bubble
+              </span>
               Reply
             </button>
           )}
@@ -199,7 +282,11 @@ const CommentCard = ({
       {replies.length > 0 && depth < maxDepth && (
         <div className="space-y-0">
           {replies.map((reply) => (
-            <CommentCard key={reply.id} {...reply} depth={depth + 1} />
+            <CommentCard
+              key={reply.id}
+              {...reply}
+              depth={depth + 1}
+            />
           ))}
         </div>
       )}
