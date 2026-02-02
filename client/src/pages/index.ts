@@ -6,3 +6,6 @@ export { default as Login } from './Login'
 export { default as Signup } from './Signup'
 export { default as Search } from './Search'
 export { default as ComponentShowcase } from './ComponentShowcase'
+export { default as  TestPosts } from './TestPosts'
+export { default as  TestComments } from './TestComments'
+
