@@ -131,14 +131,14 @@ const CommentCard = ({
         {/* Comment Content */}
         <div className={cn(
             "text-sm text-gray-700 dark:text-gray-300",
-            "leading-relaxed mb-2 ml-10"
+            "leading-relaxed mb-2"
           )}
         >
           {content}
         </div>
 
         {/* Comment Actions */}
-        <div className="flex items-center gap-3 ml-10">
+        <div className="flex items-center gap-3">
           {/* Vote Buttons */}
           <div className="flex items-center gap-1">
             <button
@@ -146,8 +146,8 @@ const CommentCard = ({
               className={cn(
                 'p-1 rounded transition-colors',
                 isUpvoted
-                  ? 'text-primary bg-primary/10'
-                  : 'text-gray-400 hover:text-primary hover:bg-primary/10'
+                  ? 'text-[#FF6B35] bg-orange-50 dark:bg-orange-900/20'
+                  : 'text-gray-400 hover:text-[#FF6B35] hover:bg-orange-50 dark:hover:bg-orange-900/20'
               )}
             >
               <ChevronUp className="h-4 w-4" />
@@ -156,8 +156,8 @@ const CommentCard = ({
             <span
               className={cn(
                 'text-xs font-bold min-w-[24px] text-center',
-                isUpvoted && 'text-primary',
-                isDownvoted && 'text-red-500',
+                isUpvoted && 'text-[#FF6B35]',
+                isDownvoted && 'text-[#4A90E2]',
                 !isUpvoted && !isDownvoted && 
                 'text-gray-600 dark:text-gray-400'
               )}
@@ -170,8 +170,8 @@ const CommentCard = ({
               className={cn(
                 'p-1 rounded transition-colors',
                 isDownvoted
-                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20'
-                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+                  ? 'text-[#4A90E2] bg-blue-50 dark:bg-blue-900/20'
+                  : 'text-gray-400 hover:text-[#4A90E2] hover:bg-blue-50 dark:hover:bg-blue-900/20'
               )}
             >
               <ChevronDown className="h-4 w-4" />

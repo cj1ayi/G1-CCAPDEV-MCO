@@ -6,16 +6,82 @@ import { PostCard } from '@/components/post'
 import { Button } from '@/components/ui'
 import { Moon, Sun } from 'lucide-react'
 
-
 const TestPosts = () => {
   const [isDark, setIsDark] = useState(false)
-  // Check initial theme
+  
+  const [posts, setPosts] = useState([
+    {
+      id: '1',
+      title: 'ANNOUNCEMENT URGENT !!!',
+      content: 'tama na pag breed ng mga kabayo oi',
+      author: {
+        id: '1',
+        name: 'Thomas James C. Tiam-Lee ',
+        username: 'tiamlee',
+        avatar: avatarImage,
+      },
+      space: 'CCS',
+      spaceIcon: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAsBoEat1u_9y6SlcojTmT9XetKgEDj1KvlbFS3y3jC-YU3Xxksp3LDcFrtqSsKw2lw6loBVDGA6HCfAprXml-qY0Gs4yQYuX_YzW8uzpd-NzmJvffLLSr9-QwDG2y8sbptifOuX_4rauV6HxBy6tIBjuMCITUmB0EdaW-slyoE78ETC82jCFUVzrSjh_h_2LGKSSbDanEA-lf9r39COxzomHaLxqVi3C8yRD0yU3Ao14_2VdNdE_7bQEBlaO70lBEuAndAjqAT1sc',
+      flair: 'News' as const,
+      upvotes: 69,
+      downvotes: 2,
+      commentCount: 8,
+      createdAt: '2 hours ago',
+      isOwner: true,
+      isUpvoted: false,
+      isDownvoted: false,
+    },
+    {
+      id: "2",
+      title: "CHANGE MY MIND!",
+      content: "Lgbt marriage complicates my classes!",
+      author: {
+        id: '2',
+        name: 'Teehee',
+        username: 'iloveapex',
+        avatar: diane,
+      },
+      space: "FreedomWall",
+      spaceIcon: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDSBm7KK3s_SBo1Wf7bdSaVnsU0KswSCTFXMh9jEGJj_njozSPCENYNfm6enbFrwcvGEVdb2Om2ZJiSKqZzzAO7Ugu4olxZowI1773JfXRDVFNfcTVNmeC4M4dpSJhsoxiwOmrCo8a7_th6y9bj3xo770R8u5KZdRQWmtI38BA-HsQh0Ze_heYQoGydC9M3TDd7jro_8UtAbaEikQ_DmB8YmuvM7AOwy3T0JzPjJPtDA3x1_8Gy8RHmvDiHuOlfxo8ItQe1Hfwnm1s',
+      flair: 'Discussion' as const,
+      upvotes: 45,
+      downvotes: 3,
+      commentCount: 23,
+      createdAt: "5 hours ago",
+      isEdited: true,
+      isOwner: false,
+      isUpvoted: false,
+      isDownvoted: false,
+    },
+    {
+      id: "3",
+      title: "Machine Project Help! ",
+      content: "cuz ms nats fucked me in my ass",
+      author: {
+        id: '2',
+        name: 'Sussus Amogus',
+        username: 'pieisspy',
+        avatar: karl,
+      },
+      space: "PTS",
+      spaceIcon: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC-_R5BFYej5V-_m_rF8_ajiuwWitbGi5ZAp8ivxdpD6zZhtahwQYcr4-eloeZtY6Xi_GQicR_0EJ7cPfOa6Xkm11hNBNXo6CjAubz-8E_dYnfMmTIzbmXqAafa312scgqfStDsuK9sfYQn0t23oiAvjpRv1bCb6wJ-BMjv-OxdcGWjCLGbCWVOKewfY7M2Z4zDsL3Owh5tHCU3vXfLgjF_twOwoywK4MhRwjQYM8fPDNs1z-VQn7hb0aC4kBZAVdfuh9dlDD3pIJE',
+      flair: 'Question' as const,
+      upvotes: 67,
+      downvotes: 0,
+      commentCount: 169,
+      createdAt: "5 hours ago",
+      isEdited: true,
+      isOwner: false,
+      isUpvoted: false,
+      isDownvoted: false,
+    }
+  ])
+
   useEffect(() => {
     const isDarkMode = document.documentElement.classList.contains('dark')
     setIsDark(isDarkMode)
   }, [])
 
-  // Toggle dark mode
   const toggleDarkMode = () => {
     if (isDark) {
       document.documentElement.classList.remove('dark')
@@ -26,68 +92,40 @@ const TestPosts = () => {
     }
   }
 
-
-  const samplePost = {
-    id: '1',
-    title: 'ANNOUNCEMENT URGENT !!!',
-    content: 'tama na pag breed ng mga kabayo oi',
-    author: {
-      id: '1',
-      name: 'Thomas James C. Tiam-Lee ',
-      username: 'tiamlee',
-      avatar: avatarImage,
-    },
-    space: 'CCS',
-    upvotes: 69,
-    downvotes: 2,
-    commentCount: 8,
-    createdAt: '2 hours ago',
-    tags: ['CSINSTY', 'IMPORTANT'],
-    isOwner: true,
+  // Handle upvote
+  const handleUpvote = (postId: string) => {
+    setPosts(posts.map(post => {
+      if (post.id === postId) {
+        const wasUpvoted = post.isUpvoted
+        return {
+          ...post,
+          isUpvoted: !wasUpvoted,
+          isDownvoted: false, // Remove downvote if switching
+          upvotes: wasUpvoted ? post.upvotes - 1 : post.upvotes + 1,
+          downvotes: post.isDownvoted ? post.downvotes - 1 : post.downvotes,
+        }
+      }
+      return post
+    }))
   }
 
-  const samplePost1 = {
-    id: "2",
-    title: "CHANGE MY MIND!",
-    content: "Lgbt marriage complicates my classes!",
-    author: {
-      id: '2',
-      name: 'Teehee',
-      username: 'iloveapex',
-      avatar: diane,
-    },
-    space: "Freedom Wall",
-    upvotes: 45,
-    downvotes: 3,
-    commentCount: 23,
-    createdAt: "5 hours ago",
-    tags: ['Politics', 'Question', 'Debate'],
-    isEdited: true,
-    isOwner: false
+  const handleDownvote = (postId: string) => {
+    setPosts(posts.map(post => {
+      if (post.id === postId) {
+        const wasDownvoted = post.isDownvoted
+        return {
+          ...post,
+          isDownvoted: !wasDownvoted,
+          isUpvoted: false, // Remove upvote if switching
+          downvotes: wasDownvoted ? post.downvotes - 1 : post.downvotes + 1,
+          upvotes: post.isUpvoted ? post.upvotes - 1 : post.upvotes,
+        }
+      }
+      return post
+    }))
   }
 
-  const samplePost2 = {
-    id: "3",
-    title: "Machine Project Help! ",
-    content: "cuz ms nats fucked me in my ass",
-    author: {
-      id: '2',
-      name: 'Sussus Amogus',
-      username: 'pieisspy',
-      avatar: karl,
-    },
-    space: "PTS",
-    upvotes: 67,
-    downvotes: 0,
-    commentCount: 169,
-    createdAt: "5 hours ago",
-    tags: ['CCPROG1', 'CCPROG2', 'CCPROG3', 'MP', 'anullset'], 
-    isEdited: true,
-    isOwner: false
-  }
-
-
-    return (
+  return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header with Dark Mode Toggle */}
@@ -107,39 +145,26 @@ const TestPosts = () => {
           </Button>
         </div>
 
-        {/* PostCard */}
-        <PostCard 
-          {...samplePost}
-          onClick={() => alert('Post clicked!')}
-          onUpvote={() => console.log('Upvoted')}
-          onDownvote={() => console.log('Downvoted')}
-          onEdit={() => alert('Edit post')}
-          onDelete={() => {
-            if (confirm('Delete this post?')) {
-              alert('Post deleted!')
-            }
-          }}
-        />
-
-        {/* Another PostCard with different data */}
-        <PostCard 
-        {...samplePost1}
-         onClick={() => alert('Post 2 clicked!')}
-          onUpvote={() => console.log('Post 2 upvoted')}
-          onDownvote={() => console.log('Post 2 downvoted')}
-        />
-
-        <PostCard 
-        {...samplePost2}
-         onClick={() => alert('Post 2 clicked!')}
-          onUpvote={() => console.log('Post 2 upvoted')}
-          onDownvote={() => console.log('Post 2 downvoted')}
-        />
+        {/* Render all posts */}
+        {posts.map((post) => (
+          <PostCard 
+            key={post.id}
+            {...post}
+            onClick={() => alert(`Post ${post.id} clicked!`)}
+            onUpvote={() => handleUpvote(post.id)}
+            onDownvote={() => handleDownvote(post.id)}
+            onEdit={post.isOwner ? () => alert('Edit post') : undefined}
+            onDelete={post.isOwner ? () => {
+              if (confirm('Delete this post?')) {
+                alert('Post deleted!')
+              }
+            } : undefined}
+          />
+        ))}
  
       </div>
     </div>
   )
 }
-
 
 export default TestPosts
