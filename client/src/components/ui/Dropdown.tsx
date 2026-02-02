@@ -74,7 +74,8 @@ export const Dropdown = ({
 
 interface DropdownItemProps {
   children: ReactNode
-  onClick?: () => void
+  onClick?: (e?: 
+    React.MouseEvent<HTMLButtonElement>) => void
   icon?: ReactNode
   destructive?: boolean
   disabled?: boolean
@@ -91,7 +92,10 @@ export const DropdownItem = ({
 }: DropdownItemProps) => {
   return (
     <button
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick?.(e)
+      }}
       disabled={disabled}
       className={cn(
         'w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left',
