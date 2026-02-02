@@ -7,7 +7,8 @@ import {
   Login,
   Signup,
   Search,
-  ComponentShowcase
+  ComponentShowcase,
+  TestPosts
 } from './pages'
 
 const App = () => {
@@ -23,13 +24,14 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home/>} />
-        <Route path="/post/:id" element={<PostDetail/>} />
-        <Route path="/profile/:id" element={<Profile/>} />
-        <Route path="/space/:name" element={<Space/>} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/signup" element={<Signup/>} />
-        <Route path="/search" element={<Search/>} />
+        <Route path="/" element={<Home />} />
+        <Route path="/post/:id" element={<PostDetail />} />
+        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/space/:name" element={<Space />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/test-posts" element={<TestPosts />} />
       </Routes>
     </BrowserRouter>
   )
