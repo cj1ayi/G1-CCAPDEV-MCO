@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { Badge } from '@/components/ui/Badge' 
 import { Avatar } from '@/components/ui/Avatar'
-import { Header } from '@/components/ui/Header'
+import { Header } from '@/components/layout/Header'
 import { Dropdown, DropdownItem, DropdownSeparator, 
     DropdownLabel } from '@/components/ui/Dropdown'
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } 
