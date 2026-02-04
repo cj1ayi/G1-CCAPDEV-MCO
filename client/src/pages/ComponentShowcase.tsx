@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { Badge } from '@/components/ui/Badge' 
 import { Avatar } from '@/components/ui/Avatar'
+import { Header } from '@/components/ui/Header'
 import { Dropdown, DropdownItem, DropdownSeparator, 
     DropdownLabel } from '@/components/ui/Dropdown'
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } 
@@ -28,6 +29,16 @@ export const ComponentShowcase = () => {
             Testing ground for all UI components
           </p>
         </div>
+
+        {/* Header */}
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Header
+          </h2>
+          <div className="border rounded-lg overflow-hidden">
+            <Header user={{ name: 'Diane Panganiban' }} />
+          </div>
+        </section>
 
         {/* Variants */}
         <section className="space-y-4">
