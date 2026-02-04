@@ -1,3 +1,4 @@
+import { MainLayout } from '@/components/layout/MainLayout'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import {
   Home,
@@ -22,15 +23,17 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home/>} />
-        <Route path="/post/:id" element={<PostDetail/>} />
-        <Route path="/profile/:id" element={<Profile/>} />
-        <Route path="/space/:name" element={<Space/>} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/signup" element={<Signup/>} />
-        <Route path="/search" element={<Search/>} />
-      </Routes>
+      <MainLayout>
+        <Routes>
+           <Route path="/" element={<Home/>} />
+           <Route path="/post/:id" element={<PostDetail/>} />
+           <Route path="/profile/:id" element={<Profile/>} />
+           <Route path="/space/:name" element={<Space/>} />
+           <Route path="/login" element={<Login/>} />
+           <Route path="/signup" element={<Signup/>} />
+           <Route path="/search" element={<Search/>} />
+        </Routes>
+      </MainLayout>
     </BrowserRouter>
   )
 }
