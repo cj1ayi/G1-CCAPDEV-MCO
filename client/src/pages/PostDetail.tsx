@@ -33,7 +33,6 @@ export default function PostDetail() {
           >
             Post not found
           </h1>
-
           <button
             onClick={() => navigate("/test-posts")}
             className={cn(
@@ -116,7 +115,18 @@ export default function PostDetail() {
     };
   };
 
+  // Helper to count all nested comments
+  const getTotalCommentCount = (list: CommentCardProps[]): number => {
+    return list.reduce((acc, comment) => {
+      const replyCount = comment.replies
+        ? getTotalCommentCount(comment.replies)
+        : 0;
+      return acc + 1 + replyCount;
+    }, 0);
+  };
+
   const sortedComments = sortCommentsByScore(comments).map(addHandlers);
+  const totalCommentCount = getTotalCommentCount(comments);
 
   return (
     <div
@@ -245,7 +255,8 @@ export default function PostDetail() {
                       "p-1 rounded transition-colors",
                       voteState === "up"
                         ? "text-[#FF6B35] bg-orange-50 dark:bg-orange-900/20"
-                        : "text-gray-400 hover:text-[#FF6B35] hover:bg-gray-200 dark:hover:bg-gray-700"
+                        : "text-gray-400 hover:text-[#FF6B35] " +
+                            "hover:bg-gray-200 dark:hover:bg-gray-700"
                     )}
                   >
                     <span
@@ -273,7 +284,8 @@ export default function PostDetail() {
                       "p-1 rounded transition-colors",
                       voteState === "down"
                         ? "text-[#4A90E2] bg-blue-50 dark:bg-blue-900/20"
-                        : "text-gray-400 hover:text-[#4A90E2] hover:bg-gray-200 dark:hover:bg-gray-700"
+                        : "text-gray-400 hover:text-[#4A90E2] " +
+                            "hover:bg-gray-200 dark:hover:bg-gray-700"
                     )}
                   >
                     <span
@@ -299,11 +311,7 @@ export default function PostDetail() {
                         "size-10 rounded-full border",
                         "border-gray-200 dark:border-gray-700"
                       )}
-                      src={
-                        typeof post.author.avatar === "string"
-                          ? post.author.avatar
-                          : post.author.avatar
-                      }
+                      src={post.author.avatar as string}
                     />
                     <div className="flex flex-col text-sm">
                       <div className="flex items-center gap-2">
@@ -439,7 +447,7 @@ export default function PostDetail() {
                       <span className="material-symbols-outlined text-[20px]">
                         chat_bubble
                       </span>
-                      <span>{post.commentCount} Comments</span>
+                      <span>{totalCommentCount} Comments</span>
                     </div>
                     <button
                       className={cn(
@@ -564,7 +572,7 @@ export default function PostDetail() {
               <>
                 <div className="flex items-center justify-between px-2 mt-4">
                   <h3 className="font-bold text-slate-800 dark:text-white">
-                    Comments ({comments.length})
+                    Comments ({totalCommentCount})
                   </h3>
                   <div
                     className={cn(
