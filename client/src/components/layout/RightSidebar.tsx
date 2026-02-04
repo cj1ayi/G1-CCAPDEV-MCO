@@ -19,10 +19,10 @@ export interface RightSidebarProps {
 
 // Mock trending hashtags
 const trendingHashtags = [
+  { tag: 'RinaldoEats', postCount: '67.6k' },
   { tag: 'UAAPSeason86', postCount: '32k' },
   { tag: 'Enlistment', postCount: '12k' },
   { tag: 'Finals', postCount: '8.5k' },
-  { tag: 'RinaldoEats', postCount: '5.2k' },
 ]
 
 export const RightSidebar = ({ variant = 'home', className, spaceInfo }: RightSidebarProps) => {
