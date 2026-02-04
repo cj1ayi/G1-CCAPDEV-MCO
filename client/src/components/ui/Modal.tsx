@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +21,18 @@ export const Modal = ({
   showCloseButton = true,
   className,
 }: ModalProps) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+
+    return () => {
+      document.body.style.overflow = "unset"
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   const sizeClasses = {
@@ -37,7 +49,8 @@ export const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center m-0 p-0"
+      style={{margin: 0, padding: 0}}
     >
       {/* Backdrop */}
       <div
@@ -55,7 +68,7 @@ export const Modal = ({
           'relative w-full bg-white dark:bg-surface-dark rounded-2xl',
           'shadow-2xl ring-1 ring-black/5 dark:ring-white/10',
           'max-h-[90vh] flex flex-col animate-in fade-in',
-          'zoom-in-95 duration-200',
+          'zoom-in-95 duration-200 mx-4',
           sizeClasses[size],
           className
         )}
