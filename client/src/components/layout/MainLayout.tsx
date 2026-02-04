@@ -22,26 +22,21 @@ export const MainLayout = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark">
-      {/* Top Bar with Hamburger Menu (Mobile Only) */}
-      <div className="lg:hidden sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center gap-3">
+      {/* Floating Hamburger Button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
         <HamburgerMenu 
           isOpen={leftSidebarOpen}
           onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
         />
-        <h1 className="text-lg font-bold text-gray-900 dark:text-white">
-          AnimoForums
-        </h1>
       </div>
 
-      {/* Main Content Area with Sidebars */}
       <div className="flex flex-1 relative">
         {/* LEFT Sidebar */}
         <aside
           className={cn(
-            // Desktop (≥ lg): Normal sidebar, always visible
-            'lg:block lg:relative lg:translate-x-0 lg:w-64',
-            // Mobile (< lg): Fixed overlay
-            'fixed inset-y-0 left-0 z-40 lg:z-auto w-64',
+            'lg:block lg:relative lg:translate-x-0 lg:w-64 lg:pt-0',
+            'fixed inset-y-0 left-0 z-40 w-64',
+            'pt-16', 
             'bg-white dark:bg-gray-900',
             'transition-transform duration-300 ease-out',
             'overflow-y-auto',
@@ -62,12 +57,12 @@ export const MainLayout = ({
 
         {/* Main Content Wrapper */}
         <div className="flex flex-1 min-w-0">
-          {/* Content Area */}
           <main className="flex-1 p-4 md:p-6">
-            <div className="max-w-4xl mx-auto">{children}</div>
+            {/* Add top margin on mobile so content doesn't hide behind hamburger if sidebar is closed */}
+            <div className="max-w-4xl mx-auto mt-12 lg:mt-0">{children}</div>
           </main>
 
-          {/* RIGHT Sidebar - Desktop only */}
+          {/* RIGHT Sidebar */}
           {showRightSidebar && (
             <aside className="hidden xl:block w-80 shrink-0 sticky top-20 h-fit">
               <div className="p-4">
@@ -78,7 +73,6 @@ export const MainLayout = ({
         </div>
       </div>
 
-      {/* Footer */}
       <Footer />
     </div>
   )
