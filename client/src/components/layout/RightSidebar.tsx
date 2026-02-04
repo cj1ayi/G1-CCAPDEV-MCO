@@ -37,7 +37,7 @@ export const RightSidebar = ({ variant = 'home', className, spaceInfo }: RightSi
     <aside
       className={cn(
         'w-80 flex-shrink-0 space-y-4 sticky top-20 h-fit',
-        'hidden xl:block', // Hidden on mobile/tablet, visible on xl screens
+        'hidden xl:block', // Hidden on mobile/tablet, visible on xl screensrigh
         className
       )}
     >
@@ -73,9 +73,6 @@ export const RightSidebar = ({ variant = 'home', className, spaceInfo }: RightSi
                     </div>
                   </div>
                 </div>
-                <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
-                  {item.postCount}
-                </span>
               </button>
             ))}
           </div>
