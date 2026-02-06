@@ -4,6 +4,8 @@ import { PostCard } from '@/components/post'
 import { Button } from '@/components/ui'
 import { Moon, Sun } from 'lucide-react'
 import { getAllPosts } from '@/lib/mockData'
+import { commentService } from '@/services/commentService'
+import { getTotalCommentCount } from '@/utils/comment-utils'
 
 const TestPosts = () => {
   const navigate = useNavigate()
@@ -15,7 +17,53 @@ const TestPosts = () => {
     '3': null,
   })
 
+  // Real-time comment counts from service
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
+  const [loadingCounts, setLoadingCounts] = useState(true)
+
   const posts = getAllPosts()
+
+  // Load real comment counts from service
+  useEffect(() => {
+    async function loadCounts() {
+      setLoadingCounts(true)
+      const counts: Record<string, number> = {}
+      
+      for (const post of posts) {
+        try {
+          const comments = await commentService.getCommentsByPostId(post.id)
+          counts[post.id] = getTotalCommentCount(comments)
+        } catch (err) {
+          console.error(`Failed to load comments for post ${post.id}:`, err)
+          counts[post.id] = post.commentCount // Fallback to mock data
+        }
+      }
+      
+      setCommentCounts(counts)
+      setLoadingCounts(false)
+    }
+    
+    loadCounts()
+  }, []) // Load once on mount
+
+  // Reload counts when navigating back from post detail
+  useEffect(() => {
+    const handleFocus = () => {
+      // Reload counts when tab gets focus (user came back)
+      async function reloadCounts() {
+        const counts: Record<string, number> = {}
+        for (const post of posts) {
+          const comments = await commentService.getCommentsByPostId(post.id)
+          counts[post.id] = getTotalCommentCount(comments)
+        }
+        setCommentCounts(counts)
+      }
+      reloadCounts()
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [posts])
 
   useEffect(() => {
     console.log('=== DEBUG: Posts from getAllPosts() ===')
@@ -49,7 +97,8 @@ const TestPosts = () => {
   const getDisplayVotes = (
     postId: string, 
     baseUpvotes: number, 
-    baseDownvotes: number) => {
+    baseDownvotes: number
+  ) => {
     const voteState = votes[postId]
     let displayUpvotes = baseUpvotes
     let displayDownvotes = baseDownvotes
@@ -72,10 +121,7 @@ const TestPosts = () => {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               PostCard Test - Click to view details!
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Vote here, then click to see the post detail page with comments
-            </p>
-          </div>
+         </div>
 
           {/* Dark Mode Toggle Button */}
           <Button
@@ -89,7 +135,7 @@ const TestPosts = () => {
           </Button>
         </div>
 
-        {/* Render all posts with vote state */}
+        {/* Render all posts with vote state and real comment counts */}
         {posts.map((post) => {
           const { displayUpvotes, displayDownvotes } = getDisplayVotes(
             post.id,
@@ -97,9 +143,15 @@ const TestPosts = () => {
             post.downvotes
           )
           const voteState = votes[post.id]
+          
+          // Use real comment count from service, or fallback to mock data
+          const realCommentCount = commentCounts[post.id] ?? post.commentCount
 
-          console.log(`Rendering Post ${post.id}: base=${post.upvotes}, 
-                      display=${displayUpvotes}, voteState=${voteState}`)
+          console.log(
+            `Rendering Post ${post.id}: base=${post.upvotes}, ` +
+            `display=${displayUpvotes}, voteState=${voteState}, ` +
+            `comments=${realCommentCount}`
+          )
 
           return (
             <PostCard
@@ -107,6 +159,7 @@ const TestPosts = () => {
               {...post}
               upvotes={displayUpvotes}
               downvotes={displayDownvotes}
+              commentCount={realCommentCount}
               isUpvoted={voteState === 'up'}
               isDownvoted={voteState === 'down'}
               onClick={() => navigate(`/post/${post.id}`)}

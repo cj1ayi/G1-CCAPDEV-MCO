@@ -11,8 +11,17 @@ import {
   TestPosts,
   TestComments
 } from './pages'
+import { commentService } from '@/services/commentService'
 
 const App = () => {
+
+  const hasSeeded = localStorage.getItem('comments_seeded')
+  if (!hasSeeded) {
+    commentService.resetToMockData().then(() => {
+      localStorage.setItem('comments_seeded', 'true')
+      console.log('Comments auto-seeded on first load!')
+    })
+  }
 
   const showShowcase = new URLSearchParams(
     window.location.search)

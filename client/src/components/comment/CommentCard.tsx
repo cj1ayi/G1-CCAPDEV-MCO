@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Avatar,
   Dropdown,
@@ -6,6 +7,7 @@ import {
 } from '@/components/ui'
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { CommentInput } from '@/components/post-detail/CommentInput'
 
 export interface CommentCardProps {
   id: string
@@ -26,7 +28,7 @@ export interface CommentCardProps {
   badge?: string
   onUpvote?: () => void
   onDownvote?: () => void
-  onReply?: () => void
+  onReply?: (content: string) => void | Promise<void>
   onEdit?: () => void
   onDelete?: () => void
   replies?: CommentCardProps[]
@@ -55,10 +57,36 @@ const CommentCard = ({
   const score = upvotes - downvotes
   const maxDepth = 5
 
+  // Reply input state
+  const [isReplying, setIsReplying] = useState(false)
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false)
+
   // Safety check for required author prop
   if (!author) {
     console.error('CommentCard: Missing required author prop')
     return null
+  }
+
+  const handleReplyClick = () => {
+    setIsReplying(true)
+  }
+
+  const handleReplySubmit = async (replyContent: string) => {
+    if (onReply) {
+      try {
+        setIsSubmittingReply(true)
+        await onReply(replyContent)
+        setIsReplying(false)
+      } catch (error) {
+        console.error('Failed to submit reply:', error)
+      } finally {
+        setIsSubmittingReply(false)
+      }
+    }
+  }
+
+  const handleReplyCancel = () => {
+    setIsReplying(false)
   }
 
   return (
@@ -256,15 +284,17 @@ const CommentCard = ({
           </div>
 
           {/* Reply Button */}
-          {depth < maxDepth && (
+          {depth < maxDepth && onReply && (
             <button
-              onClick={onReply}
+              onClick={handleReplyClick}
+              disabled={isReplying}
               className={cn(
                 'flex items-center gap-1',
                 'text-xs font-bold',
                 'text-gray-500 dark:text-gray-400',
                 'hover:text-primary hover:bg-primary/10',
-                'px-2 py-1 rounded transition-colors'
+                'px-2 py-1 rounded transition-colors',
+                isReplying && 'text-primary bg-primary/10'
               )}
             >
               <span
@@ -277,6 +307,20 @@ const CommentCard = ({
           )}
         </div>
       </div>
+
+      {/* Reply Input (conditionally rendered) */}
+      {isReplying && (
+        <div className="ml-6 md:ml-8 mb-3">
+          <CommentInput
+            onSubmit={handleReplySubmit}
+            onCancel={handleReplyCancel}
+            placeholder={`Reply to u/${author.username}...`}
+            submitLabel="Reply"
+            autoFocus
+            isSubmitting={isSubmittingReply}
+          />
+        </div>
+      )}
 
       {/* Nested Replies */}
       {replies.length > 0 && depth < maxDepth && (

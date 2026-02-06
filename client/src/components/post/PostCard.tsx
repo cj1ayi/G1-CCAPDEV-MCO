@@ -78,7 +78,7 @@ const PostCard = ({
         {/* Vote Column */}
         <div
           className={cn(
-            "w-12 bg-gray-50 dark:bg-[#1a1a1a]",
+            "w-12 bg-gray-50 dark:bg-surface-darker",
             "flex flex-col items-center",
             "py-3 gap-1",
             "border-r border-gray-100 dark:border-gray-800",
