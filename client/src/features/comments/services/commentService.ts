@@ -1,4 +1,4 @@
-import { CommentCardProps } from '@/components/comment'
+import { CommentCardProps } from '@/features/comments/components'
 
 export interface CreateCommentDto {
   postId: string
@@ -49,7 +49,8 @@ class CommentService {
       const mockComments = getCommentsByPostId(postId)
       
       if (mockComments && mockComments.length > 0) {
-        console.log(`Seeding ${mockComments.length} mock comments for post ${postId}`)
+        console.log(`Seeding ${mockComments.length} 
+                    mock comments for post ${postId}`)
         store[postId] = mockComments
         this.setStore(store)
       }
@@ -96,7 +97,8 @@ class CommentService {
       store[dto.postId] = [newComment, ...postComments]
     } else {
       // Add as reply
-      store[dto.postId] = this.addReplyToComment(postComments, dto.parentId, newComment)
+      store[dto.postId] = this.addReplyToComment(
+        postComments, dto.parentId, newComment)
     }
 
     this.setStore(store)
@@ -114,7 +116,12 @@ class CommentService {
     const store = this.getStore()
     const comments = store[postId] || []
 
-    const updatedComments = this.updateCommentContent(comments, commentId, dto.content)
+    const updatedComments = this.updateCommentContent(
+      comments, 
+      commentId, 
+      dto.content,
+      new Date().toLocaleString()
+    )
     store[postId] = updatedComments
 
     this.setStore(store)
@@ -240,16 +247,22 @@ class CommentService {
   private updateCommentContent(
     comments: CommentCardProps[],
     commentId: string,
-    newContent: string
+    newContent: string,
+    editedAt?: string  // ← Add editedAt parameter
   ): CommentCardProps[] {
     return comments.map(comment => {
       if (comment.id === commentId) {
-        return { ...comment, content: newContent }
+        return { 
+          ...comment, 
+          content: newContent,
+          editedAt  // ← Set editedAt
+        }
       }
       if (comment.replies && comment.replies.length > 0) {
         return {
           ...comment,
-          replies: this.updateCommentContent(comment.replies, commentId, newContent),
+          replies: this.updateCommentContent(
+            comment.replies, commentId, newContent, editedAt),
         }
       }
       return comment
@@ -257,7 +270,8 @@ class CommentService {
   }
 
   // Helper: Remove comment recursively
-  private removeComment(comments: CommentCardProps[], commentId: string): CommentCardProps[] {
+  private removeComment(
+    comments: CommentCardProps[], commentId: string): CommentCardProps[] {
     return comments
       .filter(comment => comment.id !== commentId)
       .map(comment => {

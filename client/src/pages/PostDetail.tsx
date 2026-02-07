@@ -13,8 +13,7 @@ import {
 } from '@/features/comments/components'
 
 import { 
-  useComments, 
-  useCommentVoting 
+  useComments
 } from '@/features/comments/hooks'
 
 // Components
@@ -39,11 +38,10 @@ export default function PostDetailPage() {
   // Hooks
   const { isDark, toggleDarkMode } = useDarkMode()
   const { voteState, toggleVote, getDisplayVotes } = useVoting()
-  const { getCommentScore, addVoteHandlers } = useCommentVoting()
 
-  // Configuration - customize these for your app
-  const backUrl = '/test-posts' // Change to your posts list route
-  const homeUrl = '/test-posts' // Change to your home route
+  // Configuration
+  const backUrl = '/test-posts'
+  const homeUrl = '/test-posts'
   const siteName = 'AnimoForums'
 
   // Data
@@ -55,7 +53,7 @@ export default function PostDetailPage() {
     isLoading: isLoadingComments,
     error: commentError,
     addComment,
-    editComment,
+    editComment, 
     deleteComment,
   } = useComments({ postId: id || ''})
 
@@ -96,30 +94,7 @@ export default function PostDetailPage() {
   const { upvotes, downvotes } = getDisplayVotes(post.upvotes, post.downvotes)
   const score = upvotes - downvotes
 
-  // Process comments with vote handlers and reply handlers
-  const processedComments = comments.map(comment =>
-    addVoteHandlers(
-      comment,
-      // onEdit handler
-      (commentId, content) => {
-        const newContent = prompt('Edit comment:', content)
-        if (newContent && newContent !== content) {
-          editComment(commentId, newContent)
-        }
-      },
-      // onDelete handler
-      (commentId) => {
-        if (confirm('Are you sure you want to delete this comment?')) {
-          deleteComment(commentId)
-        }
-      },
-      // onReply handler
-      (parentId, content) => addComment(content, parentId)
-    )
-  )
-
-  const sortedComments = sortCommentsByScore(
-    processedComments, getCommentScore)
+  // Sort comments (CommentSection will add handlers)
   const totalCommentCount = getTotalCommentCount(comments)
 
   // Handle adding root-level comment
@@ -138,16 +113,6 @@ export default function PostDetailPage() {
       'dark:bg-background-dark'
       )}
     >
-      {/* Replace with nate's header 
-      <PostDetailHeader
-        isDark={isDark}
-        onToggleDarkMode={toggleDarkMode}
-        backUrl={backUrl}
-        homeUrl={homeUrl}
-        siteName={siteName}
-      />
-      */}
-
       {/* Main Content */}
       <div className="flex justify-center w-full">
         <div className="w-full max-w-[900px] px-4 py-6">
@@ -212,8 +177,10 @@ export default function PostDetailPage() {
             {/* Comments */}
             {!isLoadingComments && (
               <CommentSection 
-                comments={sortedComments} 
-                totalCount={totalCommentCount} 
+                comments={comments} 
+                totalCount={totalCommentCount}
+                onEdit={editComment} 
+                onDelete={deleteComment}
               />
             )}
           </main>
@@ -222,4 +189,3 @@ export default function PostDetailPage() {
     </div>
   )
 }
-

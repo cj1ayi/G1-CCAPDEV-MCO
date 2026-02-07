@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { CommentCardProps } from '@/components/comment'
+import { CommentCardProps } from '@/features/comments/components'
 
 export type VoteType = 'up' | 'down' | null
 
@@ -9,9 +9,8 @@ interface UseCommentVotingReturn {
   getCommentScore: (comment: CommentCardProps) => number
   addVoteHandlers: (
     comment: CommentCardProps,
-    onEdit?: (commentId: string, content: string) => void,
-    onDelete?: (commentId: string) => void,
-    onReply?: (parentId: string, content: string) => void | Promise<void>
+    onEdit?: (commentId: string, newContent: string) => void | Promise<void>,
+    onDelete?: (commentId: string) => void | Promise<void>
   ) => CommentCardProps
 }
 
@@ -42,9 +41,8 @@ export function useCommentVoting(): UseCommentVotingReturn {
   const addVoteHandlers = useCallback(
     (
       comment: CommentCardProps,
-      onEdit?: (commentId: string, content: string) => void,
-      onDelete?: (commentId: string) => void,
-      onReply?: (parentId: string, content: string) => void | Promise<void>
+      onEdit?: (commentId: string, newContent: string) => void | Promise<void>,
+      onDelete?: (commentId: string) => void | Promise<void>
     ): CommentCardProps => {
       const voteState = votes[comment.id] || null
 
@@ -65,12 +63,11 @@ export function useCommentVoting(): UseCommentVotingReturn {
         isDownvoted: voteState === 'down',
         onUpvote: () => toggleVote(comment.id, 'up'),
         onDownvote: () => toggleVote(comment.id, 'down'),
-        onEdit: onEdit ? () => onEdit(comment.id, comment.content) : undefined,
+        onEdit: onEdit ? (newContent: string) => onEdit(
+          comment.id, newContent) : undefined,
         onDelete: onDelete ? () => onDelete(comment.id) : undefined,
-        onReply: onReply ? (content: string) => onReply(
-          comment.id, content) : undefined,
         replies: comment.replies?.map(reply =>
-          addVoteHandlers(reply, onEdit, onDelete, onReply)
+          addVoteHandlers(reply, onEdit, onDelete)
         ),
       }
     },
