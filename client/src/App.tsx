@@ -18,7 +18,11 @@ const App = () => {
     .has('showcase');
 
   if (showShowcase) {
-    return <ComponentShowcase />
+    return (
+      <BrowserRouter>
+        <ComponentShowcase />
+      </BrowserRouter>
+    )
   }
 
   return (
