@@ -2,8 +2,9 @@ import { ReactNode, useState } from 'react'
 import { Footer } from './Footer'
 import { LeftSidebar } from './LeftSidebar'
 import { RightSidebar, RightSidebarProps } from './RightSidebar'
-import { HamburgerMenu } from './HamburgerMenu'
 import { cn } from '@/lib/utils'
+import { Header } from './Header'
+import { useDarkMode } from '@/hooks/useDarkMode'
 
 interface MainLayoutProps {
   children: ReactNode
@@ -18,53 +19,75 @@ export const MainLayout = ({
   spaceInfo,
   showRightSidebar = true,
 }: MainLayoutProps) => {
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const myDefaultUser = { name: 'Diane Panganiban' }
+  const { isDark, toggleDarkMode } = useDarkMode()
 
   return (
-    <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark">
-      {/* Floating Hamburger Button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <HamburgerMenu 
-          isOpen={leftSidebarOpen}
-          onToggle={() => setLeftSidebarOpen(!leftSidebarOpen)}
-        />
-      </div>
+    <div className={cn(
+      "min-h-screen flex flex-col bg-background-light",
+      "dark:bg-background-dark"
+      )}
+    >
+      {/* Header */}
+      <Header 
+        user={myDefaultUser}
+        isDark={isDark}
+        onToggleDarkMode={toggleDarkMode}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      />
 
-      <div className="flex flex-1 relative">
-        {/* LEFT Sidebar */}
-        <aside
-          className={cn(
-            'lg:block lg:relative lg:translate-x-0 lg:w-64 lg:pt-0',
-            'fixed inset-y-0 left-0 z-40 w-64',
-            'pt-16', 
-            'bg-white dark:bg-gray-900',
-            'transition-transform duration-300 ease-out',
-            'overflow-y-auto',
-            leftSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-          )}
-        >
+      {/* Main container */}
+      <div className="flex flex-1">
+        {/* Desktop Left Sidebar */}
+        <aside className={cn(
+          'hidden xl:flex xl:flex-col xl:w-64',
+          'xl:border-r xl:border-border-light xl:dark:border-border-dark',
+          'xl:sticky xl:top-16 xl:h-[calc(100vh-4rem)]',
+          'xl:overflow-y-auto'
+        )}>
           <LeftSidebar />
         </aside>
 
-        {/* Backdrop - Mobile only */}
-        {leftSidebarOpen && (
-          <div
-            className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-30"
-            onClick={() => setLeftSidebarOpen(false)}
-            aria-hidden="true"
-          />
+        {/* Mobile Sidebar Overlay - FIXED: Start below header */}
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop - below header */}
+            <div
+              className={cn(
+                "xl:hidden fixed top-16 left-0 right-0 bottom-0",
+                "bg-black/50 z-40"
+              )}
+              onClick={() => setIsMobileMenuOpen(false)}
+              aria-hidden="true"
+            />
+            
+            {/* Sidebar - below header */}
+            <aside className={cn(
+              'xl:hidden fixed top-16 left-0 bottom-0 z-50',
+              'w-64 overflow-y-auto',
+              'bg-surface-light dark:bg-surface-dark',
+              'border-r border-border-light dark:border-border-dark'
+            )}>
+              <LeftSidebar />
+            </aside>
+          </>
         )}
 
-        {/* Main Content Wrapper */}
+        {/* Main Content + Right Sidebar */}
         <div className="flex flex-1 min-w-0">
           <main className="flex-1 p-4 md:p-6">
-            {/* Add top margin on mobile so content doesn't hide behind hamburger if sidebar is closed */}
-            <div className="max-w-4xl mx-auto mt-12 lg:mt-0">{children}</div>
+            <div className="max-w-4xl mx-auto">
+              {children}
+            </div>
           </main>
 
-          {/* RIGHT Sidebar */}
+          {/* Right Sidebar */}
           {showRightSidebar && (
-            <aside className="hidden xl:block w-80 shrink-0 sticky top-20 h-fit">
+            <aside 
+              className="hidden xl:block w-80 shrink-0 sticky top-20 h-fit"
+            >
               <div className="p-4">
                 <RightSidebar variant={rightSidebarVariant} spaceInfo={spaceInfo} />
               </div>
@@ -73,6 +96,7 @@ export const MainLayout = ({
         </div>
       </div>
 
+      {/* Footer */}
       <Footer />
     </div>
   )

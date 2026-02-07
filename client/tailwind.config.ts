@@ -12,12 +12,18 @@ export default {
         primary: '#007036',
         'primary-dark': '#005c2d',
         'primary-light': '#00944a',
+        
+        // Light mode
         'background-light': '#f2f4f3',
-        'background-dark': '#0f0f0f',
         'surface-light': '#ffffff',
-        'surface-dark': '#111927',
         'border-light': '#dae7e0',
-        'border-dark': '#333333',
+        
+        'background-dark': '#030303',
+        'surface-dark': '#1a1a1b',
+        'surface-darker': '#0d0d0e',
+        'surface-input': '#272729',
+        'border-dark': '#343536',         
+        
         'dlsu-gold': '#C1A624',
       },
       fontFamily: {

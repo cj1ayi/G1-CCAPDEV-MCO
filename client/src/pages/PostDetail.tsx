@@ -1,9 +1,225 @@
-const PostDetail = () => {
+import { useParams, useNavigate } from 'react-router-dom'
+import { getPostById } from '@/lib/mockData'
+import { cn } from '@/lib/utils'
+
+// Hooks
+import { useVoting } from '@/features/posts/hooks'
+import { useDarkMode } from '@/hooks/useDarkMode'
+
+// Comments 
+import { 
+  CommentInput, 
+  CommentSection 
+} from '@/features/comments/components'
+
+import { 
+  useComments, 
+  useCommentVoting 
+} from '@/features/comments/hooks'
+
+// Components
+import { 
+  PostDetailHeader, 
+  PostDetailBreadcrumbs, 
+  PostDetailContent 
+} from '@/features/posts/components'
+
+// Utils
+import { 
+  getTotalCommentCount, 
+  sortCommentsByScore 
+} from '@/features/comments/utils/comment-utils'
+
+import { useState } from 'react'
+
+export default function PostDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+
+  // Hooks
+  const { isDark, toggleDarkMode } = useDarkMode()
+  const { voteState, toggleVote, getDisplayVotes } = useVoting()
+  const { getCommentScore, addVoteHandlers } = useCommentVoting()
+
+  // Configuration - customize these for your app
+  const backUrl = '/test-posts' // Change to your posts list route
+  const homeUrl = '/test-posts' // Change to your home route
+  const siteName = 'AnimoForums'
+
+  // Data
+  const post = id ? getPostById(id) : null
+
+  // Comments with real functionality
+  const {
+    comments,
+    isLoading: isLoadingComments,
+    error: commentError,
+    addComment,
+    editComment,
+    deleteComment,
+  } = useComments({ postId: id || ''})
+
+  // Track submitting state
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
+
+  // Not found state
+  if (!post) {
+    return (
+      <div
+        className={cn(
+          'min-h-screen bg-background-light dark:bg-background-dark',
+          'flex items-center justify-center'
+        )}
+      >
+        <div className="text-center">
+          <h1 className={cn(
+            'text-2xl font-bold text-gray-900 dark:text-white mb-4'
+            )}
+          >
+            Post not found
+          </h1>
+          <button
+            onClick={() => navigate(backUrl)}
+            className={cn(
+              'bg-primary text-white px-6 py-2 rounded-lg',
+              'hover:bg-primary-dark transition-colors'
+            )}
+          >
+            Back to Posts
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Calculate display values
+  const { upvotes, downvotes } = getDisplayVotes(post.upvotes, post.downvotes)
+  const score = upvotes - downvotes
+
+  // Process comments with vote handlers and reply handlers
+  const processedComments = comments.map(comment =>
+    addVoteHandlers(
+      comment,
+      // onEdit handler
+      (commentId, content) => {
+        const newContent = prompt('Edit comment:', content)
+        if (newContent && newContent !== content) {
+          editComment(commentId, newContent)
+        }
+      },
+      // onDelete handler
+      (commentId) => {
+        if (confirm('Are you sure you want to delete this comment?')) {
+          deleteComment(commentId)
+        }
+      },
+      // onReply handler
+      (parentId, content) => addComment(content, parentId)
+    )
+  )
+
+  const sortedComments = sortCommentsByScore(
+    processedComments, getCommentScore)
+  const totalCommentCount = getTotalCommentCount(comments)
+
+  // Handle adding root-level comment
+  const handleAddComment = async (content: string) => {
+    try {
+      setIsSubmittingComment(true)
+      await addComment(content)
+    } finally {
+      setIsSubmittingComment(false)
+    }
+  }
+
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold">Post Detail</h1>
+    <div className={cn(
+      'min-h-screen bg-background-light', 
+      'dark:bg-background-dark'
+      )}
+    >
+      {/* Replace with nate's header 
+      <PostDetailHeader
+        isDark={isDark}
+        onToggleDarkMode={toggleDarkMode}
+        backUrl={backUrl}
+        homeUrl={homeUrl}
+        siteName={siteName}
+      />
+      */}
+
+      {/* Main Content */}
+      <div className="flex justify-center w-full">
+        <div className="w-full max-w-[900px] px-4 py-6">
+          <main className="flex flex-col gap-4">
+            {/* Breadcrumbs */}
+            <PostDetailBreadcrumbs
+              space={post.space}
+              title={post.title}
+              backUrl={backUrl}
+              backLabel="Test Posts"
+              onSpaceClick={() => navigate(`/space/${post.space}`)}
+            />
+
+            {/* Post Content */}
+            <PostDetailContent
+              post={post}
+              commentCount={totalCommentCount}
+              score={score}
+              isUpvoted={voteState === 'up'}
+              isDownvoted={voteState === 'down'}
+              onUpvote={() => toggleVote('up')}
+              onDownvote={() => toggleVote('down')}
+            />
+
+            {/* Comment Input */}
+            <CommentInput 
+              onSubmit={handleAddComment}
+              isSubmitting={isSubmittingComment}
+            />
+
+            {/* Loading State */}
+            {isLoadingComments && (
+              <div className="text-center py-8">
+                <span className={cn(
+                  "material-symbols-outlined text-[32px]",
+                  "animate-spin text-primary"
+                  )}
+                >
+                  progress_activity
+                </span>
+                <p className="text-sm text-gray-500 mt-2">
+                  Loading comments...
+                </p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {commentError && (
+              <div
+                className={cn(
+                  'bg-red-50 dark:bg-red-900/20',
+                  'border border-red-200 dark:border-red-800',
+                  'rounded-lg p-4 text-center'
+                )}
+              >
+                <p className="text-red-600 dark:text-red-400 text-sm">
+                  {commentError.message}
+                </p>
+              </div>
+            )}
+
+            {/* Comments */}
+            {!isLoadingComments && (
+              <CommentSection 
+                comments={sortedComments} 
+                totalCount={totalCommentCount} 
+              />
+            )}
+          </main>
+        </div>
+      </div>
     </div>
   )
 }
 
-export default PostDetail

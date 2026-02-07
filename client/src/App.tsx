@@ -8,10 +8,24 @@ import {
   Login,
   Signup,
   Search,
-  ComponentShowcase
+  ComponentShowcase,
+  TestPosts,
+  TestComments
 } from './pages'
 
+import { 
+  commentService 
+} from "@/features/comments/services/commentService";
+
 const App = () => {
+
+  const hasSeeded = localStorage.getItem('comments_seeded')
+  if (!hasSeeded) {
+    commentService.resetToMockData().then(() => {
+      localStorage.setItem('comments_seeded', 'true')
+      console.log('Comments auto-seeded on first load!')
+    })
+  }
 
   const showShowcase = new URLSearchParams(
     window.location.search)
@@ -29,13 +43,15 @@ const App = () => {
     <BrowserRouter>
       <MainLayout>
         <Routes>
-           <Route path="/" element={<Home/>} />
-           <Route path="/post/:id" element={<PostDetail/>} />
-           <Route path="/profile/:id" element={<Profile/>} />
-           <Route path="/space/:name" element={<Space/>} />
-           <Route path="/login" element={<Login/>} />
-           <Route path="/signup" element={<Signup/>} />
-           <Route path="/search" element={<Search/>} />
+          <Route path="/" element={<Home/>} />
+          <Route path="/post/:id" element={<PostDetail/>} />
+          <Route path="/profile/:id" element={<Profile/>} />
+          <Route path="/space/:name" element={<Space/>} />
+          <Route path="/login" element={<Login/>} />
+          <Route path="/signup" element={<Signup/>} />
+          <Route path="/search" element={<Search/>} />
+          <Route path="/test-posts" element={<TestPosts />} />
+          <Route path="/test-comments" element={<TestComments />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>
