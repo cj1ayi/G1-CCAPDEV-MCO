@@ -1,7 +1,11 @@
 import avatarImage from '@/assets/tiamlee.png'
 import diane from '@/assets/diane.png'
 import karl from '@/assets/karl.png'
-import { CommentCardProps } from '@/components/comment'
+import gabb from '@/assets/gabb.png'
+import callo from '@/assets/callo.png'
+import pring from '@/assets/pring.gif'
+import { CommentCardProps } from '@/features/comments/components/CommentCard'
+import { Train } from 'lucide-react'
 
 export interface Post {
   id: string
@@ -66,7 +70,7 @@ export const mockPosts: Record<string, Post> = {
     title: 'Machine Project Help!',
     content: 'cuz ms nats fucked me in my ass',
     author: {
-      id: '2',
+      id: '3',
       name: 'Sussus Amogus',
       username: 'pieisspy',
       avatar: karl,
@@ -80,6 +84,64 @@ export const mockPosts: Record<string, Post> = {
     isEdited: true,
     isOwner: false,
   },
+  '4': {
+    id: '4',
+    title: 'Prof review: Danny Cheng',
+    content: 'HOLY ANG SMOOTH NG VOICE NI DANNY CHENG',
+    author: {
+      id: '2',
+      name: 'Gabb',
+      username: 'gdg1106',
+      avatar: gabb,
+    },
+    space: 'prof2pick',
+    upvotes: 89,
+    downvotes: 0,
+    commentCount: 1, 
+    createdAt: '1 week ago',
+    tags: ['CCAPDEV', 'reviews'],
+    isEdited: false,
+    isOwner: false,
+  },
+  '5': {
+    id: '5',
+    title: 'Normal Lasallian Tuesday',
+    content: 'i was not in the mood today for someone to be watching hentai full speaker blast on the train today',
+    author: {
+      id: '5',
+      name: 'Floranaras',
+      username: 'callo',
+      avatar: callo,
+    },
+    space: 'Freedom Wall',
+    upvotes: 35,
+    downvotes: 7,
+    commentCount: 1, 
+    createdAt: '2 days ago',
+    tags: ['life', 'commuter'],
+    isEdited: false,
+    isOwner: false,
+  },
+  6: {
+    id: '6',
+    title: 'Racism in the wild',
+    content: 'YOOO i’m seeing racism live the security officer is profiling the indian men on the train.',
+    author: {
+      id: '5',
+      name: 'Floranaras',
+      username: 'callo',
+      avatar: callo,
+    },
+    space: 'Freedom Wall',
+    upvotes: 67,
+    downvotes: 7,
+    commentCount: 1, 
+    createdAt: '2 days ago',
+    tags: ['life', 'commuter'],
+    isEdited: false,
+    isOwner: false,
+    
+  }
 }
 
 export const mockComments: Record<string, CommentCardProps[]> = {
@@ -204,6 +266,57 @@ export const mockComments: Record<string, CommentCardProps[]> = {
       createdAt: '2h ago',
     },
   ],
+  '4': [
+    {
+      id: 'comment-7',
+      author: {
+        id: '3',
+        name: 'Sussus Amogus',
+        username: 'pieisspy',
+        avatar: karl,
+      },
+      content:
+        'DADDY CHENG?!?!??',
+      upvotes: 25,
+      downvotes: 0,
+      createdAt: '4h ago',
+      badge: 'Natsochist',
+   },
+  ],
+  '5': [
+    {
+      id: 'comment-8',
+      author: {
+        id: '6',
+        name: 'Pringles',
+        username: 'whotftakesthenamezex',
+        avatar: pring,
+      },
+      content:
+        'mb bro...it takes the edge off...',
+      upvotes: 25,
+      downvotes: 0,
+      createdAt: 'Yesterday',
+      badge: 'Frieren Enjoyer',
+   },
+  ],
+  '6': [
+    {
+      id: 'comment-9',
+      author: {
+        id: '6',
+        name: 'callo',
+        username: 'callo',
+        avatar: callo,
+      },
+      content:
+        'update the indian man turned about to be a dlsu student.',
+      upvotes: 70,
+      downvotes: 0,
+      createdAt: 'Yesterday',
+      badge: 'OP',
+   },
+  ]
 }
 
 export const getAllPosts = (): Post[] => {
