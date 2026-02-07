@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PostCard } from '@/components/post'
+import { PostCard } from '@/features/posts/components'
 import { Button } from '@/components/ui'
 import { Moon, Sun } from 'lucide-react'
 import { getAllPosts } from '@/lib/mockData'
-import { commentService } from '@/services/commentService'
-import { getTotalCommentCount } from '@/utils/comment-utils'
+import { commentService } from "@/features/comments/services/commentService";
+import { getTotalCommentCount } from "@/features/comments/utils/comment-utils";
 
 const TestPosts = () => {
   const navigate = useNavigate()

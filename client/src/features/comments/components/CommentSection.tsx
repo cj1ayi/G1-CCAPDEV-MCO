@@ -1,4 +1,8 @@
-import { CommentCard, CommentCardProps } from '@/components/comment'
+import { 
+  CommentCard , 
+  CommentCardProps
+} from "@/features/comments/components";
+
 import { cn } from '@/lib/utils'
 
 interface CommentSectionProps {

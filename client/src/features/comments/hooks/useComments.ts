@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { CommentCardProps } from '@/components/comment'
-import { commentService } from '@/services/commentService'
+import { CommentCardProps } from '@/features/comments/components'
+import { commentService } from '../services/commentService'
 
 interface UseCommentsOptions {
   postId: string

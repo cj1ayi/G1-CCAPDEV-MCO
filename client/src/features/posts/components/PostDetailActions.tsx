@@ -1,14 +1,5 @@
 import { cn } from '@/lib/utils'
-
-interface PostDetailActionsProps {
-  commentCount: number
-  upvotes: number
-  downvotes: number
-  isUpvoted: boolean
-  isDownvoted: boolean
-  onUpvote: () => void
-  onDownvote: () => void
-}
+import type { PostDetailActionsProps } from '../types'
 
 export const PostDetailActions = ({
   commentCount,

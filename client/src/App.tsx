@@ -11,7 +11,10 @@ import {
   TestPosts,
   TestComments
 } from './pages'
-import { commentService } from '@/services/commentService'
+
+import { 
+  commentService 
+} from "@/features/comments/services/commentService";
 
 const App = () => {
 

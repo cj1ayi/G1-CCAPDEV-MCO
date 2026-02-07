@@ -1,14 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Moon, Sun } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-interface PostDetailHeaderProps {
-  isDark: boolean
-  onToggleDarkMode: () => void
-  backUrl?: string
-  homeUrl?: string
-  siteName?: string
-}
+import type { PostDetailHeaderProps } from '../types'
 
 export const PostDetailHeader = ({ 
   isDark, 

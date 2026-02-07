@@ -1,13 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-
-interface PostDetailBreadcrumbsProps {
-  space: string
-  title: string
-  backUrl?: string
-  backLabel?: string
-  onSpaceClick?: () => void
-}
+import type { PostDetailBreadcrumbsProps } from '../types'
 
 export const PostDetailBreadcrumbs = ({ 
   space, 

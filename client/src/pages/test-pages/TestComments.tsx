@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { CommentCard, CommentCardProps } from '@/components/comment'
+import { CommentCard, CommentCardProps} from "@/features/comments/components";
 import { Button } from '@/components/ui'
 import { Moon, Sun } from 'lucide-react'
 import pfp from '@/assets/default.png'

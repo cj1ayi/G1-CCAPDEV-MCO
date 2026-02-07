@@ -3,20 +3,33 @@ import { getPostById } from '@/lib/mockData'
 import { cn } from '@/lib/utils'
 
 // Hooks
-import { useVoting } from '@/hooks/useVoting'
-import { useCommentVoting } from '@/hooks/useCommentVoting'
+import { useVoting } from '@/features/posts/hooks'
 import { useDarkMode } from '@/hooks/useDarkMode'
-import { useComments } from '@/hooks/useComments'
+
+// Comments 
+import { 
+  CommentInput, 
+  CommentSection 
+} from '@/features/comments/components'
+
+import { 
+  useComments, 
+  useCommentVoting 
+} from '@/features/comments/hooks'
 
 // Components
-import { PostDetailHeader } from '@/components/post-detail/PostDetailHeader'
-import { PostDetailBreadcrumbs } from '@/components/post-detail/PostDetailBreadcrumbs'
-import { PostDetailContent } from '@/components/post-detail/PostDetailContent'
-import { CommentInput } from '@/components/post-detail/CommentInput'
-import { CommentSection } from '@/components/post-detail/CommentSection'
+import { 
+  PostDetailHeader, 
+  PostDetailBreadcrumbs, 
+  PostDetailContent 
+} from '@/features/posts/components'
 
 // Utils
-import { getTotalCommentCount, sortCommentsByScore } from '@/utils/comment-utils'
+import { 
+  getTotalCommentCount, 
+  sortCommentsByScore 
+} from '@/features/comments/utils/comment-utils'
+
 import { useState } from 'react'
 
 export default function PostDetailPage() {
@@ -209,3 +222,4 @@ export default function PostDetailPage() {
     </div>
   )
 }
+

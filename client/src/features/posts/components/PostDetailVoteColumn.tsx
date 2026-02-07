@@ -1,12 +1,5 @@
 import { cn } from '@/lib/utils'
-
-interface PostDetailVoteColumnProps {
-  score: number
-  isUpvoted: boolean
-  isDownvoted: boolean
-  onUpvote: () => void
-  onDownvote: () => void
-}
+import type { PostDetailVoteColumnProps } from '../types'
 
 export const PostDetailVoteColumn = ({
   score,

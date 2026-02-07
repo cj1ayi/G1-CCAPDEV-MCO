@@ -12,34 +12,7 @@ import {
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-
-export interface PostCardProps {
-  id: string
-  title: string
-  content: string
-  author: {
-    id: string
-    name: string
-    username: string
-    avatar?: string
-  }
-  space: string
-  spaceIcon?: string
-  flair?: string
-  upvotes: number
-  downvotes: number
-  commentCount: number
-  createdAt: string
-  imageUrl?: string
-  isUpvoted?: boolean
-  isDownvoted?: boolean
-  isOwner?: boolean
-  onUpvote?: () => void
-  onDownvote?: () => void
-  onEdit?: () => void
-  onDelete?: () => void
-  onClick?: () => void
-}
+import type { PostCardProps } from '../types'
 
 const PostCard = ({
   title,

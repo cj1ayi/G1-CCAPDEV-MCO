@@ -2,34 +2,7 @@ import { cn } from '@/lib/utils'
 import { PostDetailVoteColumn } from './PostDetailVoteColumn'
 import { PostDetailActions } from './PostDetailActions'
 import { Avatar } from '@/components/ui'
-
-interface PostDetailContentProps {
-  post: {
-    id: string
-    title: string
-    content: string
-    author: {
-      id: string
-      name: string
-      username: string
-      avatar?: string
-    }
-    space: string
-    spaceIcon?: string
-    flair?: string
-    upvotes: number
-    downvotes: number
-    createdAt: string
-    imageUrl?: string
-    tags: string[]
-  }
-  commentCount: number
-  score: number
-  isUpvoted: boolean
-  isDownvoted: boolean
-  onUpvote: () => void
-  onDownvote: () => void
-}
+import type { PostDetailContentProps } from '../types'
 
 export const PostDetailContent = ({
   post,

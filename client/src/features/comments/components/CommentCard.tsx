@@ -7,7 +7,7 @@ import {
 } from '@/components/ui'
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { CommentInput } from '@/components/post-detail/CommentInput'
+import { CommentInput } from "./CommentInput";
 
 export interface CommentCardProps {
   id: string
