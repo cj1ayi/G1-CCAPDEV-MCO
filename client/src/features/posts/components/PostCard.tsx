@@ -8,7 +8,10 @@ import {
 import {
   MoreHorizontal,
   Edit,
-  Trash2
+  Trash2,
+  MessageSquare,
+  Share2,
+  Bookmark
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -42,8 +45,7 @@ const PostCard = ({
       padding="none"
       className={cn(
         "overflow-hidden",
-        "hover:border-gray-300",
-        "dark:hover:border-gray-700",
+        "hover:border-gray-300 dark:hover:border-gray-700",
         "transition-colors"
       )}
     >
@@ -58,6 +60,7 @@ const PostCard = ({
             "shrink-0"
           )}
         >
+          {/* Upvote Button */}
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -73,6 +76,7 @@ const PostCard = ({
                 "hover:bg-gray-200 dark:hover:bg-gray-700"
               ]
             )}
+            aria-label="Upvote"
           >
             <span
               className="material-symbols-outlined text-[20px]"
@@ -86,6 +90,7 @@ const PostCard = ({
             </span>
           </button>
 
+          {/* Score */}
           <span
             className={cn(
               "text-sm font-bold",
@@ -99,6 +104,7 @@ const PostCard = ({
             {score}
           </span>
 
+          {/* Downvote Button */}
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -114,6 +120,7 @@ const PostCard = ({
                 "hover:bg-gray-200 dark:hover:bg-gray-700"
               ]
             )}
+            aria-label="Downvote"
           >
             <span
               className={cn(
@@ -139,80 +146,89 @@ const PostCard = ({
           {/* Post Meta */}
           <div
             className={cn(
-              "flex items-center gap-2 mb-2",
-              "text-xs text-gray-500 dark:text-gray-400"
+              "flex items-center justify-between gap-2 mb-2"
             )}
           >
-            {/* Space */}
-            <div
-              className={cn(
-                "flex items-center gap-1 font-semibold",
-                "text-gray-900 dark:text-gray-200",
-                "hover:underline cursor-pointer"
-              )}
-            >
-              {spaceIcon && (
-                <img
-                  className="w-5 h-5 rounded-full object-cover"
-                  src={spaceIcon}
-                  alt={space}
-                />
-              )}
-              <span>r/{space}</span>
-            </div>
-            <span>•</span>
-            <span>Posted by u/{author.username}</span>
-            <span>•</span>
-            <span>{createdAt}</span>
-            {flair && (
-              <span
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              {/* Space */}
+              <div
                 className={cn(
-                  "px-2 py-0.5 rounded-full",
-                  "text-[10px] font-bold tracking-wide uppercase",
-                  flair === 'Question' && [
-                    "bg-blue-100 text-blue-700",
-                    "dark:bg-blue-900 dark:text-blue-300"
-                  ],
-                  flair === 'News' && [
-                    "bg-green-100 text-green-700",
-                    "dark:bg-green-900 dark:text-green-300"
-                  ],
-                  flair === 'Marketplace' && [
-                    "bg-yellow-100 text-yellow-700",
-                    "dark:bg-yellow-900 dark:text-yellow-300"
-                  ],
-                  flair === 'Discussion' && [
-                    "bg-purple-100 text-purple-700",
-                    "dark:bg-purple-900 dark:text-purple-300"
-                  ]
+                  "flex items-center gap-1 font-semibold",
+                  "text-gray-900 dark:text-gray-200",
+                  "hover:underline cursor-pointer"
                 )}
+                onClick={(e) => e.stopPropagation()}
               >
-                {flair}
-              </span>
-            )}
+                {spaceIcon && (
+                  <img
+                    className="w-5 h-5 rounded-full object-cover"
+                    src={spaceIcon}
+                    alt={space}
+                  />
+                )}
+                <span>r/{space}</span>
+              </div>
+              <span>•</span>
+              <span>Posted by u/{author.username}</span>
+              <span>•</span>
+              <span>{createdAt}</span>
+              
+              {/* Flair */}
+              {flair && (
+                <span
+                  className={cn(
+                    "px-2 py-0.5 rounded-full",
+                    "text-[10px] font-bold tracking-wide uppercase",
+                    flair === 'Question' && [
+                      "bg-blue-100 text-blue-700",
+                      "dark:bg-blue-900 dark:text-blue-300"
+                    ],
+                    flair === 'News' && [
+                      "bg-green-100 text-green-700",
+                      "dark:bg-green-900 dark:text-green-300"
+                    ],
+                    flair === 'Marketplace' && [
+                      "bg-yellow-100 text-yellow-700",
+                      "dark:bg-yellow-900 dark:text-yellow-300"
+                    ],
+                    flair === 'Discussion' && [
+                      "bg-purple-100 text-purple-700",
+                      "dark:bg-purple-900 dark:text-purple-300"
+                    ]
+                  )}
+                >
+                  {flair}
+                </span>
+              )}
+            </div>
 
             {/* Edit/Delete Menu (only for owner) */}
             {isOwner && (
-              <div className="ml-auto">
+              <div 
+                className="relative z-20"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Dropdown
+                  align="right"
                   trigger={
                     <button
                       className={cn(
-                        "p-1 rounded",
-                        "hover:bg-gray-100",
-                        "dark:hover:bg-gray-800"
+                        "p-1.5 rounded-full hover:bg-gray-100",
+                        "dark:hover:bg-gray-800 text-gray-500",
+                        "dark:text-gray-400 transition-colors"
                       )}
-                      onClick={(e) => e.stopPropagation()}
+                      aria-label="Post options"
                     >
-                      <MoreHorizontal
-                        className="h-4 w-4 text-gray-500"
-                      />
+                      <MoreHorizontal className="h-5 w-5" />
                     </button>
                   }
                 >
                   <DropdownItem
                     icon={<Edit className="h-4 w-4" />}
-                    onClick={onEdit}
+                    onClick={(e) => {
+                      e?.stopPropagation()
+                      onEdit?.()
+                    }}
                   >
                     Edit Post
                   </DropdownItem>
@@ -222,7 +238,10 @@ const PostCard = ({
                   <DropdownItem
                     icon={<Trash2 className="h-4 w-4" />}
                     destructive
-                    onClick={onDelete}
+                    onClick={(e) => {
+                      e?.stopPropagation()
+                      onDelete?.()
+                    }}
                   >
                     Delete Post
                   </DropdownItem>
@@ -237,7 +256,7 @@ const PostCard = ({
               "text-lg font-semibold",
               "text-gray-900 dark:text-white",
               "leading-snug mb-2",
-              "hover:text-primary transition-colors"
+              "hover:text-primary dark:hover:text-primary transition-colors"
             )}
           >
             {title}
@@ -280,9 +299,10 @@ const PostCard = ({
             className={cn(
               "flex items-center gap-1",
               "text-gray-500 dark:text-gray-400",
-              "text-xs font-bold"
+              "text-xs font-medium"
             )}
           >
+            {/* Comments Button */}
             <button
               className={cn(
                 "flex items-center gap-2 px-2 py-2 rounded",
@@ -293,55 +313,38 @@ const PostCard = ({
                 e.stopPropagation()
                 onClick?.()
               }}
+              aria-label={`${commentCount} comments`}
             >
-              <span
-                className={cn(
-                  "material-symbols-outlined text-[18px]"
-                )}
-              >
-                chat_bubble
-              </span>
-              {commentCount} Comments
+              <MessageSquare className="h-4 w-4" />
+              <span>{commentCount} {commentCount === 1 ? 'Comment' : 'Comments'}</span>
             </button>
 
+            {/* Share Button */}
             <button
               className={cn(
                 "flex items-center gap-2 px-2 py-2 rounded",
                 "hover:bg-gray-100 dark:hover:bg-gray-800",
                 "transition-colors"
               )}
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
+              onClick={(e) => e.stopPropagation()}
+              aria-label="Share post"
             >
-              <span
-                className={cn(
-                  "material-symbols-outlined text-[18px]"
-                )}
-              >
-                share
-              </span>
-              Share
+              <Share2 className="h-4 w-4" />
+              <span>Share</span>
             </button>
 
+            {/* Save Button */}
             <button
               className={cn(
                 "flex items-center gap-2 px-2 py-2 rounded",
                 "hover:bg-gray-100 dark:hover:bg-gray-800",
                 "transition-colors"
               )}
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
+              onClick={(e) => e.stopPropagation()}
+              aria-label="Save post"
             >
-              <span
-                className={cn(
-                  "material-symbols-outlined text-[18px]"
-                )}
-              >
-                bookmark
-              </span>
-              Save
+              <Bookmark className="h-4 w-4" />
+              <span>Save</span>
             </button>
           </div>
         </div>
