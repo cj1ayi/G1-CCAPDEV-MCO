@@ -195,6 +195,7 @@ export default function PostDetailPage() {
 
               {post.isOwner && (
                 <Dropdown
+                  align="right"
                   trigger={
                     <button 
                       className={cn(
