@@ -169,7 +169,7 @@ export const mockComments: Record<string, CommentCardProps[]> = {
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=RandomStudent',
       },
       content: 'Context? HAHAHA',
-      upvotes: 5,
+      upvotes: 12,
       downvotes: 0,
       createdAt: '30m ago',
       replies: [

@@ -80,5 +80,10 @@ export function useCommentVoting(): UseCommentVotingReturn {
     [votes, toggleVote]
   )
 
-  return { votes, toggleVote, getCommentScore, addVoteHandlers }
+  return { 
+    votes,
+    toggleVote, 
+    getCommentScore, 
+    addVoteHandlers 
+  }
 }

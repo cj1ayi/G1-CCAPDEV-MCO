@@ -1,29 +1,15 @@
-import { useCommentVoting } from '@/features/comments/hooks'
 import { CommentCard, CommentCardProps } from '@/features/comments/components'
 import { cn } from '@/lib/utils'
 
 interface CommentSectionProps {
   comments: CommentCardProps[]
   totalCount: number
-  onEdit?: (commentId: string, newContent: string) => void | Promise<void>
-  onDelete?: (commentId: string) => void | Promise<void>
-  onReply?: (content: string, parentId?: string) => void | Promise<void>
 }
 
 export const CommentSection = ({ 
   comments, 
-  totalCount,
-  onEdit,
-  onDelete,
-  onReply
+  totalCount
 }: CommentSectionProps) => {
-  const { addVoteHandlers } = useCommentVoting()
-
-  // Wire up all handlers (voting + edit/delete + reply)
-  const commentsWithHandlers = comments.map(comment =>
-    addVoteHandlers(comment, onEdit, onDelete, onReply)
-  )
-
   if (comments.length === 0) {
     return null
   }
@@ -45,7 +31,7 @@ export const CommentSection = ({
       </div>
 
       <div className="space-y-6">
-        {commentsWithHandlers.map((comment) => (
+        {comments.map((comment) => (
           <CommentCard key={comment.id} {...comment} />
         ))}
       </div>
@@ -56,3 +42,4 @@ export const CommentSection = ({
     </>
   )
 }
+

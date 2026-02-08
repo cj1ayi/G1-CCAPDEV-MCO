@@ -19,6 +19,7 @@ import { postService } from '@/features/posts/services'
 // Hooks
 import { useVoting } from '@/features/posts/hooks'
 import { useComments } from '@/features/comments/hooks'
+import { useCommentVoting } from '@/features/comments/hooks'
 
 // Components
 import {
@@ -42,6 +43,9 @@ export default function PostDetailPage() {
 
   // Hooks
   const { voteState, toggleVote, getDisplayVotes } = useVoting()
+  
+  // Comment voting - this is the SINGLE source of truth for votes
+  const { votes: commentVotes, addVoteHandlers } = useCommentVoting()
 
   // Configuration
   const backUrl = '/test-posts'
@@ -83,15 +87,23 @@ export default function PostDetailPage() {
     fetchPost()
   }, [id])
 
-  // Comments with real functionality
+  // Comments with vote state for sorting
   const {
-    comments,
+    comments: rawComments,
     isLoading: isLoadingComments,
     error: commentError,
     addComment,
     editComment,
     deleteComment,
-  } = useComments({ postId: id || '' })
+  } = useComments({ 
+    postId: id || '',
+    voteState: commentVotes  // Pass vote state for sorting
+  })
+
+  // Add vote handlers + edit/delete handlers to all comments
+  const commentsWithHandlers = rawComments.map(comment =>
+    addVoteHandlers(comment, editComment, deleteComment, addComment)
+  )
 
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
 
@@ -150,7 +162,7 @@ export default function PostDetailPage() {
   // Calculate display values
   const { upvotes, downvotes } = getDisplayVotes(post.upvotes, post.downvotes)
   const score = upvotes - downvotes
-  const totalCommentCount = getTotalCommentCount(comments)
+  const totalCommentCount = getTotalCommentCount(commentsWithHandlers)
 
   // Handlers
   const handleEdit = () => navigate(`/post/${id}/edit`)
@@ -273,14 +285,11 @@ export default function PostDetailPage() {
               </div>
             )}
 
-            {/* Comments List */}
+            {/* Comments List - Now receives fully prepared comments */}
             {!isLoadingComments && (
               <CommentSection
-                comments={comments}
+                comments={commentsWithHandlers}
                 totalCount={totalCommentCount}
-                onEdit={editComment}
-                onDelete={deleteComment}
-                onReply={addComment}
               />
             )}
           </main>

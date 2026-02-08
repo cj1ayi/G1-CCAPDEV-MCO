@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { CommentCardProps } from '@/features/comments/components'
 import { commentService } from '../services/commentService'
 
 interface UseCommentsOptions {
   postId: string
+  voteState?: Record<string, 'up' | 'down' | null>
 }
 
 interface UseCommentsReturn {
@@ -16,12 +17,56 @@ interface UseCommentsReturn {
   refresh: () => Promise<void>
 }
 
+/**
+ * Calculate comment score with vote adjustments
+ */
+function getCommentScore(
+  comment: CommentCardProps, 
+  voteState?: Record<string, 'up' | 'down' | null>
+): number {
+  let score = comment.upvotes - comment.downvotes
+  
+  if (voteState && voteState[comment.id]) {
+    if (voteState[comment.id] === 'up') score += 1
+    if (voteState[comment.id] === 'down') score -= 1
+  }
+  
+  return score
+}
+
+/**
+ * Sort comments by score (highest first) with vote state
+ */
+function sortCommentsByBest(
+  comments: CommentCardProps[],
+  voteState?: Record<string, 'up' | 'down' | null>
+): CommentCardProps[] {
+  const sorted = [...comments].sort((a, b) => {
+    const scoreA = getCommentScore(a, voteState)
+    const scoreB = getCommentScore(b, voteState)
+    return scoreB - scoreA
+  })
+
+  return sorted.map(comment => ({
+    ...comment,
+    replies: comment.replies && comment.replies.length > 0
+      ? sortCommentsByBest(comment.replies, voteState)
+      : comment.replies
+  }))
+}
+
 export function useComments({
-  postId
+  postId,
+  voteState
 }: UseCommentsOptions): UseCommentsReturn {
-  const [comments, setComments] = useState<CommentCardProps[]>([])
+  const [rawComments, setRawComments] = useState<CommentCardProps[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+
+  // Memoized sorted comments that update when votes change
+  const comments = useMemo(() => {
+    return sortCommentsByBest(rawComments, voteState)
+  }, [rawComments, voteState])
 
   // Load comments on mount
   const loadComments = useCallback(async () => {
@@ -29,7 +74,7 @@ export function useComments({
       setIsLoading(true)
       setError(null)
       const data = await commentService.getCommentsByPostId(postId)
-      setComments(data)
+      setRawComments(data)
     } catch (err) {
       setError(err instanceof Error ? err : new Error(
         'Failed to load comments'))
@@ -67,10 +112,11 @@ export function useComments({
         }
 
         if (!parentId) {
-          setComments(prev => [tempComment, ...prev])
+          setRawComments(prev => [tempComment, ...prev])
         } else {
-          setComments(prev => addReplyToCommentOptimistic(
-            prev, parentId, tempComment))
+          setRawComments(prev => 
+            addReplyToCommentOptimistic(prev, parentId, tempComment)
+          )
         }
 
         // Call service
@@ -95,8 +141,9 @@ export function useComments({
         setError(null)
 
         // Optimistic update
-        setComments(prev => updateCommentContentOptimistic(
-          prev, commentId, newContent))
+        setRawComments(prev =>
+          updateCommentContentOptimistic(prev, commentId, newContent)
+        )
 
         // Call service
         await commentService.updateComment(
@@ -123,7 +170,9 @@ export function useComments({
         setError(null)
 
         // Optimistic update
-        setComments(prev => removeCommentOptimistic(prev, commentId))
+        setRawComments(prev =>
+          removeCommentOptimistic(prev, commentId)
+        )
 
         // Call service
         await commentService.deleteComment(postId, commentId)
@@ -151,7 +200,7 @@ export function useComments({
   }
 }
 
-// Optimistic update helpers (same as service, but for UI state)
+// Optimistic update helpers
 function addReplyToCommentOptimistic(
   comments: CommentCardProps[],
   parentId: string,
