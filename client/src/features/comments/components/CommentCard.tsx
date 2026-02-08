@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { Avatar, Button, Textarea } from '@/components/ui'
+import { Avatar, Button } from '@/components/ui'
 import { MoreHorizontal, Edit, Trash2, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { CommentInput } from './CommentInput'
 
 export interface CommentCardProps {
   id: string
@@ -23,7 +24,7 @@ export interface CommentCardProps {
   badge?: string
   onUpvote?: () => void
   onDownvote?: () => void
-  onReply?: () => void
+  onReply?: (content: string) => void | Promise<void>
   onEdit?: (newContent: string) => void | Promise<void>
   onDelete?: () => void | Promise<void>
   replies?: CommentCardProps[]
@@ -37,7 +38,7 @@ const CommentCard = ({
   upvotes,
   downvotes,
   createdAt,
-  editedAt,  // ← NEW
+  editedAt,
   isUpvoted = false,
   isDownvoted = false,
   isOwner = false,
@@ -56,6 +57,9 @@ const CommentCard = ({
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  
+  // Reply state
+  const [isReplying, setIsReplying] = useState(false)
   
   const menuRef = useRef<HTMLDivElement>(null)
   const score = upvotes - downvotes
@@ -119,6 +123,26 @@ const CommentCard = ({
   const handleEditClick = () => {
     setShowMenu(false)
     setIsEditing(true)
+  }
+
+  const handleReplyClick = () => {
+    setIsReplying(!isReplying)
+  }
+
+  const handleSubmitReply = async (content: string) => {
+    if (!onReply) return
+    
+    try {
+      await onReply(content)
+      setIsReplying(false)
+    } catch (error) {
+      console.error('Failed to submit reply:', error)
+      throw error // Let CommentInput handle the error
+    }
+  }
+
+  const handleCancelReply = () => {
+    setIsReplying(false)
   }
 
   return (
@@ -251,10 +275,17 @@ const CommentCard = ({
         {/* Comment Content */}
         {isEditing ? (
           <div className="space-y-2 mb-2">
-            <Textarea
+            <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="w-full min-h-[80px] text-sm"
+              className={cn(
+                'w-full min-h-[80px] text-sm rounded-lg border',
+                'bg-white dark:bg-gray-900 px-4 py-3',
+                'text-gray-900 dark:text-white',
+                'border-gray-200 dark:border-gray-700',
+                'focus:outline-none focus:ring-2 focus:ring-primary/20',
+                'focus:border-primary'
+              )}
               autoFocus
             />
             <div className="flex gap-2">
@@ -342,14 +373,15 @@ const CommentCard = ({
             {/* Reply Button */}
             {depth < maxDepth && onReply && (
               <button
-                onClick={onReply}
+                onClick={handleReplyClick}
                 className={cn(
                   'flex items-center gap-1',
                   'text-xs font-bold',
                   'text-gray-500 dark:text-gray-400',
                   'hover:text-primary hover:bg-primary/10',
                   'px-2 py-1 rounded transition-all duration-200',
-                  'active:scale-95'
+                  'active:scale-95',
+                  isReplying && 'text-primary bg-primary/10'
                 )}
               >
                 <span className="material-symbols-outlined text-[14px]">
@@ -358,6 +390,19 @@ const CommentCard = ({
                 Reply
               </button>
             )}
+          </div>
+        )}
+
+        {/* Reply Input - Using CommentInput component */}
+        {isReplying && (
+          <div className="mt-4 animate-in slide-in-from-top-2 duration-200">
+            <CommentInput
+              onSubmit={handleSubmitReply}
+              onCancel={handleCancelReply}
+              placeholder={`Reply to u/${author.username}...`}
+              submitLabel="Reply"
+              autoFocus
+            />
           </div>
         )}
       </div>

@@ -10,7 +10,8 @@ interface UseCommentVotingReturn {
   addVoteHandlers: (
     comment: CommentCardProps,
     onEdit?: (commentId: string, newContent: string) => void | Promise<void>,
-    onDelete?: (commentId: string) => void | Promise<void>
+    onDelete?: (commentId: string) => void | Promise<void>,
+    onReply?: (content: string, parentId?: string) => void | Promise<void>
   ) => CommentCardProps
 }
 
@@ -42,7 +43,8 @@ export function useCommentVoting(): UseCommentVotingReturn {
     (
       comment: CommentCardProps,
       onEdit?: (commentId: string, newContent: string) => void | Promise<void>,
-      onDelete?: (commentId: string) => void | Promise<void>
+      onDelete?: (commentId: string) => void | Promise<void>,
+      onReply?: (content: string, parentId?: string) => void | Promise<void>
     ): CommentCardProps => {
       const voteState = votes[comment.id] || null
 
@@ -66,8 +68,12 @@ export function useCommentVoting(): UseCommentVotingReturn {
         onEdit: onEdit ? (newContent: string) => onEdit(
           comment.id, newContent) : undefined,
         onDelete: onDelete ? () => onDelete(comment.id) : undefined,
+        onReply: onReply ? (content: string) => {
+          // Pass the content and this comment's ID as the parent
+          return onReply(content, comment.id)
+        } : undefined,
         replies: comment.replies?.map(reply =>
-          addVoteHandlers(reply, onEdit, onDelete)
+          addVoteHandlers(reply, onEdit, onDelete, onReply)
         ),
       }
     },

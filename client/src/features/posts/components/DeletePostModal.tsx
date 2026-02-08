@@ -7,14 +7,14 @@ interface DeletePostModalProps {
   isOpen: boolean
   postTitle: string
   onConfirm: () => Promise<void>
-  onCancel: () => void
+  onClose: () => void
 }
 
 export const DeletePostModal = ({
   isOpen,
   postTitle,
   onConfirm,
-  onCancel,
+  onClose,
 }: DeletePostModalProps) => {
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -36,7 +36,7 @@ export const DeletePostModal = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onCancel}
+      onClose={onClose}
       title="Delete Post"
     >
       <div className="space-y-4">
@@ -89,7 +89,7 @@ export const DeletePostModal = ({
         <div className="flex gap-3">
           <Button
             variant="secondary"
-            onClick={onCancel}
+            onClick={onClose}
             disabled={isDeleting}
             className="flex-1"
           >

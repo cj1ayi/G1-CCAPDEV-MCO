@@ -7,19 +7,21 @@ interface CommentSectionProps {
   totalCount: number
   onEdit?: (commentId: string, newContent: string) => void | Promise<void>
   onDelete?: (commentId: string) => void | Promise<void>
+  onReply?: (content: string, parentId?: string) => void | Promise<void>
 }
 
 export const CommentSection = ({ 
   comments, 
   totalCount,
   onEdit,
-  onDelete
+  onDelete,
+  onReply
 }: CommentSectionProps) => {
   const { addVoteHandlers } = useCommentVoting()
 
-  // Wire up all handlers (voting + edit/delete)
+  // Wire up all handlers (voting + edit/delete + reply)
   const commentsWithHandlers = comments.map(comment =>
-    addVoteHandlers(comment, onEdit, onDelete)
+    addVoteHandlers(comment, onEdit, onDelete, onReply)
   )
 
   if (comments.length === 0) {
