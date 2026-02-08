@@ -14,7 +14,7 @@ import { GraduationCap, BowArrow, MessagesSquare, Rocket, TrendingUp } from 'luc
 
 const Home = () => {
   const [emblaRef] = useEmblaCarousel({ loop: true }, [
-    Autoplay({ delay: 3000, stopOnInteraction: false })
+    Autoplay({ delay: 2300, stopOnInteraction: false })
   ])
 
   return (
