@@ -134,15 +134,33 @@ class CommentService {
     return updatedComment
   }
 
-  // DELETE /api/comments/:commentId (SOFT DELETE)
+  // DELETE /api/comments/:commentId (Smart delete with cascading cleanup)
   async deleteComment(postId: string, commentId: string): Promise<void> {
     await this.delay(150)
 
     const store = this.getStore()
     const comments = store[postId] || []
 
-    // Soft delete instead of hard delete
-    store[postId] = this.softDeleteComment(comments, commentId)
+    // Find the comment to check if it has replies
+    const comment = this.findCommentById(comments, commentId)
+    
+    if (!comment) {
+      throw new Error('Comment not found')
+    }
+
+    const hasReplies = comment.replies && comment.replies.length > 0
+
+    if (hasReplies) {
+      // Soft delete: Keep comment but mark as deleted
+      store[postId] = this.softDeleteComment(comments, commentId)
+    } else {
+      // Hard delete: Remove comment completely
+      store[postId] = this.hardDeleteComment(comments, commentId)
+    }
+
+    // Cleanup: Remove soft-deleted comments that now have no replies
+    store[postId] = this.cleanupOrphanedDeletedComments(store[postId])
+
     this.setStore(store)
   }
 
@@ -270,7 +288,7 @@ class CommentService {
     })
   }
 
-  // Helper: Soft delete comment recursively (mark as deleted, keep replies)
+  // Helper: Soft delete comment (mark as deleted, keep replies)
   private softDeleteComment(
     comments: CommentCardProps[],
     commentId: string
@@ -288,7 +306,7 @@ class CommentService {
             avatar: undefined,
           },
           isOwner: false,
-          isDeleted: true, // Add a flag to identify deleted comments
+          isDeleted: true,
         }
       }
       if (comment.replies && comment.replies.length > 0) {
@@ -299,6 +317,65 @@ class CommentService {
       }
       return comment
     })
+  }
+
+  // Helper: Hard delete comment (remove completely)
+  private hardDeleteComment(
+    comments: CommentCardProps[],
+    commentId: string
+  ): CommentCardProps[] {
+    return comments
+      .filter(comment => comment.id !== commentId)
+      .map(comment => {
+        if (comment.replies && comment.replies.length > 0) {
+          return {
+            ...comment,
+            replies: this.hardDeleteComment(comment.replies, commentId),
+          }
+        }
+        return comment
+      })
+  }
+
+  // Helper: Check if comment has any non-deleted replies
+  private hasActiveReplies(comment: CommentCardProps): boolean {
+    if (!comment.replies || comment.replies.length === 0) {
+      return false
+    }
+
+    // Check if there's at least one reply that's not deleted
+    // OR has active nested replies
+    return comment.replies.some(reply => 
+      !reply.isDeleted || this.hasActiveReplies(reply)
+    )
+  }
+
+  // Helper: Recursively clean up deleted comments with no active replies
+  private cleanupOrphanedDeletedComments(
+    comments: CommentCardProps[]
+  ): CommentCardProps[] {
+    return comments
+      .map(comment => {
+        // First, recursively clean up children
+        if (comment.replies && comment.replies.length > 0) {
+          comment = {
+            ...comment,
+            replies: this.cleanupOrphanedDeletedComments(comment.replies)
+          }
+        }
+
+        return comment
+      })
+      .filter(comment => {
+        // Remove if:
+        // 1. Comment is deleted AND
+        // 2. Comment has no active replies (all replies are also deleted or empty)
+        if (comment.isDeleted && !this.hasActiveReplies(comment)) {
+          console.log(`Cleaning up orphaned deleted comment: ${comment.id}`)
+          return false
+        }
+        return true
+      })
   }
 
   // Helper: Find comment by ID recursively
@@ -340,4 +417,11 @@ if (typeof window !== 'undefined') {
 MIGRATION TO REAL BACKEND:
 When ready, replace the CommentService class above with API calls.
 See BACKEND_READY_GUIDE.md for complete examples.
+
+SMART DELETE LOGIC:
+1. If comment has replies -> Soft delete (mark as [deleted])
+2. If comment has no replies -> Hard delete (remove completely)
+3. After any delete -> Cleanup orphaned deleted comments
+   - If a deleted comment now has NO active replies (all deleted), remove it too
+   - This cascades up the tree automatically
 */

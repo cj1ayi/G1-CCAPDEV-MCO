@@ -5,12 +5,14 @@ import { AlertTriangle } from 'lucide-react'
 
 interface DeleteCommentModalProps {
   isOpen: boolean
+  hasReplies: boolean
   onConfirm: () => Promise<void>
   onClose: () => void
 }
 
 export const DeleteCommentModal = ({
   isOpen,
+  hasReplies,
   onConfirm,
   onClose,
 }: DeleteCommentModalProps) => {
@@ -52,7 +54,7 @@ export const DeleteCommentModal = ({
           </div>
         </div>
 
-        {/* Message */}
+        {/* Message - Different based on replies */}
         <div className="text-center space-y-2">
           <h3
             className={cn(
@@ -62,9 +64,21 @@ export const DeleteCommentModal = ({
           >
             Delete comment?
           </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            This will mark your comment as deleted. Your username will be removed but replies will remain visible.
-          </p>
+          
+          {hasReplies ? (
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+                This comment has replies.
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Your comment will be marked as <span className="font-mono text-gray-600 dark:text-gray-300">[deleted]</span> and your username will be removed, but replies will remain visible.
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              This comment will be permanently deleted. This action cannot be undone.
+            </p>
+          )}
         </div>
 
         {/* Error Message */}

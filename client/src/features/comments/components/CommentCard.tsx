@@ -17,7 +17,7 @@ export interface CommentCardProps {
   upvotes: number
   downvotes: number
   createdAt: string
-  editedAt?: string
+  editedAt?: string 
   isUpvoted?: boolean
   isDownvoted?: boolean
   isOwner?: boolean
@@ -61,10 +61,11 @@ const CommentCard = ({
   const [showMenu, setShowMenu] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-
+  
   const menuRef = useRef<HTMLDivElement>(null)
   const score = upvotes - downvotes
   const maxDepth = 5
+  const hasReplies = replies.length > 0
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -86,7 +87,7 @@ const CommentCard = ({
 
   const handleSaveEdit = async () => {
     if (!editContent.trim() || !onEdit) return
-
+    
     setIsSaving(true)
     try {
       await onEdit(editContent)
@@ -125,7 +126,7 @@ const CommentCard = ({
 
   const handleSubmitReply = async (content: string) => {
     if (!onReply) return
-
+    
     try {
       await onReply(content)
       setIsReplying(false)
@@ -162,10 +163,10 @@ const CommentCard = ({
             />
             <span className={cn(
               "text-sm font-semibold",
-              isDeleted
-                ? "text-gray-400 dark:text-gray-500"
+              isDeleted 
+                ? "text-gray-400 dark:text-gray-500" 
                 : "text-gray-900 dark:text-white hover:underline cursor-pointer"
-            )}
+              )}
             >
               {isDeleted ? '[deleted]' : `u/${author.username}`}
             </span>
@@ -177,7 +178,7 @@ const CommentCard = ({
             {editedAt && !isDeleted && (
               <>
                 <span className="text-xs text-gray-500 dark:text-gray-400">•</span>
-                <span
+                <span 
                   className="text-xs text-gray-500 dark:text-gray-400 italic"
                   title={`Last edited: ${editedAt}`}
                 >
@@ -190,7 +191,7 @@ const CommentCard = ({
               <span className={cn(
                 "px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100",
                 "text-green-700 dark:bg-green-900/30 dark:text-green-400"
-              )}
+                )}
               >
                 OP
               </span>
@@ -200,7 +201,7 @@ const CommentCard = ({
               <span className={cn(
                 "px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-100",
                 "text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-              )}
+                )}
               >
                 {badge}
               </span>
@@ -244,9 +245,9 @@ const CommentCard = ({
                     <Edit className="h-4 w-4" />
                     Edit Comment
                   </button>
-
+                  
                   <div className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
-
+                  
                   <button
                     onClick={handleDeleteClick}
                     className={cn(
@@ -304,10 +305,10 @@ const CommentCard = ({
         ) : (
           <div className={cn(
             "text-sm leading-relaxed mb-2",
-            isDeleted
-              ? "text-gray-400 dark:text-gray-500 italic"
+            isDeleted 
+              ? "text-gray-400 dark:text-gray-500 italic" 
               : "text-gray-700 dark:text-gray-300"
-          )}
+            )}
           >
             {content}
           </div>
@@ -421,6 +422,7 @@ const CommentCard = ({
       {/* Delete Confirmation Modal */}
       <DeleteCommentModal
         isOpen={isDeleteModalOpen}
+        hasReplies={hasReplies}
         onConfirm={handleDeleteConfirm}
         onClose={() => setIsDeleteModalOpen(false)}
       />
