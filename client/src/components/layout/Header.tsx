@@ -46,7 +46,7 @@ export const Header = ({
   }
 
   const handleCreatePost = () => {
-    onCreatePost ? onCreatePost() : navigate('/post/create')
+    onCreatePost ? onCreatePost() : navigate('/create-post')
   }
 
   return (
