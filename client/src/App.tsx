@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout'
+import { HomeLayout } from '@/components/layout/HomeLayout'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import {
   Home,
@@ -45,7 +46,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <MainLayout>
+      <HomeLayout>
         <Routes>
           {/* Home */}
           <Route path="/" element={<Home/>} />
@@ -70,7 +71,7 @@ const App = () => {
           <Route path="/test-posts" element={<TestPosts />} />
           <Route path="/test-comments" element={<TestComments />} />
         </Routes>
-      </MainLayout>
+      </HomeLayout>
     </BrowserRouter>
   )
 }

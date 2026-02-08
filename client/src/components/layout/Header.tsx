@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import AnimoForumsLogoHat from '@/assets/AnimoForumsLogoHat.svg'
 
 interface HeaderProps {
+  variant?: 'default' | 'landing'
   user?: {
     name: string
     avatarUrl?: string
@@ -24,6 +25,7 @@ interface HeaderProps {
 }
 
 export const Header = ({ 
+  variant = 'default',
   user, 
   onSearch, 
   onCreatePost,
@@ -46,7 +48,11 @@ export const Header = ({
   }
 
   const handleCreatePost = () => {
-    onCreatePost ? onCreatePost() : navigate('/post/create')
+    if (onCreatePost) {
+      onCreatePost()
+    } else {
+      navigate('/post/create')
+    }
   }
 
   return (
@@ -84,7 +90,8 @@ export const Header = ({
       </div>
 
       {/* Center: Search */}
-      <form onSubmit={handleSearch} className="relative flex-1 max-w-xl">
+      { variant !== 'landing' && (
+              <form onSubmit={handleSearch} className="relative flex-1 max-w-xl">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         <input
           type="text"
@@ -103,6 +110,7 @@ export const Header = ({
           )}
         />
       </form>
+      )}
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1 sm:gap-2 shrink-0">
@@ -123,7 +131,7 @@ export const Header = ({
           </Button>
         )}
 
-        {user ? (
+        {variant !== 'landing' && user ? (
           <>
             {/* Create Post Button */}
             <Button variant="primary" size="sm" onClick={handleCreatePost} 
@@ -166,10 +174,10 @@ export const Header = ({
           <>
             {/* Login/Signup */}
             <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
-              Log In
+              Sign In
             </Button>
             <Button variant="primary" size="sm" onClick={() => navigate('/signup')}>
-              Sign Up
+              Join Community
             </Button>
           </>
         )}
