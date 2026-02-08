@@ -1,10 +1,31 @@
-/**
- * Core Post entity
- */
+// Post Types
 export interface Post {
   id: string
   title: string
   content: string
+  space: string
+  spaceIcon?: string
+  author: {
+    id: string
+    name: string
+    username: string
+    avatar?: string
+  }
+  flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
+  upvotes: number
+  downvotes: number
+  commentCount: number
+  createdAt: string
+  editedAt?: string
+  imageUrl?: string
+  tags: string[]
+  isOwner?: boolean
+}
+
+// Component Props
+export interface PostCardProps {
+  title: string
+  content?: string
   author: {
     id: string
     name: string
@@ -13,22 +34,15 @@ export interface Post {
   }
   space: string
   spaceIcon?: string
-  flair?: string
+  flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
   upvotes: number
   downvotes: number
   commentCount: number
   createdAt: string
   imageUrl?: string
-  tags: string[]
-  isOwner?: boolean
-}
-
-/**
- * PostCard component props
- */
-export interface PostCardProps extends Post {
   isUpvoted?: boolean
   isDownvoted?: boolean
+  isOwner?: boolean
   onUpvote?: () => void
   onDownvote?: () => void
   onEdit?: () => void
@@ -36,9 +50,22 @@ export interface PostCardProps extends Post {
   onClick?: () => void
 }
 
-/**
- * PostDetailContent component props
- */
+export interface PostDetailHeaderProps {
+  isDark: boolean
+  onToggleDarkMode: () => void
+  backUrl?: string
+  homeUrl?: string
+  siteName?: string
+}
+
+export interface PostDetailBreadcrumbsProps {
+  space: string
+  title: string
+  backUrl?: string
+  backLabel?: string
+  onSpaceClick?: () => void
+}
+
 export interface PostDetailContentProps {
   post: Post
   commentCount: number
@@ -49,42 +76,6 @@ export interface PostDetailContentProps {
   onDownvote: () => void
 }
 
-/**
- * PostDetailHeader component props
- */
-export interface PostDetailHeaderProps {
-  isDark: boolean
-  onToggleDarkMode: () => void
-  backUrl?: string
-  homeUrl?: string
-  siteName?: string
-}
-
-/**
- * PostDetailBreadcrumbs component props
- */
-export interface PostDetailBreadcrumbsProps {
-  space: string
-  title: string
-  backUrl?: string
-  backLabel?: string
-  onSpaceClick?: () => void
-}
-
-/**
- * PostDetailVoteColumn component props
- */
-export interface PostDetailVoteColumnProps {
-  score: number
-  isUpvoted: boolean
-  isDownvoted: boolean
-  onUpvote: () => void
-  onDownvote: () => void
-}
-
-/**
- * PostDetailActions component props
- */
 export interface PostDetailActionsProps {
   commentCount: number
   upvotes: number
@@ -95,12 +86,28 @@ export interface PostDetailActionsProps {
   onDownvote: () => void
 }
 
-/**
- * Vote types
- */
-export type VoteType = 'up' | 'down' | null
+export interface PostDetailVoteColumnProps {
+  score: number
+  isUpvoted: boolean
+  isDownvoted: boolean
+  onUpvote: () => void
+  onDownvote: () => void
+}
 
-/**
- * Post flair types
- */
-export type PostFlair = 'Question' | 'News' | 'Marketplace' | 'Discussion' | string
+// Form Types
+export interface PostFormData {
+  title: string
+  content: string
+  space: string
+  flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
+  imageUrl?: string
+  tags: string[]
+}
+
+export interface PostFormErrors {
+  title?: string
+  content?: string
+  space?: string
+  imageUrl?: string
+  tags?: string
+}

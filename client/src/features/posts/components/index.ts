@@ -1,6 +1,8 @@
-export { default as PostCard } from "./PostCard";
-export { PostDetailHeader } from "./PostDetailHeader";
-export { PostDetailBreadcrumbs } from "./PostDetailBreadcrumbs";
-export { PostDetailContent } from "./PostDetailContent";
-export { PostDetailVoteColumn } from "./PostDetailVoteColumn";
-export { PostDetailActions } from "./PostDetailActions";
+export { default as PostCard } from './PostCard'
+export { PostDetailHeader } from './PostDetailHeader'
+export { PostDetailBreadcrumbs } from './PostDetailBreadcrumbs'
+export { PostDetailContent } from './PostDetailContent'
+export { PostDetailVoteColumn } from './PostDetailVoteColumn'
+export { PostDetailActions } from './PostDetailActions'
+export { PostForm } from './PostForm'
+export { DeletePostModal } from './DeletePostModal'
