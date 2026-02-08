@@ -1,5 +1,4 @@
 import { MainLayout } from '@/components/layout/MainLayout'
-import { HomeLayout } from '@/components/layout/HomeLayout'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import {
   Home,
@@ -46,10 +45,9 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <HomeLayout>
-        <Routes>
-          {/* Home */}
-          <Route path="/" element={<Home/>} />
+      <Routes>
+        {/* Home */}
+        <Route path="/" element={<Home/>} />
           
           {/* Post Routes */}
           <Route path="/post/:id" element={<PostDetail/>} />
@@ -67,11 +65,10 @@ const App = () => {
           {/* Search */}
           <Route path="/search" element={<Search/>} />
           
-          {/* Test Routes */}
-          <Route path="/test-posts" element={<TestPosts />} />
-          <Route path="/test-comments" element={<TestComments />} />
-        </Routes>
-      </HomeLayout>
+        {/* Test Routes */}
+        <Route path="/test-posts" element={<TestPosts />} />
+        <Route path="/test-comments" element={<TestComments />} />
+      </Routes>
     </BrowserRouter>
   )
 }
