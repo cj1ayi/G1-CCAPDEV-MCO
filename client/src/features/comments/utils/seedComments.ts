@@ -1,4 +1,4 @@
-import { CommentCardProps } from '@/components/comment'
+import { CommentCardProps } from '@/features/comments/components'
 import { getCommentsByPostId, getAllPosts } from '@/lib/mockData'
 
 const STORAGE_KEY = 'animoforums_comments'
@@ -20,7 +20,9 @@ export function seedCommentsToLocalStorage(): void {
       const comments = getCommentsByPostId(post.id)
       if (comments && comments.length > 0) {
         store[post.id] = comments
-        console.log(`Loaded ${comments.length} comments for post "${post.title}"`)
+        console.log(
+          `Loaded ${comments.length} comments for post "${post.title}"`
+        )
       }
     } catch (err) {
       console.warn(`Could not load comments for post ${post.id}`)
@@ -30,8 +32,11 @@ export function seedCommentsToLocalStorage(): void {
   // Save to localStorage
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
   
-  const totalComments = Object.values(store).reduce((sum, comments) => sum + comments.length, 0)
-  console.log(`Seeding complete! ${totalComments} comments across ${Object.keys(store).length} posts`)
+  const totalComments = Object.values(store)
+    .reduce((sum, comments) => sum + comments.length, 0)
+  console.log(
+    `Seeding complete! ${totalComments} comments across ${Object.keys(store).length} posts`
+  )
 }
 
 /**
@@ -68,7 +73,7 @@ export function getCommentStats(): void {
     0
   )
 
-  console.log('📊 Comment Stats:')
+  console.log('  Comment Stats:')
   console.log(`  Posts with comments: ${postCount}`)
   console.log(`  Total comments: ${totalComments}`)
   

@@ -1,4 +1,4 @@
-import { CommentCardProps } from '@/components/comment'
+import { CommentCardProps } from '@/features/comments/components/CommentCard'
 
 /**
  * Recursively counts all comments including nested replies

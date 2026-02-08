@@ -71,7 +71,15 @@ export const DeleteCommentModal = ({
                 This comment has replies.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Your comment will be marked as <span className="font-mono text-gray-600 dark:text-gray-300">[deleted]</span> and your username will be removed, but replies will remain visible.
+                Your comment will be marked as 
+                <span 
+                  className={cn(
+                    "font-mono text-gray-600 dark:text-gray-300"
+                  )}
+                >
+                  [deleted]
+                </span> 
+                and your username will be removed, but replies will remain visible.
               </p>
             </div>
           ) : (
@@ -90,7 +98,9 @@ export const DeleteCommentModal = ({
               'rounded-lg p-3 text-center'
             )}
           >
-            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+            <p className="text-red-600 dark:text-red-400 text-sm">
+              {error}
+            </p>
           </div>
         )}
 
