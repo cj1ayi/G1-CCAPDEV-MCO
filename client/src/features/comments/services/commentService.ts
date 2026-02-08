@@ -134,14 +134,15 @@ class CommentService {
     return updatedComment
   }
 
-  // DELETE /api/comments/:commentId
+  // DELETE /api/comments/:commentId (SOFT DELETE)
   async deleteComment(postId: string, commentId: string): Promise<void> {
     await this.delay(150)
 
     const store = this.getStore()
     const comments = store[postId] || []
 
-    store[postId] = this.removeComment(comments, commentId)
+    // Soft delete instead of hard delete
+    store[postId] = this.softDeleteComment(comments, commentId)
     this.setStore(store)
   }
 
@@ -248,14 +249,14 @@ class CommentService {
     comments: CommentCardProps[],
     commentId: string,
     newContent: string,
-    editedAt?: string  // ← Add editedAt parameter
+    editedAt?: string
   ): CommentCardProps[] {
     return comments.map(comment => {
       if (comment.id === commentId) {
         return { 
           ...comment, 
           content: newContent,
-          editedAt  // ← Set editedAt
+          editedAt
         }
       }
       if (comment.replies && comment.replies.length > 0) {
@@ -269,20 +270,35 @@ class CommentService {
     })
   }
 
-  // Helper: Remove comment recursively
-  private removeComment(
-    comments: CommentCardProps[], commentId: string): CommentCardProps[] {
-    return comments
-      .filter(comment => comment.id !== commentId)
-      .map(comment => {
-        if (comment.replies && comment.replies.length > 0) {
-          return {
-            ...comment,
-            replies: this.removeComment(comment.replies, commentId),
-          }
+  // Helper: Soft delete comment recursively (mark as deleted, keep replies)
+  private softDeleteComment(
+    comments: CommentCardProps[],
+    commentId: string
+  ): CommentCardProps[] {
+    return comments.map(comment => {
+      if (comment.id === commentId) {
+        // Soft delete: replace content and author info
+        return {
+          ...comment,
+          content: '[deleted]',
+          author: {
+            id: 'deleted',
+            name: '[deleted]',
+            username: 'deleted',
+            avatar: undefined,
+          },
+          isOwner: false,
+          isDeleted: true, // Add a flag to identify deleted comments
         }
-        return comment
-      })
+      }
+      if (comment.replies && comment.replies.length > 0) {
+        return {
+          ...comment,
+          replies: this.softDeleteComment(comment.replies, commentId),
+        }
+      }
+      return comment
+    })
   }
 
   // Helper: Find comment by ID recursively

@@ -3,6 +3,7 @@ import { Avatar, Button } from '@/components/ui'
 import { MoreHorizontal, Edit, Trash2, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CommentInput } from './CommentInput'
+import { DeleteCommentModal } from './DeleteCommentModal'
 
 export interface CommentCardProps {
   id: string
@@ -16,11 +17,12 @@ export interface CommentCardProps {
   upvotes: number
   downvotes: number
   createdAt: string
-  editedAt?: string 
+  editedAt?: string
   isUpvoted?: boolean
   isDownvoted?: boolean
   isOwner?: boolean
   isOP?: boolean
+  isDeleted?: boolean
   badge?: string
   onUpvote?: () => void
   onDownvote?: () => void
@@ -43,6 +45,7 @@ const CommentCard = ({
   isDownvoted = false,
   isOwner = false,
   isOP = false,
+  isDeleted = false,
   badge,
   onUpvote,
   onDownvote,
@@ -55,12 +58,10 @@ const CommentCard = ({
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(content)
   const [isSaving, setIsSaving] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
-  
-  // Reply state
   const [isReplying, setIsReplying] = useState(false)
-  
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
   const menuRef = useRef<HTMLDivElement>(null)
   const score = upvotes - downvotes
   const maxDepth = 5
@@ -85,7 +86,7 @@ const CommentCard = ({
 
   const handleSaveEdit = async () => {
     if (!editContent.trim() || !onEdit) return
-    
+
     setIsSaving(true)
     try {
       await onEdit(editContent)
@@ -103,21 +104,14 @@ const CommentCard = ({
     setIsEditing(false)
   }
 
-  const handleDelete = async () => {
-    if (!onDelete) return
-    
+  const handleDeleteClick = () => {
     setShowMenu(false)
-    const confirmed = confirm('Are you sure you want to delete this comment?')
-    if (!confirmed) return
+    setIsDeleteModalOpen(true)
+  }
 
-    setIsDeleting(true)
-    try {
-      await onDelete()
-    } catch (error) {
-      console.error('Failed to delete comment:', error)
-      alert('Failed to delete comment. Please try again.')
-      setIsDeleting(false)
-    }
+  const handleDeleteConfirm = async () => {
+    if (!onDelete) return
+    await onDelete()
   }
 
   const handleEditClick = () => {
@@ -131,13 +125,13 @@ const CommentCard = ({
 
   const handleSubmitReply = async (content: string) => {
     if (!onReply) return
-    
+
     try {
       await onReply(content)
       setIsReplying(false)
     } catch (error) {
       console.error('Failed to submit reply:', error)
-      throw error // Let CommentInput handle the error
+      throw error
     }
   }
 
@@ -154,8 +148,7 @@ const CommentCard = ({
           'border-l-2 border-gray-200 dark:border-gray-800',
           'hover:border-gray-300 dark:hover:border-gray-600',
           'transition-colors'
-        ],
-        isDeleting && 'opacity-50 pointer-events-none'
+        ]
       )}
     >
       <div className="py-3">
@@ -168,23 +161,23 @@ const CommentCard = ({
               src={author.avatar}
             />
             <span className={cn(
-              "text-sm font-semibold text-gray-900 dark:text-white",
-              "hover:underline cursor-pointer"
-              )}
+              "text-sm font-semibold",
+              isDeleted
+                ? "text-gray-400 dark:text-gray-500"
+                : "text-gray-900 dark:text-white hover:underline cursor-pointer"
+            )}
             >
-              u/{author.username}
+              {isDeleted ? '[deleted]' : `u/${author.username}`}
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">•</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {createdAt}
             </span>
 
-            {/* Edited indicator */}
-            {editedAt && (
+            {editedAt && !isDeleted && (
               <>
-                <span 
-                  className="text-xs text-gray-500 dark:text-gray-400">•</span>
-                <span 
+                <span className="text-xs text-gray-500 dark:text-gray-400">•</span>
+                <span
                   className="text-xs text-gray-500 dark:text-gray-400 italic"
                   title={`Last edited: ${editedAt}`}
                 >
@@ -193,21 +186,21 @@ const CommentCard = ({
               </>
             )}
 
-            {isOP && (
+            {isOP && !isDeleted && (
               <span className={cn(
                 "px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100",
                 "text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                )}
+              )}
               >
                 OP
               </span>
             )}
 
-            {badge && (
+            {badge && !isDeleted && (
               <span className={cn(
                 "px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-100",
                 "text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                )}
+              )}
               >
                 {badge}
               </span>
@@ -215,7 +208,7 @@ const CommentCard = ({
           </div>
 
           {/* Edit/Delete Menu */}
-          {isOwner && !isEditing && (
+          {isOwner && !isEditing && !isDeleted && (
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowMenu(!showMenu)}
@@ -251,11 +244,11 @@ const CommentCard = ({
                     <Edit className="h-4 w-4" />
                     Edit Comment
                   </button>
-                  
+
                   <div className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
-                  
+
                   <button
-                    onClick={handleDelete}
+                    onClick={handleDeleteClick}
                     className={cn(
                       'w-full flex items-center gap-2 px-3 py-2',
                       'text-sm text-red-600 dark:text-red-400',
@@ -310,8 +303,11 @@ const CommentCard = ({
           </div>
         ) : (
           <div className={cn(
-            "text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-2"
-            )}
+            "text-sm leading-relaxed mb-2",
+            isDeleted
+              ? "text-gray-400 dark:text-gray-500 italic"
+              : "text-gray-700 dark:text-gray-300"
+          )}
           >
             {content}
           </div>
@@ -320,55 +316,57 @@ const CommentCard = ({
         {/* Comment Actions */}
         {!isEditing && (
           <div className="flex items-center gap-3">
-            {/* Vote Buttons */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={onUpvote}
-                className={cn(
-                  'p-1 rounded transition-all duration-200',
-                  'active:scale-90',
-                  isUpvoted
-                    ? 'text-[#FF6B35]'
-                    : 'text-gray-400 hover:text-[#FF6B35] hover:bg-gray-200 dark:hover:bg-gray-700'
-                )}
-              >
-                <span
-                  className="material-symbols-outlined text-[16px]"
-                  style={isUpvoted ? { fontVariationSettings: "'FILL' 1" } : undefined}
+            {/* Vote Buttons - Hidden for deleted comments */}
+            {!isDeleted && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={onUpvote}
+                  className={cn(
+                    'p-1 rounded transition-all duration-200',
+                    'active:scale-90',
+                    isUpvoted
+                      ? 'text-[#FF6B35]'
+                      : 'text-gray-400 hover:text-[#FF6B35] hover:bg-gray-200 dark:hover:bg-gray-700'
+                  )}
                 >
-                  shift
-                </span>
-              </button>
+                  <span
+                    className="material-symbols-outlined text-[16px]"
+                    style={isUpvoted ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                  >
+                    shift
+                  </span>
+                </button>
 
-              <span
-                className={cn(
-                  'text-xs font-bold min-w-[24px] text-center',
-                  isUpvoted && 'text-[#FF6B35]',
-                  isDownvoted && 'text-[#4A90E2]',
-                  !isUpvoted && !isDownvoted && 'text-gray-600 dark:text-gray-400'
-                )}
-              >
-                {score}
-              </span>
-
-              <button
-                onClick={onDownvote}
-                className={cn(
-                  'p-1 rounded transition-all duration-200',
-                  'active:scale-90',
-                  isDownvoted
-                    ? 'text-[#4A90E2]'
-                    : 'text-gray-400 hover:text-[#4A90E2] hover:bg-gray-200 dark:hover:bg-gray-700'
-                )}
-              >
                 <span
-                  className="material-symbols-outlined text-[16px] rotate-180"
-                  style={isDownvoted ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                  className={cn(
+                    'text-xs font-bold min-w-[24px] text-center',
+                    isUpvoted && 'text-[#FF6B35]',
+                    isDownvoted && 'text-[#4A90E2]',
+                    !isUpvoted && !isDownvoted && 'text-gray-600 dark:text-gray-400'
+                  )}
                 >
-                  shift
+                  {score}
                 </span>
-              </button>
-            </div>
+
+                <button
+                  onClick={onDownvote}
+                  className={cn(
+                    'p-1 rounded transition-all duration-200',
+                    'active:scale-90',
+                    isDownvoted
+                      ? 'text-[#4A90E2]'
+                      : 'text-gray-400 hover:text-[#4A90E2] hover:bg-gray-200 dark:hover:bg-gray-700'
+                  )}
+                >
+                  <span
+                    className="material-symbols-outlined text-[16px] rotate-180"
+                    style={isDownvoted ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                  >
+                    shift
+                  </span>
+                </button>
+              </div>
+            )}
 
             {/* Reply Button */}
             {depth < maxDepth && onReply && (
@@ -393,13 +391,13 @@ const CommentCard = ({
           </div>
         )}
 
-        {/* Reply Input - Using CommentInput component */}
+        {/* Reply Input */}
         {isReplying && (
           <div className="mt-4 animate-in slide-in-from-top-2 duration-200">
             <CommentInput
               onSubmit={handleSubmitReply}
               onCancel={handleCancelReply}
-              placeholder={`Reply to u/${author.username}...`}
+              placeholder={isDeleted ? "Add a reply..." : `Reply to u/${author.username}...`}
               submitLabel="Reply"
               autoFocus
             />
@@ -419,6 +417,13 @@ const CommentCard = ({
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteCommentModal
+        isOpen={isDeleteModalOpen}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setIsDeleteModalOpen(false)}
+      />
     </div>
   )
 }

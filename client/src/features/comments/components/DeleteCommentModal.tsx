@@ -3,19 +3,17 @@ import { cn } from '@/lib/utils'
 import { Modal, Button } from '@/components/ui'
 import { AlertTriangle } from 'lucide-react'
 
-interface DeletePostModalProps {
+interface DeleteCommentModalProps {
   isOpen: boolean
-  postTitle: string
   onConfirm: () => Promise<void>
   onClose: () => void
 }
 
-export const DeletePostModal = ({
+export const DeleteCommentModal = ({
   isOpen,
-  postTitle,
   onConfirm,
   onClose,
-}: DeletePostModalProps) => {
+}: DeleteCommentModalProps) => {
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,8 +23,9 @@ export const DeletePostModal = ({
 
     try {
       await onConfirm()
+      onClose()
     } catch (err) {
-      setError('Failed to delete post. Please try again.')
+      setError('Failed to delete comment. Please try again.')
       console.error(err)
     } finally {
       setIsDeleting(false)
@@ -37,9 +36,9 @@ export const DeletePostModal = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Delete Post"
+      size="sm"
     >
-      <div className="space-y-4">
+      <div className="p-6 space-y-4">
         {/* Warning Icon */}
         <div className="flex justify-center">
           <div
@@ -61,14 +60,10 @@ export const DeletePostModal = ({
               'text-gray-900 dark:text-white'
             )}
           >
-            Are you sure you want to delete this post?
+            Delete comment?
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            "{postTitle}"
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            This action cannot be undone. All comments and votes will also be
-            removed.
+            This will mark your comment as deleted. Your username will be removed but replies will remain visible.
           </p>
         </div>
 
@@ -99,18 +94,10 @@ export const DeletePostModal = ({
             variant="danger"
             onClick={handleConfirm}
             disabled={isDeleting}
+            isLoading={isDeleting}
             className="flex-1"
           >
-            {isDeleting ? (
-              <span className="flex items-center gap-2">
-                <span className="material-symbols-outlined animate-spin text-[18px]">
-                  progress_activity
-                </span>
-                Deleting...
-              </span>
-            ) : (
-              'Delete Post'
-            )}
+            Delete
           </Button>
         </div>
       </div>

@@ -60,16 +60,16 @@ export default function PostDetailPage() {
         setIsLoadingPost(false)
         return
       }
-
+      
       try {
         // Try postService first
         let fetchedPost = await postService.getPostById(id)
-
+        
         // If not found, try mockData
         if (!fetchedPost) {
           fetchedPost = getMockPost(id)
         }
-
+        
         if (fetchedPost) {
           setPost(fetchedPost)
         }
@@ -101,13 +101,13 @@ export default function PostDetailPage() {
       <div className={cn(
         "min-h-screen bg-background-light dark:bg-background-dark flex",
         "items-center justify-center"
-      )}
+        )}
       >
         <div className="text-center">
           <span className={cn(
             "material-symbols-outlined text-[48px]",
             "animate-spin text-primary"
-          )}
+            )}
           >
             progress_activity
           </span>
@@ -123,13 +123,13 @@ export default function PostDetailPage() {
       <div className={cn(
         "min-h-screen bg-background-light dark:bg-background-dark flex",
         "items-center justify-center"
-      )}
+        )}
       >
         <div className="text-center max-w-md mx-auto p-6">
           <h1 className={cn(
             "text-2xl font-bold text-gray-900",
             "dark:text-white mb-3"
-          )}
+            )}
           >
             Post not found
           </h1>
@@ -181,7 +181,7 @@ export default function PostDetailPage() {
       <div className="flex justify-center w-full">
         <div className="w-full max-w-[900px] px-4 py-6">
           <main className="flex flex-col gap-4">
-
+            
             <div className="flex items-center justify-between">
               <PostDetailBreadcrumbs
                 space={post.space}
@@ -195,7 +195,7 @@ export default function PostDetailPage() {
                 <Dropdown
                   align="right"
                   trigger={
-                    <button
+                    <button 
                       className={cn(
                         "p-2 rounded-full hover:bg-gray-100",
                         "dark:hover:bg-gray-800 text-gray-500",
@@ -250,7 +250,7 @@ export default function PostDetailPage() {
                 <span className={cn(
                   "material-symbols-outlined text-[32px]",
                   "animate-spin text-primary"
-                )}
+                  )}
                 >
                   progress_activity
                 </span>
@@ -262,11 +262,11 @@ export default function PostDetailPage() {
               <div className={cn(
                 "bg-red-50 dark:bg-red-900/20 border border-red-200",
                 "dark:border-red-800 rounded-lg p-4 text-center"
-              )}
+                )}
               >
                 <p className={cn(
                   "text-red-600 dark:text-red-400 text-sm"
-                )}
+                  )}
                 >
                   {commentError.message}
                 </p>
