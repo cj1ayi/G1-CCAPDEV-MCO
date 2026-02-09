@@ -1,6 +1,7 @@
 import { MainLayout } from '@/components/layout/MainLayout'
 import { Button } from '@/components/ui'
 import { RotateCw } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 // Lego Bricks
 import { SidebarNav } from '@/features/navigation/components/SidebarNav'
@@ -23,11 +24,16 @@ const SpacesDirectory = () => {
   const {
     spaces,
     isLoading,
+    isLoadingMore,
+    hasMore,
     filter,
     setFilter,
     sortBy,
     setSortBy,
-    toggleJoin
+    toggleJoin,
+    loadMore,
+    goToSpace,
+    goToCreateSpace
   } = useSpaces()
 
   return (
@@ -43,7 +49,6 @@ const SpacesDirectory = () => {
     >
       <div className="space-y-8">
         <SpaceDirectoryHeader />
-
         <SpaceFilters
           activeFilter={filter}
           onFilterChange={setFilter}
@@ -64,21 +69,30 @@ const SpacesDirectory = () => {
                 key={space.id}
                 space={space}
                 onToggleJoin={toggleJoin}
+                onClick={goToSpace}
               />
             ))}
-            <CreateSpaceCard />
+            <CreateSpaceCard onClick={goToCreateSpace} />
           </div>
         )}
 
-        <div className="flex justify-center pb-10">
-          <Button
-            variant="secondary"
-            className="rounded-full px-8"
-            leftIcon={<RotateCw className="size-4" />}
-          >
-            Load More Spaces
-          </Button>
-        </div>
+        {hasMore && (
+          <div className="flex justify-center pb-10">
+            <Button
+              variant="secondary"
+              className="rounded-full px-8"
+              leftIcon={
+                <RotateCw
+                  className={cn('size-4', isLoadingMore && 'animate-spin')}
+                />
+              }
+              onClick={loadMore}
+              disabled={isLoadingMore}
+            >
+              {isLoadingMore ? 'Loading...' : 'Load More Spaces'}
+            </Button>
+          </div>
+        )}
       </div>
     </MainLayout>
   )

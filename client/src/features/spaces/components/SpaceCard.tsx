@@ -6,9 +6,10 @@ import { cn } from '@/lib/utils'
 interface SpaceCardProps {
   space: Space
   onToggleJoin: (id: string) => void
+  onClick: (name: string) => void
 }
 
-export const SpaceCard = ({ space, onToggleJoin }: SpaceCardProps) => {
+export const SpaceCard = ({ space, onToggleJoin, onClick }: SpaceCardProps) => {
   const isMaterialIcon = ['menu_book', 'sports_basketball', 'terminal'].includes(
     space.icon
   )
@@ -16,7 +17,8 @@ export const SpaceCard = ({ space, onToggleJoin }: SpaceCardProps) => {
   return (
     <Card
       className="group flex flex-col justify-between hover:border-primary/20 
-        transition-all duration-300 h-full"
+        transition-all duration-300 h-full cursor-pointer"
+      onClick={() => onClick(space.name)}
     >
       <div className="space-y-4">
         <div className="flex justify-between items-start">
@@ -57,7 +59,6 @@ export const SpaceCard = ({ space, onToggleJoin }: SpaceCardProps) => {
               />
             )}
           </div>
-
           <Button
             variant={space.isJoined ? 'secondary' : 'outline'}
             size="sm"
@@ -65,12 +66,14 @@ export const SpaceCard = ({ space, onToggleJoin }: SpaceCardProps) => {
             leftIcon={
               space.isJoined ? <Check className="size-4" /> : undefined
             }
-            onClick={() => onToggleJoin(space.id)}
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggleJoin(space.id)
+            }}
           >
             {space.isJoined ? 'Joined' : 'Join'}
           </Button>
         </div>
-
         <div>
           <h3
             className="text-lg font-bold group-hover:text-primary 
@@ -83,7 +86,6 @@ export const SpaceCard = ({ space, onToggleJoin }: SpaceCardProps) => {
           </p>
         </div>
       </div>
-
       <div
         className="flex items-center gap-4 pt-4 mt-6 border-t 
           dark:border-gray-800"
