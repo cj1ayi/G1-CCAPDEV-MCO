@@ -6,7 +6,9 @@ import { SidebarNav } from '@/features/navigation/components/SidebarNav'
 import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
 import { SpaceCard } from '@/features/spaces/components/SpaceCard'
 import { CreateSpaceCard } from '@/features/spaces/components/CreateSpaceCard'
-import { SpaceDirectoryHeader } from '@/features/spaces/components/SpaceDirectoryHeader'
+import { 
+  SpaceDirectoryHeader 
+} from '@/features/spaces/components/SpaceDirectoryHeader'
 import { SpaceFilters } from '@/features/spaces/components/SpaceFilters'
 
 import { MOCK_SPACES } from '@/features/spaces/data'
@@ -27,7 +29,9 @@ const SpacesDirectory = () => {
         <SpaceDirectoryHeader />
         <SpaceFilters />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {MOCK_SPACES.map(space => (
             <SpaceCard key={space.id} space={space} />
           ))}
@@ -35,7 +39,11 @@ const SpacesDirectory = () => {
         </div>
 
         <div className="flex justify-center pb-10">
-          <Button variant="secondary" className="rounded-full px-8" leftIcon={<RotateCw className="size-4" />}>
+          <Button 
+            variant="secondary" 
+            className="rounded-full px-8" 
+            leftIcon={<RotateCw className="size-4" />}
+          >
             Load More Spaces
           </Button>
         </div>
