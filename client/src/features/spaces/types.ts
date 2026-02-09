@@ -3,12 +3,12 @@ export interface Space {
   name: string
   displayName: string
   description: string
-  memberCount: number
-  onlineCount: number
+  memberCount: string
+  postCount: string
   icon: string
-  bannerUrl?: string
+  iconType: 'text' | 'image'
   category: 'Official' | 'Batch' | 'Lifestyle' | 'Academic' | 'Interest'
-  rules: { title: string; description: string }[]
-  createdAt: string
+  colorScheme: string
   isJoined?: boolean
+  isActive?: boolean
 }
