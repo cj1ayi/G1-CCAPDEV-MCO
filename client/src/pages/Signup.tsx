@@ -1,3 +1,30 @@
+import AnimoForumsLogoWhite from '@/assets/AnimoForumsLogoWhite.svg'
+import LegendsYuch from '@/assets/legendsyuch.jpg'
+import SunriseHenry from '@/assets/sunerisehenry.jpg'
+import SunriseMig from '@/assets/sunrisestmig.jpg'
+
+// React
+import { useState } from 'react'
+
+// Libraries
+import { Link } from 'react-router-dom'
+import useEmblaCarousel from 'embla-carousel-react'
+import Autoplay from 'embla-carousel-autoplay'
+
+// Icons
+import { 
+  GraduationCap,  // Logo
+  Mail,           // Email input
+  AtSign,         // Username input
+  Lock,           // Password input
+  Eye,            // Show password
+  EyeOff,         // Hide password
+  ArrowRight      // Button arrow
+} from 'lucide-react'
+
+// UI Components
+import { Input, Button, Avatar } from '@/components/ui'
+
 import AnimoForumsLogoWhite from "@/assets/AnimoForumsLogoWhite.svg";
 import LegendsYuch from "@/assets/legendsyuch.jpg";
 import SunriseHenry from "@/assets/sunerisehenry.jpg";
