@@ -33,9 +33,10 @@ export const Hero = () => (
           <Link to="/search"><Button variant="secondary" size="lg">Explore Guest Access</Button></Link>
         </div>
       </motion.div>
-      <div className="hidden md:block bg-gray-200 dark:bg-gray-700 rounded-xl h-96 flex items-center justify-center">
-        <span className="text-gray-500">Cards</span>
+      <div className="bg-gray-200 dark:bg-gray-700 rounded-xl h-96 flex items-center justify-center">
+        <span className="text-gray-500">Image cards go here</span>
       </div>
+
     </div>
   </section>
 )
