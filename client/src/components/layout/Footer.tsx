@@ -1,5 +1,6 @@
-import { MessagesSquare, Heart, ShieldCheck, LifeBuoy, AlertCircle } from 'lucide-react'
+import { Heart, ShieldCheck, LifeBuoy, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import AnimoForumsLogoHat from '@/assets/AnimoForumsLogoHat.svg'
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -10,16 +11,18 @@ export const Footer = () => {
         "border-t mt-auto transition-colors duration-200",
         "border-border-light dark:border-border-dark",
         "bg-white dark:bg-surface-dark",
-        "py-6 md:py-10 px-4 md:px-10" // Reduced vertical padding on mobile
+        "py-6 md:py-10 px-4 md:px-10"
       )}
     >
       <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
         
-        {/* Brand - More compact on mobile */}
-        <div className="flex items-center gap-2 md:gap-3 group cursor-default">
-          <div className="bg-primary/10 p-1.5 md:p-2 rounded-lg group-hover:bg-primary transition-colors duration-300">
-            <MessagesSquare className="h-5 w-5 md:h-6 md:h-6 text-primary group-hover:text-white transition-colors" />
-          </div>
+        {/* Brand Section */}
+        <div className="flex items-center gap-3 group cursor-default">
+          <img 
+            src={AnimoForumsLogoHat} 
+            alt="AnimoForums Logo" 
+            className="h-8 w-8 md:h-10 md:w-10 transition-transform duration-300 group-hover:rotate-12" 
+          />
           <div className="flex flex-col">
             <span className="font-bold text-base md:text-lg leading-none dark:text-white">
               Animo<span className="text-primary">Forums</span>
@@ -30,7 +33,7 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Links - Horizontal row with smaller gaps on mobile */}
+        {/* Links */}
         <nav className="flex flex-row flex-wrap justify-center gap-x-4 gap-y-2 md:gap-x-8 text-[13px] md:text-sm font-semibold">
           <a
             href="#"
@@ -52,7 +55,7 @@ export const Footer = () => {
           </a>
         </nav>
 
-        {/* Credits - Centered on mobile, right-aligned on desktop */}
+        {/* Credits */}
         <div className="flex flex-col items-center md:items-end gap-0.5">
           <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1.5 font-medium">
             Made with
