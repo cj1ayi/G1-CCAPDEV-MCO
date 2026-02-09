@@ -8,6 +8,7 @@ export { default as Search } from './Search'
 export { default as ComponentShowcase } from './ComponentShowcase'
 export { default as  TestPosts } from './test-pages/TestPosts'
 export { default as  TestComments } from './test-pages/TestComments'
+export { default as  TestLayouts } from './test-pages/TestLayouts'
 
 export { default as CreatePost } from './CreatePost'
 export { default as EditPost } from './EditPost'

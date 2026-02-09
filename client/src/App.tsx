@@ -10,7 +10,8 @@ import {
   Search,
   ComponentShowcase,
   TestPosts,
-  TestComments
+  TestComments,
+  TestLayouts,
 } from './pages'
 
 // Import the new pages
@@ -68,6 +69,7 @@ const App = () => {
         {/* Test Routes */}
         <Route path="/test-posts" element={<TestPosts />} />
         <Route path="/test-comments" element={<TestComments />} />
+        <Route path="/test-layouts" element={<TestLayouts />} />
       </Routes>
     </BrowserRouter>
   )
