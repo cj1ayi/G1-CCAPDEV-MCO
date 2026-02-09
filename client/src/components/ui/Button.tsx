@@ -53,8 +53,8 @@ const buttonVariants = cva(
 )
 
 interface ButtonProps
-extends ButtonHTMLAttributes<HTMLButtonElement>,
-VariantProps<typeof buttonVariants> {
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   isLoading?: boolean
   leftIcon?: ReactNode
   rightIcon?: ReactNode
@@ -74,34 +74,34 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       disabled,
       as: Component = 'button',
-        ...rest
+      ...rest
     } = props
 
     const isDisabled = isLoading || disabled
 
     return (
       <Component
-      ref={ref}
-      disabled={isDisabled}
-      className={cn(
-        buttonVariants({ variant, size, fullWidth, className })
-      )}
-      {...rest}
+        ref={ref}
+        disabled={isDisabled}
+        className={cn(buttonVariants({ variant, size, fullWidth, className }))}
+        {...rest}
       >
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        </div> 
-      )}
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </div>
+        )}
 
-      <div className={cn(
-        "flex items-center justify-center gap-2 w-full",
-        isLoading ? "opacity-0" : "opacity-100"
-      )}>
-      {leftIcon && <span className="shrink-0">{leftIcon}</span>} 
-      <span className="truncate">{children}</span>
-      {rightIcon && <span className="shrink-0">{rightIcon}</span>}
-      </div>
+        <div
+          className={cn(
+            'flex items-center justify-center gap-2 w-full',
+            isLoading ? 'opacity-0' : 'opacity-100'
+          )}
+        >
+          {leftIcon && <span className="shrink-0">{leftIcon}</span>}
+          <span className="truncate">{children}</span>
+          {rightIcon && <span className="shrink-0">{rightIcon}</span>}
+        </div>
       </Component>
     )
   }
