@@ -1,4 +1,3 @@
-// 
 import { Space } from '../types'
 import { Card, Button, Badge } from '@/components/ui'
 import { Users, MessageSquare, Check } from 'lucide-react'
@@ -24,8 +23,8 @@ export const SpaceCard = ({ space, onToggleJoin }: SpaceCardProps) => {
           <div className="relative">
             <div
               className={cn(
-                "size-14 rounded-xl flex items-center justify-center " +
-                "text-white shadow-inner overflow-hidden",
+                'size-14 rounded-xl flex items-center justify-center ' +
+                  'text-white shadow-inner overflow-hidden',
                 space.iconType === 'text' &&
                   `bg-gradient-to-br ${space.colorScheme}`
               )}
@@ -39,10 +38,12 @@ export const SpaceCard = ({ space, onToggleJoin }: SpaceCardProps) => {
               ) : (
                 <span
                   className={cn(
-                    "font-black",
-                    isMaterialIcon ?
-                      "material-symbols-outlined text-3xl" :
-                      (space.icon.length > 2 ? "text-lg" : "text-2xl")
+                    'font-black',
+                    isMaterialIcon
+                      ? 'material-symbols-outlined text-3xl'
+                      : space.icon.length > 2
+                        ? 'text-lg'
+                        : 'text-2xl'
                   )}
                 >
                   {space.icon}
@@ -58,16 +59,15 @@ export const SpaceCard = ({ space, onToggleJoin }: SpaceCardProps) => {
           </div>
 
           <Button
-            variant={space.isJoined ?
-              "secondary" : "outline"}
+            variant={space.isJoined ? 'secondary' : 'outline'}
             size="sm"
             className="font-bold"
-            leftIcon={space.isJoined ?
-              <Check className="size-4" /> : undefined}
+            leftIcon={
+              space.isJoined ? <Check className="size-4" /> : undefined
+            }
             onClick={() => onToggleJoin(space.id)}
           >
-            {space.isJoined ?
-              'Joined' : 'Join'}
+            {space.isJoined ? 'Joined' : 'Join'}
           </Button>
         </div>
 

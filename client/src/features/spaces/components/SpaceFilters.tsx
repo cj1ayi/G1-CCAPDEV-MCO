@@ -29,20 +29,20 @@ export const SpaceFilters = ({
       justify-between border-b dark:border-gray-800"
   >
     <div className="flex gap-2 overflow-x-auto no-scrollbar">
-      {FILTERS.map((filter) => (
+      {FILTERS.map((f) => (
         <Button
-          key={filter}
-          variant={activeFilter === filter ? 'primary' : 'secondary'}
+          key={f}
+          variant={activeFilter === f ? 'primary' : 'secondary'}
           size="sm"
           className="rounded-full whitespace-nowrap"
-          onClick={() => onFilterChange(filter)}
+          onClick={() => onFilterChange(f)}
         >
-          {filter}
+          {f}
         </Button>
       ))}
     </div>
-
     <Dropdown
+      align="right"
       trigger={
         <button
           className="flex items-center gap-1 text-sm font-bold 
@@ -51,7 +51,6 @@ export const SpaceFilters = ({
           {currentSort} <ChevronDown className="size-4" />
         </button>
       }
-      align="right"
     >
       <DropdownItem
         icon={<SortAsc className="size-4" />}
