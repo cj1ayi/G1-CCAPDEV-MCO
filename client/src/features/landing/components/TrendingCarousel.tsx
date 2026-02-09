@@ -10,8 +10,11 @@ export const TrendingCarousel = () => {
   ])
 
   return (
+    /* TRENDING SECTION */
     <section className="py-16 px-4">
       <div className="max-w-7xl mx-auto">
+      
+        {/* Header Row */}
         <motion.div 
           className="flex justify-between items-center mb-8"
           initial={{ opacity: 0, y: 20 }}
@@ -19,6 +22,7 @@ export const TrendingCarousel = () => {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
+          {/* Title */}
           <div>
             <span className="flex items-center gap-2 text-primary font-semibold mb-2">
               <TrendingUp className="h-4 w-4" />
@@ -28,11 +32,17 @@ export const TrendingCarousel = () => {
               Top Discussions
             </h2>
           </div>
-          <Link to="/search" className="text-primary hover:underline hidden sm:block">
+          
+          {/* Link */}
+          <Link 
+            to="/explore" 
+            className="text-primary hover:underline hidden sm:block"
+          >
             View all discussions →
           </Link>
         </motion.div>
         
+        {/* Carousel */}
         <div ref={emblaRef} className="overflow-hidden">
           <div className="flex">
             {[1, 2, 3, 4, 5].map((id) => (
@@ -50,6 +60,7 @@ export const TrendingCarousel = () => {
             ))}
           </div>
         </div>
+        
       </div>
     </section>
   )
