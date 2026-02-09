@@ -1,103 +1,68 @@
 import { ReactNode, useState } from 'react'
 import { Footer } from './Footer'
-import { LeftSidebar } from './LeftSidebar'
-import { RightSidebar, RightSidebarProps } from './RightSidebar'
-import { cn } from '@/lib/utils'
 import { Header } from './Header'
 import { useDarkMode } from '@/hooks/useDarkMode'
+import { cn } from '@/lib/utils'
 
 interface MainLayoutProps {
+  header?: ReactNode
+  leftSidebar?: ReactNode
+  rightSidebar?: ReactNode
+  footer?: ReactNode
   children: ReactNode
-  rightSidebarVariant?: RightSidebarProps['variant']
-  spaceInfo?: RightSidebarProps['spaceInfo']
-  showRightSidebar?: boolean
+  maxWidth?: string
 }
 
 export const MainLayout = ({
+  header,
+  leftSidebar,
+  rightSidebar,
+  footer,
   children,
-  rightSidebarVariant = 'home',
-  spaceInfo,
-  showRightSidebar = true,
+  maxWidth = "max-w-4xl"
 }: MainLayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const myDefaultUser = { name: 'Diane Panganiban' }
   const { isDark, toggleDarkMode } = useDarkMode()
 
   return (
-    <div className={cn(
-      "min-h-screen flex flex-col bg-background-light",
-      "dark:bg-background-dark"
+    <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark">
+      {header || (
+        <Header 
+          user={{ name: 'Diane Panganiban' }} 
+          isDark={isDark} 
+          onToggleDarkMode={toggleDarkMode}
+          isMobileMenuOpen={isMobileMenuOpen}
+          onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        />
       )}
-    >
-      {/* Header */}
-      <Header 
-        user={myDefaultUser}
-        isDark={isDark}
-        onToggleDarkMode={toggleDarkMode}
-        isMobileMenuOpen={isMobileMenuOpen}
-        onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-      />
 
-      {/* Main container */}
-      <div className="flex flex-1">
-        {/* Desktop Left Sidebar */}
-        <aside className={cn(
-          'hidden xl:flex xl:flex-col xl:w-64',
-          'xl:border-r xl:border-border-light xl:dark:border-border-dark',
-          'xl:sticky xl:top-16 xl:h-[calc(100vh-4rem)]',
-          'xl:overflow-y-auto'
-        )}>
-          <LeftSidebar />
-        </aside>
-
-        {/* Mobile Sidebar Overlay - FIXED: Start below header */}
-        {isMobileMenuOpen && (
-          <>
-            {/* Backdrop - below header */}
-            <div
-              className={cn(
-                "xl:hidden fixed top-16 left-0 right-0 bottom-0",
-                "bg-black/50 z-40"
-              )}
-              onClick={() => setIsMobileMenuOpen(false)}
-              aria-hidden="true"
-            />
-            
-            {/* Sidebar - below header */}
-            <aside className={cn(
-              'xl:hidden fixed top-16 left-0 bottom-0 z-50',
-              'w-64 overflow-y-auto',
-              'bg-surface-light dark:bg-surface-dark',
-              'border-r border-border-light dark:border-border-dark'
-            )}>
-              <LeftSidebar />
-            </aside>
-          </>
+      <div className="flex flex-1 w-full max-w-[1440px] mx-auto relative">
+        {/* Left Sidebar Slot */}
+        {leftSidebar && (
+          <aside className={cn(
+            "hidden xl:block w-64 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto border-r dark:border-gray-800",
+            isMobileMenuOpen && "block fixed inset-0 z-50 bg-white dark:bg-surface-dark w-64 pt-16"
+          )}>
+            {leftSidebar}
+          </aside>
         )}
 
-        {/* Main Content + Right Sidebar */}
-        <div className="flex flex-1 min-w-0">
-          <main className="flex-1 p-4 md:p-6">
-            <div className="max-w-4xl mx-auto">
-              {children}
-            </div>
-          </main>
+        {/* Main Content */}
+        <main className="flex-1 p-4 md:p-6 min-w-0">
+          <div className={cn("mx-auto", maxWidth)}>
+            {children}
+          </div>
+        </main>
 
-          {/* Right Sidebar */}
-          {showRightSidebar && (
-            <aside 
-              className="hidden xl:block w-80 shrink-0 sticky top-20 h-fit"
-            >
-              <div className="p-4">
-                <RightSidebar variant={rightSidebarVariant} spaceInfo={spaceInfo} />
-              </div>
-            </aside>
-          )}
-        </div>
+        {/* Right Sidebar Slot */}
+        {rightSidebar && (
+          <aside className="hidden xl:block w-80 sticky top-16 h-fit p-4">
+            {rightSidebar}
+          </aside>
+        )}
       </div>
 
-      {/* Footer */}
-      <Footer />
+      {footer || <Footer />}
     </div>
   )
 }
