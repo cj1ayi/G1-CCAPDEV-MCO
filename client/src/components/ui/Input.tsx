@@ -66,7 +66,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-invalid={!!error}
             aria-describedby={describedBy}
             className={cn(
-              'w-full rounded-lg border bg-white dark:bg-gray-900',
+              'w-full rounded-lg border bg-white dark:bg-surface-dark',
               'px-4 py-3 text-sm text-gray-900 dark:text-white',
               'placeholder:text-gray-400 transition-colors',
               'focus:outline-none focus:ring-2 focus:ring-primary/20',

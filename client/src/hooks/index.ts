@@ -1,3 +1,3 @@
-export { useComments } from './useComments'
-export { useCommentVoting } from './useCommentVoting'
-export type { VoteType } from './useCommentVoting'
+export { useDarkMode } from './useDarkMode'
+export { useImageRotation } from './useImageRotation'
+export { usePasswordStrength } from './usePasswordStrength'

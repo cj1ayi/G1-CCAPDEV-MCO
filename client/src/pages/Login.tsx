@@ -2,48 +2,82 @@ import AnimoForumsLogoWhite from "@/assets/AnimoForumsLogoWhite.svg";
 import LegendsYuch from "@/assets/legendsyuch.jpg";
 import SunriseHenry from "@/assets/sunerisehenry.jpg";
 import SunriseMig from "@/assets/sunrisestmig.jpg";
+import SundownHenry from "@/assets/sundownhenry.jpg";
 
 // React
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // Libraries
 import { Link } from "react-router-dom";
-//import { motion } from "framer-motion";
 
 // Icons
-import { Mail, AtSign, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import {
+  AtSign,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight
+} from "lucide-react";
 
 // UI Components
-import { Input, Button, Checkbox } from "@/components/ui";
+import {
+  Input,
+  Button,
+  Checkbox
+} from "@/components/ui";
+
+// Hooks 
+import { useImageRotation } from "@/hooks/useImageRotation";
 
 const Login = () => {
-  const bg_images = [LegendsYuch, SunriseHenry, SunriseMig];
   const [showPassword, setShowPassword] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Auto-rotate images with fade effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % bg_images.length);
-    }, 10000);
+  const BACKGROUND_IMAGES = [
+    {
+      src: SunriseHenry,
+      alt: "Sunrise Henry",
+      weight: 300,
+    },
+    {
+      src: SunriseMig,
+      alt: "Sunrise St. Miguel",
+      weight: 300,
+    },
+    {
+      src: SundownHenry,
+      alt: "Sundown Henry",
+      weight: 300,
+    },
+    {
+      src: LegendsYuch,
+      alt: "Legends Yuch",
+      weight: 1,
+    },
+  ]
 
-    return () => clearInterval(interval);
-  }, []);
+  const { currentIndex } = useImageRotation({
+    images: BACKGROUND_IMAGES,
+    interval: 30000,
+    random: true,
+  })
 
   return (
     <div className="flex h-screen">
       {/* Left Panel */}
       <div className="relative hidden w-1/2 lg:block">
-        {/* Background Images with Fade */}
+
+        {/* Rotating Background Images  */}
         <div className="relative h-full w-full">
-          {bg_images.map((image, index) => (
+          {BACKGROUND_IMAGES.map((image, index) => (
             <img
               key={index}
-              src={image}
-              alt={`Slide ${index + 1}`}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-                index === currentImageIndex ? "opacity-100" : "opacity-0"
-              }`}
+              src={image.src}
+              alt={image.alt}
+              className={`
+                absolute inset-0 h-full w-full object-cover 
+                transition-opacity duration-1000 
+                ${index === currentIndex ? "opacity-100" : "opacity-0"}
+                `}
             />
           ))}
         </div>
@@ -53,17 +87,19 @@ const Login = () => {
 
         {/* Content */}
         <div className="absolute inset-0 flex flex-col justify-between p-12">
+
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <Link to= "/">
-            <img
-              src={AnimoForumsLogoWhite}
-              alt="AnimoForums"
-              className="h-10 w-10"
-              
-            />
+            <Link to="/">
+              <img
+                src={AnimoForumsLogoWhite}
+                alt="AnimoForums"
+                className="h-10 w-10"
+              />
             </Link>
-            <span className="text-2xl font-bold text-white">AnimoForums</span>
+            <span className="text-2xl font-bold text-white">
+              AnimoForums
+            </span>
           </div>
 
           {/* Testimonial */}
@@ -88,11 +124,11 @@ const Login = () => {
       </div>
 
       {/* Right Panel */}
-      <div className="flex w-full flex-col items-center justify-center bg-white px-8 lg:w-1/2">
-        <div className="w-full max-w-md">
+      <div className="flex w-full flex-col items-center justify-center bg-white dark:bg-surface-dark px-8 lg:w-1/2">
+        <div className="w-full max-w-xl">
           {/* Heading */}
           <div className="mb-8 space-y-2">
-            <h1 className="text-3xl font-extrabold text-gray-900">Sign In</h1>
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">Sign In</h1>
           </div>
 
           {/* Form */}
