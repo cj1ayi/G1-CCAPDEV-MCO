@@ -1,3 +1,8 @@
+export interface SpaceRule {
+  title: string
+  description: string
+}
+
 export interface Space {
   id: string
   name: string
@@ -11,4 +16,7 @@ export interface Space {
   colorScheme: string
   isJoined?: boolean
   isActive?: boolean
+  bannerUrl?: string
+  rules: SpaceRule[]
+  createdDate: string
 }

@@ -13,7 +13,14 @@ export const MOCK_SPACES: Space[] = [
     category: 'Official',
     colorScheme: 'from-blue-500 to-cyan-400',
     isJoined: false,
-    isActive: true
+    isActive: true,
+    createdDate: 'Aug 24, 2018',
+    bannerUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Xukxb2LT4Mj6TjnwhnNtFL4ao6VlYjxduRaoL2twXEpqafKTN0IYPbjjgb5qVdtBLv7KGnqQjFEIs5PVihem28O11xmtCfpUyyrD4BGyJbd58psZuBZSEguY-fvrpnbbrNLOLSTMLGUCiZTmRfTKyZKfOF3l1YQMRt0cK4fOqXOYKBMlVy12c9NkO65iOvmRD4rrZTzHQr_w4E8wpkhdaGDtZq3d6SBP03g0VhBp5q2CnqRbvxmZcEIGBdshM0VZqXHjgBDMJA',
+    rules: [
+      { title: 'Be Respectful', description: 'We are all Lasallians here. No hate speech.' },
+      { title: 'No NSFW Content', description: 'Keep it clean and wholesome.' },
+      { title: 'DLSU Related Only', description: 'Memes must be relevant to university life.' }
+    ]
   },
   {
     id: '2',
@@ -26,71 +33,11 @@ export const MOCK_SPACES: Space[] = [
     iconType: 'text',
     category: 'Lifestyle',
     colorScheme: 'from-pink-500 to-rose-400',
-    isJoined: true
-  },
-  {
-    id: '3',
-    name: 'frosh-support',
-    displayName: 'Frosh Support (ID 124)',
-    description: 'Guides, campus maps, enrollment tips, and survival hacks for the incoming batch.',
-    memberCount: '800',
-    postCount: '120',
-    icon: '124',
-    iconType: 'text',
-    category: 'Batch',
-    colorScheme: 'from-green-500 to-teal-400',
-    isJoined: false
-  },
-  {
-    id: '4',
-    name: 'archers-eats',
-    displayName: "Archer's Eats",
-    description: "Food reviews around Taft. Where to eat between classes? What's open 24/7?",
-    memberCount: '2.1k',
-    postCount: '300',
-    icon: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCDNj5eJ7cEIAGWrD46_p1oott_0hLtShIo3XSnMG1U0jdGjH6VTorcln_lbvCSYKCSRTWRp6jKzt7rNsfIuvua1gPySJCZ6e1PJlMeyfQ9z6Fk08RDjjOmK-zCy7QaV7aVhRrMUWLtnBhCtc5wooPsQPWQzyxnAE8AeHwm_0JCHcud8Y0syijB3K3NyTGzAml97_1yEJ3SW5-1siMHYyzSUnDmGz5AM-5Wx-j_uOkyFPMw-S5Eui9t_x_nGvAUFx_eUgW8tEALz7k',
-    iconType: 'image',
-    category: 'Lifestyle',
-    colorScheme: '',
-    isJoined: false
-  },
-  {
-    id: '5',
-    name: 'marketplace',
-    displayName: 'Marketplace',
-    description: 'Buy and sell textbooks, calculators, and uniforms. Keep transactions safe.',
-    memberCount: '3.4k',
-    postCount: '89',
-    icon: 'menu_book',
-    iconType: 'text',
-    category: 'Interest',
-    colorScheme: 'from-amber-500 to-yellow-400',
-    isJoined: false
-  },
-  {
-    id: '6',
-    name: 'green-archers-sports',
-    displayName: 'Green Archers Sports',
-    description: 'Cheer for the Green and White! UAAP updates, game schedules, and post-game analysis.',
-    memberCount: '8.9k',
-    postCount: '1.2k',
-    icon: 'sports_basketball',
-    iconType: 'text',
-    category: 'Interest',
-    colorScheme: 'bg-[#007036]',
-    isJoined: false
-  },
-  {
-    id: '7',
-    name: 'tech-support',
-    displayName: 'Tech Support',
-    description: 'Student-led tech help. Canvas issues? AnimoSys down? Ask here.',
-    memberCount: '540',
-    postCount: '92',
-    icon: 'terminal',
-    iconType: 'text',
-    category: 'Academic',
-    colorScheme: 'bg-gray-800',
-    isJoined: false
+    isJoined: true,
+    createdDate: 'Oct 24, 2016',
+    rules: [
+      { title: 'Anonymity', description: 'Do not dox other students.' },
+      { title: 'Respect', description: 'No targeted harassment.' }
+    ]
   }
 ]
