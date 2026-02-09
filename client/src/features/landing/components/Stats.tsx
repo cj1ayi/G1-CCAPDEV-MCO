@@ -15,17 +15,17 @@ export const Stats = () => (
         <div className="grid grid-cols-3 gap-8 text-center">
           <div className="flex flex-col items-center gap-2">
             <Users className="text-primary h-8 w-8" />
-            <p className="text-3xl font-extrabold"><CountUp end={12500} duration={2} separator="," />+</p>
+            <p className="text-3xl font-extrabold"><CountUp end={67000} duration={2} separator="," />+</p>
             <p className="text-xs text-gray-500 uppercase">Lasallians</p>
           </div>
           <div className="flex flex-col items-center gap-2">
             <MessagesSquare className="text-primary h-8 w-8" />
-            <p className="text-3xl font-extrabold"><CountUp end={50000} duration={2} separator="," />+</p>
+            <p className="text-3xl font-extrabold"><CountUp end={67000} duration={2} separator="," />+</p>
             <p className="text-xs text-gray-500 uppercase">Discussions</p>
           </div>
           <div className="flex flex-col items-center gap-2">
             <Rocket className="text-primary h-8 w-8" />
-            <p className="text-3xl font-extrabold"><CountUp end={120} duration={2} />+</p>
+            <p className="text-3xl font-extrabold"><CountUp end={67} duration={2} />+</p>
             <p className="text-xs text-gray-500 uppercase">Active Spaces</p>
           </div>
         </div>

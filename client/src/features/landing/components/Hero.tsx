@@ -34,7 +34,7 @@ export const Hero = () => (
         </div>
       </motion.div>
       <div className="hidden md:block bg-gray-200 dark:bg-gray-700 rounded-xl h-96 flex items-center justify-center">
-        <span className="text-gray-500">Visual Asset Placeholder</span>
+        <span className="text-gray-500">Cards</span>
       </div>
     </div>
   </section>
