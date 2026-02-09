@@ -3,7 +3,6 @@ import { MainLayout } from '@/components/layout/MainLayout'
 import { Button } from '@/components/ui'
 import { RotateCw } from 'lucide-react'
 
-// Lego Bricks
 import { SidebarNav } from '@/features/navigation/components/SidebarNav'
 import {
   YourSpacesWidget
@@ -17,7 +16,6 @@ import {
 } from '@/features/spaces/components/SpaceDirectoryHeader'
 import { SpaceFilters } from '@/features/spaces/components/SpaceFilters'
 
-// Data
 import { MOCK_SPACES } from '@/features/spaces/data'
 
 const SpacesDirectory = () => {
@@ -25,14 +23,14 @@ const SpacesDirectory = () => {
   const [filter, setFilter] = useState('All Spaces')
   const [sortBy, setSortBy] = useState('A-Z')
 
-  // Logic: Join/Leave Toggle
+  // Join/Leave Toggle
   const handleToggleJoin = (id: string) => {
     setSpaces((prev) =>
       prev.map((s) => (s.id === id ? { ...s, isJoined: !s.isJoined } : s))
     )
   }
 
-  // Logic: Filter & Sort
+  // Filter & Sort
   const processedSpaces = useMemo(() => {
     let result = [...spaces]
 
@@ -46,7 +44,7 @@ const SpacesDirectory = () => {
       if (sortBy === 'A-Z') return a.displayName.localeCompare(b.displayName)
       if (sortBy === 'Z-A') return b.displayName.localeCompare(a.displayName)
       if (sortBy === 'Members') {
-        // Simple parse for "1.2k" -> 1200
+        // Parser
         const parseCount = (str: string) =>
           parseFloat(str) * (str.includes('k') ? 1000 : 1)
         return parseCount(b.memberCount) - parseCount(a.memberCount)
