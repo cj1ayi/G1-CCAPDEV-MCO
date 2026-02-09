@@ -1,9 +1,15 @@
+import { MainLayout } from '@/components/layout/MainLayout'
+import { ProfileAvatar } from '@/features/profile/components/ProfileAvatar'
+
 const Profile = () => {
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold">Profile</h1>
-    </div>
+    <MainLayout 
+      headerVariant="profile" 
+      maxWidth="max-w-7xl" 
+    >
+      <ProfileAvatar />
+    </MainLayout>
   )
 }
 
-export default Profile 
+export default Profile
