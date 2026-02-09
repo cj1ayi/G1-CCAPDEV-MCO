@@ -1,14 +1,18 @@
+// 
 import { Space } from '../types'
 import { Card, Button, Badge } from '@/components/ui'
 import { Users, MessageSquare, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export const SpaceCard = ({ space }: { space: Space }) => {
-  const isMaterialIcon = [
-    'menu_book',
-    'sports_basketball',
-    'terminal'
-  ].includes(space.icon)
+interface SpaceCardProps {
+  space: Space
+  onToggleJoin: (id: string) => void
+}
+
+export const SpaceCard = ({ space, onToggleJoin }: SpaceCardProps) => {
+  const isMaterialIcon = ['menu_book', 'sports_basketball', 'terminal'].includes(
+    space.icon
+  )
 
   return (
     <Card
@@ -60,6 +64,7 @@ export const SpaceCard = ({ space }: { space: Space }) => {
             className="font-bold"
             leftIcon={space.isJoined ?
               <Check className="size-4" /> : undefined}
+            onClick={() => onToggleJoin(space.id)}
           >
             {space.isJoined ?
               'Joined' : 'Join'}
