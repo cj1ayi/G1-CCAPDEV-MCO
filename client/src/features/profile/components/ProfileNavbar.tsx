@@ -1,9 +1,5 @@
-import { Button } from '@/components/ui/Button'
-
 import { cn } from '@/lib/utils'
 import { motion } from "framer-motion";
-import { Camera, UserPlus, Mail, MoreHorizontal, User, Settings, LogOut } 
-from 'lucide-react'
 
 export const ProfileNavbar = () => {
   return (
