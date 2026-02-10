@@ -27,6 +27,74 @@ export interface Post {
   isOwner?: boolean
 }
 
+
+export interface User {
+  id: string
+  name: string
+  username: string
+  avatar: any
+  bio?: string
+  location?: string
+  joinedAt?: string
+}
+
+export const mockUsers: Record<string, User> = {
+  '1': {
+    id: '1',
+    name: 'Thomas James C. Tiam-Lee',
+    username: 'tiamlee',
+    avatar: avatarImage,
+    bio: 'CS Student • Loves cats',
+    location: 'Manila, PH',
+    joinedAt: '2022-06-01',
+  },
+  '2': {
+    id: '2',
+    name: 'Teehee',
+    username: 'iloveapex',
+    avatar: diane,
+    bio: 'Frontend dev in training',
+    location: 'QC, PH',
+    joinedAt: '2023-01-10',
+  },
+  '3': {
+    id: '3',
+    name: 'Sussus Amogus',
+    username: 'pieisspy',
+    avatar: karl,
+    bio: 'Just vibing',
+    location: 'Cavite, PH',
+    joinedAt: '2022-11-20',
+  },
+  '4': {
+    id: '4',
+    name: 'Gabb',
+    username: 'gdg1106',
+    avatar: gabb,
+    bio: 'CCAPDEV student',
+    location: 'Makati, PH',
+    joinedAt: '2023-02-14',
+  },
+  '5': {
+    id: '5',
+    name: 'Floranaras',
+    username: 'callo',
+    avatar: callo,
+    bio: 'Commuter & gamer',
+    location: 'Las Piñas, PH',
+    joinedAt: '2023-03-02',
+  },
+  '6': {
+    id: '6',
+    name: 'Pringles',
+    username: 'whotftakesthenamezex',
+    avatar: pring,
+    bio: 'Snack enthusiast',
+    location: 'Makati, PH',
+    joinedAt: '2023-05-01',
+  }
+}
+
 export const mockPosts: Record<string, Post> = {
   '1': {
     id: '1',
@@ -323,6 +391,16 @@ export const getAllPosts = (): Post[] => {
   return Object.keys(mockPosts)
     .sort()
     .map(id => mockPosts[id])
+}
+
+export const getAllUsers = (): User[] => {
+  return Object.keys(mockUsers)
+		.sort()
+		.map(id => mockUsers[id])
+}
+
+export const getUserById = (id: string): User | null => {
+	return mockUsers[id] || null
 }
 
 export const getPostById = (id: string): Post | null => {
