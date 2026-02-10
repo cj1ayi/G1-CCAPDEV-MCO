@@ -1,8 +1,14 @@
+import { MainLayout } from '@/components/layout/MainLayout'
+import { SearchResults } from '@/features/search/components/SearchResults'
+
 const Search = () => {
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold">Search</h1>
-    </div>
+		<MainLayout
+			headerVariant="search"
+			maxWidth="max-w-7xl"
+		>
+			<SearchResults />
+		</MainLayout>
   )
 }
 
