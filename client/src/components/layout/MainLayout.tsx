@@ -23,21 +23,55 @@ export const MainLayout = ({
   const { isDark, toggleDarkMode } = useDarkMode()
 
   return (
-    <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark">
-      <Header 
+    <div className={cn(
+      "min-h-screen flex flex-col",
+      "bg-background-light dark:bg-background-dark"
+    )}>
+      <Header
         variant={headerVariant}
-        user={headerVariant === 'landing' ? undefined : { name: 'Diane Panganiban' }} 
-        isDark={isDark} 
+        user={headerVariant === 'landing'
+          ? undefined
+          : { name: 'Diane Panganiban' }
+        }
+        isDark={isDark}
         onToggleDarkMode={toggleDarkMode}
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       />
 
-      <div className="flex flex-1 w-full max-w-[1440px] mx-auto relative">
+      <div className="flex flex-1 w-full relative">
         {/* Left Sidebar Slot */}
         {leftSidebar && (
-          <aside className="hidden xl:block w-64 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto border-r dark:border-gray-800">
-            {leftSidebar}
-          </aside>
+          <>
+            {/* Desktop Sidebar */}
+            <aside className={cn(
+              "hidden xl:block w-64 sticky top-16 h-[calc(100vh-4rem)]",
+              "overflow-y-auto border-r dark:border-gray-800",
+              "pt-4"
+            )}>
+              {leftSidebar}
+            </aside>
+
+            {/* Mobile Sidebar */}
+            {isMobileMenuOpen && (
+              <>
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 bg-black/50 z-40 xl:hidden"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                />
+
+                {/* Sidebar Drawer */}
+                <aside className={cn(
+                  "fixed left-0 top-16 bottom-0 w-64 z-50 xl:hidden",
+                  "bg-surface-light dark:bg-surface-dark border-r",
+                  "dark:border-gray-800 overflow-y-auto",
+                  "pt-4"
+                )}>
+                  {leftSidebar}
+                </aside>
+              </>
+            )}
+          </>
         )}
 
         {/* Main Content Slot */}
