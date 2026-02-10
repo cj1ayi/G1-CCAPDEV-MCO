@@ -1,5 +1,6 @@
 import { MainLayout } from '@/components/layout/MainLayout'
 import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
+import { ProfileNavbar } from '@/features/profile/components/ProfileNavbar'
 
 const Profile = () => {
   return (
@@ -7,7 +8,10 @@ const Profile = () => {
     	headerVariant="profile" 
       maxWidth="max-w-7xl" 
     >
-      <ProfileHeader />
+			<div className="relative">
+				<ProfileHeader />
+				<ProfileNavbar />
+			</div>
     </MainLayout>
   )
 }
