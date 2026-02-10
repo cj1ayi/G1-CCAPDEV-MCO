@@ -1,6 +1,6 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { MoreHorizontal, Edit, Trash2, Loader2 } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2, Loader2, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // Hooks
@@ -11,6 +11,7 @@ import { useCommentVoting } from '@/features/comments/hooks'
 // Lego Bricks
 import { 
   Card, 
+  Button,
   Dropdown, 
   DropdownItem, 
   DropdownSeparator 
@@ -38,6 +39,7 @@ import {
 
 export default function PostDetail() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
 
   // Post data and actions
   const {
@@ -54,7 +56,6 @@ export default function PostDetail() {
     handleEdit,
     handleDelete,
     handleSpaceClick,
-    backUrl,
   } = usePostDetail({ postId: id })
 
   // Comment voting
@@ -100,6 +101,7 @@ export default function PostDetail() {
           <p className="text-gray-500 mb-6">
             The post you're looking for doesn't exist or has been deleted.
           </p>
+          <Button onClick={() => navigate(-1)}>Go Back</Button>
         </Card>
       </MainLayout>
     )
@@ -114,15 +116,15 @@ export default function PostDetail() {
           <div className="h-px bg-gray-200 dark:bg-gray-800" />
         </div>
       }
-      >
+    >
       <div className="flex flex-col gap-4">
         {/* Header with breadcrumbs and actions */}
         <div className="flex items-center justify-between">
           <PostDetailBreadcrumbs
             space={post.space}
             title={post.title}
-            backUrl={backUrl}
-            backLabel="Posts"
+            backUrl="/"
+            backLabel="Home"
             onSpaceClick={handleSpaceClick}
           />
 
@@ -142,7 +144,9 @@ export default function PostDetail() {
                 </button>
               }
             >
-              <DropdownItem icon={<Edit className="h-4 w-4" />} onClick={handleEdit}>
+              <DropdownItem 
+                icon={<Edit className="h-4 w-4" />} 
+                onClick={handleEdit}>
                 Edit Post
               </DropdownItem>
               <DropdownSeparator />
@@ -182,8 +186,7 @@ export default function PostDetail() {
         {commentError && (
           <Card className={cn(
             "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-            )}
-          >
+          )}>
             <p className="text-red-600 dark:text-red-400 text-sm text-center">
               {commentError.message}
             </p>
