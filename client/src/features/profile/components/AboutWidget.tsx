@@ -5,15 +5,14 @@ import { Calendar, GraduationCap, MapPin, Twitter, Github, Linkedin }
 	from "lucide-react"
 
 
-export const AboutWidget = () => {
+export const AboutWidget = ({ user }: { user: any }) => {
 	return (
 		<section className="space-y-4">
 			<Card>
 				<CardHeader>
 					<CardTitle>About</CardTitle>
 					<CardDescription>
-						Passionate about coding, coffee, and campus life. Trying to survive CCS one term at a time. Always up for a chat about React or finding the best study spots on campus. 🏹
-						
+						{user.bio}	
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -23,7 +22,7 @@ export const AboutWidget = () => {
 						</div>
 						<div className="flex items-center gap-2 text-sm text-gray-600">
 							<Calendar className="w-4 h-4" />
-							<span>Joined September 2021</span>
+							<span>{user.joinedAt}</span>
 						</div>
 
 						<div className="flex items-center gap-2 text-sm text-gray-600">
@@ -33,7 +32,7 @@ export const AboutWidget = () => {
 
 						<div className="flex items-center gap-2 text-sm text-gray-600">
 							<MapPin className="w-4 h-4" />
-							<span>Manila, Philippines</span>
+							<span>{user.location}</span>
 						</div>
 						<div className="py-4">
 							<div className="h-px w-full bg-gray-200" />

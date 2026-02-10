@@ -8,7 +8,7 @@ import { Camera, UserPlus, Mail, MoreHorizontal, User, Settings, LogOut }
 from 'lucide-react'
 import defaultUser from '@/assets/default.png' 
 
-export const ProfileHeader = () => {
+export const ProfileHeader = ({ user }: { user: any }) => {
   return (
 		<section>
 			{/* FULL BLEED */}
@@ -49,8 +49,8 @@ export const ProfileHeader = () => {
 								viewport={{ once: true }}
 							>
 								<img
-									src={defaultUser}
-									alt="profile"
+									src={user.avatar}
+									alt={user.name}
 									className=" w-36 h-36 sm:28 sm:28 
 										bg-gray-200 object-cover rounded-full 
 										border-4 border-white object-cover shadow-lg mb-10"
@@ -66,10 +66,10 @@ export const ProfileHeader = () => {
 								{/* RIGHT TEXT */}
 								<div className="pt-1">
 									<h1 className="text-3xl font-bold">
-										Archer_01
+										{user.name}
 									</h1>
 									<p className="text-[#5e8d75] mt-1">
-										@archer_01 • Computer Science (CCS) '24
+										@{user.username}
 									</p>
 								</div>
 							</motion.div>
