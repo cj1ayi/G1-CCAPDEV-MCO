@@ -35,7 +35,7 @@ export const AboutWidget = () => {
 							<MapPin className="w-4 h-4" />
 							<span>Manila, Philippines</span>
 						</div>
-						<div className="py-4"k
+						<div className="py-4">
 							<div className="h-px w-full bg-gray-200" />
 						</div>
 						<div className="flex items-center gap-3">
