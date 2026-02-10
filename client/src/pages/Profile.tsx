@@ -1,5 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout'
-import { ProfileAvatar } from '@/features/profile/components/ProfileAvatar'
+import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
 
 const Profile = () => {
   return (
@@ -7,7 +7,7 @@ const Profile = () => {
     	headerVariant="profile" 
       maxWidth="max-w-7xl" 
     >
-      <ProfileAvatar />
+      <ProfileHeader />
     </MainLayout>
   )
 }
