@@ -4,6 +4,7 @@ import {
   Home,
   PostDetail,
   Profile,
+	Explore,
   Space,
   Login,
   Signup,
@@ -49,6 +50,8 @@ const App = () => {
       <Routes>
         {/* Home */}
         <Route path="/" element={<Home/>} />
+					{/* Feed Routes */}
+					<Route path="/explore" element={<Explore/>} />
           
           {/* Post Routes */}
           <Route path="/post/:id" element={<PostDetail/>} />
