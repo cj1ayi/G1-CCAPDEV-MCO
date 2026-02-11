@@ -1,5 +1,4 @@
-import { MOCK_SPACES } from '../data'
-import { Space } from '../types'
+import { getAllSpaces, getSpaceByName, Space } from '@/lib/mockData'
 import { getAllPosts, Post } from '@/lib/mockData'
 
 export type SortOption = 'hot' | 'new' | 'week' | 'month' | 'year'
@@ -8,12 +7,11 @@ class SpaceService {
   async getSpaces(page: number = 1, limit: number = 6): 
     Promise<{ data: Space[], hasMore: boolean }> {
     await this.delay(500)
-    const start = (page - 1) * limit
-    const end = start + limit
-    const data = MOCK_SPACES.slice(0, end)
+    const allSpaces = getAllSpaces()
+    const end = page * limit
     return {
-      data,
-      hasMore: end < MOCK_SPACES.length + 1
+      data: allSpaces.slice(0, end),
+      hasMore: end < allSpaces.length
     }
   }
 
