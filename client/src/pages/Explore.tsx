@@ -9,6 +9,7 @@ import { Feed } from '@/features/explore/components/Feed'
 const Explore = () => {
  return (
     <MainLayout
+      maxWidth="max-w-6xl"
       leftSidebar={
         <div className="space-y-6">
           <SidebarNav />
