@@ -24,7 +24,7 @@ export function SearchResults() {
   const resultCount = filteredPosts.length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       {/* Header */}
       <div className="space-y-1">
         <h1 className="text-3xl font-bold text-text-main-light dark:text-text-main-dark tracking-tight">

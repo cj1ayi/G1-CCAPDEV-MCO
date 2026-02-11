@@ -6,26 +6,15 @@ import { SidebarNav } from '@/features/navigation/components/SidebarNav'
 const Search = () => {
   return (
     <MainLayout
-      headerVariant="search"
-      maxWidth="max-w-7xl"
+        maxWidth="max-w-6xl"
+        leftSidebar={
+        <div className="flex flex-col gap-6">
+          <SidebarNav />
+        </div>
+        }
+        rightSidebar={<TrendingWidgets/>}
     >
-      <div className="grid grid-cols-12 gap-6">
-        
-        {/* Left */}
-        <aside className="col-span-3 space-y-4">
-					<SidebarNav />
-        </aside>
-
-        {/* Center */}
-        <main className="col-span-6 space-y-4">
-          <SearchResults />
-        </main>
-
-        {/* Right */}
-        <aside className="col-span-3 space-y-4">
-          <TrendingWidgets />
-        </aside>
-      </div>
+      <SearchResults />
     </MainLayout>
   )
 }
