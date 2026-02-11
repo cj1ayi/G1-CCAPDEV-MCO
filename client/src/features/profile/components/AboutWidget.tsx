@@ -16,7 +16,7 @@ export const AboutWidget = ({ user }: { user: any }) => {
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<p className="text-gray-600 dark:text-gray-300">
+					<div className="text-gray-600 dark:text-gray-300">
 						<div className="py-4">
 							<div className="h-px w-full bg-gray-200" />
 						</div>
@@ -65,7 +65,7 @@ export const AboutWidget = ({ user }: { user: any }) => {
 							<Linkedin className="w-4 h-4" />
 						</a>
 					</div>
-					</p>
+					</div>
 				</CardContent>
 			</Card>
 		</section>
