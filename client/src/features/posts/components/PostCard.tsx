@@ -157,7 +157,10 @@ const PostCard = ({
                   "text-gray-900 dark:text-gray-200",
                   "hover:underline cursor-pointer"
                 )}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.location.href = `/space/${space}`
+                }}
               >
                 {spaceIcon && (
                   <img
@@ -169,7 +172,15 @@ const PostCard = ({
                 <span>r/{space}</span>
               </div>
               <span>•</span>
-              <span>Posted by u/{author.username}</span>
+              <span>Posted by</span>
+                <span className="hover:underline cursor-pointer font-semibold"
+                  onClick={(e) => {
+                  e.stopPropagation()
+                  window.location.href = `/profile/${author.id}`
+                  }}
+                >
+                  u/{author.username}
+                </span>
               <span>•</span>
               <span>{createdAt}</span>
               
