@@ -7,6 +7,74 @@ import pring from '@/assets/pring.gif'
 import { CommentCardProps } from '@/features/comments/components/CommentCard'
 import { Train } from 'lucide-react'
 
+export interface SpaceRule {
+  title: string
+  description: string
+}
+
+export interface Space {
+  id: string
+  name: string
+  displayName: string
+  description: string
+  memberCount: string
+  postCount: string
+  icon: string
+  iconType: 'text' | 'image'
+  category: 'Official' | 'Batch' | 'Lifestyle' | 'Academic' | 'Interest'
+  colorScheme: string
+  isJoined?: boolean
+  isActive?: boolean
+  bannerUrl?: string
+  rules: SpaceRule[]
+  createdDate: string
+}
+
+export const mockSpaces: Space[] = [
+  {
+    id: '1',
+    name: 'ccs-gov',
+    displayName: 'CCS Student Gov',
+    description: 'Official updates, announcements, and support from the College of Computer Studies Student Government.',
+    memberCount: '1.2k',
+    postCount: '450',
+    icon: 'C',
+    iconType: 'text',
+    category: 'Official',
+    colorScheme: 'from-blue-500 to-cyan-400',
+    isJoined: false,
+    isActive: true,
+    createdDate: 'Aug 24, 2018',
+    bannerUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Xukxb2LT4Mj6TjnwhnNtFL4ao6VlYjxduRaoL2twXEpqafKTN0IYPbjjgb5qVdtBLv7KGnqQjFEIs5PVihem28O11xmtCfpUyyrD4BGyJbd58psZuBZSEguY-fvrpnbbrNLOLSTMLGUCiZTmRfTKyZKfOF3l1YQMRt0cK4fOqXOYKBMlVy12c9NkO65iOvmRD4rrZTzHQr_w4E8wpkhdaGDtZq3d6SBP03g0VhBp5q2CnqRbvxmZcEIGBdshM0VZqXHjgBDMJA',
+    rules: [
+      { title: 'Be Respectful', description: 'We are all Lasallians here. No hate speech.' },
+      { title: 'No NSFW Content', description: 'Keep it clean and wholesome.' },
+      { title: 'DLSU Related Only', description: 'Memes must be relevant to university life.' }
+    ]
+  },
+  {
+    id: '2',
+    name: 'freedom-wall',
+    displayName: 'DLSU Freedom Wall',
+    description: 'Express yourself anonymously. The pulse of the Lasallian community. Keep it respectful.',
+    memberCount: '5.6k',
+    postCount: '10k+',
+    icon: 'F',
+    iconType: 'text',
+    category: 'Lifestyle',
+    colorScheme: 'from-pink-500 to-rose-400',
+    isJoined: true,
+    createdDate: 'Oct 24, 2016',
+    rules: [
+      { title: 'Anonymity', description: 'Do not dox other students.' },
+      { title: 'Respect', description: 'No targeted harassment.' }
+    ]
+  }
+]
+
+export const getAllSpaces = () => mockSpaces
+export const getSpaceByName = (name: string) => mockSpaces.find(s => s.name === name)
+
 export interface Post {
   id: string
   title: string
@@ -106,7 +174,7 @@ export const mockPosts: Record<string, Post> = {
       username: 'tiamlee',
       avatar: avatarImage,
     },
-    space: 'CCS',
+    space: 'ccs-gov',
     upvotes: 67,
     downvotes: 0,
     commentCount: 3, 
@@ -124,7 +192,7 @@ export const mockPosts: Record<string, Post> = {
       username: 'iloveapex',
       avatar: diane,
     },
-    space: 'Freedom Wall',
+    space: 'freedom-wall',
     upvotes: 45,
     downvotes: 3,
     commentCount: 2,
@@ -181,7 +249,7 @@ export const mockPosts: Record<string, Post> = {
       username: 'callo',
       avatar: callo,
     },
-    space: 'Freedom Wall',
+    space: 'freedom-wall',
     upvotes: 35,
     downvotes: 7,
     commentCount: 1, 
@@ -200,7 +268,7 @@ export const mockPosts: Record<string, Post> = {
       username: 'callo',
       avatar: callo,
     },
-    space: 'Freedom Wall',
+    space: 'freedom-wall',
     upvotes: 67,
     downvotes: 7,
     commentCount: 1, 

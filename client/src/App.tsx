@@ -6,6 +6,7 @@ import {
   Profile,
 	Explore,
   Space,
+  SpacesDirectory,
   Login,
   Signup,
   Search,
@@ -61,6 +62,7 @@ const App = () => {
           {/* User & Space Routes */}
           <Route path="/profile/:id" element={<Profile/>} />
           <Route path="/space/:name" element={<Space/>} />
+          <Route path="/spaces" element={<SpacesDirectory />} />
           
           {/* Auth Routes */}
           <Route path="/login" element={<Login/>} />
@@ -69,10 +71,10 @@ const App = () => {
           {/* Search */}
           <Route path="/search" element={<Search/>} />
           
-        {/* Test Routes */}
-        <Route path="/test-posts" element={<TestPosts />} />
-        <Route path="/test-comments" element={<TestComments />} />
-        <Route path="/test-layouts" element={<TestLayouts />} />
+          {/* Test Routes */}
+          <Route path="/test-posts" element={<TestPosts />} />
+          <Route path="/test-comments" element={<TestComments />} />
+          <Route path="/test-layouts" element={<TestLayouts />} />
       </Routes>
     </BrowserRouter>
   )
