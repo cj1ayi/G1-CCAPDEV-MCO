@@ -11,6 +11,7 @@ interface HeaderProps {
   user?: {
     name: string
     avatarUrl?: string
+    id: number
   }
   onSearch?: (query: string) => void
   onCreatePost?: () => void
@@ -164,7 +165,7 @@ export const Header = ({
             </Button>
 
             {/* User Avatar */}
-            <Link to="/profile" className="ml-1">
+            <Link to={`/profile/${user.id}`}className="ml-1">
               <Avatar src={user.avatarUrl} alt={user.name} 
                 fallback={user.name.charAt(0).toUpperCase()} size="sm"
                 className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" />
