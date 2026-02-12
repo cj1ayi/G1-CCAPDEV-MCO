@@ -8,11 +8,22 @@ import { getTotalCommentCount } from '@/features/comments/utils/comment-utils'
 export const Feed = () => {
   const navigate = useNavigate()
 
-  const posts = getAllPosts()
-
+  const [posts, setPosts] = useState(() => getAllPosts())
   const [votes, setVotes] = useState<Record<string, 'up' | 'down' | null>>({})
-
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
+
+  // Refresh posts when component mounts or comes back into view
+  useEffect(() => {
+    const refreshPosts = () => {
+      setPosts(getAllPosts())
+    }
+    
+    refreshPosts()
+    
+    // Also refresh when window gains focus (user returns from post detail)
+    window.addEventListener('focus', refreshPosts)
+    return () => window.removeEventListener('focus', refreshPosts)
+  }, [])
 
   useEffect(() => {
     // init votes for all posts
@@ -36,7 +47,9 @@ export const Feed = () => {
       setCommentCounts(counts)
     }
 
-    loadCounts()
+    if (posts.length > 0) {
+      loadCounts()
+    }
   }, [posts])
 
   const toggleVote = (postId: string, voteType: 'up' | 'down') => {
@@ -46,14 +59,42 @@ export const Feed = () => {
     }))
   }
 
+  const getDisplayVotes = (
+    postId: string,
+    baseUpvotes: number,
+    baseDownvotes: number
+  ) => {
+    const voteState = votes[postId]
+    let displayUpvotes = baseUpvotes
+    let displayDownvotes = baseDownvotes
+
+    if (voteState === 'up') {
+      displayUpvotes += 1
+    } else if (voteState === 'down') {
+      displayDownvotes += 1
+    }
+
+    return { displayUpvotes, displayDownvotes }
+  }
+
   return (
     <div className="space-y-4">
       {posts.map((post) => {
+        const { displayUpvotes, displayDownvotes } = getDisplayVotes(
+          post.id,
+          post.upvotes,
+          post.downvotes
+        )
         const voteState = votes[post.id]
-        const commentCount = commentCounts[post.id] ?? post.commentCount
+        
+        // Use real comment count from service, or fallback to mock data
+        const realCommentCount = commentCounts[post.id] ?? post.commentCount
 
-        const displayUpvotes = post.upvotes + (voteState === 'up' ? 1 : 0)
-        const displayDownvotes = post.downvotes + (voteState === 'down' ? 1 : 0)
+        console.log(
+          `Rendering Post ${post.id}: base=${post.upvotes}, ` +
+          `display=${displayUpvotes}, voteState=${voteState}, ` +
+          `comments=${realCommentCount}`
+        )
 
         return (
           <PostCard
@@ -61,13 +102,17 @@ export const Feed = () => {
             {...post}
             upvotes={displayUpvotes}
             downvotes={displayDownvotes}
-            commentCount={commentCount}
+            commentCount={realCommentCount}
             isUpvoted={voteState === 'up'}
             isDownvoted={voteState === 'down'}
             onClick={() => navigate(`/post/${post.id}`)}
             onUpvote={() => toggleVote(post.id, 'up')}
             onDownvote={() => toggleVote(post.id, 'down')}
-            onEdit={post.isOwner ? () => alert(`Edit post ${post.id}`) : undefined}
+            onEdit={
+              post.isOwner
+                ? () => alert(`Edit post ${post.id}`)
+                : undefined
+            }
             onDelete={
               post.isOwner
                 ? () => {
@@ -83,4 +128,3 @@ export const Feed = () => {
     </div>
   )
 }
-
