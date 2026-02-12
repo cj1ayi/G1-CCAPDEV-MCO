@@ -9,7 +9,7 @@ interface UsePostDetailOptions {
   backUrl?: string
 }
 
-export const usePostDetail = ({ postId, backUrl = '/test-posts' }: 
+export const usePostDetail = ({ postId, backUrl = '/explore' }: 
                               UsePostDetailOptions) => {
   const navigate = useNavigate()
   const [post, setPost] = useState<any>(null)

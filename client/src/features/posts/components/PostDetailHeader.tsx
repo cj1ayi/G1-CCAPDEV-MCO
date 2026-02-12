@@ -16,8 +16,8 @@ export function PostDetailHeader({ post, onEdit, onDelete, onSpaceClick }: PostD
       <PostDetailBreadcrumbs
         space={post.space}
         title={post.title}
-        backUrl="/"
-        backLabel="Home"
+        backUrl="/explore"
+        backLabel="Explore"
         onSpaceClick={onSpaceClick}
       />
 

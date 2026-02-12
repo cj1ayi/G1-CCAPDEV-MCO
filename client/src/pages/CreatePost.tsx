@@ -5,6 +5,8 @@ import { ArrowLeft, X } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components/SidebarNav'
 import { Card, Button, Input, Textarea, Select, Badge } from '@/components/ui'
+import { mockSpaces as SPACES }  from '@/lib/mockData'
+
 
 export default function CreatePostPage() {
   const navigate = useNavigate()
@@ -20,14 +22,6 @@ export default function CreatePostPage() {
   const [tagInput, setTagInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<any>({})
-
-  const SPACES = [
-    { value: 'AnimoTech', label: 'r/AnimoTech' },
-    { value: 'AnimoArts', label: 'r/AnimoArts' },
-    { value: 'AnimoScience', label: 'r/AnimoScience' },
-    { value: 'AnimoSports', label: 'r/AnimoSports' },
-    { value: 'AnimoGaming', label: 'r/AnimoGaming' },
-  ]
 
   const validateForm = () => {
     const newErrors: any = {}
@@ -119,7 +113,7 @@ export default function CreatePostPage() {
             <ArrowLeft className="h-5 w-5" />
             <span className="font-medium">Back</span>
           </button>
-          
+
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Create a Post
           </h1>
@@ -141,8 +135,8 @@ export default function CreatePostPage() {
             >
               <option value="">Select a space...</option>
               {SPACES.map((space) => (
-                <option key={space.value} value={space.value}>
-                  {space.label}
+                <option key={space.id} value={space.name}>
+                  {`r/${space.name}`}
                 </option>
               ))}
             </Select>
@@ -184,7 +178,7 @@ export default function CreatePostPage() {
               <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
                 Tags (Optional)
               </label>
-              
+
               <div className="flex gap-2">
                 <Input
                   value={tagInput}
@@ -229,7 +223,7 @@ export default function CreatePostPage() {
                   ))}
                 </div>
               )}
-              
+
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 {formData.tags.length}/5 tags
               </p>
@@ -245,7 +239,7 @@ export default function CreatePostPage() {
               >
                 Cancel
               </Button>
-              
+
               <Button
                 type="submit"
                 variant="primary"

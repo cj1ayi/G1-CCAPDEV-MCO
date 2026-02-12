@@ -48,6 +48,10 @@ export const PostDetailContent = ({
                 'text-gray-900 dark:text-gray-200',
                 'hover:underline cursor-pointer'
               )}
+              onClick={(e) => {
+                  e.stopPropagation()
+                  window.location.href = `/space/${post.space}`
+                }}
             >
               {post.spaceIcon && (
                 <img
@@ -103,7 +107,14 @@ export const PostDetailContent = ({
                   'hover:underline cursor-pointer'
                 )}
               >
-                u/{post.author.username}
+                <span className="hover:underline cursor-pointer font-semibold"
+                  onClick={(e) => {
+                  e.stopPropagation()
+                  window.location.href = `/profile/${post.author.id}`
+                  }}
+                >
+                  u/{post.author.username}
+                </span>
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {post.createdAt}

@@ -31,7 +31,7 @@ export const MainLayout = ({
         variant={headerVariant}
         user={headerVariant === 'landing'
           ? undefined
-          : { name: 'Diane Panganiban' }
+          : { name: 'Diane Panganiban', id: 2}
         }
         isDark={isDark}
         onToggleDarkMode={toggleDarkMode}

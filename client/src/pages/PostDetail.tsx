@@ -14,6 +14,9 @@ import {
   CommentInput, 
   CommentSection 
 } from '@/features/comments/components';
+import { 
+  YourSpacesWidget 
+} from '@/features/spaces/components/YourSpacesWidget';
 
 export default function PostDetail() {
   const { id } = useParams<{ id: string }>();
@@ -51,10 +54,17 @@ export default function PostDetail() {
   }
 
   return (
-    <MainLayout 
+   <MainLayout
       maxWidth="max-w-6xl"
-      leftSidebar={<SidebarNav />}
+      leftSidebar={
+        <div className="space-y-6">
+          <SidebarNav />
+          <div className="h-px bg-gray-200 dark:bg-gray-800" />
+          <YourSpacesWidget />
+        </div>
+      }
     >
+ 
       <div className="flex flex-col gap-4">
         <PostDetailHeader 
           post={post}
