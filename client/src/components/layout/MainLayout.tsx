@@ -45,7 +45,8 @@ export const MainLayout = ({
             {/* Desktop Sidebar */}
             <aside className={cn(
               "hidden xl:block w-64 sticky top-16 h-[calc(100vh-4rem)]",
-              "overflow-y-auto border-r dark:border-gray-800"
+              "overflow-y-auto border-r dark:border-gray-800",
+              "pt-4"
             )}>
               {leftSidebar}
             </aside>
@@ -63,7 +64,8 @@ export const MainLayout = ({
                 <aside className={cn(
                   "fixed left-0 top-16 bottom-0 w-64 z-50 xl:hidden",
                   "bg-surface-light dark:bg-surface-dark border-r",
-                  "dark:border-gray-800 overflow-y-auto"
+                  "dark:border-gray-800 overflow-y-auto",
+                  "pt-4"
                 )}>
                   {leftSidebar}
                 </aside>

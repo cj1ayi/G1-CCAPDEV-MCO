@@ -1,81 +1,53 @@
-import { useNavigate } from 'react-router-dom'
-import { Moon, Sun } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { PostDetailHeaderProps } from '../types'
+import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Dropdown, DropdownItem, DropdownSeparator } from '@/components/ui';
+import { PostDetailBreadcrumbs } from './PostDetailBreadcrumbs';
 
-export const PostDetailHeader = ({ 
-  isDark, 
-  onToggleDarkMode,
-  backUrl = '/posts',
-  homeUrl = '/',
-  siteName = 'AnimoForums'
-}: PostDetailHeaderProps) => {
-  const navigate = useNavigate()
+interface PostDetailHeaderProps {
+  post: any; // Replace with your Post type
+  onEdit: () => void;
+  onDelete: () => void;
+  onSpaceClick: () => void;
+}
 
+export function PostDetailHeader({ post, onEdit, onDelete, onSpaceClick }: PostDetailHeaderProps) {
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-50 flex items-center',
-        'justify-between whitespace-nowrap',
-        'border-b border-gray-200 dark:border-gray-800',
-        'bg-surface-light dark:bg-surface-dark px-6 py-3',
-        'shadow-sm'
+    <div className="flex items-center justify-between">
+      <PostDetailBreadcrumbs
+        space={post.space}
+        title={post.title}
+        backUrl="/"
+        backLabel="Home"
+        onSpaceClick={onSpaceClick}
+      />
+
+      {post.isOwner && (
+        <Dropdown
+          align="right"
+          trigger={
+            <button
+              className={cn(
+                'p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800',
+                'text-gray-500 dark:text-gray-400 transition-colors'
+              )}
+            >
+              <MoreHorizontal className="h-5 w-5" />
+            </button>
+          }
+        >
+          <DropdownItem icon={<Edit className="h-4 w-4" />} onClick={onEdit}>
+            Edit Post
+          </DropdownItem>
+          <DropdownSeparator />
+          <DropdownItem
+            icon={<Trash2 className="h-4 w-4" />}
+            destructive
+            onClick={onDelete}
+          >
+            Delete Post
+          </DropdownItem>
+        </Dropdown>
       )}
-    >
-      <div className="flex items-center gap-8">
-        <div
-          onClick={() => navigate(homeUrl)}
-          className={cn(
-            'flex items-center gap-3 text-primary',
-            'cursor-pointer hover:opacity-80',
-            'transition-opacity'
-          )}
-        >
-          <div
-            className={cn(
-              'size-8 bg-primary rounded-lg flex items-center',
-              'justify-center text-white'
-            )}
-          >
-            <span className="material-symbols-outlined text-[20px]">
-              school
-            </span>
-          </div>
-
-          <h2
-            className={cn(
-              'text-slate-900 dark:text-white text-xl',
-              'font-bold tracking-tight'
-            )}
-          >
-            {siteName}
-          </h2>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <button
-          onClick={onToggleDarkMode}
-          className={cn(
-            'flex items-center justify-center size-10',
-            'rounded-full hover:bg-gray-100',
-            'dark:hover:bg-gray-800 transition-colors',
-            'text-slate-600 dark:text-slate-300'
-          )}
-        >
-          {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </button>
-        <button
-          onClick={() => navigate(backUrl)}
-          className={cn(
-            'text-sm font-medium text-gray-600',
-            'dark:text-gray-300 hover:text-primary',
-            'transition-colors'
-          )}
-        >
-          ← Back to Posts
-        </button>
-      </div>
-    </header>
-  )
+    </div>
+  );
 }
