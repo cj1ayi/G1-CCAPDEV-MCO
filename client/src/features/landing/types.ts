@@ -13,3 +13,8 @@ export interface CarouselCardProps {
   thumbnail: string;
   getCategoryColor: (space: string) => string;
 }
+
+export interface HeroPostCardProps {
+  post: Post;
+  thumbnail: string;
+}

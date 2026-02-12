@@ -276,7 +276,25 @@ export const mockPosts: Record<string, Post> = {
     tags: ['life', 'commuter'],
     isEdited: false,
     isOwner: false,
-    
+  },
+  7: {
+    id: '7',
+    title: 'CAT GOT YOUR... MAIL??!!',
+    content: 'As the day of hearts inches closer, a special delivery has been made just fur you~ 🌟💞 Make sure to check out some of our claw-some Cat-Mail at CADS until Friday, 6PM. 💌Sealed with sweet com-paw-ssion, these Cat-Mails will definitely warmly envelope you in love. 🫂 Catch you later at our booth this Valentine’s bazaar~ 😼💘',
+    author: {
+      id: '5',
+      name: 'Floranaras',
+      username: 'callo',
+      avatar: callo,
+    },
+    space: 'freedom-wall',
+    upvotes: 39,
+    downvotes: 0,
+    commentCount: 0, 
+    createdAt: 'today',
+    tags: ['catlovers'],
+    isEdited: false,
+    isOwner: false,
   }
 }
 
