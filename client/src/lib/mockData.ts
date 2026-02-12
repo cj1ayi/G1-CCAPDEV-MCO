@@ -193,7 +193,7 @@ export const mockPosts: Record<string, Post> = {
       avatar: diane,
     },
     space: 'freedom-wall',
-    upvotes: 45,
+    upvotes: 63,
     downvotes: 3,
     commentCount: 2,
     createdAt: '5 hours ago',
