@@ -6,6 +6,7 @@ import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components/SidebarNav'
 import { Card, Button, Input, Textarea, Select, Badge } from '@/components/ui'
 import { mockSpaces as SPACES }  from '@/lib/mockData'
+import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
 
 
 export default function CreatePostPage() {
@@ -97,11 +98,13 @@ export default function CreatePostPage() {
     <MainLayout
       maxWidth="max-w-6xl"
       leftSidebar={
-        <div className="flex flex-col gap-6">
+        <div className="space-y-6">
           <SidebarNav />
           <div className="h-px bg-gray-200 dark:bg-gray-800" />
+          <YourSpacesWidget />
         </div>
       }
+ 
     >
       <div className="w-full">
         {/* Header Card */}
