@@ -7,6 +7,7 @@ import {
 	Explore,
   Space,
   SpacesDirectory,
+  CreateSpace,
   Login,
   Signup,
   Search,
@@ -63,6 +64,7 @@ const App = () => {
           <Route path="/profile/:id" element={<Profile/>} />
           <Route path="/space/:name" element={<Space/>} />
           <Route path="/spaces" element={<SpacesDirectory />} />
+          <Route path="/spaces/create" element={<CreateSpace />} />
           
           {/* Auth Routes */}
           <Route path="/login" element={<Login/>} />
