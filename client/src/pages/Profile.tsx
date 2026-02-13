@@ -15,6 +15,7 @@ import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
 const Profile = () => {
   const { id } = useParams<{ id: string }>()
   const [user, setUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
   const [posts, setPosts] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -26,6 +27,10 @@ const Profile = () => {
       }
 
       try {
+        // Fetch current user for comparison
+        const current = await userService.getCurrentUser()
+        setCurrentUser(current)
+
         const fetchedUser = await userService.getUserById(id)
 
         if (fetchedUser) {
@@ -49,6 +54,8 @@ const Profile = () => {
   if (isLoading) return <div>Loading...</div>
   if (!user) return <div>User not found</div>
 
+  const isOwnProfile = currentUser && currentUser.id === user.id
+
   return (
     <MainLayout
       maxWidth="max-w-full"
@@ -61,7 +68,7 @@ const Profile = () => {
       }
     >
       <div className="relative -mx-4 md:-mx-6">
-        <ProfileHeader user={user} />
+        <ProfileHeader user={user} isOwnProfile={isOwnProfile} />
         <ProfileNavbar />
       </div>
 

@@ -134,16 +134,7 @@ export const mockUsers: Record<string, User> = {
     location: 'Cavite, PH',
     joinedAt: '2022-11-20',
   },
-  '4': {
-    id: '4',
-    name: 'Gabb',
-    username: 'gdg1106',
-    avatar: gabb,
-    bio: 'CCAPDEV student',
-    location: 'Makati, PH',
-    joinedAt: '2023-02-14',
-  },
-  '5': {
+ '5': {
     id: '5',
     name: 'Floranaras',
     username: 'callo',
@@ -220,26 +211,7 @@ export const mockPosts: Record<string, Post> = {
     isEdited: true,
     isOwner: false,
   },
-  '4': {
-    id: '4',
-    title: 'Prof review: Danny Cheng',
-    content: 'HOLY ANG SMOOTH NG VOICE NI DANNY CHENG',
-    author: {
-      id: '2',
-      name: 'Gabb',
-      username: 'gdg1106',
-      avatar: gabb,
-    },
-    space: 'prof2pick',
-    upvotes: 89,
-    downvotes: 0,
-    commentCount: 1, 
-    createdAt: '1 week ago',
-    tags: ['CCAPDEV', 'reviews'],
-    isEdited: false,
-    isOwner: false,
-  },
-  '5': {
+ '5': {
     id: '5',
     title: 'Normal Lasallian Tuesday',
     content: 'i was not in the mood today for someone to be watching hentai full speaker blast on the train today',

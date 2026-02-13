@@ -2,7 +2,7 @@ import { User } from '../types'
 
 // Mock current user (replace with auth later)
 const getCurrentUser = () => ({
-  id: '1',
+  id: '2',
   name: 'Diane Panganiban',
   username: 'iloveapex',
   avatar: '',
@@ -36,8 +36,8 @@ class UserService {
 
       if (mockUsers && mockUsers.length > 0) {
         this.setStore(mockUsers)
-				console.log("so much users bae")
-				console.log(`{mockUsers.length}`)
+        console.log("so much users bae")
+        console.log(`${mockUsers.length}`)
       }
     } catch (err) {
       console.log('No mock users found')
@@ -99,4 +99,3 @@ if (typeof window !== 'undefined') {
     reset: () => userService.resetToMockData(),
   }
 }
-

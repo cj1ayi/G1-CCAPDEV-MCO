@@ -4,7 +4,8 @@ import {
   Home,
   PostDetail,
   Profile,
-	Explore,
+  EditProfile,
+  Explore,
   Space,
   SpacesDirectory,
   Login,
@@ -51,30 +52,32 @@ const App = () => {
       <Routes>
         {/* Home */}
         <Route path="/" element={<Home/>} />
-					{/* Feed Routes */}
-					<Route path="/explore" element={<Explore/>} />
+        
+        {/* Feed Routes */}
+        <Route path="/explore" element={<Explore/>} />
           
-          {/* Post Routes */}
-          <Route path="/post/:id" element={<PostDetail/>} />
-          <Route path="/post/create" element={<CreatePost/>} />
-          <Route path="/post/:id/edit" element={<EditPost/>} />
-          
-          {/* User & Space Routes */}
-          <Route path="/profile/:id" element={<Profile/>} />
-          <Route path="/space/:name" element={<Space/>} />
-          <Route path="/spaces" element={<SpacesDirectory />} />
-          
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login/>} />
-          <Route path="/signup" element={<Signup/>} />
-          
-          {/* Search */}
-          <Route path="/search" element={<Search/>} />
-          
-          {/* Test Routes */}
-          <Route path="/test-posts" element={<TestPosts />} />
-          <Route path="/test-comments" element={<TestComments />} />
-          <Route path="/test-layouts" element={<TestLayouts />} />
+        {/* Post Routes */}
+        <Route path="/post/:id" element={<PostDetail/>} />
+        <Route path="/post/create" element={<CreatePost/>} />
+        <Route path="/post/:id/edit" element={<EditPost/>} />
+        
+        {/* User & Space Routes */}
+        <Route path="/profile/:id" element={<Profile/>} />
+        <Route path="/profile/edit" element={<EditProfile/>} />
+        <Route path="/space/:name" element={<Space/>} />
+        <Route path="/spaces" element={<SpacesDirectory />} />
+        
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login/>} />
+        <Route path="/signup" element={<Signup/>} />
+        
+        {/* Search */}
+        <Route path="/search" element={<Search/>} />
+        
+        {/* Test Routes */}
+        <Route path="/test-posts" element={<TestPosts />} />
+        <Route path="/test-comments" element={<TestComments />} />
+        <Route path="/test-layouts" element={<TestLayouts />} />
       </Routes>
     </BrowserRouter>
   )
