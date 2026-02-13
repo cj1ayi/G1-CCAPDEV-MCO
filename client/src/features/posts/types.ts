@@ -95,19 +95,39 @@ export interface PostDetailVoteColumnProps {
 }
 
 // Form Types
-export interface PostFormData {
-  title: string
-  content: string
-  space: string
-  flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
-  imageUrl?: string
-  tags: string[]
-}
-
 export interface PostFormErrors {
   title?: string
   content?: string
   space?: string
   imageUrl?: string
   tags?: string
+}
+
+export interface CreatePostDto {
+  title: string
+  content: string
+  space: string
+  imageUrl?: string
+  tags?: string[]
+}
+
+export interface UpdatePostDto {
+  title?: string
+  content?: string
+  imageUrl?: string
+  tags?: string[]
+}
+
+export interface PostFormData {
+  title: string
+  content: string
+  space: string
+  imageUrl: string
+  tags: string[]
+}
+
+export interface ValidationErrors {
+  title?: string
+  content?: string
+  space?: string
 }
