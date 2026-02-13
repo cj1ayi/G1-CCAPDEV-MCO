@@ -85,6 +85,7 @@ export const ProfileHeader = ({ user, isOwnProfile = false }: { user: any; isOwn
                   Edit Profile
                 </Button>
                 <Dropdown
+                  align="right"
                   trigger={
                     <Button size="md" variant="ghost">
                       <MoreHorizontal className="h-5 w-5" />
@@ -94,6 +95,7 @@ export const ProfileHeader = ({ user, isOwnProfile = false }: { user: any; isOwn
                   <DropdownLabel>Account</DropdownLabel>
                   <DropdownItem 
                     icon={<Settings className="h-4 w-4" />}
+                    onClick={() => navigate('/profile/edit')}
                   >
                     Settings
                   </DropdownItem>
@@ -119,6 +121,7 @@ export const ProfileHeader = ({ user, isOwnProfile = false }: { user: any; isOwn
                   Message
                 </Button>
                 <Dropdown
+                  align="right"
                   trigger={
                     <Button size="md" variant="ghost">
                       <MoreHorizontal className="h-5 w-5" />
