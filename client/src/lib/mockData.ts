@@ -100,6 +100,7 @@ export interface User {
   id: string
   name: string
   username: string
+  email?: string
   avatar: any
   bio?: string
   location?: string
@@ -111,6 +112,7 @@ export const mockUsers: Record<string, User> = {
     id: '1',
     name: 'Thomas James C. Tiam-Lee',
     username: 'tiamlee',
+    email: 'tiamlee@dlsu.edu.ph',
     avatar: avatarImage,
     bio: 'CS Student • Loves cats',
     location: 'Manila, PH',
@@ -120,6 +122,7 @@ export const mockUsers: Record<string, User> = {
     id: '2',
     name: 'Teehee',
     username: 'iloveapex',
+    email: 'iloveapex@dlsu.edu.ph',
     avatar: diane,
     bio: 'Frontend dev in training',
     location: 'QC, PH',
@@ -129,6 +132,7 @@ export const mockUsers: Record<string, User> = {
     id: '3',
     name: 'Sussus Amogus',
     username: 'pieisspy',
+    email: 'pieisspy@dlsu.edu.ph',
     avatar: karl,
     bio: 'Just vibing',
     location: 'Cavite, PH',
@@ -138,6 +142,7 @@ export const mockUsers: Record<string, User> = {
     id: '4',
     name: 'Gabb',
     username: 'gdg1106',
+    email: 'gdg1106@dlsu.edu.ph',
     avatar: gabb,
     bio: 'CCAPDEV student',
     location: 'Makati, PH',
@@ -147,6 +152,7 @@ export const mockUsers: Record<string, User> = {
     id: '5',
     name: 'Floranaras',
     username: 'callo',
+    email: 'callo@dlsu.edu.ph',
     avatar: callo,
     bio: 'Commuter & gamer',
     location: 'Las Piñas, PH',
@@ -156,6 +162,7 @@ export const mockUsers: Record<string, User> = {
     id: '6',
     name: 'Pringles',
     username: 'whotftakesthenamezex',
+    email: 'whotftakesthenamezex@dlsu.edu.ph',
     avatar: pring,
     bio: 'Snack enthusiast',
     location: 'Makati, PH',

@@ -1,3 +1,4 @@
+import React from "react";
 import AnimoForumsLogoWhite from "@/assets/AnimoForumsLogoWhite.svg";
 import LegendsYuch from "@/assets/legendsyuch.jpg";
 import SunriseHenry from "@/assets/sunerisehenry.jpg";
@@ -8,29 +9,26 @@ import SundownHenry from "@/assets/sundownhenry.jpg";
 import { useState } from "react";
 
 // Libraries
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Icons
-import {
-  AtSign,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowRight
-} from "lucide-react";
+import { AtSign, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 // UI Components
-import {
-  Input,
-  Button,
-  Checkbox
-} from "@/components/ui";
+import { Input, Button, Checkbox } from "@/components/ui";
 
-// Hooks 
+// Hooks
 import { useImageRotation } from "@/hooks/useImageRotation";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const BACKGROUND_IMAGES = [
     {
@@ -53,19 +51,33 @@ const Login = () => {
       alt: "Legends Yuch",
       weight: 1,
     },
-  ]
+  ];
 
   const { currentIndex } = useImageRotation({
     images: BACKGROUND_IMAGES,
     interval: 30000,
     random: true,
-  })
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!usernameOrEmail || !password) {
+      setError("Please enter your credentials.");
+      return;
+    }
+    const success = login(usernameOrEmail, password, remember);
+    if (success) {
+      navigate("/explore");
+    } else {
+      setError("Invalid username or password.");
+    }
+  };
 
   return (
     <div className="flex h-screen">
       {/* Left Panel */}
       <div className="relative hidden w-1/2 lg:block">
-
         {/* Rotating Background Images  */}
         <div className="relative h-full w-full">
           {BACKGROUND_IMAGES.map((image, index) => (
@@ -87,7 +99,6 @@ const Login = () => {
 
         {/* Content */}
         <div className="absolute inset-0 flex flex-col justify-between p-12">
-
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Link to="/">
@@ -97,9 +108,7 @@ const Login = () => {
                 className="h-10 w-10"
               />
             </Link>
-            <span className="text-2xl font-bold text-white">
-              AnimoForums
-            </span>
+            <span className="text-2xl font-bold text-white">AnimoForums</span>
           </div>
 
           {/* Testimonial */}
@@ -128,20 +137,27 @@ const Login = () => {
         <div className="w-full max-w-xl">
           {/* Heading */}
           <div className="mb-8 space-y-2">
-            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">Sign In</h1>
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+              Sign In
+            </h1>
           </div>
 
           {/* Form */}
-          <div className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <Input
-              type="email"
+              type="text"
               placeholder="Email or username"
               leftIcon={<AtSign className="h-5 w-5" />}
+              value={usernameOrEmail}
+              onChange={(e) => setUsernameOrEmail(e.target.value)}
+              autoFocus
             />
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               leftIcon={<Lock className="h-5 w-5" />}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               rightIcon={
                 <button
                   type="button"
@@ -156,16 +172,19 @@ const Login = () => {
                 </button>
               }
             />
-
             {/* Remember Me */}
             <div className="flex items-start gap-2">
-              <Checkbox id="terms" />
-              <label htmlFor="terms" className="text-sm text-gray-600">
-                Remember me{" "}
+              <Checkbox
+                id="remember"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+              />
+              <label htmlFor="remember" className="text-sm text-gray-600">
+                Remember me
               </label>
             </div>
-
-
+            {/* Error Message */}
+            {error && <div className="text-red-500 text-sm">{error}</div>}
             {/* Confirmation */}
             <div className="flex items-start gap-2">
               <Checkbox id="terms" />
@@ -180,9 +199,6 @@ const Login = () => {
                 </Link>
               </label>
             </div>
-
-
-            {/* Create Account Button */}
             <Button
               type="submit"
               rightIcon={<ArrowRight className="h-5 w-5" />}
@@ -190,7 +206,7 @@ const Login = () => {
             >
               Sign In to AnimoForums
             </Button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
