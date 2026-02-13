@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components/SidebarNav'
 import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
@@ -7,7 +8,9 @@ import { Filter } from '@/features/explore/components/Filter'
 import { Feed } from '@/features/explore/components/Feed'
 
 const Explore = () => {
- return (
+  const [currentSort, setCurrentSort] = useState<'best' | 'hot' | 'new' | 'top'>('best')
+
+  return (
     <MainLayout
       maxWidth="max-w-6xl"
       leftSidebar={
@@ -24,8 +27,8 @@ const Explore = () => {
         </>
       }
     >
-			<Filter />
-			<Feed />
+      <Filter active={currentSort} onChange={setCurrentSort} />
+      <Feed sortBy={currentSort} />
     </MainLayout>
   )
 }
