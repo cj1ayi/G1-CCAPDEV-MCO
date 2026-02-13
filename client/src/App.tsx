@@ -4,7 +4,7 @@ import {
   Home,
   PostDetail,
   Profile,
-	Explore,
+  Explore,
   Space,
   SpacesDirectory,
   CreateSpace,
@@ -50,10 +50,11 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Home */}
-        <Route path="/" element={<Home/>} />
-					{/* Feed Routes */}
-					<Route path="/explore" element={<Explore/>} />
+          {/* Home */}
+          <Route path="/" element={<Home/>} />
+
+          {/* Feed Routes */}
+          <Route path="/explore" element={<Explore/>} />
           
           {/* Post Routes */}
           <Route path="/post/:id" element={<PostDetail/>} />
