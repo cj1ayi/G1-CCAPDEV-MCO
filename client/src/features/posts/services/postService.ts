@@ -241,6 +241,27 @@ class PostService {
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
+
+  async getSortedPosts(sortBy: string): Promise<Post[]> {
+    const posts = await this.getAllPosts();
+    const sorted = [...posts];
+
+    switch (sortBy) {
+      case 'new':
+        // Assume order is newest first
+        return sorted.sort((a, b) => 0); 
+      case 'top':
+        return sorted.sort((a, b) => b.upvotes - a.upvotes);
+      case 'hot':
+      case 'best':
+      default:
+        return sorted.sort((a, b) => {
+          const scoreA = a.upvotes - a.downvotes;
+          const scoreB = b.upvotes - b.downvotes;
+          return scoreB - scoreA;
+        });
+    }
+  }
 }
 
 // Export singleton instance
