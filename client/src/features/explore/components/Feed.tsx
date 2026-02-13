@@ -12,14 +12,13 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
   const [votes, setVotes] = useState<Record<string, 'up' | 'down' | null>>({})
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
 
-  // Fetch and sort posts
   useEffect(() => {
     const loadPosts = async () => {
       const sortedPosts = await postService.getSortedPosts(sortBy)
       setPosts(sortedPosts)
     }
     loadPosts()
-  }, [sortBy]) // Re-run when sortBy changes
+  }, [sortBy]) 
 
   useEffect(() => {
     // init votes for all posts
