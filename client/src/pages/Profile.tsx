@@ -8,7 +8,9 @@ import { ProfileNavbar } from '@/features/profile/components/ProfileNavbar'
 import { AboutWidget } from '@/features/profile/components/AboutWidget'
 import { StatsWidget } from '@/features/profile/components/StatsWidget'
 import { SpacesWidget } from '@/features/profile/components/SpacesWidget'
-import { PostPreviewCard } from '@/features/profile/components/PostPreviewCard'
+import { ActivityFeed } from '@/features/profile/components/ActivityFeed'
+import { ProfileLoadingState } from '@/features/profile/components/ProfileLoadingState'
+import { ProfileNotFound } from '@/features/profile/components/ProfileNotFound'
 import { SidebarNav } from '@/features/navigation/components/SidebarNav'
 import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
 
@@ -27,7 +29,6 @@ const Profile = () => {
       }
 
       try {
-        // Fetch current user for comparison
         const current = await userService.getCurrentUser()
         setCurrentUser(current)
 
@@ -36,9 +37,7 @@ const Profile = () => {
         if (fetchedUser) {
           setUser(fetchedUser)
 
-          const allPosts = await postService.getAllPosts()
-          const userPosts = allPosts
-            .filter((p) => p.author.id === fetchedUser.id)
+          const userPosts = await postService.getPostsByUserId(fetchedUser.id)
           setPosts(userPosts)
         }
       } catch (error) {
@@ -51,8 +50,8 @@ const Profile = () => {
     fetchUserAndPosts()
   }, [id])
 
-  if (isLoading) return <div>Loading...</div>
-  if (!user) return <div>User not found</div>
+  if (isLoading) return <ProfileLoadingState />
+  if (!user) return <ProfileNotFound />
 
   const isOwnProfile = currentUser && currentUser.id === user.id
 
@@ -72,21 +71,16 @@ const Profile = () => {
         <ProfileNavbar />
       </div>
 
-      {/* ACTIVITY */}
-      <div className="h-6 lg:h-8"></div>
+      <div className="h-6 lg:h-8" />
+
       <div className="grid grid-cols-12 gap-6">
         <aside className="col-span-12 lg:col-span-3 space-y-4">
           <AboutWidget user={user} />
           <StatsWidget />
           <SpacesWidget />
         </aside>
-        <main className="col-span-12 lg:col-span-9 space-y-4">
-          <h2 className="text-lg font-bold dark:text-white">
-            Recent Activity
-          </h2>
-          {posts.map((post) => (
-            <PostPreviewCard key={post.id} post={post} />
-          ))}
+        <main className="col-span-12 lg:col-span-9">
+          <ActivityFeed posts={posts} isOwnProfile={isOwnProfile} />
         </main>
       </div>
     </MainLayout>
