@@ -33,17 +33,12 @@ export default function EditPostPage() {
       }
 
       try {
-        console.log('📥 Fetching post:', id)
-        
         // Try postService first
         let post = await postService.getPostById(id)
-        console.log('📦 Post from postService:', post)
         
         // If not found, try mockData
         if (!post) {
-          console.log('⚠️ Post not found in postService, trying mockData...')
           post = getMockPost(id)
-          console.log('📦 Post from mockData:', post)
         }
         
         if (!post) {
@@ -56,7 +51,6 @@ export default function EditPostPage() {
           return
         }
 
-        console.log('✅ Post loaded:', post)
         setFormData({
           title: post.title,
           content: post.content,
@@ -65,7 +59,6 @@ export default function EditPostPage() {
           tags: post.tags || [],
         })
       } catch (err) {
-        console.error('❌ Error loading post:', err)
         setError('Failed to load post')
       } finally {
         setIsLoading(false)
@@ -93,11 +86,7 @@ export default function EditPostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    console.log('💾 Saving changes...')
-    console.log('📝 Form data:', formData)
-    
     if (!validateForm()) {
-      console.log('❌ Validation failed')
       return
     }
 
@@ -106,7 +95,6 @@ export default function EditPostPage() {
     setIsSubmitting(true)
     
     try {
-      console.log('📤 Updating post:', id)
       await postService.updatePost(id, {
         title: formData.title,
         content: formData.content,
@@ -114,12 +102,9 @@ export default function EditPostPage() {
         tags: formData.tags,
       })
       
-      console.log('✅ Post updated successfully')
-      console.log('🔗 Navigating to:', `/post/${id}`)
       
       navigate(`/post/${id}`)
     } catch (error) {
-      console.error('❌ Failed to update post:', error)
       alert('Failed to update post. Check console for details.')
     } finally {
       setIsSubmitting(false)

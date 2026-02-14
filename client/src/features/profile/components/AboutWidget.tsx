@@ -38,32 +38,38 @@ export const AboutWidget = ({ user }: { user: any }) => {
 							<div className="h-px w-full bg-gray-200" />
 						</div>
 						<div className="flex items-center gap-3">
-						<a
-							href="https://twitter.com/yourhandle"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-gray-600"
-						>
-							<Twitter className="w-4 h-4" />
-						</a>
+						{user.twitter && (
+							<a
+								href={user.twitter}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-gray-600 dark:text-gray-400 hover:text-primary transition"
+							>
+								<Twitter className="w-4 h-4" />
+							</a>
+						)}
 
-						<a
-							href="https://github.com/yourusername"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-gray-600"
-						>
-							<Github className="w-4 h-4" />
-						</a>
+						{user.github && (
+							<a
+								href={user.github}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-gray-600 dark:text-gray-400 hover:text-primary transition"
+							>
+								<Github className="w-4 h-4" />
+							</a>
+						)}
 
-						<a
-							href="https://linkedin.com/in/yourusername"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-gray-600"
-						>
-							<Linkedin className="w-4 h-4" />
-						</a>
+						{user.linkedin && (
+							<a
+								href={user.linkedin}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-gray-600 dark:text-gray-400 hover:text-primary transition"
+							>
+								<Linkedin className="w-4 h-4" />
+							</a>
+						)}
 					</div>
 					</div>
 				</CardContent>

@@ -1,8 +1,10 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, 
-    CardFooter } from '@/components/ui/Card'
+import { 
+  Card, 
+  CardHeader, 
+  CardTitle,  
+  CardContent, 
+} from '@/components/ui/Card'
 
-import { Calendar, GraduationCap, MapPin, Twitter, Github, Linkedin } 
-	from "lucide-react"
 
 import { ArrowUp, MessageCircle, Users } from "lucide-react"
 

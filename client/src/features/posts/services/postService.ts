@@ -26,6 +26,7 @@ const getCurrentUser = () => ({
 // Local storage implementation (swap this whole file for API later)
 class PostService {
   private storageKey = 'animoforums_posts'
+  private seeded = false
 
   // Get all posts from localStorage
   private getStore(): Post[] {
@@ -40,14 +41,12 @@ class PostService {
 
   // Seed mock data if not already seeded
   private async seedIfNeeded(): Promise<void> {
+    if (this.seeded) return
+    this.seeded = true
+
     const posts = this.getStore()
+    if (posts.length > 0) return
 
-    // Already has data? Skip seeding
-    if (posts.length > 0) {
-      return
-    }
-
-    // Try to import and get mock data
     try {
       const { getAllPosts } = await import('@/lib/mockData')
       const mockPosts = getAllPosts()
@@ -78,6 +77,15 @@ class PostService {
     return posts.find(post => post.id === id) || null
   }
 
+  // GET /api/users/:id/posts
+  async getPostsByUserId(userId: string): Promise<Post[]> {
+    await this.seedIfNeeded()
+    await this.delay(100)
+
+    const posts = this.getStore()
+    return posts.filter(post => post.author.id === userId)
+  }
+
   // GET /api/spaces/:space/posts
   async getPostsBySpace(space: string): Promise<Post[]> {
     await this.seedIfNeeded()
@@ -89,6 +97,7 @@ class PostService {
 
   // POST /api/posts
   async createPost(dto: CreatePostDto): Promise<Post> {
+    await this.seedIfNeeded()
     await this.delay(300)
 
     const currentUser = getCurrentUser()
@@ -113,8 +122,7 @@ class PostService {
     }
 
     const posts = this.getStore()
-    const updatedPosts = [newPost, ...posts] // Add to top
-    this.setStore(updatedPosts)
+    this.setStore([newPost, ...posts])
 
     console.log('Post created:', newPost.id)
     return newPost
@@ -122,16 +130,14 @@ class PostService {
 
   // PATCH /api/posts/:id
   async updatePost(id: string, dto: UpdatePostDto): Promise<Post> {
+    await this.seedIfNeeded()
     await this.delay(200)
 
     const posts = this.getStore()
     const postIndex = posts.findIndex(p => p.id === id)
 
-    if (postIndex === -1) {
-      throw new Error('Post not found')
-    }
+    if (postIndex === -1) throw new Error('Post not found')
 
-    // Update post with editedAt timestamp
     const updatedPost: Post = {
       ...posts[postIndex],
       ...dto,
@@ -147,55 +153,54 @@ class PostService {
 
   // DELETE /api/posts/:id
   async deletePost(id: string): Promise<void> {
+    await this.seedIfNeeded()
     await this.delay(200)
 
     const posts = this.getStore()
     const filteredPosts = posts.filter(p => p.id !== id)
 
-    if (filteredPosts.length === posts.length) {
-      throw new Error('Post not found')
-    }
+    if (filteredPosts.length === posts.length) throw new Error('Post not found')
 
     this.setStore(filteredPosts)
     console.log('Post deleted:', id)
   }
 
   // POST /api/posts/:id/vote
-  async votePost(
-    id: string,
-    voteType: 'up' | 'down' | null
-  ): Promise<Post> {
+  async votePost(id: string, voteType: 'up' | 'down' | null): Promise<Post> {
     await this.delay(100)
 
     const posts = this.getStore()
     const post = posts.find(p => p.id === id)
 
-    if (!post) {
-      throw new Error('Post not found')
-    }
+    if (!post) throw new Error('Post not found')
 
     // Vote handling is done client-side in useVoting hook
-    // This just returns the post for consistency
     return post
   }
 
   // PATCH /api/posts/:id/comment-count (internal use)
   async incrementCommentCount(id: string): Promise<void> {
     const posts = this.getStore()
-    const post = posts.find(p => p.id === id)
+    const postIndex = posts.findIndex(p => p.id === id)
 
-    if (post) {
-      post.commentCount = (post.commentCount || 0) + 1
+    if (postIndex !== -1) {
+      posts[postIndex] = {
+        ...posts[postIndex],
+        commentCount: (posts[postIndex].commentCount || 0) + 1,
+      }
       this.setStore(posts)
     }
   }
 
   async decrementCommentCount(id: string): Promise<void> {
     const posts = this.getStore()
-    const post = posts.find(p => p.id === id)
+    const postIndex = posts.findIndex(p => p.id === id)
 
-    if (post && post.commentCount > 0) {
-      post.commentCount -= 1
+    if (postIndex !== -1 && posts[postIndex].commentCount > 0) {
+      posts[postIndex] = {
+        ...posts[postIndex],
+        commentCount: posts[postIndex].commentCount - 1,
+      }
       this.setStore(posts)
     }
   }
@@ -204,6 +209,7 @@ class PostService {
   async resetToMockData(): Promise<void> {
     console.log('Resetting all posts to mock data...')
     localStorage.removeItem(this.storageKey)
+    this.seeded = false
     await this.seedIfNeeded()
     console.log('Reset complete!')
   }
@@ -226,14 +232,15 @@ class PostService {
     console.log(`  Spaces: ${spaces.length}`)
 
     spaces.forEach(space => {
-      const spacePostCount = posts.filter(p => p.space === space).length
-      console.log(`    ${space}: ${spacePostCount} posts`)
+      const count = posts.filter(p => p.space === space).length
+      console.log(`    ${space}: ${count} posts`)
     })
   }
 
   // Helper: Clear all data
   clearAll(): void {
     localStorage.removeItem(this.storageKey)
+    this.seeded = false
     console.log('All posts cleared')
   }
 
@@ -301,31 +308,3 @@ if (typeof window !== 'undefined') {
   console.log('  postService.reset()  - Reset to mock data')
   console.log('  postService.clear()  - Clear all posts')
 }
-
-/* 
-MIGRATION TO REAL BACKEND:
-When ready, replace the PostService class above with API calls.
-
-Example API implementation:
-```typescript
-class PostService {
-  private apiUrl = '/api/posts'
-
-  async getAllPosts(): Promise<Post[]> {
-    const response = await fetch(this.apiUrl)
-    return response.json()
-  }
-
-  async createPost(dto: CreatePostDto): Promise<Post> {
-    const response = await fetch(this.apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dto),
-    })
-    return response.json()
-  }
-  
-  // ... etc
-}
-```
-*/

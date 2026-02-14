@@ -1,8 +1,12 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, 
-CardFooter } from '@/components/ui/Card'
+import { 
+  Card, 
+  CardHeader,
+  CardTitle, 
+  CardContent, 
+ } from '@/components/ui/Card'
+
 import { Badge } from '@/components/ui/Badge' 
 
-import { ArrowUp, MessageCircle, Users } from "lucide-react"
 
 export const SpacesWidget = () => {
 return (

@@ -6,5 +6,7 @@ export interface User {
   bio?: string
   location?: string
   joinedAt?: string
+  twitter?: string
+  github?: string
+  linkedin?: string
 }
-

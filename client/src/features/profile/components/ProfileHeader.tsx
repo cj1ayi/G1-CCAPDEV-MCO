@@ -4,9 +4,12 @@ import { Dropdown, DropdownItem,
 import { cn } from '@/lib/utils'
 import { motion } from "framer-motion"
 import { Camera, UserPlus, Mail, MoreHorizontal, 
-  User, Settings, LogOut } from 'lucide-react'
+  User, Settings, LogOut, Edit } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
-export const ProfileHeader = ({ user }: { user: any }) => {
+export const ProfileHeader = ({ user, isOwnProfile = false }: { user: any; isOwnProfile?: boolean }) => {
+  const navigate = useNavigate()
+
   return (
     <section>
       {/* COVER IMAGE BG */}
@@ -72,46 +75,80 @@ export const ProfileHeader = ({ user }: { user: any }) => {
 
           {/* RIGHT: BUTTONS */}
           <div className="flex gap-3 md:mt-0">
-            <Button leftIcon={<UserPlus className="h-4 w-4" />} size="md">
-              Follow
-            </Button>
-            <Button 
-              leftIcon={
-                <Mail className="h-4 w-4" />
-              } 
-              size="md" 
-              variant="secondary"
-            >
-              Message
-            </Button>
-            <Dropdown
-              trigger={
-                <Button size="md" variant="ghost">
-                  <MoreHorizontal className="h-5 w-5" />
+            {isOwnProfile ? (
+              <>
+                <Button 
+                  leftIcon={<Edit className="h-4 w-4" />} 
+                  size="md"
+                  onClick={() => navigate('/profile/edit')}
+                >
+                  Edit Profile
                 </Button>
-              }
-            >
-              <DropdownLabel>Account</DropdownLabel>
-              <DropdownItem 
-                icon={
-                  <User className="h-4 w-4" />
-                }
-              >
-                Profile
-              </DropdownItem>
-              <DropdownItem 
-                icon={<Settings className="h-4 w-4" />}
-              >
-                Settings
-              </DropdownItem>
-              <DropdownSeparator />
-              <DropdownItem 
-                icon={<LogOut className="h-4 w-4" />} 
-                destructive
-              >
-                Report
-              </DropdownItem>
-            </Dropdown>
+                <Dropdown
+                  align="right"
+                  trigger={
+                    <Button size="md" variant="ghost">
+                      <MoreHorizontal className="h-5 w-5" />
+                    </Button>
+                  }
+                >
+                  <DropdownLabel>Account</DropdownLabel>
+                  <DropdownItem 
+                    icon={<Settings className="h-4 w-4" />}
+                    onClick={() => navigate('/profile/edit')}
+                  >
+                    Settings
+                  </DropdownItem>
+                  <DropdownSeparator />
+                  <DropdownItem 
+                    icon={<LogOut className="h-4 w-4" />} 
+                    destructive
+                  >
+                    Log Out
+                  </DropdownItem>
+                </Dropdown>
+              </>
+            ) : (
+              <>
+                <Button leftIcon={<UserPlus className="h-4 w-4" />} size="md">
+                  Follow
+                </Button>
+                <Button 
+                  leftIcon={<Mail className="h-4 w-4" />} 
+                  size="md" 
+                  variant="secondary"
+                >
+                  Message
+                </Button>
+                <Dropdown
+                  align="right"
+                  trigger={
+                    <Button size="md" variant="ghost">
+                      <MoreHorizontal className="h-5 w-5" />
+                    </Button>
+                  }
+                >
+                  <DropdownLabel>Account</DropdownLabel>
+                  <DropdownItem 
+                    icon={<User className="h-4 w-4" />}
+                  >
+                    Profile
+                  </DropdownItem>
+                  <DropdownItem 
+                    icon={<Settings className="h-4 w-4" />}
+                  >
+                    Settings
+                  </DropdownItem>
+                  <DropdownSeparator />
+                  <DropdownItem 
+                    icon={<LogOut className="h-4 w-4" />} 
+                    destructive
+                  >
+                    Report
+                  </DropdownItem>
+                </Dropdown>
+              </>
+            )}
           </div>
         </div>
       </div>
