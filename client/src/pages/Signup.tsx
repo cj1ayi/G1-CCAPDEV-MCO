@@ -1,9 +1,9 @@
 import React from "react";
-import AnimoForumsLogoWhite from "@/assets/AnimoForumsLogoWhite.svg";
-import LegendsYuch from "@/assets/legendsyuch.jpg";
-import SunriseHenry from "@/assets/sunerisehenry.jpg";
-import SunriseMig from "@/assets/sunrisestmig.jpg";
-import SundownHenry from "@/assets/sundownhenry.jpg";
+import AnimoForumsLogoWhite from "@/assets/logo/AnimoForumsLogoWhite.svg";
+import LegendsYuch from "@/assets/loginpics/legendsyuch.jpg";
+import SunriseHenry from "@/assets/loginpics/sunerisehenry.jpg";
+import SunriseMig from "@/assets/loginpics/sunrisestmig.jpg";
+import SundownHenry from "@/assets/loginpics/sundownhenry.jpg";
 
 // React
 import { useState } from "react";

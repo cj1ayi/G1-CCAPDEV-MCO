@@ -5,7 +5,7 @@ import { GraduationCap } from "lucide-react";
 import { HeroPostCard } from "./HeroPostCard";
 import { mockPosts } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
-import car from "@/assets/car.jpg";
+import car from "@/assets/post/car.jpg";
 
 export const Hero = () => {
   const post7 = mockPosts[7];

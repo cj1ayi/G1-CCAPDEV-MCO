@@ -1,11 +1,9 @@
-import avatarImage from '@/assets/tiamlee.png'
-import diane from '@/assets/diane.png'
-import karl from '@/assets/karl.png'
-import gabb from '@/assets/gabb.png'
-import callo from '@/assets/callo.png'
-import pring from '@/assets/pring.gif'
+import avatarImage from '@/assets/pfp/tiamlee.png'
+import diane from '@/assets/pfp/diane.png'
+import karl from '@/assets/pfp/karl.png'
+import callo from '@/assets/pfp/callo.png'
+import pring from '@/assets/pfp/pring.gif'
 import { CommentCardProps } from '@/features/comments/components/CommentCard'
-import { Train } from 'lucide-react'
 
 export interface SpaceRule {
   title: string

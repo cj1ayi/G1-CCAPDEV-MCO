@@ -1,6 +1,6 @@
 import { Heart, ShieldCheck, LifeBuoy, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import AnimoForumsLogoHat from '@/assets/AnimoForumsLogoHat.svg'
+import AnimoForumsLogoHat from '@/assets/logo/AnimoForumsLogoHat.svg'
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear()

@@ -4,7 +4,7 @@ import { Button, Avatar } from '@/components/ui'
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 
-import AnimoForumsLogoHat from '@/assets/AnimoForumsLogoHat.svg'
+import AnimoForumsLogoHat from '@/assets/logo/AnimoForumsLogoHat.svg'
 
 interface HeaderProps {
   variant?: 'default' | 'landing'
