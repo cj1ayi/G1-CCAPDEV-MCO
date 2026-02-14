@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { postService } from '../services'
 import { getPostById as getMockPost } from '@/lib/mockData'
 import { useVoting } from './useVoting'
+import { getCurrentUser } from '@/features/auth/services/authService'
 
 interface UsePostDetailOptions {
   postId: string | undefined
@@ -16,10 +17,8 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
-  // Voting
   const { voteState, toggleVote, getDisplayVotes } = useVoting()
 
-  // Fetch post
   useEffect(() => {
     const fetchPost = async () => {
       if (!postId) {
@@ -35,7 +34,13 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
         }
         
         if (fetchedPost) {
-          setPost(fetchedPost)
+          const currentUser = getCurrentUser()
+          setPost({
+            ...fetchedPost,
+            isOwner: currentUser 
+              ? fetchedPost.author.id === currentUser.id 
+              : false,
+          })
         }
       } catch (error) {
         console.error('Error fetching post:', error)
@@ -47,17 +52,14 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
     fetchPost()
   }, [postId])
 
-  // Calculate display values
   const displayVotes = post ? getDisplayVotes(
     post.upvotes, post.downvotes) : { upvotes: 0, downvotes: 0 }
   const score = displayVotes.upvotes - displayVotes.downvotes
 
-  // Handlers
   const handleEdit = () => navigate(`/post/${postId}/edit`)
   
   const handleDelete = async () => {
     if (!postId) return
-    
     try {
       await postService.deletePost(postId)
       setIsDeleteModalOpen(false)
@@ -68,35 +70,24 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
   }
 
   const handleSpaceClick = () => {
-    if (post?.space) {
-      navigate(`/space/${post.space}`)
-    }
+    if (post?.space) navigate(`/space/${post.space}`)
   }
 
   return {
-    // Data
     post,
     isLoading,
     score,
-    
-    // Voting
     isUpvoted: voteState === 'up',
     isDownvoted: voteState === 'down',
     onUpvote: () => toggleVote('up'),
     onDownvote: () => toggleVote('down'),
-    
-    // Delete modal
     isDeleteModalOpen,
     openDeleteModal: () => setIsDeleteModalOpen(true),
     closeDeleteModal: () => setIsDeleteModalOpen(false),
-    
-    // Actions
     handleEdit,
     handleDelete,
     handleSpaceClick,
     goBack: () => navigate(backUrl),
-    
-    // Config
     backUrl,
   }
 }

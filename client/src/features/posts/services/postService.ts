@@ -78,6 +78,9 @@ class PostService {
       return { post: null, error: 'Post ID is required' }
     }
 
+    const { getCurrentUser } = await import('@/features/auth/services/authService')
+    const currentUser = getCurrentUser()
+
     const posts = this.getStore()
     const post = posts.find(p => p.id === id)
 
@@ -85,25 +88,27 @@ class PostService {
       try {
         const { getPostById: getMockPost } = await import('@/lib/mockData')
         const mockPost = getMockPost(id)
-        
+
         if (mockPost) {
-          if (!mockPost.isOwner) {
+          const isOwner = currentUser ? mockPost.author.id === currentUser.id : false
+          if (!isOwner) {
             return { post: null, error: 'You do not have permission to edit this post' }
           }
-          return { post: mockPost, error: null }
+          return { post: { ...mockPost, isOwner: true }, error: null }
         }
       } catch (err) {
         console.log('Post not found in mock data')
       }
-      
+
       return { post: null, error: 'Post not found' }
     }
 
-    if (!post.isOwner) {
+    const isOwner = currentUser ? post.author.id === currentUser.id : false
+    if (!isOwner) {
       return { post: null, error: 'You do not have permission to edit this post' }
     }
 
-    return { post, error: null }
+    return { post: { ...post, isOwner: true }, error: null }
   }
 
   async getPostsBySpace(space: string): Promise<Post[]> {
