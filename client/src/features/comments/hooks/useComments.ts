@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { CommentCardProps } from '@/features/comments/components'
 import { commentService } from '../services/commentService'
+import { getCurrentUser as getAuthUser } from '@/features/auth/services/authService'
 
 interface UseCommentsOptions {
   postId: string
@@ -94,15 +95,16 @@ export function useComments({
       try {
         setError(null)
 
-        // Optimistic update
+        // Optimistic update with real current user
+        const currentUser = getAuthUser()
         const tempComment: CommentCardProps = {
           id: `temp-${Date.now()}`,
           content,
           author: {
-            id: 'user-1',
-            name: 'Current User',
-            username: 'current_user',
-            avatar: '',
+            id: currentUser?.id || '',
+            name: currentUser?.name || '',
+            username: currentUser?.username || '',
+            avatar: currentUser?.avatar || '',
           },
           upvotes: 0,
           downvotes: 0,

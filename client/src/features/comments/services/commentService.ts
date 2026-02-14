@@ -48,7 +48,9 @@ class CommentService {
     await this.delay(100)
 
     const store = this.getStore()
-    return store[postId] || []
+    const comments = store[postId] || []
+    const currentUser = getAuthUser()
+    return this.deriveOwnership(comments, currentUser?.id)
   }
 
   // POST /api/posts/:postId/comments
@@ -201,6 +203,19 @@ class CommentService {
   clearAll(): void {
     localStorage.removeItem(this.storageKey)
     console.log('All comments cleared')
+  }
+
+  private deriveOwnership(
+    comments: CommentCardProps[],
+    currentUserId?: string
+  ): CommentCardProps[] {
+    return comments.map(comment => ({
+      ...comment,
+      isOwner: currentUserId ? comment.author.id === currentUserId : false,
+      replies: comment.replies
+        ? this.deriveOwnership(comment.replies, currentUserId)
+        : [],
+    }))
   }
 
   private delay(ms: number): Promise<void> {
