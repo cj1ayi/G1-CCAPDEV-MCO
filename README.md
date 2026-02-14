@@ -1,7 +1,4 @@
 # AnimoForums  
-## G1-CCAPDEV-MCO  
-
----
 
 ## Group # 1
 
@@ -12,8 +9,6 @@
 | Ranara, Ramil Carlos Bulaclac |
 | Tan, Roberta Netanya Sy |
 
----
-
 ## About The Project
 
 **AnimoForums** is a Reddit-style web forum designed specifically for DLSU students.
@@ -22,8 +17,6 @@ Instead of relying on fragmented Discord servers, Messenger group chats, or Face
 
 It functions as a digital tambayan built for Lasallians:
 organized, searchable, and community-driven.
-
----
 
 ## Tech Stack
 
@@ -35,11 +28,8 @@ organized, searchable, and community-driven.
 | Styling      | CSS |
 | Linting      | ESLint |
 
----
-
 ## Project Structure
 
-```
 G1-CCAPDEV-MCO/
 ├── client/
 │   ├── src/
@@ -100,8 +90,6 @@ npm run dev
 ```
 
 The application will run locally (typically at http://localhost:5173).
-
----
 
 © G1 CCAPDEV MCO
 
