@@ -1,19 +1,9 @@
-import { Post } from '@/features/posts/types'
-
-export interface CreatePostDto {
-  title: string
-  content: string
-  space: string
-  imageUrl?: string
-  tags?: string[]
-}
-
-export interface UpdatePostDto {
-  title?: string
-  content?: string
-  imageUrl?: string
-  tags?: string[]
-}
+import { 
+  Post, 
+  CreatePostDto, 
+  ValidationErrors, 
+  UpdatePostDto 
+} from '@/features/posts/types'
 
 // Mock current user (replace with auth later)
 const getCurrentUser = () => ({
@@ -77,13 +67,45 @@ class PostService {
     return posts.find(post => post.id === id) || null
   }
 
-  // GET /api/users/:id/posts
-  async getPostsByUserId(userId: string): Promise<Post[]> {
+  // GET /api/posts/:id with permission check
+  async getPostForEdit(id: string): Promise<{
+    post: Post | null
+    error: string | null
+  }> {
     await this.seedIfNeeded()
-    await this.delay(100)
+    await this.delay(50)
+
+    if (!id) {
+      return { post: null, error: 'Post ID is required' }
+    }
 
     const posts = this.getStore()
-    return posts.filter(post => post.author.id === userId)
+    const post = posts.find(p => p.id === id)
+
+    if (!post) {
+      // Try mock data as fallback
+      try {
+        const { getPostById: getMockPost } = await import('@/lib/mockData')
+        const mockPost = getMockPost(id)
+        
+        if (mockPost) {
+          if (!mockPost.isOwner) {
+            return { post: null, error: 'You do not have permission to edit this post' }
+          }
+          return { post: mockPost, error: null }
+        }
+      } catch (err) {
+        console.log('Post not found in mock data')
+      }
+      
+      return { post: null, error: 'Post not found' }
+    }
+
+    if (!post.isOwner) {
+      return { post: null, error: 'You do not have permission to edit this post' }
+    }
+
+    return { post, error: null }
   }
 
   // GET /api/spaces/:space/posts
@@ -93,6 +115,52 @@ class PostService {
 
     const posts = this.getStore()
     return posts.filter(post => post.space === space)
+  }
+
+  // Validate post form data
+  validatePostForm(data: {
+    title: string
+    content: string
+    space?: string
+  }, isEdit: boolean = false): ValidationErrors {
+    const errors: ValidationErrors = {}
+
+    if (!data.title.trim()) {
+      errors.title = 'Title is required'
+    }
+
+    if (!data.content.trim()) {
+      errors.content = 'Content is required'
+    }
+
+    // Only validate space for new posts
+    if (!isEdit && !data.space) {
+      errors.space = 'Please select a space'
+    }
+
+    return errors
+  }
+
+  // Validate and add tag
+  validateTag(
+    tag: string,
+    currentTags: string[]
+  ): { valid: boolean; error?: string } {
+    const trimmedTag = tag.trim().toLowerCase()
+
+    if (!trimmedTag) {
+      return { valid: false, error: 'Tag cannot be empty' }
+    }
+
+    if (currentTags.length >= 5) {
+      return { valid: false, error: 'Maximum 5 tags allowed' }
+    }
+
+    if (currentTags.includes(trimmedTag)) {
+      return { valid: false, error: 'Tag already added' }
+    }
+
+    return { valid: true }
   }
 
   // POST /api/posts
@@ -124,11 +192,9 @@ class PostService {
     const posts = this.getStore()
     this.setStore([newPost, ...posts])
 
-    console.log('Post created:', newPost.id)
     return newPost
   }
 
-  // PATCH /api/posts/:id
   async updatePost(id: string, dto: UpdatePostDto): Promise<Post> {
     await this.seedIfNeeded()
     await this.delay(200)
@@ -147,11 +213,9 @@ class PostService {
     posts[postIndex] = updatedPost
     this.setStore(posts)
 
-    console.log('Post updated:', id)
     return updatedPost
   }
 
-  // DELETE /api/posts/:id
   async deletePost(id: string): Promise<void> {
     await this.seedIfNeeded()
     await this.delay(200)
@@ -162,11 +226,12 @@ class PostService {
     if (filteredPosts.length === posts.length) throw new Error('Post not found')
 
     this.setStore(filteredPosts)
-    console.log('Post deleted:', id)
   }
 
-  // POST /api/posts/:id/vote
-  async votePost(id: string, voteType: 'up' | 'down' | null): Promise<Post> {
+  async votePost(
+    id: string,
+    voteType: 'up' | 'down' | null
+  ): Promise<Post> {
     await this.delay(100)
 
     const posts = this.getStore()
@@ -174,11 +239,9 @@ class PostService {
 
     if (!post) throw new Error('Post not found')
 
-    // Vote handling is done client-side in useVoting hook
     return post
   }
 
-  // PATCH /api/posts/:id/comment-count (internal use)
   async incrementCommentCount(id: string): Promise<void> {
     const posts = this.getStore()
     const postIndex = posts.findIndex(p => p.id === id)
@@ -205,7 +268,6 @@ class PostService {
     }
   }
 
-  // Helper: Reset to mock data
   async resetToMockData(): Promise<void> {
     console.log('Resetting all posts to mock data...')
     localStorage.removeItem(this.storageKey)
@@ -214,7 +276,6 @@ class PostService {
     console.log('Reset complete!')
   }
 
-  // Helper: Get stats
   getStats(): void {
     const posts = this.getStore()
 
@@ -226,7 +287,6 @@ class PostService {
     const totalComments = posts.reduce((sum, post) => sum + (post.commentCount || 0), 0)
     const spaces = [...new Set(posts.map(p => p.space))]
 
-    console.log('  Post Stats:')
     console.log(`  Total posts: ${posts.length}`)
     console.log(`  Total comments: ${totalComments}`)
     console.log(`  Spaces: ${spaces.length}`)
@@ -237,14 +297,12 @@ class PostService {
     })
   }
 
-  // Helper: Clear all data
   clearAll(): void {
     localStorage.removeItem(this.storageKey)
     this.seeded = false
     console.log('All posts cleared')
   }
 
-  // Helper: Simulate API delay
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
@@ -292,10 +350,8 @@ class PostService {
   }
 }
 
-// Export singleton instance
 export const postService = new PostService()
 
-// Expose utilities for dev console
 if (typeof window !== 'undefined') {
   (window as any).postService = {
     reset: () => postService.resetToMockData(),
@@ -303,7 +359,6 @@ if (typeof window !== 'undefined') {
     clear: () => postService.clearAll(),
   }
 
-  console.log('Post utilities available:')
   console.log('  postService.stats()  - View post stats')
   console.log('  postService.reset()  - Reset to mock data')
   console.log('  postService.clear()  - Clear all posts')
