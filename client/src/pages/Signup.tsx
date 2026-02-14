@@ -1,3 +1,4 @@
+import React from "react";
 import AnimoForumsLogoWhite from "@/assets/AnimoForumsLogoWhite.svg";
 import LegendsYuch from "@/assets/legendsyuch.jpg";
 import SunriseHenry from "@/assets/sunerisehenry.jpg";
@@ -8,31 +9,28 @@ import SundownHenry from "@/assets/sundownhenry.jpg";
 import { useState } from "react";
 
 // Libraries
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Icons
-import { 
-  Mail, 
-  AtSign, 
-  ArrowRight 
-} from "lucide-react";
+import { Mail, AtSign, ArrowRight } from "lucide-react";
 
 // UI Components
-import { 
-  Input, 
-  Button, 
-  Checkbox,
-  PasswordInput
-} from "@/components/ui";
+import { Input, Button, Checkbox, PasswordInput } from "@/components/ui";
 
-// Hooks 
+// Hooks
 import { useImageRotation } from "@/hooks/useImageRotation";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const Signup = () => {
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const BACKGROUND_IMAGES = [
-   {
+    {
       src: SunriseHenry,
       alt: "Sunrise Henry",
       weight: 300,
@@ -52,14 +50,32 @@ const Signup = () => {
       alt: "Legends Yuch",
       weight: 1,
     },
-  ]
-
+  ];
 
   const { currentIndex } = useImageRotation({
     images: BACKGROUND_IMAGES,
     interval: 30000,
     random: true,
-  })
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!email || !username || !password) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    const success = signup(email, username, password);
+    if (success) {
+      navigate("/explore");
+    } else {
+      setError("Signup failed. Username or email may already be taken.");
+    }
+  };
 
   return (
     <div className="flex h-screen">
@@ -75,8 +91,7 @@ const Signup = () => {
               className={`
                 absolute inset-0 h-full w-full object-cover 
                 transition-opacity duration-1000 
-                ${index === currentIndex ? "opacity-100" : "opacity-0"}`
-              }
+                ${index === currentIndex ? "opacity-100" : "opacity-0"}`}
             />
           ))}
         </div>
@@ -134,26 +149,30 @@ const Signup = () => {
           </div>
 
           {/* Form */}
-          <div className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <Input
               type="email"
               placeholder="kim_chaewon@dlsu.edu.ph"
               leftIcon={<Mail className="h-5 w-5" />}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
             />
-
             <Input
               type="text"
               placeholder="Choose a unique handle"
               leftIcon={<AtSign className="h-5 w-5" />}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
-
             <PasswordInput
-            value={password}
-            onChange={setPassword}
-            placeholder="Min. 8 characters"
-            showStrength={true}
-            />           
-
+              value={password}
+              onChange={setPassword}
+              placeholder="Min. 8 characters"
+              showStrength={true}
+            />
+            {/* Error Message */}
+            {error && <div className="text-red-500 text-sm">{error}</div>}
             {/* Confirmation */}
             <div className="flex items-start gap-2">
               <Checkbox id="terms" />
@@ -168,8 +187,6 @@ const Signup = () => {
                 </Link>
               </label>
             </div>
-
-            {/* Create Account Button */}
             <Button
               type="submit"
               rightIcon={<ArrowRight className="h-5 w-5" />}
@@ -177,7 +194,6 @@ const Signup = () => {
             >
               Create Account
             </Button>
-
             {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
@@ -189,7 +205,6 @@ const Signup = () => {
                 </span>
               </div>
             </div>
-
             {/* Sign in Option */}
             <p className="text-center text-sm text-gray-600">
               Already have an account?{" "}
@@ -200,7 +215,7 @@ const Signup = () => {
                 Sign In
               </Link>
             </p>
-          </div>
+          </form>
         </div>
       </div>
     </div>

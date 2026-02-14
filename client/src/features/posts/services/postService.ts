@@ -1,35 +1,37 @@
+import { Post } from '@/features/posts/types'
 import { 
-  Post, 
-  CreatePostDto, 
-  ValidationErrors, 
-  UpdatePostDto 
-} from '@/features/posts/types'
+  getCurrentUser as getAuthUser 
+} from "@/features/auth/services/authService";
 
-// Mock current user (replace with auth later)
-const getCurrentUser = () => ({
-  id: 'user-1',
-  name: 'Diane Panganiban',
-  username: 'iloveapex',
-  avatar: '',
-})
+export interface CreatePostDto {
+  title: string
+  content: string
+  space: string
+  imageUrl?: string
+  tags?: string[]
+}
+
+export interface UpdatePostDto {
+  title?: string
+  content?: string
+  imageUrl?: string
+  tags?: string[]
+}
 
 // Local storage implementation (swap this whole file for API later)
 class PostService {
   private storageKey = 'animoforums_posts'
   private seeded = false
 
-  // Get all posts from localStorage
   private getStore(): Post[] {
     const data = localStorage.getItem(this.storageKey)
     return data ? JSON.parse(data) : []
   }
 
-  // Save to localStorage
   private setStore(posts: Post[]): void {
     localStorage.setItem(this.storageKey, JSON.stringify(posts))
   }
 
-  // Seed mock data if not already seeded
   private async seedIfNeeded(): Promise<void> {
     if (this.seeded) return
     this.seeded = true
@@ -50,7 +52,6 @@ class PostService {
     }
   }
 
-  // GET /api/posts
   async getAllPosts(): Promise<Post[]> {
     await this.seedIfNeeded()
     await this.delay(100)
@@ -58,7 +59,6 @@ class PostService {
     return this.getStore()
   }
 
-  // GET /api/posts/:id
   async getPostById(id: string): Promise<Post | null> {
     await this.seedIfNeeded()
     await this.delay(50)
@@ -67,7 +67,6 @@ class PostService {
     return posts.find(post => post.id === id) || null
   }
 
-  // GET /api/posts/:id with permission check
   async getPostForEdit(id: string): Promise<{
     post: Post | null
     error: string | null
@@ -83,7 +82,6 @@ class PostService {
     const post = posts.find(p => p.id === id)
 
     if (!post) {
-      // Try mock data as fallback
       try {
         const { getPostById: getMockPost } = await import('@/lib/mockData')
         const mockPost = getMockPost(id)
@@ -108,7 +106,6 @@ class PostService {
     return { post, error: null }
   }
 
-  // GET /api/spaces/:space/posts
   async getPostsBySpace(space: string): Promise<Post[]> {
     await this.seedIfNeeded()
     await this.delay(100)
@@ -117,13 +114,12 @@ class PostService {
     return posts.filter(post => post.space === space)
   }
 
-  // Validate post form data
   validatePostForm(data: {
     title: string
     content: string
     space?: string
-  }, isEdit: boolean = false): ValidationErrors {
-    const errors: ValidationErrors = {}
+  }, isEdit: boolean = false): Record<string, string> {
+    const errors: Record<string, string> = {}
 
     if (!data.title.trim()) {
       errors.title = 'Title is required'
@@ -133,7 +129,6 @@ class PostService {
       errors.content = 'Content is required'
     }
 
-    // Only validate space for new posts
     if (!isEdit && !data.space) {
       errors.space = 'Please select a space'
     }
@@ -141,7 +136,6 @@ class PostService {
     return errors
   }
 
-  // Validate and add tag
   validateTag(
     tag: string,
     currentTags: string[]
@@ -163,12 +157,13 @@ class PostService {
     return { valid: true }
   }
 
-  // POST /api/posts
   async createPost(dto: CreatePostDto): Promise<Post> {
     await this.seedIfNeeded()
     await this.delay(300)
 
-    const currentUser = getCurrentUser()
+    const currentUser = getAuthUser()
+    if (!currentUser) throw new Error('Not authenticated')
+
     const newPost: Post = {
       id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: dto.title,
@@ -190,7 +185,8 @@ class PostService {
     }
 
     const posts = this.getStore()
-    this.setStore([newPost, ...posts])
+    const updatedPosts = [newPost, ...posts]
+    this.setStore(updatedPosts)
 
     return newPost
   }
@@ -307,45 +303,43 @@ class PostService {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  // Helper: Convert "2 hours ago" into a numeric value for comparison
   private parseTimeAgo(timeStr: string): number {
-    const lowerStr = timeStr.toLowerCase();
-    if (lowerStr === 'just now') return 0;
-    if (lowerStr === 'yesterday') return 1440; // 24 * 60
+    const lowerStr = timeStr.toLowerCase()
+    if (lowerStr === 'just now') return 0
+    if (lowerStr === 'yesterday') return 1440
 
-    const match = lowerStr.match(/(\d+)/);
-    if (!match) return 999999;
+    const match = lowerStr.match(/(\d+)/)
+    if (!match) return 999999
     
-    const num = parseInt(match[1]);
+    const num = parseInt(match[1])
     
-    if (lowerStr.includes('minute')) return num;
-    if (lowerStr.includes('hour')) return num * 60;
-    if (lowerStr.includes('day')) return num * 1440;
-    if (lowerStr.includes('week')) return num * 10080;
-    if (lowerStr.includes('month')) return num * 43200;
-    if (lowerStr.includes('year')) return num * 525600;
+    if (lowerStr.includes('minute')) return num
+    if (lowerStr.includes('hour')) return num * 60
+    if (lowerStr.includes('day')) return num * 1440
+    if (lowerStr.includes('week')) return num * 10080
+    if (lowerStr.includes('month')) return num * 43200
+    if (lowerStr.includes('year')) return num * 525600
     
-    return 999999;
+    return 999999
   }
 
   async getSortedPosts(sortBy: string): Promise<Post[]> {
-    const posts = await this.getAllPosts();
-    const sorted = [...posts];
+    const posts = await this.getAllPosts()
+    const sorted = [...posts]
 
     switch (sortBy) {
       case 'new':
-        // Smallest "time ago" value means it's the newest post
-        return sorted.sort((a, b) => this.parseTimeAgo(a.createdAt) - this.parseTimeAgo(b.createdAt));
+        return sorted.sort((a, b) => this.parseTimeAgo(a.createdAt) - this.parseTimeAgo(b.createdAt))
       case 'top':
-        return sorted.sort((a, b) => b.upvotes - a.upvotes);
+        return sorted.sort((a, b) => b.upvotes - a.upvotes)
       case 'hot':
       case 'best':
       default:
         return sorted.sort((a, b) => {
-          const scoreA = a.upvotes - a.downvotes;
-          const scoreB = b.upvotes - b.downvotes;
-          return scoreB - scoreA;
-        });
+          const scoreA = a.upvotes - a.downvotes
+          const scoreB = b.upvotes - b.downvotes
+          return scoreB - scoreA
+        })
     }
   }
 }

@@ -3,6 +3,7 @@ import { Footer } from './Footer'
 import { Header } from './Header'
 import { useDarkMode } from '@/hooks/useDarkMode'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/features/auth/hooks/useAuth'
 
 interface MainLayoutProps {
   headerVariant?: 'default' | 'landing'
@@ -21,6 +22,7 @@ export const MainLayout = ({
 }: MainLayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { isDark, toggleDarkMode } = useDarkMode()
+  const { user } = useAuth()
 
   return (
     <div className={cn(
@@ -29,9 +31,9 @@ export const MainLayout = ({
     )}>
       <Header
         variant={headerVariant}
-        user={headerVariant === 'landing'
-          ? undefined
-          : { name: 'Diane Panganiban', id: 2}
+        user={ headerVariant === 'landing' ? undefined: user
+        ? { name: user.name, id: Number(user.id), avatarUrl: user.avatar }
+        : undefined
         }
         isDark={isDark}
         onToggleDarkMode={toggleDarkMode}
