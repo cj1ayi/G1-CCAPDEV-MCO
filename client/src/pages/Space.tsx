@@ -23,6 +23,7 @@ export default function Space() {
     isJoined, 
     toggleJoin, 
     handleCreatePost, 
+    handleVote,
     navigate 
   } = useSpacePage(name)
 
@@ -90,6 +91,8 @@ export default function Space() {
             <PostCard
               key={post.id}
               {...post}
+              onUpvote={() => handleVote(post.id, 'up')}
+              onDownvote={() => handleVote(post.id, 'down')}
               onClick={() => navigate(`/post/${post.id}`)}
               onEdit={() => navigate(`/post/${post.id}/edit`)}
               onDelete={() => console.log('Delete post:', post.id)}
