@@ -1,18 +1,72 @@
-import { getAllSpaces, getSpaceByName, Space } from '@/lib/mockData'
+import { getAllSpaces, Space } from '@/lib/mockData'
 import { getAllPosts, Post } from '@/lib/mockData'
 
 export type SortOption = 'hot' | 'new' | 'week' | 'month' | 'year'
 
+export interface CreateSpaceDto {
+  name: string
+  displayName: string
+  description: string
+  category: Space['category']
+  icon: string
+}
+
 class SpaceService {
-  async getSpaces(page: number = 1, limit: number = 6): 
+  private storageKey = 'animoforums_spaces'
+
+  private getStore(): Space[] {
+    const data = localStorage.getItem(this.storageKey)
+    return data ? JSON.parse(data) : []
+  }
+
+  private setStore(spaces: Space[]): void {
+    localStorage.setItem(this.storageKey, JSON.stringify(spaces))
+  }
+
+  private async seedIfNeeded(): Promise<void> {
+    if (this.getStore().length === 0) {
+      this.setStore(getAllSpaces())
+    }
+  }
+
+  async getSpaces(page: number = 1, limit: number = 20): 
     Promise<{ data: Space[], hasMore: boolean }> {
-    await this.delay(500)
-    const allSpaces = getAllSpaces()
+    await this.seedIfNeeded()
+    await this.delay(400)
+    
+    const allSpaces = this.getStore()
     const end = page * limit
     return {
       data: allSpaces.slice(0, end),
       hasMore: end < allSpaces.length
     }
+  }
+
+  async createSpace(dto: CreateSpaceDto): Promise<Space> {
+    await this.delay(500)
+    const spaces = this.getStore()
+
+    const newSpace: Space = {
+      id: `space-${Date.now()}`,
+      name: dto.name.toLowerCase().replace(/\s+/g, '-'),
+      displayName: dto.displayName,
+      description: dto.description,
+      category: dto.category,
+      icon: dto.icon || dto.displayName.charAt(0).toUpperCase(),
+      iconType: 'text',
+      colorScheme: 'from-primary to-primary-light',
+      memberCount: '1',
+      postCount: '0',
+      isActive: true,
+      isJoined: true,
+      createdDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      rules: [
+        { title: 'Be Respectful', description: 'Follow community guidelines.' }
+      ]
+    }
+
+    this.setStore([newSpace, ...spaces])
+    return newSpace
   }
 
   async toggleJoin(id: string, currentStatus: boolean): Promise<boolean> {

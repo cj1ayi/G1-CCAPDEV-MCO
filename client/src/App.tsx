@@ -4,9 +4,10 @@ import {
   Home,
   PostDetail,
   Profile,
-	Explore,
+  Explore,
   Space,
   SpacesDirectory,
+  CreateSpace,
   Login,
   Signup,
   Search,
@@ -49,10 +50,11 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Home */}
-        <Route path="/" element={<Home/>} />
-					{/* Feed Routes */}
-					<Route path="/explore" element={<Explore/>} />
+          {/* Home */}
+          <Route path="/" element={<Home/>} />
+
+          {/* Feed Routes */}
+          <Route path="/explore" element={<Explore/>} />
           
           {/* Post Routes */}
           <Route path="/post/:id" element={<PostDetail/>} />
@@ -63,6 +65,7 @@ const App = () => {
           <Route path="/profile/:id" element={<Profile/>} />
           <Route path="/space/:name" element={<Space/>} />
           <Route path="/spaces" element={<SpacesDirectory />} />
+          <Route path="/spaces/create" element={<CreateSpace />} />
           
           {/* Auth Routes */}
           <Route path="/login" element={<Login/>} />
