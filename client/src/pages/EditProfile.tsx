@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { userService } from '@/features/profile/services/userService'
+import { userService } from '@/features/profile/services'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
-import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { Input } from '@/components/ui/Input'
-import { Textarea } from '@/components/ui/Textarea'
-import { Button } from '@/components/ui/Button'
+import { SidebarNav } from '@/features/navigation/components'
+import { YourSpacesWidget } from '@/features/spaces/components'
 import { Camera, Save, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+import { 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardContent,
+  Input,
+  Textarea,
+  Button
+} from '@/components/ui'
 
 const EditProfile = () => {
   const navigate = useNavigate()
@@ -17,7 +23,6 @@ const EditProfile = () => {
   const [isSaving, setIsSaving] = useState(false)
   const [user, setUser] = useState<any>(null)
   
-  // Form state
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -33,6 +38,12 @@ const EditProfile = () => {
     const fetchCurrentUser = async () => {
       try {
         const currentUser = await userService.getCurrentUser()
+
+        if (!currentUser) {
+          navigate('/login')
+          return
+        }
+
         setUser(currentUser)
         setFormData({
           name: currentUser.name || '',
@@ -52,7 +63,7 @@ const EditProfile = () => {
     }
 
     fetchCurrentUser()
-  }, [])
+  }, [navigate])
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -66,11 +77,11 @@ const EditProfile = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!user) return
     setIsSaving(true)
 
     try {
       await userService.updateUser(user.id, formData)
-      // Navigate back to profile
       navigate(`/profile/${user.id}`)
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -81,7 +92,7 @@ const EditProfile = () => {
   }
 
   const handleCancel = () => {
-    navigate(`/profile/${user?.id}`)
+    if (user) navigate(`/profile/${user.id}`)
   }
 
   if (isLoading) {
@@ -116,7 +127,6 @@ const EditProfile = () => {
       }
     >
       <div className="space-y-6">
-        {/* Page Header */}
         <div>
           <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
             Edit Profile
@@ -127,7 +137,6 @@ const EditProfile = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Profile Picture Section */}
           <Card>
             <CardHeader>
               <CardTitle>Profile Picture</CardTitle>
@@ -138,7 +147,9 @@ const EditProfile = () => {
                   <img
                     src={formData.avatar || '/default-avatar.png'}
                     alt={formData.name}
-                    className="w-24 h-24 rounded-full object-cover bg-gray-200 dark:bg-gray-700"
+                    className={cn(
+                      "w-24 h-24 rounded-full object-cover",
+                      "bg-gray-200 dark:bg-gray-700")}
                   />
                   <button
                     type="button"
@@ -169,7 +180,6 @@ const EditProfile = () => {
             </CardContent>
           </Card>
 
-          {/* Basic Information */}
           <Card>
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
@@ -183,7 +193,6 @@ const EditProfile = () => {
                 placeholder="Your full name"
                 required
               />
-
               <Input
                 label="Username"
                 name="username"
@@ -192,7 +201,6 @@ const EditProfile = () => {
                 placeholder="@username"
                 required
               />
-
               <Textarea
                 label="Bio"
                 name="bio"
@@ -201,7 +209,6 @@ const EditProfile = () => {
                 placeholder="Tell us about yourself..."
                 rows={4}
               />
-
               <Input
                 label="Location"
                 name="location"
@@ -212,7 +219,6 @@ const EditProfile = () => {
             </CardContent>
           </Card>
 
-          {/* Social Links */}
           <Card>
             <CardHeader>
               <CardTitle>Social Links</CardTitle>
@@ -225,7 +231,6 @@ const EditProfile = () => {
                 onChange={handleInputChange}
                 placeholder="https://twitter.com/username"
               />
-
               <Input
                 label="GitHub"
                 name="github"
@@ -233,7 +238,6 @@ const EditProfile = () => {
                 onChange={handleInputChange}
                 placeholder="https://github.com/username"
               />
-
               <Input
                 label="LinkedIn"
                 name="linkedin"
@@ -244,7 +248,6 @@ const EditProfile = () => {
             </CardContent>
           </Card>
 
-          {/* Action Buttons */}
           <div className="flex items-center justify-end gap-3 pt-4">
             <Button
               type="button"
