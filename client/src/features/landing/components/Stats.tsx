@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 import { BowArrow, MessagesSquare, Rocket } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export const Stats = () => {
   return (
@@ -9,7 +10,9 @@ export const Stats = () => {
       <div className="max-w-7xl mx-auto">
         {/* Card Box */}
         <motion.div 
-          className="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-lg border border-gray-100 dark:border-white/5 p-6 md:p-8"
+          className={cn(
+            "bg-white dark:bg-[#1a1a1a] rounded-xl shadow-lg border",
+            "border-gray-100 dark:border-white/5 p-6 md:p-8")}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -22,10 +25,14 @@ export const Stats = () => {
             <div>
               <span className="flex flex-col items-center gap-3 py-2 px-2">
               <BowArrow color="#007137"/>
-              <p className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
+              <p className={cn(
+                "text-3xl md:text-4xl font-extrabold",
+                "text-gray-900 dark:text-white")}>
                 <CountUp end={6700} duration={2} separator="," suffix="+" />
               </p>
-              <p className="text-sm text-gray-500 uppercase tracking-wide">Lasallians</p>
+              <p className="text-sm text-gray-500 uppercase tracking-wide">
+                Lasallians
+              </p>
               </span>
 
             </div>
@@ -34,10 +41,14 @@ export const Stats = () => {
             <div>
               <span className="flex flex-col items-center gap-3 py-2 px-2">
                 <MessagesSquare color="#007137"/>
-              <p className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
+              <p className={cn(
+                "text-3xl md:text-4xl font-extrabold",
+                "text-gray-900 dark:text-white")}>
                 <CountUp end={67000} duration={2} separator="," suffix="+" />
               </p>
-              <p className="text-sm text-gray-500 uppercase tracking-wide">Discussions</p>
+              <p className="text-sm text-gray-500 uppercase tracking-wide">
+                Discussions
+              </p>
               </span>
             </div>
             
@@ -45,10 +56,14 @@ export const Stats = () => {
             <div>
               <span className="flex flex-col items-center gap-3 py-2 px-2">
               <Rocket color="#007137" />
-              <p className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
+              <p className={cn(
+                "text-3xl md:text-4xl font-extrabold text-gray-900",
+                "dark:text-white")}>
                 <CountUp end={67} duration={2} separator="," suffix="+" />
               </p>
-              <p className="text-sm text-gray-500 uppercase tracking-wide">Active Spaces</p>
+              <p className="text-sm text-gray-500 uppercase tracking-wide">
+                Active Spaces
+              </p>
               </span>
             </div>
           </div>
