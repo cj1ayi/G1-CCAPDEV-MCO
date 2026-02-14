@@ -19,7 +19,7 @@ import { Input, Button, Checkbox } from "@/components/ui";
 
 // Hooks
 import { useImageRotation } from "@/hooks/useImageRotation";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);

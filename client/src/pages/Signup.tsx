@@ -19,7 +19,7 @@ import { Input, Button, Checkbox, PasswordInput } from "@/components/ui";
 
 // Hooks
 import { useImageRotation } from "@/hooks/useImageRotation";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const Signup = () => {
   const [email, setEmail] = useState("");

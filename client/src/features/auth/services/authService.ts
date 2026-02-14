@@ -1,21 +1,14 @@
-import { mockUsers, type User as MockUser } from "@/lib/mockData";
+import { 
+  mockUsers, 
+  type User as MockUser 
+} from "@/lib/mockData";
 
-export interface AuthUser {
-  id: string;
-  name: string;
-  username: string;
-  avatar: any;
-  bio?: string;
-  location?: string;
-  joinedAt?: string;
-}
-
-// ---------------------------------------------------------------------------
-// Storage keys
-// ---------------------------------------------------------------------------
-const SESSION_KEY = "animoforums_session";
-const REMEMBER_KEY = "animoforums_remember";
-const SIGNUP_USERS_KEY = "animoforums_signups"; 
+import { 
+  AuthUser,
+  SESSION_KEY,
+  REMEMBER_KEY,
+  SIGNUP_USERS_KEY,
+} from "../types"
 
 // ---------------------------------------------------------------------------
 // Helpers

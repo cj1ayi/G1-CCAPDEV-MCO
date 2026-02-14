@@ -1,22 +1,23 @@
-import { createContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { 
+  createContext, 
+  useState, 
+  useEffect, 
+  useCallback, 
+  type ReactNode 
+} from "react";
+
 import {
   login as loginService,
   signup as signupService,
   logout as logoutService,
   getCurrentUser,
-  type AuthUser,
-} from "@/lib/authService";
+} from "../auth/services/authService";
 
-// ---------------------------------------------------------------------------
-// Context shape
-// ---------------------------------------------------------------------------
-export interface AuthContextType {
-  user: AuthUser | null;
-  isLoading: boolean;
-  login: (usernameOrEmail: string, password: string, remember?: boolean) => boolean;
-  signup: (email: string, username: string, password: string) => boolean;
-  logout: () => void;
-}
+import { 
+  AuthUser, 
+  AuthContextType 
+} from "./types";
+
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -35,7 +36,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = useCallback(
-    (usernameOrEmail: string, password: string, remember: boolean = false): boolean => {
+    (usernameOrEmail: string, 
+     password: string, remember: boolean = false): boolean => {
       const result = loginService(usernameOrEmail, password, remember);
       if (result) {
         setUser(result);
