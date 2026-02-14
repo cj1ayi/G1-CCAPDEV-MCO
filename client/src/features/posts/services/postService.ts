@@ -1,4 +1,7 @@
 import { Post } from '@/features/posts/types'
+import { 
+  getCurrentUser as getAuthUser 
+} from "@/features/auth/services/authService";
 
 export interface CreatePostDto {
   title: string
@@ -14,14 +17,6 @@ export interface UpdatePostDto {
   imageUrl?: string
   tags?: string[]
 }
-
-// Mock current user (replace with auth later)
-const getCurrentUser = () => ({
-  id: 'user-1',
-  name: 'Diane Panganiban',
-  username: 'iloveapex',
-  avatar: '',
-})
 
 // Local storage implementation (swap this whole file for API later)
 class PostService {
@@ -91,7 +86,9 @@ class PostService {
   async createPost(dto: CreatePostDto): Promise<Post> {
     await this.delay(300)
 
-    const currentUser = getCurrentUser()
+    const currentUser = getAuthUser()
+    if (!currentUser) throw new Error('Not authenticated')
+
     const newPost: Post = {
       id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: dto.title,
@@ -113,7 +110,7 @@ class PostService {
     }
 
     const posts = this.getStore()
-    const updatedPosts = [newPost, ...posts] // Add to top
+    const updatedPosts = [newPost, ...posts]
     this.setStore(updatedPosts)
 
     console.log('Post created:', newPost.id)
