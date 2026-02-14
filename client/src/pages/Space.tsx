@@ -1,16 +1,19 @@
-import { useParams } from 'react-router-dom'
-import { MainLayout } from '@/components/layout/MainLayout'
-import { Button } from '@/components/ui'
 import { Plus } from 'lucide-react'
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
+import { Button } from '@/components/ui'
+import { useParams } from 'react-router-dom'
 import { PostCard } from '@/features/posts/components'
-import { SpaceHeader } from '@/features/spaces/components/SpaceHeader'
-import { SpaceAboutWidget } from '@/features/spaces/components/SpaceAboutWidget'
-import { RulesWidget } from '@/features/spaces/components/RulesWidget'
-import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
-import { SpaceSortBar } from '@/features/spaces/components/SpaceSortBar'
-import { SpaceEmptyState } from '@/features/spaces/components/SpaceEmptyState'
+import { MainLayout } from '@/components/layout/MainLayout'
+import { SidebarNav } from '@/features/navigation/components'
 import { useSpacePage } from '@/features/spaces/hooks/useSpacePage'
+
+import { 
+  SpaceHeader,
+  SpaceAboutWidget,
+  RulesWidget,
+  YourSpacesWidget,
+  SpaceSortBar,
+  SpaceEmptyState
+} from '@/features/spaces/components'
 
 export default function Space() {
   const { name } = useParams<{ name: string }>()

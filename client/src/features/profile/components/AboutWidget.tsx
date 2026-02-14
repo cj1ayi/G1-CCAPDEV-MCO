@@ -1,9 +1,21 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, 
-    CardFooter } from '@/components/ui/Card'
+import { 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent, 
+} from '@/components/ui'
 
-import { Calendar, GraduationCap, MapPin, Twitter, Github, Linkedin } 
-	from "lucide-react"
+import { 
+  Calendar, 
+  GraduationCap, 
+  MapPin, 
+  Twitter, 
+  Github, 
+  Linkedin 
+} from "lucide-react"
 
+import { cn } from '@/lib/utils'
 
 export const AboutWidget = ({ user }: { user: any }) => {
 	return (
@@ -43,7 +55,10 @@ export const AboutWidget = ({ user }: { user: any }) => {
 								href={user.twitter}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="text-gray-600 dark:text-gray-400 hover:text-primary transition"
+								className={cn(
+                  "text-gray-600 dark:text-gray-400",
+                  "hover:text-primary transition"
+                )}
 							>
 								<Twitter className="w-4 h-4" />
 							</a>
@@ -54,7 +69,9 @@ export const AboutWidget = ({ user }: { user: any }) => {
 								href={user.github}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="text-gray-600 dark:text-gray-400 hover:text-primary transition"
+								className={cn(
+                  "text-gray-600 dark:text-gray-400",
+                  "hover:text-primary transition")}
 							>
 								<Github className="w-4 h-4" />
 							</a>
@@ -65,7 +82,9 @@ export const AboutWidget = ({ user }: { user: any }) => {
 								href={user.linkedin}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="text-gray-600 dark:text-gray-400 hover:text-primary transition"
+								className={cn(
+                  "text-gray-600 dark:text-gray-400",
+                  "hover:text-primary transition")}
 							>
 								<Linkedin className="w-4 h-4" />
 							</a>

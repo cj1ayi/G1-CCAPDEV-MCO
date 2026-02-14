@@ -2,18 +2,11 @@ import {
   useState, 
   useEffect 
 } from 'react'
-import { 
-  useParams 
-} from 'react-router-dom'
-import { 
-  userService 
-} from '../services/userService'
-import { 
-  postService 
-} from '@/features/posts/services'
-import { 
-  ProfileTab 
-} from '../components/ProfileNavbar'
+
+import { useParams } from 'react-router-dom'
+import { userService } from '../services'
+import { postService } from '@/features/posts/services'
+import { ProfileTab } from '../types'
 
 export const useProfileView = () => {
   const { id } = useParams<{ id: string }>()

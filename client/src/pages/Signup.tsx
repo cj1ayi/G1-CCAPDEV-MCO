@@ -21,6 +21,9 @@ import { Input, Button, Checkbox, PasswordInput } from "@/components/ui";
 import { useImageRotation } from "@/hooks/useImageRotation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
+// Utils
+import { cn } from "@/lib/utils";
+
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -122,7 +125,11 @@ const Signup = () => {
 
             {/* Author */}
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
+              <div className={cn(
+                "flex h-12 w-12 items-center justify-center",
+                "rounded-full bg-white/20"
+                )}
+              >
                 <span className="text-lg font-semibold text-white">?</span>
               </div>
               <div>
@@ -135,11 +142,14 @@ const Signup = () => {
       </div>
 
       {/* Right Panel */}
-      <div className="flex w-full flex-col items-center justify-center bg-white dark:bg-surface-dark px-8 lg:w-1/2">
+      <div className={cn(
+        "flex w-full flex-col items-center justify-center",
+        "bg-white dark:bg-surface-dark px-8 lg:w-1/2")}>
         <div className="w-full max-w-md">
           {/* Heading */}
           <div className="mb-8 space-y-2">
-            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+            <h1 className={cn(
+              "text-3xl font-extrabold text-gray-900 dark:text-white")}>
               Join the Community
             </h1>
             <p className="text-gray-600">
@@ -197,10 +207,12 @@ const Signup = () => {
             {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-700" />
+                <div className={cn(
+                  "w-full border-t border-gray-300 dark:border-gray-700")}/>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white dark:bg-surface-dark px-2 text-gray-500">
+                <span className={cn(
+                  "bg-white dark:bg-surface-dark px-2 text-gray-500")}>
                   Or continue with
                 </span>
               </div>

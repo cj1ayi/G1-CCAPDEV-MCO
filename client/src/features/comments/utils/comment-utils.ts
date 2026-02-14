@@ -1,11 +1,13 @@
-import { CommentCardProps } from '@/features/comments/components'
+import { CommentCardProps } from '../types'
 
 /**
  * Recursively counts all comments including nested replies
  */
-export function getTotalCommentCount(comments: CommentCardProps[]): number {
+export function getTotalCommentCount(
+  comments: CommentCardProps[]): number {
   return comments.reduce((acc, comment) => {
-    const replyCount = comment.replies ? getTotalCommentCount(comment.replies) : 0
+    const replyCount = comment.replies ? 
+      getTotalCommentCount(comment.replies) : 0
     return acc + 1 + replyCount
   }, 0)
 }
@@ -63,7 +65,8 @@ export function sortCommentsByBest(
 /**
  * Sort comments by date (newest first)
  */
-export function sortCommentsByNew(comments: CommentCardProps[]): CommentCardProps[] {
+export function sortCommentsByNew(
+  comments: CommentCardProps[]): CommentCardProps[] {
   // For now, we assume comments are already in newest-first order
   // In a real app, you'd parse createdAt and sort by timestamp
   return comments.map(comment => ({
@@ -77,7 +80,8 @@ export function sortCommentsByNew(comments: CommentCardProps[]): CommentCardProp
 /**
  * Sort comments by date (oldest first)
  */
-export function sortCommentsByOld(comments: CommentCardProps[]): CommentCardProps[] {
+export function sortCommentsByOld(
+  comments: CommentCardProps[]): CommentCardProps[] {
   const sorted = [...comments].reverse()
   
   return sorted.map(comment => ({

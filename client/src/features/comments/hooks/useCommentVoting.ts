@@ -1,19 +1,13 @@
-import { useState, useCallback } from 'react'
-import { CommentCardProps } from '@/features/comments/components'
+import { 
+  useState, 
+  useCallback 
+} from 'react'
 
-export type VoteType = 'up' | 'down' | null
-
-interface UseCommentVotingReturn {
-  votes: Record<string, VoteType>
-  toggleVote: (commentId: string, voteType: 'up' | 'down') => void
-  getCommentScore: (comment: CommentCardProps) => number
-  addVoteHandlers: (
-    comment: CommentCardProps,
-    onEdit?: (commentId: string, newContent: string) => void | Promise<void>,
-    onDelete?: (commentId: string) => void | Promise<void>,
-    onReply?: (content: string, parentId?: string) => void | Promise<void>
-  ) => CommentCardProps
-}
+import { 
+  CommentCardProps,
+  VoteType,
+  UseCommentVotingReturn
+} from '../types'
 
 export function useCommentVoting(): UseCommentVotingReturn {
   const [votes, setVotes] = useState<Record<string, VoteType>>({})

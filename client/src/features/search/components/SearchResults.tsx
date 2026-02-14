@@ -2,8 +2,9 @@ import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { getAllPosts } from "@/lib/mockData"
 import { PostCard } from "@/features/posts/components"
-import { commentService } from "@/features/comments/services/commentService"
+import { commentService } from "@/features/comments/services"
 import { getTotalCommentCount } from "@/features/comments/utils/comment-utils"
+import { cn } from "@/lib/utils"
 
 function useQuery() {
   return new URLSearchParams(useLocation().search)
@@ -27,7 +28,9 @@ export function SearchResults() {
     <div className="space-y-6 w-full">
       {/* Header */}
       <div className="space-y-1">
-        <h1 className="text-3xl font-bold text-text-main-light dark:text-text-main-dark tracking-tight">
+        <h1 className={cn(
+          "text-3xl font-bold text-text-main-light",
+          "dark:text-text-main-dark tracking-tight")}>
           Search results for{" "}
           <span className="text-[#007036]">“{searchTerm}”</span>
         </h1>

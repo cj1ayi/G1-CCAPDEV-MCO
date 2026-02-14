@@ -1,12 +1,21 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { postService } from '@/features/posts/services'
 import { ArrowLeft, X } from 'lucide-react'
+import { postService } from '@/features/posts/services'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
-import { Card, Button, Input, Textarea, Select, Badge } from '@/components/ui'
+import { SidebarNav } from '@/features/navigation/components'
 import { mockSpaces as SPACES }  from '@/lib/mockData'
-import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
+import { YourSpacesWidget } from '@/features/spaces/components'
+import { cn } from '@/lib/utils'
+
+import { 
+  Card, 
+  Button, 
+  Input, 
+  Textarea, 
+  Select, 
+  Badge 
+} from '@/components/ui'
 
 
 export default function CreatePostPage() {
@@ -111,13 +120,16 @@ export default function CreatePostPage() {
         <Card className="mb-6">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 mb-4 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
+            className={cn(
+              "flex items-center gap-2 mb-4 text-gray-600",
+              "dark:text-gray-400 hover:text-primary transition-colors")}
           >
             <ArrowLeft className="h-5 w-5" />
             <span className="font-medium">Back</span>
           </button>
 
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 
+            className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Create a Post
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -132,7 +144,10 @@ export default function CreatePostPage() {
             <Select
               label="Choose a Space"
               value={formData.space}
-              onChange={(e) => setFormData({ ...formData, space: e.target.value })}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                space: e.target.value 
+              })}
               error={errors.space}
               required
             >
@@ -148,7 +163,10 @@ export default function CreatePostPage() {
             <Input
               label="Title"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                title: e.target.value 
+              })}
               placeholder="What's your post about?"
               maxLength={300}
               error={errors.title}
@@ -160,7 +178,10 @@ export default function CreatePostPage() {
             <Textarea
               label="Content"
               value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                content: e.target.value 
+              })}
               placeholder="What are your thoughts?"
               rows={10}
               error={errors.content}
@@ -172,13 +193,18 @@ export default function CreatePostPage() {
               label="Image URL (Optional)"
               type="url"
               value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                imageUrl: e.target.value 
+              })}
               placeholder="https://example.com/image.jpg"
             />
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+              <label className={cn(
+                "block text-sm font-semibold mb-2",
+                "text-gray-700 dark:text-gray-200")}>
                 Tags (Optional)
               </label>
 

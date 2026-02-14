@@ -10,7 +10,8 @@ export const YourSpacesWidget = () => {
   return (
     <div className="space-y-4">
       <div className="px-4 flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+        <h3 
+          className="text-xs font-bold uppercase tracking-wider text-gray-500">
           Your Spaces
         </h3>
         <button

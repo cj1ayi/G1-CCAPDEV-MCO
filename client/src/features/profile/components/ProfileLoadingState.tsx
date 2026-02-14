@@ -1,6 +1,6 @@
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
-import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
+import { SidebarNav } from '@/features/navigation/components'
+import { YourSpacesWidget } from '@/features/spaces/components/'
 import { cn } from '@/lib/utils'
 
 export const ProfileLoadingState = () => {

@@ -1,12 +1,9 @@
 import { 
-  ProfileTab 
-} from './ProfileNavbar'
-import { 
+  ProfileTab,
   PostPreviewCard 
-} from './PostPreviewCard'
-import { 
-  Card 
-} from '@/components/ui'
+} from '../components'
+
+import { Card } from '@/components/ui'
 
 interface ProfileActivityProps {
   activeTab: ProfileTab

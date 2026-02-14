@@ -1,15 +1,18 @@
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
-import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
-import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
-import { ProfileNavbar } from '@/features/profile/components/ProfileNavbar'
-import { ProfileSidebar } from '@/features/profile/components/ProfileSidebar'
-import { ProfileActivity } from '@/features/profile/components/ProfileActivity'
-import { ProfileLoadingState } from '@/features/profile/components/ProfileLoadingState'
-import { ProfileNotFound } from '@/features/profile/components/ProfileNotFound'
+import { SidebarNav } from '@/features/navigation/components'
+import { YourSpacesWidget } from '@/features/spaces/components'
 import { useProfileView } from '@/features/profile/hooks/useProfileView'
 import { userService } from '@/features/profile/services/userService'
 import { useEffect, useState } from 'react'
+
+import { 
+  ProfileHeader,
+  ProfileNavbar,
+  ProfileSidebar,
+  ProfileActivity,
+  ProfileLoadingState,
+  ProfileNotFound
+} from '@/features/profile/components'
 
 const Profile = () => {
   const { user, posts, isLoading, activeTab, setActiveTab } = useProfileView()

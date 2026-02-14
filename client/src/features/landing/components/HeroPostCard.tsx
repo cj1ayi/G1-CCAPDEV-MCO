@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { MessageSquare, ArrowBigUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Post, HeroPostCardProps } from "../types";
+import { HeroPostCardProps } from "../types";
 
 export const HeroPostCard = ({ post, thumbnail }: HeroPostCardProps) => {
   return (
@@ -33,7 +33,8 @@ export const HeroPostCard = ({ post, thumbnail }: HeroPostCardProps) => {
       </div>
 
       {/* Content Layer */}
-      <div className="relative h-full flex flex-col justify-between p-6 md:p-8">
+      <div className={cn(
+        "relative h-full flex flex-col justify-between p-6 md:p-8")}>
         <div>
           <span
             className={cn(

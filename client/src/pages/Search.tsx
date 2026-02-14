@@ -1,8 +1,11 @@
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SearchResults } from '@/features/search/components/SearchResults'
-import { TrendingWidgets } from '@/features/search/components/TrendingWidgets'
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
-import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
+import { SidebarNav } from '@/features/navigation/components'
+import { YourSpacesWidget } from '@/features/spaces/components'
+
+import { 
+  SearchResults, 
+  TrendingWidgets 
+} from '@/features/search/components'
 
 const Search = () => {
   return (

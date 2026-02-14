@@ -1,10 +1,13 @@
+import { 
+  useTrendingPosts,
+  useThumbnails
+} from '../hooks'
+
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 import { TrendingUp } from 'lucide-react'
-import { useTrendingPosts } from '../hooks/useTrendingPosts'
-import { useThumbnails } from '../hooks/useThumbnails'
 import { CarouselCard } from './CarouselCard'
 import { cn } from '@/lib/utils'
 

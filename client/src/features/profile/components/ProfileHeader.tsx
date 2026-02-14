@@ -1,13 +1,32 @@
-import { Button } from '@/components/ui/Button'
-import { Dropdown, DropdownItem, 
-  DropdownSeparator, DropdownLabel } from '@/components/ui/Dropdown'
-import { cn } from '@/lib/utils'
-import { motion } from "framer-motion"
-import { Camera, UserPlus, Mail, MoreHorizontal, 
-  User, Settings, LogOut, Edit } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { 
+  Button,
+  Dropdown, 
+  DropdownItem, 
+  DropdownSeparator, 
+  DropdownLabel
+} from '@/components/ui'
+import { 
+  Camera, 
+  UserPlus, 
+  Mail, 
+  MoreHorizontal, 
+  User, 
+  Settings, 
+  LogOut, 
+  Edit 
+} from 'lucide-react'
 
-export const ProfileHeader = ({ user, isOwnProfile = false }: { user: any; isOwnProfile?: boolean }) => {
+import { motion } from "framer-motion"
+import { useNavigate } from 'react-router-dom'
+import { cn } from '@/lib/utils'
+
+export const ProfileHeader = ({ 
+  user, 
+  isOwnProfile = false }: { 
+    user: any; 
+    isOwnProfile?: boolean 
+  }) => {
+
   const navigate = useNavigate()
 
   return (

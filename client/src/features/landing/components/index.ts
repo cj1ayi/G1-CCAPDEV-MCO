@@ -1,5 +1,5 @@
-export { CarouselCard } from './CarouselCard'
 export { Hero } from './Hero'
-export { HeroPostCard } from './HeroPostCard'
 export { Stats } from './Stats'
+export { CarouselCard } from './CarouselCard'
+export { HeroPostCard } from './HeroPostCard'
 export { TrendingCarousel } from './TrendingCarousel'

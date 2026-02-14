@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PostCard } from '@/features/posts/components'
-import { postService } from '@/features/posts/services/postService'
-import { commentService } from '@/features/comments/services/commentService'
+import { postService } from '@/features/posts/services'
+import { commentService } from '@/features/comments/services'
 import { getTotalCommentCount } from '@/features/comments/utils/comment-utils'
 import { Post } from '@/features/posts/types'
 

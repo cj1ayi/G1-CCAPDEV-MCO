@@ -1,22 +1,23 @@
 import { useParams } from 'react-router-dom';
-import { MainLayout } from '@/components/layout/MainLayout';
 import { Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { usePostDetailView } from '@/features/posts/hooks/usePostDetailView';
 import { Card, Button } from '@/components/ui';
-import { SidebarNav } from '@/features/navigation/components/SidebarNav';
+import { SidebarNav } from '@/features/navigation/components';
+import { YourSpacesWidget } from '@/features/spaces/components';
+import { cn } from '@/lib/utils';
+
 import { 
   PostDetailHeader, 
   PostDetailContent, 
   DeletePostModal 
 } from '@/features/posts/components';
+
 import { 
   CommentInput, 
   CommentSection 
 } from '@/features/comments/components';
-import { 
-  YourSpacesWidget 
-} from '@/features/spaces/components/YourSpacesWidget';
+
 
 export default function PostDetail() {
   const { id } = useParams<{ id: string }>();

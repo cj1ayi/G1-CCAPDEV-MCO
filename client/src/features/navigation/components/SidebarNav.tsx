@@ -20,13 +20,20 @@ export const SidebarNav = () => {
             key={item.href}
             onClick={() => navigate(item.href)}
             className={cn(
-              'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
+              'w-full flex items-center gap-3 px-4 py-3 rounded-lg',
+              'text-sm font-medium transition-all',
               active
                 ? 'bg-primary/10 text-primary dark:bg-primary/20'
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-surface-darker'
             )}
           >
-            <span className="material-symbols-outlined text-[20px]" style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>
+            <span 
+              className="material-symbols-outlined text-[20px]" 
+              style={
+                active ? { 
+                  fontVariationSettings: "'FILL' 1" 
+                } : undefined}
+            >
               {item.icon}
             </span>
             <span>{item.label}</span>

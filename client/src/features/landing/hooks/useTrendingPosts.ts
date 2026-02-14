@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getAllPosts, Post } from '@/lib/mockData'
+import { getAllPosts } from '@/lib/mockData'
 
 export const useTrendingPosts = (limit: number = 5) => {
   const navigate = useNavigate()

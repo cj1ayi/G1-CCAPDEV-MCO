@@ -1,22 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { CommentCardProps } from '@/features/comments/components'
-import { commentService } from '../services/commentService'
-import { getCurrentUser as getAuthUser } from '@/features/auth/services/authService'
+import { CommentCardProps } from '../components'
+import { commentService } from '../services/'
 
-interface UseCommentsOptions {
-  postId: string
-  voteState?: Record<string, 'up' | 'down' | null>
-}
+import { 
+  getCurrentUser as getAuthUser 
+} from '@/features/auth/services/'
 
-interface UseCommentsReturn {
-  comments: CommentCardProps[]
-  isLoading: boolean
-  error: Error | null
-  addComment: (content: string, parentId?: string) => Promise<void>
-  editComment: (commentId: string, newContent: string) => Promise<void>
-  deleteComment: (commentId: string) => Promise<void>
-  refresh: () => Promise<void>
-}
+import {
+  UseCommentsOptions,
+  UseCommentsReturn
+} from '../types'
 
 /**
  * Calculate comment score with vote adjustments

@@ -3,7 +3,7 @@ import diane from '@/assets/pfp/diane.png'
 import karl from '@/assets/pfp/karl.png'
 import callo from '@/assets/pfp/callo.png'
 import pring from '@/assets/pfp/pring.gif'
-import { CommentCardProps } from '@/features/comments/components/CommentCard'
+import { CommentCardProps } from '@/features/comments/types'
 
 export interface SpaceRule {
   title: string

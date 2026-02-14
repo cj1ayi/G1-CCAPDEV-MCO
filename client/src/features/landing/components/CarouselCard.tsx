@@ -1,7 +1,11 @@
+import { 
+  MessageSquare, 
+  ArrowBigUp 
+} from 'lucide-react'
+
 import { motion } from 'framer-motion'
-import { MessageSquare, ArrowBigUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Post, CarouselCardProps } from '../types'
+import { CarouselCardProps } from '../types'
 
 export const CarouselCard = ({ 
   post, 

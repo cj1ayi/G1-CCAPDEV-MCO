@@ -1,7 +1,10 @@
 import { MainLayout } from '@/components/layout/MainLayout'
-import { Hero } from '@/features/landing/components/Hero'
-import { Stats } from '@/features/landing/components/Stats'
-import { TrendingCarousel } from '@/features/landing/components/TrendingCarousel'
+
+import { 
+  Hero,
+  Stats,
+  TrendingCarousel,
+} from '@/features/landing/components/'
 
 const Home = () => {
   return (

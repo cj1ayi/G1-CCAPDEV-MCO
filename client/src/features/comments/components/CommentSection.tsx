@@ -1,10 +1,11 @@
-import { CommentCard, CommentCardProps } from '@/features/comments/components'
-import { cn } from '@/lib/utils'
+import { 
+  CommentCard, 
+  CommentCardProps 
+} from '../components'
 
-interface CommentSectionProps {
-  comments: CommentCardProps[]
-  totalCount: number
-}
+import { CommentSectionProps } from '../types'
+
+import { cn } from '@/lib/utils'
 
 export const CommentSection = ({ 
   comments, 

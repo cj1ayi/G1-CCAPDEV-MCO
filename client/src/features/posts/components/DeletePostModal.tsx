@@ -1,14 +1,12 @@
+import { 
+  Modal, 
+  Button 
+} from '@/components/ui'
+
+import { AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import { Modal, Button } from '@/components/ui'
-import { AlertTriangle } from 'lucide-react'
-
-interface DeletePostModalProps {
-  isOpen: boolean
-  postTitle: string
-  onConfirm: () => Promise<void>
-  onClose: () => void
-}
+import { DeletePostModalProps } from '../types'
 
 export const DeletePostModal = ({
   isOpen,
@@ -37,7 +35,6 @@ export const DeletePostModal = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Delete Post"
     >
       <div className="space-y-4">
         {/* Warning Icon */}
@@ -103,7 +100,8 @@ export const DeletePostModal = ({
           >
             {isDeleting ? (
               <span className="flex items-center gap-2">
-                <span className="material-symbols-outlined animate-spin text-[18px]">
+                <span className={cn(
+                  "material-symbols-outlined animate-spin text-[18px]")}>
                   progress_activity
                 </span>
                 Deleting...

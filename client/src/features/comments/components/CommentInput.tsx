@@ -1,14 +1,6 @@
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-
-interface CommentInputProps {
-  onSubmit: (content: string) => void | Promise<void>
-  placeholder?: string
-  submitLabel?: string
-  autoFocus?: boolean
-  onCancel?: () => void
-  isSubmitting?: boolean
-}
+import { CommentInputProps } from '../types'
 
 export const CommentInput = ({
   onSubmit,

@@ -1,11 +1,8 @@
 import { 
   ProfilePostsList 
-} from '@/features/profile/components/ProfilePostsList'
+} from './ProfilePostsList'
 
-interface ActivityFeedProps {
-  posts: any[]
-  isOwnProfile?: boolean
-}
+import { ActivityFeedProps } from '../types'
 
 export const ActivityFeed = ({ posts, isOwnProfile }: ActivityFeedProps) => {
   return (

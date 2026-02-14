@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/AuthContext";
+import { commentService } from "@/features/comments/services";
+
 import {
   Home,
   PostDetail,
@@ -12,17 +14,10 @@ import {
   Login,
   Signup,
   Search,
-  ComponentShowcase,
-  TestPosts,
-  TestComments,
-  TestLayouts,
+  CreatePost,
+  EditPost,
 } from "./pages";
 
-// Import the new pages
-import CreatePost from "./pages/CreatePost";
-import EditPost from "./pages/EditPost";
-
-import { commentService } from "@/features/comments/services/commentService";
 
 const App = () => {
   const hasSeeded = localStorage.getItem("comments_seeded");
@@ -31,20 +26,6 @@ const App = () => {
       localStorage.setItem("comments_seeded", "true");
       console.log("Comments auto-seeded on first load!");
     });
-  }
-
-  const showShowcase = new URLSearchParams(window.location.search).has(
-    "showcase",
-  );
-
-  if (showShowcase) {
-    return (
-      <BrowserRouter>
-        <AuthProvider>
-          <ComponentShowcase />
-        </AuthProvider>
-      </BrowserRouter>
-    );
   }
 
   return (
@@ -76,12 +57,7 @@ const App = () => {
           
           {/* Search */}
           <Route path="/search" element={<Search/>} />
-          
-          {/* Test Routes */}
-          <Route path="/test-posts" element={<TestPosts />} />
-          <Route path="/test-comments" element={<TestComments />} />
-          <Route path="/test-layouts" element={<TestLayouts />} />
-      </Routes>
+     </Routes>
     </AuthProvider>
   </BrowserRouter>
   );

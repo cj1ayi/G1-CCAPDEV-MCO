@@ -11,15 +11,16 @@ import {
   signup as signupService,
   logout as logoutService,
   getCurrentUser,
-} from "../auth/services/authService";
+} from "@/features/auth/services";
 
 import { 
   AuthUser, 
   AuthContextType 
-} from "./types";
+} from "@/features/auth/types";
 
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<
+AuthContextType | undefined>(undefined);
 
 // ---------------------------------------------------------------------------
 // Provider

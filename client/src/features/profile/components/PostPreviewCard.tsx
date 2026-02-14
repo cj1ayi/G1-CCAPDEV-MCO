@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { PostCard } from "@/features/posts/components"
-import { commentService } from "@/features/comments/services/commentService"
+import { commentService } from "@/features/comments/services"
 import { getTotalCommentCount } from "@/features/comments/utils/comment-utils"
 
 export function PostPreviewCard({ post }: { post: any }) {

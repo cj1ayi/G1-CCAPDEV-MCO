@@ -18,8 +18,11 @@ import { AtSign, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Input, Button, Checkbox } from "@/components/ui";
 
 // Hooks
-import { useImageRotation } from "@/hooks/useImageRotation";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useImageRotation } from "@/hooks/";
+import { useAuth } from "@/features/auth/hooks/";
+
+// Utils
+import { cn } from "@/lib/utils";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -120,7 +123,9 @@ const Login = () => {
 
             {/* Author */}
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
+              <div className={cn(
+                "flex h-12 w-12 items-center",
+                "justify-center rounded-full bg-white/20")}>
                 <span className="text-lg font-semibold text-white">?</span>
               </div>
               <div>
@@ -133,11 +138,14 @@ const Login = () => {
       </div>
 
       {/* Right Panel */}
-      <div className="flex w-full flex-col items-center justify-center bg-white dark:bg-surface-dark px-8 lg:w-1/2">
+      <div className={cn(
+        "flex w-full flex-col items-center justify-center",
+        "bg-white dark:bg-surface-dark px-8 lg:w-1/2")}>
         <div className="w-full max-w-xl">
           {/* Heading */}
           <div className="mb-8 space-y-2">
-            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+            <h1 className={cn(
+              "text-3xl font-extrabold text-gray-900 dark:text-white")}>
               Sign In
             </h1>
           </div>
@@ -162,7 +170,9 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="flex items-center justify-center text-gray-400 hover:text-gray-600"
+                  className={cn(
+                    "flex items-center justify-center",
+                    "text-gray-400 hover:text-gray-600")}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />

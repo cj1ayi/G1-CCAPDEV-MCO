@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
-import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
-import { TrendingWidget } from '@/features/posts/components/TrendingWidget'
-import { RulesWidget } from '@/features/spaces/components/RulesWidget'
-import { Filter } from '@/features/explore/components/Filter'
-import { Feed } from '@/features/explore/components/Feed'
+import { SidebarNav } from '@/features/navigation/components'
+import { YourSpacesWidget } from '@/features/spaces/components'
+import { TrendingWidget } from '@/features/posts/components'
+import { RulesWidget } from '@/features/spaces/components'
+import { Filter, Feed } from '@/features/explore/components'
 
 const Explore = () => {
-  const [currentSort, setCurrentSort] = useState<'best' | 'hot' | 'new' | 'top'>('best')
+  const [currentSort, setCurrentSort] = useState<
+  'best' | 'hot' | 'new' | 'top'>('best')
 
   return (
     <MainLayout

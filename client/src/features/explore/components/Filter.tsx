@@ -1,11 +1,9 @@
-import { useState } from "react"
+import { 
+  FilterOption,  
+  FilterProps
+} from "../types";
 
-type FilterOption = "best" | "hot" | "new" | "top"
-
-interface FilterProps {
-  active: FilterOption;
-  onChange: (value: FilterOption) => void;
-}
+import { cn } from "@/lib/utils";
 
 export function Filter({ active, onChange }: FilterProps) {
   const tabs: { label: string; value: FilterOption }[] = [
@@ -16,7 +14,9 @@ export function Filter({ active, onChange }: FilterProps) {
   ]
 
   return (
-    <div className="flex items-center gap-6 border-b border-border-light dark:border-border-dark pb-2 mb-5">
+    <div className={cn(
+      "flex items-center gap-6 border-b border-border-light",
+      "dark:border-border-dark pb-2 mb-5")}>
       {tabs.map((tab) => (
         <button
           key={tab.value}
@@ -29,7 +29,10 @@ export function Filter({ active, onChange }: FilterProps) {
         >
           {tab.label}
           {active === tab.value && (
-            <span className="absolute left-0 -bottom-2 h-0.5 w-full bg-primary rounded" />
+            <span className={cn(
+              "absolute left-0 -bottom-2 h-0.5 w-full bg-primary rounded"
+              )}
+            />
           )}
         </button>
       ))}

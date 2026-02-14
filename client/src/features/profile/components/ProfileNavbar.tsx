@@ -1,16 +1,9 @@
+import {
+  ProfileNavbarProps,
+  ProfileTab
+} from '../types'
+
 import { cn } from '@/lib/utils'
-
-export type ProfileTab = 
-  | 'Overview' 
-  | 'Posts' 
-  | 'Comments' 
-  | 'Spaces' 
-  | 'Upvoted'
-
-interface ProfileNavbarProps {
-  activeTab: ProfileTab
-  onTabChange: (tab: ProfileTab) => void
-}
 
 export const ProfileNavbar = ({
   activeTab,

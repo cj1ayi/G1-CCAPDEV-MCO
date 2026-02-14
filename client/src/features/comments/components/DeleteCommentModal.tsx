@@ -2,13 +2,7 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Modal, Button } from '@/components/ui'
 import { AlertTriangle } from 'lucide-react'
-
-interface DeleteCommentModalProps {
-  isOpen: boolean
-  hasReplies: boolean
-  onConfirm: () => Promise<void>
-  onClose: () => void
-}
+import { DeleteCommentModalProps } from '../types'
 
 export const DeleteCommentModal = ({
   isOpen,
@@ -50,7 +44,8 @@ export const DeleteCommentModal = ({
               'flex items-center justify-center'
             )}
           >
-            <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
+            <AlertTriangle 
+              className="h-8 w-8 text-red-600 dark:text-red-400" />
           </div>
         </div>
 
@@ -67,7 +62,8 @@ export const DeleteCommentModal = ({
           
           {hasReplies ? (
             <div className="space-y-2">
-              <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+              <p className={cn(
+                "text-sm text-gray-600 dark:text-gray-300 font-medium")}>
                 This comment has replies.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">

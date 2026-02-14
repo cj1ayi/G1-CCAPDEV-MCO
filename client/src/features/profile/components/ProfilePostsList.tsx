@@ -1,18 +1,27 @@
-import { Card, CardContent } from '@/components/ui/Card'
-import { PostPreviewCard } from '@/features/profile/components/PostPreviewCard'
+import { 
+  Card, 
+  CardContent 
+} from '@/components/ui'
+
+import { PostPreviewCard } from '../components'
 import { FileX } from 'lucide-react'
+import { ProfilePostsListProps } from '../types'
+import { cn } from '@/lib/utils'
 
-interface ProfilePostsListProps {
-  posts: any[]
-  isOwnProfile?: boolean
-}
+export const ProfilePostsList = (
+  { 
+    posts, 
+    isOwnProfile 
+  }: ProfilePostsListProps) => {
 
-export const ProfilePostsList = ({ posts, isOwnProfile }: ProfilePostsListProps) => {
   if (posts.length === 0) {
     return (
       <Card>
-        <CardContent className="py-12 flex flex-col items-center gap-3 text-center">
-          <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+        <CardContent className={cn(
+          "py-12 flex flex-col items-center gap-3 text-center")}>
+          <div className={cn(
+            "w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex",
+            "items-center justify-center")}>
             <FileX className="w-6 h-6 text-gray-400 dark:text-gray-500" />
           </div>
           <div className="space-y-1">

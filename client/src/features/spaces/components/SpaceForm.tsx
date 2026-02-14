@@ -1,21 +1,14 @@
 import { useState } from 'react'
 import { Card, Input, Textarea, Select, Button } from '@/components/ui'
-import { Users, Info } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { CreateSpaceDto } from '../services/spaceService'
+import { CATEGORIES } from '../types'
 
 interface SpaceFormProps {
   onSubmit: (data: CreateSpaceDto) => Promise<void>
   onCancel: () => void
   isLoading: boolean
 }
-
-const CATEGORIES = [
-  { value: 'Academic', label: 'Academic' },
-  { value: 'Official', label: 'Official' },
-  { value: 'Lifestyle', label: 'Lifestyle' },
-  { value: 'Interest', label: 'Interest' },
-  { value: 'Batch', label: 'Batch' },
-]
 
 export const SpaceForm = ({ onSubmit, onCancel, isLoading }: SpaceFormProps) => {
   const [formData, setFormData] = useState<CreateSpaceDto>({

@@ -131,3 +131,17 @@ export interface ValidationErrors {
   content?: string
   space?: string
 }
+
+export interface DeletePostModalProps {
+  isOpen: boolean
+  postTitle: string
+  onConfirm: () => Promise<void>
+  onClose: () => void
+}
+
+export interface PostDetailHeaderProps {
+  post: any; 
+  onEdit: () => void;
+  onDelete: () => void;
+  onSpaceClick: () => void;
+}

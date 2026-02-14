@@ -1,16 +1,24 @@
-import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Dropdown, DropdownItem, DropdownSeparator } from '@/components/ui';
+import { 
+  MoreHorizontal, 
+  Edit, 
+  Trash2 
+} from 'lucide-react';
+
+import { 
+  Dropdown, 
+  DropdownItem, 
+  DropdownSeparator 
+} from '@/components/ui';
+
 import { PostDetailBreadcrumbs } from './PostDetailBreadcrumbs';
+import { cn } from '@/lib/utils';
+import { PostDetailHeaderProps } from '../types';
 
-interface PostDetailHeaderProps {
-  post: any; // Replace with your Post type
-  onEdit: () => void;
-  onDelete: () => void;
-  onSpaceClick: () => void;
-}
-
-export function PostDetailHeader({ post, onEdit, onDelete, onSpaceClick }: PostDetailHeaderProps) {
+export function PostDetailHeader({ 
+  post, 
+  onEdit, 
+  onDelete, 
+  onSpaceClick }: PostDetailHeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <PostDetailBreadcrumbs

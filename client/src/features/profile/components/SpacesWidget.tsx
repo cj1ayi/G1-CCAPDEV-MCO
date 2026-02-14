@@ -3,10 +3,8 @@ import {
   CardHeader,
   CardTitle, 
   CardContent, 
- } from '@/components/ui/Card'
-
-import { Badge } from '@/components/ui/Badge' 
-
+  Badge,
+ } from '@/components/ui'
 
 export const SpacesWidget = () => {
 return (

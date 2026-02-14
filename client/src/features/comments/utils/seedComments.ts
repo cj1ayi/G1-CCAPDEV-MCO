@@ -1,5 +1,9 @@
-import { CommentCardProps } from '@/features/comments/components'
-import { getCommentsByPostId, getAllPosts } from '@/lib/mockData'
+import { CommentCardProps } from '../types'
+
+import { 
+  getCommentsByPostId, 
+  getAllPosts 
+} from '@/lib/mockData'
 
 const STORAGE_KEY = 'animoforums_comments'
 

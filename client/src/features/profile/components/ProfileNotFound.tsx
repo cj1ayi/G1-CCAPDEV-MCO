@@ -1,10 +1,15 @@
+import { 
+  Card, 
+  CardContent, 
+  Button 
+} from '@/components/ui'
+
 import { useNavigate } from 'react-router-dom'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
-import { YourSpacesWidget } from '@/features/spaces/components/YourSpacesWidget'
-import { Card, CardContent } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import { SidebarNav } from '@/features/navigation/components'
+import { YourSpacesWidget } from '@/features/spaces/components'
 import { UserX } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export const ProfileNotFound = () => {
   const navigate = useNavigate()
@@ -24,7 +29,9 @@ export const ProfileNotFound = () => {
         <Card className="max-w-md w-full text-center">
           <CardContent className="pt-8 pb-8 space-y-4">
             <div className="flex justify-center">
-              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <div className={cn(
+                "w-16 h-16 rounded-full bg-gray-100",
+                "dark:bg-gray-800 flex items-center justify-center")}>
                 <UserX className="w-8 h-8 text-gray-400 dark:text-gray-500" />
               </div>
             </div>

@@ -1,14 +1,7 @@
 import { Plus, Check, Users, MessageSquare } from 'lucide-react'
 import { Button, Badge } from '@/components/ui'
 import { cn } from '@/lib/utils'
-import { Space } from '../types'
-
-interface SpaceHeaderProps {
-  space: Space
-  isJoined: boolean
-  onToggleJoin: () => void
-  postCount: number
-}
+import { SpaceHeaderProps } from '../types'
 
 export const SpaceHeader = ({ 
   space, 

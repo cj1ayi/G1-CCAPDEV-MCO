@@ -10,3 +10,25 @@ export interface User {
   github?: string
   linkedin?: string
 }
+
+export interface ActivityFeedProps {
+  posts: any[]
+  isOwnProfile?: boolean
+}
+
+export type ProfileTab = 
+  | 'Overview' 
+  | 'Posts' 
+  | 'Comments' 
+  | 'Spaces' 
+  | 'Upvoted'
+
+export interface ProfileNavbarProps {
+  activeTab: ProfileTab
+  onTabChange: (tab: ProfileTab) => void
+}
+
+export interface ProfilePostsListProps {
+  posts: any[]
+  isOwnProfile?: boolean
+}

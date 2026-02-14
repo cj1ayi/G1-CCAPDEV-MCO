@@ -1,37 +1,26 @@
-import { useState, useRef, useEffect } from 'react'
-import { Avatar, Button } from '@/components/ui'
-import { MoreHorizontal, Edit, Trash2, Check, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { 
+  useState, 
+  useRef, 
+  useEffect 
+} from 'react'
+
+import { 
+  MoreHorizontal, 
+  Edit, 
+  Trash2, 
+  Check, 
+  X 
+} from 'lucide-react'
+
+import { 
+  Avatar, 
+  Button 
+} from '@/components/ui'
+
 import { CommentInput } from './CommentInput'
 import { DeleteCommentModal } from './DeleteCommentModal'
-
-export interface CommentCardProps {
-  id: string
-  content: string
-  author: {
-    id: string
-    name: string
-    username: string
-    avatar?: string
-  }
-  upvotes: number
-  downvotes: number
-  createdAt: string
-  editedAt?: string 
-  isUpvoted?: boolean
-  isDownvoted?: boolean
-  isOwner?: boolean
-  isOP?: boolean
-  isDeleted?: boolean
-  badge?: string
-  onUpvote?: () => void
-  onDownvote?: () => void
-  onReply?: (content: string) => void | Promise<void>
-  onEdit?: (newContent: string) => void | Promise<void>
-  onDelete?: () => void | Promise<void>
-  replies?: CommentCardProps[]
-  depth?: number
-}
+import { CommentCardProps } from '../types'
+import { cn } from '@/lib/utils'
 
 const CommentCard = ({
   id,
@@ -69,14 +58,16 @@ const CommentCard = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (menuRef.current && !menuRef
+          .current.contains(event.target as Node)) {
         setShowMenu(false)
       }
     }
 
     if (showMenu) {
       document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener(
+        'mousedown', handleClickOutside)
     }
   }, [showMenu])
 
@@ -332,7 +323,8 @@ const CommentCard = ({
                 >
                   <span
                     className="material-symbols-outlined text-[16px]"
-                    style={isUpvoted ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                    style={isUpvoted ? { 
+                      fontVariationSettings: "'FILL' 1" } : undefined}
                   >
                     shift
                   </span>
@@ -343,7 +335,8 @@ const CommentCard = ({
                     'text-xs font-bold min-w-[24px] text-center',
                     isUpvoted && 'text-[#FF6B35]',
                     isDownvoted && 'text-[#4A90E2]',
-                    !isUpvoted && !isDownvoted && 'text-gray-600 dark:text-gray-400'
+                    !isUpvoted && !isDownvoted 
+                    && 'text-gray-600 dark:text-gray-400'
                   )}
                 >
                   {score}
@@ -361,7 +354,8 @@ const CommentCard = ({
                 >
                   <span
                     className="material-symbols-outlined text-[16px] rotate-180"
-                    style={isDownvoted ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                    style={isDownvoted ? { 
+                      fontVariationSettings: "'FILL' 1" } : undefined}
                   >
                     shift
                   </span>
@@ -398,7 +392,9 @@ const CommentCard = ({
             <CommentInput
               onSubmit={handleSubmitReply}
               onCancel={handleCancelReply}
-              placeholder={isDeleted ? "Add a reply..." : `Reply to u/${author.username}...`}
+              placeholder={
+                isDeleted ? "Add a reply..." : 
+                `Reply to u/${author.username}...`}
               submitLabel="Reply"
               autoFocus
             />

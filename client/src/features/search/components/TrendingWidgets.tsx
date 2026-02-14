@@ -1,6 +1,10 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, 
-CardFooter } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge' 
+import { 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardContent, 
+  Badge,
+ } from '@/components/ui'
 
 import { TrendingUp } from "lucide-react"
 

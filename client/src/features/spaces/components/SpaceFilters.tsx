@@ -1,5 +1,6 @@
 import { Button, Dropdown, DropdownItem } from '@/components/ui'
 import { ChevronDown, SortAsc, SortDesc, Users } from 'lucide-react'
+import { SpaceFiltersProps } from '../types'
 
 const FILTERS = [
   'All Spaces',
@@ -9,13 +10,6 @@ const FILTERS = [
   'Interest',
   'Batch'
 ]
-
-interface SpaceFiltersProps {
-  activeFilter: string
-  onFilterChange: (filter: string) => void
-  currentSort: string
-  onSortChange: (sort: string) => void
-}
 
 export const SpaceFilters = ({
   activeFilter,

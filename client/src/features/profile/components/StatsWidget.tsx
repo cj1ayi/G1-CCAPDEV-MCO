@@ -5,8 +5,11 @@ import {
   CardContent, 
 } from '@/components/ui/Card'
 
-
-import { ArrowUp, MessageCircle, Users } from "lucide-react"
+import { 
+  ArrowUp, 
+  MessageCircle, 
+  Users 
+} from "lucide-react"
 
 export const StatsWidget = () => {
 	return (

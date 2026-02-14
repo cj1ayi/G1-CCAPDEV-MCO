@@ -1,6 +1,11 @@
+import { 
+  BowArrow, 
+  MessagesSquare, 
+  Rocket 
+} from 'lucide-react'
+
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
-import { BowArrow, MessagesSquare, Rocket } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export const Stats = () => {

@@ -9,10 +9,16 @@ interface SpaceCardProps {
   onClick: (name: string) => void
 }
 
-export const SpaceCard = ({ space, onToggleJoin, onClick }: SpaceCardProps) => {
-  const isMaterialIcon = ['menu_book', 'sports_basketball', 'terminal'].includes(
-    space.icon
-  )
+export const SpaceCard = ({ 
+  space, 
+  onToggleJoin, 
+  onClick }: SpaceCardProps) => {
+
+  const isMaterialIcon = [
+    'menu_book', 
+    'sports_basketball', 
+    'terminal'
+  ].includes(space.icon)
 
   return (
     <Card

@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { postService } from '@/features/posts/services'
 import { ArrowLeft, X } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
-import { Card, Button, Input, Textarea, Badge } from '@/components/ui'
+import { SidebarNav } from '@/features/navigation/components'
+import { postService } from '@/features/posts/services'
 import { cn } from '@/lib/utils'
+
+import { 
+  Card, 
+  Button, 
+  Input, 
+  Textarea, 
+  Badge 
+} from '@/components/ui'
 
 export default function EditPostPage() {
   const { id } = useParams<{ id: string }>()
@@ -34,7 +41,10 @@ export default function EditPostPage() {
       }
 
       try {
-        const { post, error: fetchError } = await postService.getPostForEdit(id)
+        const { 
+          post, 
+          error: fetchError 
+        } = await postService.getPostForEdit(id)
         
         if (fetchError) {
           setError(fetchError)

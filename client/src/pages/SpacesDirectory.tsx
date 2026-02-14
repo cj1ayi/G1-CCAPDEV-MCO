@@ -1,24 +1,17 @@
-import { MainLayout } from '@/components/layout/MainLayout'
-import { Button } from '@/components/ui'
-import { RotateCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-// Lego Bricks
-import { SidebarNav } from '@/features/navigation/components/SidebarNav'
-import {
-  YourSpacesWidget
-} from '@/features/spaces/components/YourSpacesWidget'
-import { SpaceCard } from '@/features/spaces/components/SpaceCard'
-import {
-  CreateSpaceCard
-} from '@/features/spaces/components/CreateSpaceCard'
-import {
-  SpaceDirectoryHeader
-} from '@/features/spaces/components/SpaceDirectoryHeader'
-import { SpaceFilters } from '@/features/spaces/components/SpaceFilters'
-
-// Logic Hook
+import { RotateCw } from 'lucide-react'
+import { Button } from '@/components/ui'
 import { useSpaces } from '@/features/spaces/hooks'
+import { MainLayout } from '@/components/layout/MainLayout'
+import { SidebarNav } from '@/features/navigation/components'
+
+import {
+  YourSpacesWidget,
+  SpaceCard,
+  CreateSpaceCard,
+  SpaceDirectoryHeader,
+  SpaceFilters
+} from '@/features/spaces/components'
 
 const SpacesDirectory = () => {
   const {

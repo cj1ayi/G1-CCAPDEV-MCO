@@ -1,15 +1,12 @@
-import { CommentCardProps } from '@/features/comments/components'
-import { getCurrentUser as getAuthUser } from "@/features/auth/services/authService";
+import { 
+  CommentCardProps,
+  CreateCommentDto,
+  UpdateCommentDto
+} from '../types'
 
-export interface CreateCommentDto {
-  postId: string
-  content: string
-  parentId?: string
-}
-
-export interface UpdateCommentDto {
-  content: string
-}
+import { 
+  getCurrentUser as getAuthUser 
+} from '@/features/auth/services';
 
 // Local storage implementation (swap this whole file for API later)
 class CommentService {
@@ -33,7 +30,8 @@ class CommentService {
       const mockComments = getCommentsByPostId(postId)
 
       if (mockComments && mockComments.length > 0) {
-        console.log(`Seeding ${mockComments.length} mock comments for post ${postId}`)
+        console.log(
+          `Seeding ${mockComments.length} mock comments for post ${postId}`)
         store[postId] = mockComments
         this.setStore(store)
       }
@@ -83,7 +81,11 @@ class CommentService {
     if (!dto.parentId) {
       store[dto.postId] = [newComment, ...postComments]
     } else {
-      store[dto.postId] = this.addReplyToComment(postComments, dto.parentId, newComment)
+      store[dto.postId] = this.addReplyToComment(
+        postComments, 
+        dto.parentId, 
+        newComment
+      )
     }
 
     this.setStore(store)
@@ -232,7 +234,14 @@ class CommentService {
         return { ...comment, replies: [newReply, ...(comment.replies || [])] }
       }
       if (comment.replies && comment.replies.length > 0) {
-        return { ...comment, replies: this.addReplyToComment(comment.replies, parentId, newReply) }
+        return { 
+          ...comment, 
+          replies: this.addReplyToComment(
+            comment.replies, 
+            parentId, 
+            newReply
+          )
+        }
       }
       return comment
     })
@@ -249,7 +258,15 @@ class CommentService {
         return { ...comment, content: newContent, editedAt }
       }
       if (comment.replies && comment.replies.length > 0) {
-        return { ...comment, replies: this.updateCommentContent(comment.replies, commentId, newContent, editedAt) }
+        return { 
+          ...comment, 
+          replies: this.updateCommentContent(
+            comment.replies, 
+            commentId, 
+            newContent, 
+            editedAt
+          ) 
+        }
       }
       return comment
     })
@@ -264,13 +281,24 @@ class CommentService {
         return {
           ...comment,
           content: '[deleted]',
-          author: { id: 'deleted', name: '[deleted]', username: 'deleted', avatar: undefined },
+          author: { 
+            id: 'deleted', 
+            name: '[deleted]', 
+            username: 'deleted', 
+            avatar: undefined 
+          },
           isOwner: false,
           isDeleted: true,
         }
       }
       if (comment.replies && comment.replies.length > 0) {
-        return { ...comment, replies: this.softDeleteComment(comment.replies, commentId) }
+        return { 
+          ...comment, 
+          replies: this.softDeleteComment(
+            comment.replies, 
+            commentId
+          ) 
+        }
       }
       return comment
     })
@@ -284,15 +312,25 @@ class CommentService {
       .filter(comment => comment.id !== commentId)
       .map(comment => {
         if (comment.replies && comment.replies.length > 0) {
-          return { ...comment, replies: this.hardDeleteComment(comment.replies, commentId) }
+          return { 
+            ...comment, 
+            replies: this.hardDeleteComment(
+              comment.replies, 
+              commentId
+            ) 
+          }
         }
         return comment
       })
   }
 
   private hasActiveReplies(comment: CommentCardProps): boolean {
-    if (!comment.replies || comment.replies.length === 0) return false
-    return comment.replies.some(reply => !reply.isDeleted || this.hasActiveReplies(reply))
+    if (!comment.replies || comment.replies.length === 0) 
+      return false
+
+    return comment.replies.some(
+      reply => !reply.isDeleted || this.hasActiveReplies(reply)
+    )
   }
 
   private cleanupOrphanedDeletedComments(
@@ -301,7 +339,12 @@ class CommentService {
     return comments
       .map(comment => {
         if (comment.replies && comment.replies.length > 0) {
-          comment = { ...comment, replies: this.cleanupOrphanedDeletedComments(comment.replies) }
+          comment = { 
+            ...comment, 
+            replies: this.cleanupOrphanedDeletedComments(
+              comment.replies
+            ) 
+          }
         }
         return comment
       })
