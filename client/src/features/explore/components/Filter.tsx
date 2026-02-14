@@ -2,9 +2,12 @@ import { useState } from "react"
 
 type FilterOption = "best" | "hot" | "new" | "top"
 
-export function Filter() {
-  const [active, setActive] = useState<FilterOption>("best")
+interface FilterProps {
+  active: FilterOption;
+  onChange: (value: FilterOption) => void;
+}
 
+export function Filter({ active, onChange }: FilterProps) {
   const tabs: { label: string; value: FilterOption }[] = [
     { label: "Best", value: "best" },
     { label: "Hot", value: "hot" },
@@ -17,7 +20,7 @@ export function Filter() {
       {tabs.map((tab) => (
         <button
           key={tab.value}
-          onClick={() => setActive(tab.value)}
+          onClick={() => onChange(tab.value)}
           className={`relative text-sm font-medium transition-colors ${
             active === tab.value
               ? "text-text-main-light dark:text-text-main-dark"
@@ -33,4 +36,3 @@ export function Filter() {
     </div>
   )
 }
-

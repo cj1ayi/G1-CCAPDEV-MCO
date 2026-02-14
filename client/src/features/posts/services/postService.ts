@@ -241,6 +241,48 @@ class PostService {
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
+
+  // Helper: Convert "2 hours ago" into a numeric value for comparison
+  private parseTimeAgo(timeStr: string): number {
+    const lowerStr = timeStr.toLowerCase();
+    if (lowerStr === 'just now') return 0;
+    if (lowerStr === 'yesterday') return 1440; // 24 * 60
+
+    const match = lowerStr.match(/(\d+)/);
+    if (!match) return 999999;
+    
+    const num = parseInt(match[1]);
+    
+    if (lowerStr.includes('minute')) return num;
+    if (lowerStr.includes('hour')) return num * 60;
+    if (lowerStr.includes('day')) return num * 1440;
+    if (lowerStr.includes('week')) return num * 10080;
+    if (lowerStr.includes('month')) return num * 43200;
+    if (lowerStr.includes('year')) return num * 525600;
+    
+    return 999999;
+  }
+
+  async getSortedPosts(sortBy: string): Promise<Post[]> {
+    const posts = await this.getAllPosts();
+    const sorted = [...posts];
+
+    switch (sortBy) {
+      case 'new':
+        // Smallest "time ago" value means it's the newest post
+        return sorted.sort((a, b) => this.parseTimeAgo(a.createdAt) - this.parseTimeAgo(b.createdAt));
+      case 'top':
+        return sorted.sort((a, b) => b.upvotes - a.upvotes);
+      case 'hot':
+      case 'best':
+      default:
+        return sorted.sort((a, b) => {
+          const scoreA = a.upvotes - a.downvotes;
+          const scoreB = b.upvotes - b.downvotes;
+          return scoreB - scoreA;
+        });
+    }
+  }
 }
 
 // Export singleton instance

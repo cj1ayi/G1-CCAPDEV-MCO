@@ -1,29 +1,24 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PostCard } from '@/features/posts/components'
-import { getAllPosts } from '@/lib/mockData'
+import { postService } from '@/features/posts/services/postService'
 import { commentService } from '@/features/comments/services/commentService'
 import { getTotalCommentCount } from '@/features/comments/utils/comment-utils'
+import { Post } from '@/features/posts/types'
 
-export const Feed = () => {
+export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
   const navigate = useNavigate()
-
-  const [posts, setPosts] = useState(() => getAllPosts())
+  const [posts, setPosts] = useState<Post[]>([])
   const [votes, setVotes] = useState<Record<string, 'up' | 'down' | null>>({})
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
 
-  // Refresh posts when component mounts or comes back into view
   useEffect(() => {
-    const refreshPosts = () => {
-      setPosts(getAllPosts())
+    const loadPosts = async () => {
+      const sortedPosts = await postService.getSortedPosts(sortBy)
+      setPosts(sortedPosts)
     }
-    
-    refreshPosts()
-    
-    // Also refresh when window gains focus (user returns from post detail)
-    window.addEventListener('focus', refreshPosts)
-    return () => window.removeEventListener('focus', refreshPosts)
-  }, [])
+    loadPosts()
+  }, [sortBy]) 
 
   useEffect(() => {
     // init votes for all posts
