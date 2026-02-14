@@ -1,5 +1,13 @@
 import { Post } from '@/lib/mockData'
 
+import sharkImage from '@/assets/post/shark.jpg'
+import carImage from '@/assets/post/car.jpg'
+
+const LOCAL_IMAGES: Record<string, string> = {
+  '3': sharkImage, 
+  '2': carImage,
+}
+
 const PHOTO_DATABASE: Record<string, string> = {
   // Tech / CS
   coding: 'photo-1461749280684-dccba630e2f6',
@@ -20,18 +28,33 @@ const PHOTO_DATABASE: Record<string, string> = {
   classroom: 'photo-1580582932707-520aed937b7b',
   exam: 'photo-1434030216411-0b793f4b4173',
   study: 'photo-1491841550275-ad7854e35ca6',
+  // Food
+  food: 'photo-1504674900247-0877df9cc836',
+  burger: 'photo-1568901346375-23c9450c58cd',
+  restaurant: 'photo-1517248135467-4c7edcad34c4',
+  // News
+  news: 'photo-1504711434969-e33886168f5c',
+  newspaper: 'photo-1495020689067-958852a7765e',
+  // Animals
+  cat: 'photo-1514888286974-6c03e2ca1dba',
 }
 
 const spaceDefaults: Record<string, string[]> = {
   'ccs-gov': ['laptop', 'coding', 'monitor', 'tech'],
   'freedom-wall': ['campus', 'students', 'sunset', 'coffee', 'friends'],
-  'prof2pick': ['classroom', 'books', 'exam'],
-  'PTS': ['library', 'books', 'study'],
+  'the-lasallian': ['news', 'newspaper', 'campus'],
+  'pts': ['library', 'books', 'study'],
+  'rinaldoeats': ['food', 'burger', 'restaurant'],
 }
 
 const GLOBAL_FALLBACK = 'photo-1523050854058-8df90110c9f1' // University campus
 
 export const getPostThumbnail = (post: Post): string => {
+  // 0. Check for local image override first
+  if (LOCAL_IMAGES[post.id]) {
+    return LOCAL_IMAGES[post.id]
+  }
+
   const title = (post.title || "").toLowerCase()
   const space = post.space || "general"
   
@@ -41,7 +64,6 @@ export const getPostThumbnail = (post: Post): string => {
   // 2. Fallback to Space-based Defaults
   if (!photoKey) {
     const defaults = spaceDefaults[space] || ['campus', 'students']
-    // Use the numeric value of ID or a hash of the string ID
     const idSeed = String(post.id).length
     photoKey = defaults[idSeed % defaults.length]
   }
