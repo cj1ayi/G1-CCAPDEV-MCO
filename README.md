@@ -60,34 +60,26 @@ G1-CCAPDEV-MCO
 All frontend development is handled inside the `client` folder.
 ## How to Run the Project
 
-Make sure you are inside the `client` folder before running anything.
+### 1. Clone the repository
+```bash
+git clone https://github.com/cj1ayi/G1-CCAPDEV-MCO.git
+```
 
-## How to Run the Project
+### 2. Go into the client folder
+```bash
+cd G1-CCAPDEV-MCO/client
+```
 
-Make sure you are inside the `client` folder before running anything.
+### 3. Install dependencies
+```bash
+npm install
+```
 
-┌───────────────────────────────┐
-│ Clone the repository           │
-│ `git clone https://github.com/cj1ayi/G1-CCAPDEV-MCO.git` │
-│ `cd G1-CCAPDEV-MCO`           │
-└───────────────────────────────┘
+### 4. Start the development server
+```bash
+npm run dev
+```
 
-┌───────────────────────────────┐
-│ Enter the client folder        │
-│ `cd client`                    │
-└───────────────────────────────┘
-
-┌───────────────────────────────┐
-│ Install dependencies           │
-│ `npm install`                  │
-└───────────────────────────────┘
-
-┌───────────────────────────────┐
-│ Start development server       │
-│ `npm run dev`                  │
-└───────────────────────────────┘
-
-Open your browser at `http://localhost:5173` and enjoy!
 
 © G1 CCAPDEV MCO
 
