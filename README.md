@@ -1,30 +1,139 @@
-# AnimoForums  
+# AnimoForums
 
-## About
-**AnimoForums** is a Reddit-style web forum designed specifically for DLSU students.
+A Reddit-style web forum platform designed specifically for DLSU students to centralize campus discussions in a unified, searchable environment.
 
-Instead of relying on fragmented Discord servers, Messenger group chats, or Facebook groups, the platform centralizes discussions into structured, interest-based Spaces. Students can create posts, engage in threaded conversations, and interact through a voting system — all within a unified and searchable environment.
+[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-It functions as a digital tambayan built for Lasallians:
-organized, searchable, and community-driven.
+## Table of Contents
 
+- [Overview](#overview)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running the Application](#running-the-application)
+- [Project Structure](#project-structure)
+- [Development](#development)
+  - [Git Workflow](#git-workflow)
+  - [Coding Standards](#coding-standards)
+- [Contributing](#contributing)
+- [License](#license)
+- [Team](#team)
 
-## Tech Stack
-`React` • `Vite` • `JavaScript` • `CSS` • `ESLint`
+## Overview
 
-## Members / Authors
+AnimoForums addresses the fragmentation of student communication across multiple platforms (Discord servers, Messenger groups, Facebook groups) by providing a centralized, organized discussion platform. The application features interest-based Spaces, threaded conversations, a voting system, and comprehensive search functionality.
 
-Calupig, Evan Riley Lopez
+**Key Benefits:**
+- Centralized campus discussions in one platform
+- Organized, topic-based communities (Spaces)
+- Persistent, searchable conversation history
+- Community-curated content through voting
+- Structured threaded discussions
 
-Panganiban, Diane Benedict
+## Features
 
-Ranara, Ramil Carlos Bulaclac
+### Discussion System
+- Create and share posts with text, images, and links
+- Nested comment threads with unlimited depth
+- Upvote/downvote system for posts and comments
+- Real-time trending content discovery
 
-Tan, Roberta Netanya Sy
+### Community Organization
+- Interest-based Spaces (communities)
+- Space discovery and search
+- Custom space rules and moderation
 
+### User Management
+- User authentication and authorization
+- Personalized user profiles
+- Activity tracking and karma system
+- Post and comment history
+
+### Content Discovery
+- Advanced search with filters
+- Trending posts and spaces
+- Personalized feed based on subscriptions
+- Sort by new, hot, top, and controversial
+
+## Technology Stack
+
+### Frontend
+
+| Technology | Purpose |
+|------------|---------|
+| React 18.x | UI library |
+| TypeScript | Type-safe development |
+| Vite | Build tool and dev server |
+| TailwindCSS | Utility-first styling |
+| React Router | Client-side routing |
+
+## Getting Started
+
+### Prerequisites
+
+Ensure the following are installed on your system:
+
+- **Node.js** v18.x or higher ([Download](https://nodejs.org/))
+- **npm** v9.x or higher (included with Node.js)
+- **Git** ([Download](https://git-scm.com/))
+
+Verify installations:
+
+```bash
+node --version
+npm --version
+git --version
+```
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/cj1ayi/G1-CCAPDEV-MCO.git
+cd G1-CCAPDEV-MCO
+```
+
+2. Install frontend dependencies:
+
+```bash
+cd client
+npm install
+```
+
+3. Install backend dependencies:
+
+```bash
+cd ../server
+npm install
+```
+
+### Running the Application
+
+1. Start the backend server:
+
+```bash
+cd server
+npm run dev
+```
+
+2. In a separate terminal, start the frontend:
+
+```bash
+cd client
+npm run dev
+```
+
+The application will be available at:
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:3000
 
 ## Project Structure
-
 
 ```
 G1-CCAPDEV-MCO
@@ -242,29 +351,81 @@ G1-CCAPDEV-MCO
 └── README.md
 ```
 
-All frontend development is handled inside the `client` folder.
-## How to Run the Project
+## Development
 
-### 1. Clone the repository
+### Git Workflow
+
+1. Create a feature branch:
 ```bash
-git clone https://github.com/cj1ayi/G1-CCAPDEV-MCO.git
+git checkout -b feature/feature-name
 ```
 
-### 2. Go into the client folder
+2. Make changes and commit:
 ```bash
-cd G1-CCAPDEV-MCO/client
+git add .
+git commit -m "feat: add feature description"
 ```
 
-### 3. Install dependencies
+3. Push to remote:
 ```bash
-npm install
+git push origin feature/feature-name
 ```
 
-### 4. Start the development server
-```bash
-npm run dev
-```
+4. Open a Pull Request on GitHub
 
+### Coding Standards
+
+- Use TypeScript for all new code
+- Follow existing naming conventions (camelCase for variables, PascalCase for components)
+- Write self-documenting code with clear variable names
+- Add comments for complex logic
+- Keep components small and focused
+- Use functional components with hooks
+
+## Contributing
+
+Contributions are welcome. Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'feat: add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### Conventional Commit Types
+
+| **Type**       | **Purpose** |
+|----------------|-------------|
+| **`feat`**     | Add a new feature (functions, logic) |
+| **`fix`**      | Fix a bug (incorrect output, logic errors) |
+| **`refactor`** | Improve code without changing behavior |
+| **`perf`**     | Optimize performance (faster loops, better memory usage) |
+| **`style`**    | Formatting changes (indentation, comments) |
+| **`test`**     | Add or update test cases |
+| **`build`**    | Modify Makefile or compilation setup |
+| **`docs`**     | Update README, specs, or comments |
+| **`chore`**    | Non-code maintenance (renaming files, updating `.gitignore`) |
+
+> [See conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Team
+
+**G1 CCAPDEV MCO**
+
+| Name | GitHub |
+|------|--------|
+| Calupig, Evan Riley Lopez | [@yaraikun](https://github.com/yaraikun) |
+| Panganiban, Diane Benedict | [@Teehee](https://github.com/Teeheene) |
+| Ranara, Ramil Carlos Bulaclac | [@Floranaras](https://github.com/Floranaras) |
+| Tan, Roberta Netanya Sy | [@cj1ayi](https://github.com/cj1ayi) |
+
+---
+
+**De La Salle University**  
+Computer Concepts and Application Development (CCAPDEV)
 
 © G1 CCAPDEV MCO
-
