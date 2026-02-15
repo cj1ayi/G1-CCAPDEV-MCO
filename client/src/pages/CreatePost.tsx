@@ -44,8 +44,8 @@ export default function CreatePostPage() {
       newErrors.content = 'Content is required'
     }
 
-    if (!formData.space) {
-      newErrors.space = 'Please select a space'
+    if (!formData.space.trim()) {
+      newErrors.space = 'Space name is required'
     }
 
     setErrors(newErrors)
@@ -140,24 +140,19 @@ export default function CreatePostPage() {
         {/* Form Card */}
         <Card>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Space Selection */}
-            <Select
-              label="Choose a Space"
+            {/* Space Input */}
+            <Input
+              label="Space Name"
               value={formData.space}
               onChange={(e) => setFormData({ 
                 ...formData, 
                 space: e.target.value 
               })}
+              placeholder="e.g., technology, gaming, cooking"
               error={errors.space}
+              helperText="Enter the name of the space (without 'r/')"
               required
-            >
-              <option value="">Select a space...</option>
-              {SPACES.map((space) => (
-                <option key={space.id} value={space.name}>
-                  {`r/${space.name}`}
-                </option>
-              ))}
-            </Select>
+            />
 
             {/* Title */}
             <Input
