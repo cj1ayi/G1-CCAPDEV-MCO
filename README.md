@@ -48,18 +48,6 @@ AnimoForums addresses the fragmentation of student communication across multiple
 - Space discovery and search
 - Custom space rules and moderation
 
-### User Management
-- User authentication and authorization
-- Personalized user profiles
-- Activity tracking and karma system
-- Post and comment history
-
-### Content Discovery
-- Advanced search with filters
-- Trending posts and spaces
-- Personalized feed based on subscriptions
-- Sort by new, hot, top, and controversial
-
 ## Technology Stack
 
 ### Frontend
@@ -373,15 +361,6 @@ git push origin feature/feature-name
 
 4. Open a Pull Request on GitHub
 
-### Coding Standards
-
-- Use TypeScript for all new code
-- Follow existing naming conventions (camelCase for variables, PascalCase for components)
-- Write self-documenting code with clear variable names
-- Add comments for complex logic
-- Keep components small and focused
-- Use functional components with hooks
-
 ## Contributing
 
 Contributions are welcome. Please follow these steps:
@@ -390,7 +369,6 @@ Contributions are welcome. Please follow these steps:
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'feat: add AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ### Conventional Commit Types
 
