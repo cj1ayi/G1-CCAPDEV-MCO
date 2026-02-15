@@ -27,7 +27,6 @@ export const useSpacePage = (spaceName?: string) => {
       setIsLoading(true)
 
       try {
-        // FIX: Use spaceService instead of mockData
         const foundSpace = await spaceService.getSpaceByName(spaceName)
         console.log('Found space:', foundSpace)
         
@@ -35,7 +34,6 @@ export const useSpacePage = (spaceName?: string) => {
           setSpace(foundSpace)
           setIsJoined(foundSpace.isJoined || false)
           
-          // Use spaceService to get posts
           const spacePosts = spaceService.getSpacePosts(spaceName, sortBy as any)
           console.log('Found posts for space:', spacePosts)
           setPosts(spacePosts)
@@ -65,19 +63,18 @@ export const useSpacePage = (spaceName?: string) => {
     try {
       await spaceService.toggleJoin(space.id, isJoined)
       
-      // Update the space object
       if (space) {
         setSpace({ ...space, isJoined: newJoinStatus })
       }
     } catch (error) {
       console.error('Error toggling join:', error)
-      // Revert on error
+
       setIsJoined(!newJoinStatus)
     }
   }
 
   const handleCreatePost = () => {
-    navigate(`/r/${spaceName}/submit`)
+    navigate('/post/create')
   }
 
   const handleVote = (postId: string, voteType: 'up' | 'down') => {
