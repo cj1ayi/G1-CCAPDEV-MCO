@@ -121,6 +121,28 @@ The application will be available at:
 - **Frontend:** http://localhost:5173
 - **Backend API:** http://localhost:3000
 
+## Logging In
+
+> Our mock data are all based on real life conversations and events our team has
+experienced. The data will range from inside jokes, reference to some events, and 
+interactions with people in our academic lives. The mock users are real people
+we have interacted with and have given us permission to feature them here whether
+by an alias or their real name.
+
+**For the purpose of simplifying the debugging process we opted that our mock users'
+passcode be their own username. The team plans to address this security 
+vulnerability in MCO2 when we have a real backend.**
+
+### Users
+| Name | Username |
+|------|--------|
+|  Thomas James C. Tiam-Lee | tiamlee |
+|  Teehee | iloveapex |
+|  Sussus Amogus | pieisspy |
+|  Floranaras | callo |
+|  Pringles | whotftakesthenamezex | 
+|  Enzo | taroramen |
+
 ## Project Structure
 
 ```
