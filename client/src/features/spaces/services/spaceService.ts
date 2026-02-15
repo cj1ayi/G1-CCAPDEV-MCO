@@ -25,6 +25,7 @@ class SpaceService {
 
   private async seedIfNeeded(): Promise<void> {
     if (this.getStore().length === 0) {
+      console.log('Seeding spaces from mock data...')
       this.setStore(getAllSpaces())
     }
   }
@@ -42,13 +43,44 @@ class SpaceService {
     }
   }
 
+  async getSpaceByName(spaceName: string): Promise<Space | null> {
+    await this.seedIfNeeded()
+    
+    const spaces = this.getStore()
+    
+    // Debug logging
+    console.log('getSpaceByName - Looking for:', spaceName)
+    console.log('getSpaceByName - Available spaces:', spaces.map(s => s.name))
+    
+    // Try exact match first
+    let space = spaces.find(s => s.name === spaceName)
+    
+    // If not found, try case-insensitive match
+    if (!space) {
+      space = spaces.find(s => s.name.toLowerCase() === spaceName.toLowerCase())
+    }
+    
+    // If still not found, try displayName
+    if (!space) {
+      space = spaces.find(s => s.displayName.toLowerCase() === spaceName.toLowerCase())
+    }
+    
+    console.log('getSpaceByName - Found:', space ? space.name : 'null')
+    
+    await this.delay(200)
+    return space || null
+  }
+
   async createSpace(dto: CreateSpaceDto): Promise<Space> {
     await this.delay(500)
     const spaces = this.getStore()
 
+    // Normalize the name properly
+    const normalizedName = dto.name.toLowerCase().replace(/\s+/g, '-')
+
     const newSpace: Space = {
       id: `space-${Date.now()}`,
-      name: dto.name.toLowerCase().replace(/\s+/g, '-'),
+      name: normalizedName,
       displayName: dto.displayName,
       description: dto.description,
       category: dto.category,
@@ -65,7 +97,9 @@ class SpaceService {
       ]
     }
 
+    console.log('Creating space with name:', newSpace.name)
     this.setStore([newSpace, ...spaces])
+    
     return newSpace
   }
 

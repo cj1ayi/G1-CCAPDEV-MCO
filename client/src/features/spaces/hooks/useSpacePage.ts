@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-import { 
-  getSpaceByName, 
-  getPostsBySpace, 
-  type Space, 
-  type Post 
-} from '@/lib/mockData'
+import { spaceService } from '../services/spaceService'
+import { type Space, type Post } from '@/lib/mockData'
 
 export type SortType = 'hot' | 'new' | 'top'
 
@@ -16,38 +11,68 @@ export const useSpacePage = (spaceName?: string) => {
   const [posts, setPosts] = useState<Post[]>([])
   const [sortBy, setSortBy] = useState<SortType>('hot')
   const [isJoined, setIsJoined] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    console.log('useSpacePage - spaceName:', spaceName)
-    
-    if (!spaceName) {
-      console.log('No spaceName provided')
-      setSpace(null)
-      return
-    }
-
-    const foundSpace = getSpaceByName(spaceName)
-    console.log('Found space:', foundSpace)
-    
-    if (foundSpace) {
-      setSpace(foundSpace)
-      setIsJoined(foundSpace.isJoined || false)
+    const loadSpace = async () => {
+      console.log('useSpacePage - spaceName:', spaceName)
       
-      const spacePosts = getPostsBySpace(spaceName)
-      console.log('Found posts for space:', spacePosts)
-      setPosts(spacePosts)
-    } else {
-      console.log('Space not found:', spaceName)
-      setSpace(null)
-      setPosts([])
-    }
-  }, [spaceName])
+      if (!spaceName) {
+        console.log('No spaceName provided')
+        setSpace(null)
+        setIsLoading(false)
+        return
+      }
 
-  const toggleJoin = () => {
-    setIsJoined(!isJoined)
-    // Optionally update the space object
-    if (space) {
-      space.isJoined = !isJoined
+      setIsLoading(true)
+
+      try {
+        // FIX: Use spaceService instead of mockData
+        const foundSpace = await spaceService.getSpaceByName(spaceName)
+        console.log('Found space:', foundSpace)
+        
+        if (foundSpace) {
+          setSpace(foundSpace)
+          setIsJoined(foundSpace.isJoined || false)
+          
+          // Use spaceService to get posts
+          const spacePosts = spaceService.getSpacePosts(spaceName, sortBy as any)
+          console.log('Found posts for space:', spacePosts)
+          setPosts(spacePosts)
+        } else {
+          console.log('Space not found:', spaceName)
+          setSpace(null)
+          setPosts([])
+        }
+      } catch (error) {
+        console.error('Error loading space:', error)
+        setSpace(null)
+        setPosts([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadSpace()
+  }, [spaceName, sortBy])
+
+  const toggleJoin = async () => {
+    if (!space) return
+    
+    const newJoinStatus = !isJoined
+    setIsJoined(newJoinStatus)
+    
+    try {
+      await spaceService.toggleJoin(space.id, isJoined)
+      
+      // Update the space object
+      if (space) {
+        setSpace({ ...space, isJoined: newJoinStatus })
+      }
+    } catch (error) {
+      console.error('Error toggling join:', error)
+      // Revert on error
+      setIsJoined(!newJoinStatus)
     }
   }
 
@@ -74,6 +99,7 @@ export const useSpacePage = (spaceName?: string) => {
     sortBy,
     setSortBy,
     isJoined,
+    isLoading,
     toggleJoin,
     handleCreatePost,
     handleVote,
