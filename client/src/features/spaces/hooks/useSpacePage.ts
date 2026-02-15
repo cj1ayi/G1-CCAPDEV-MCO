@@ -16,7 +16,7 @@ export const useSpacePage = (spaceName?: string) => {
   useEffect(() => {
     const loadSpace = async () => {
       console.log('useSpacePage - spaceName:', spaceName)
-      
+
       if (!spaceName) {
         console.log('No spaceName provided')
         setSpace(null)
@@ -27,14 +27,16 @@ export const useSpacePage = (spaceName?: string) => {
       setIsLoading(true)
 
       try {
+        // FIX: Use spaceService instead of mockData
         const foundSpace = await spaceService.getSpaceByName(spaceName)
         console.log('Found space:', foundSpace)
-        
+
         if (foundSpace) {
           setSpace(foundSpace)
           setIsJoined(foundSpace.isJoined || false)
-          
-          const spacePosts = spaceService.getSpacePosts(spaceName, sortBy as any)
+
+          const spacePosts = await spaceService
+            .getSpacePosts(spaceName, sortBy as any)
           console.log('Found posts for space:', spacePosts)
           setPosts(spacePosts)
         } else {
@@ -56,19 +58,18 @@ export const useSpacePage = (spaceName?: string) => {
 
   const toggleJoin = async () => {
     if (!space) return
-    
+
     const newJoinStatus = !isJoined
     setIsJoined(newJoinStatus)
-    
+
     try {
       await spaceService.toggleJoin(space.id, isJoined)
-      
+
       if (space) {
         setSpace({ ...space, isJoined: newJoinStatus })
       }
     } catch (error) {
       console.error('Error toggling join:', error)
-
       setIsJoined(!newJoinStatus)
     }
   }

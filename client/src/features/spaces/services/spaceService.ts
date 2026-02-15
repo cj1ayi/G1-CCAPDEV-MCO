@@ -1,5 +1,6 @@
 import { getAllSpaces, Space } from '@/lib/mockData'
-import { getAllPosts, Post } from '@/lib/mockData'
+import { Post } from '@/features/posts/types'
+import { postService } from '@/features/posts/services/postService'
 
 export type SortOption = 'hot' | 'new' | 'week' | 'month' | 'year'
 
@@ -103,13 +104,13 @@ class SpaceService {
     return newSpace
   }
 
-  async toggleJoin(id: string, currentStatus: boolean): Promise<boolean> {
+  async toggleJoin(_id: string, currentStatus: boolean): Promise<boolean> {
     await this.delay(200)
     return !currentStatus
   }
 
-  getSpacePosts(spaceName: string, sortBy: SortOption = 'hot'): Post[] {
-    const allPosts = getAllPosts()
+  async getSpacePosts(spaceName: string, sortBy: SortOption = 'hot'): Promise<Post[]> {
+    const allPosts = await postService.getAllPosts()
     
     const spacePosts = allPosts.filter(post => post.space === spaceName)
     
@@ -166,8 +167,9 @@ class SpaceService {
     return 999999 
   }
 
-  getSpacePostCount(spaceName: string): number {
-    return getAllPosts().filter(post => post.space === spaceName).length
+  async getSpacePostCount(spaceName: string): Promise<number> {
+    const allPosts = await postService.getAllPosts()
+    return allPosts.filter(post => post.space === spaceName).length
   }
 
   private delay(ms: number): Promise<void> {
