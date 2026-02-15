@@ -4,6 +4,8 @@ import {
   useEffect 
 } from 'react'
 
+import { Link } from 'react-router-dom'
+
 import { 
   MoreHorizontal, 
   Edit, 
@@ -147,28 +149,45 @@ const CommentCard = ({
         {/* Comment Header */}
         <div className="flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <Avatar
-              size={depth === 0 ? 'md' : 'sm'}
-              name={author.name}
-              src={author.avatar}
-            />
+            <Link to={`/profile/${author.id}`}>
+              <Avatar
+                size={depth === 0 ? 'md' : 'sm'}
+                name={author.name}
+                src={author.avatar}
+              />
+            </Link>
+            {isDeleted ? (
+              <span className={cn(
+                "text-sm font-semibold text-gray-400 dark:text-gray-500")}>
+                [deleted]
+              </span>
+            ) : (
+              <Link 
+                to={`/profile/${author.id}`}
+                className={cn(
+                  "text-sm font-semibold",
+                  "text-gray-900 dark:text-white",
+                  "hover:underline hover:text-primary",
+                  "transition-colors"
+                )}
+              >
+                u/{author.username}
+              </Link>
+            )}
             <span className={cn(
-              "text-sm font-semibold",
-              isDeleted 
-                ? "text-gray-400 dark:text-gray-500" 
-                : "text-gray-900 dark:text-white hover:underline cursor-pointer"
+              "text-xs text-gray-500 dark:text-gray-400"
               )}
-            >
-              {isDeleted ? '[deleted]' : `u/${author.username}`}
-            </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">•</span>
+            >•</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {createdAt}
             </span>
 
             {editedAt && !isDeleted && (
               <>
-                <span className="text-xs text-gray-500 dark:text-gray-400">•</span>
+                <span className={cn(
+                  "text-xs text-gray-500 dark:text-gray-400"
+                  )}
+                >•</span>
                 <span 
                   className="text-xs text-gray-500 dark:text-gray-400 italic"
                   title={`Last edited: ${editedAt}`}
