@@ -3,6 +3,7 @@ import diane from '@/assets/pfp/diane.png'
 import karl from '@/assets/pfp/karl.png'
 import callo from '@/assets/pfp/callo.png'
 import pring from '@/assets/pfp/pring.gif'
+import enzo from '@/assets/pfp/enzo.gif'
 import { CommentCardProps } from '@/features/comments/types'
 
 export interface SpaceRule {
@@ -18,7 +19,7 @@ export interface Space {
   memberCount: string
   postCount: string
   icon: string
-  iconType: 'text' | 'image'
+  iconType: 'text' | 'image' | 'emoji'
   category: 'Official' | 'Batch' | 'Lifestyle' | 'Academic' | 'Interest'
   colorScheme: string
   isJoined?: boolean
@@ -26,6 +27,45 @@ export interface Space {
   bannerUrl?: string
   rules: SpaceRule[]
   createdDate: string
+}
+
+export interface Post {
+  id: string
+  title: string
+  content: string
+  author: {
+    id: string
+    name: string
+    username: string
+    avatar: any
+  }
+  space: string
+  upvotes: number
+  downvotes: number
+  commentCount: number
+  createdAt: string
+  tags: string[]
+  isEdited?: boolean
+  isOwner?: boolean
+}
+
+export interface User {
+  id: string
+  name: string
+  username: string
+  email?: string
+  avatar: any
+  bio?: string
+  location?: string
+  joinedAt?: string
+}
+
+// Helper function to create URL-friendly slugs
+export const createSpaceSlug = (displayName: string): string => {
+  return displayName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 export const mockSpaces: Space[] = [
@@ -67,43 +107,66 @@ export const mockSpaces: Space[] = [
       { title: 'Anonymity', description: 'Do not dox other students.' },
       { title: 'Respect', description: 'No targeted harassment.' }
     ]
-  }
+  },
+  {
+    id: '3',
+    name: 'the-lasallian',
+    displayName: 'TheLasallian',
+    description: 'The official student publication of De La Salle University. The bastion of issue-oriented critical thinking.',
+    memberCount: '1.2k',
+    postCount: '450',
+    icon: 'L',
+    iconType: 'text',
+    category: 'Official',
+    colorScheme: 'from-green-500 to-green-400',
+    isJoined: false,
+    isActive: true,
+    createdDate: 'Aug 24, 2018',
+    bannerUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Xukxb2LT4Mj6TjnwhnNtFL4ao6VlYjxduRaoL2twXEpqafKTN0IYPbjjgb5qVdtBLv7KGnqQjFEIs5PVihem28O11xmtCfpUyyrD4BGyJbd58psZuBZSEguY-fvrpnbbrNLOLSTMLGUCiZTmRfTKyZKfOF3l1YQMRt0cK4fOqXOYKBMlVy12c9NkO65iOvmRD4rrZTzHQr_w4E8wpkhdaGDtZq3d6SBP03g0VhBp5q2CnqRbvxmZcEIGBdshM0VZqXHjgBDMJA',
+    rules: [
+      { title: 'Be Respectful', description: 'We are all Lasallians here. No hate speech.' },
+      { title: 'No NSFW Content', description: 'Keep it clean and wholesome.' },
+      { title: 'DLSU Related Only', description: 'Memes must be relevant to university life.' }
+    ]
+  },
+  {
+    id: '4',
+    name: 'pts',
+    displayName: 'Paul Tan Society',
+    description: 'Academic help and support for struggling students. No judgment, just help.',
+    memberCount: '890',
+    postCount: '234',
+    icon: 'P',
+    iconType: 'text',
+    category: 'Academic',
+    colorScheme: 'from-purple-500 to-indigo-400',
+    isJoined: false,
+    createdDate: 'Jan 15, 2020',
+    rules: [
+      { title: 'Be Respectful', description: 'No shaming students for asking questions.' },
+      { title: 'Academic Integrity', description: 'Help, don\'t enable cheating.' }
+    ]
+  },
+  {
+    id: '5',
+    name: 'rinaldoeats',
+    displayName: 'RinaldoEats',
+    description: 'Rinaldo\'s official food recommendations and restaurant reviews. Trust the process, trust the appetite.',
+    memberCount: '890',
+    postCount: '234',
+    icon: '🍔',
+    iconType: 'emoji',
+    category: 'Lifestyle',
+    colorScheme: 'from-orange-500 to-red-400',
+    isJoined: false,
+    createdDate: 'Jan 15, 2020',
+    rules: [
+      { title: 'Trust Rinaldo', description: 'If Rinaldo recommends it, it slaps. No debate.' },
+      { title: 'No Food Shaming', description: 'All cuisines welcome. We support the hustle.' },
+      { title: 'Honest Reviews Only', description: 'Keep it real. Good or bad, tell the truth.' }
+    ]
+  },
 ]
-
-export const getAllSpaces = () => mockSpaces
-export const getSpaceByName = (name: string) => mockSpaces.find(s => s.name === name)
-
-export interface Post {
-  id: string
-  title: string
-  content: string
-  author: {
-    id: string
-    name: string
-    username: string
-    avatar: any
-  }
-  space: string
-  upvotes: number
-  downvotes: number
-  commentCount: number
-  createdAt: string
-  tags: string[]
-  isEdited?: boolean
-  isOwner?: boolean
-}
-
-
-export interface User {
-  id: string
-  name: string
-  username: string
-  email?: string
-  avatar: any
-  bio?: string
-  location?: string
-  joinedAt?: string
-}
 
 export const mockUsers: Record<string, User> = {
   '1': {
@@ -152,7 +215,17 @@ export const mockUsers: Record<string, User> = {
     username: 'whotftakesthenamezex',
     email: 'whotftakesthenamezex@dlsu.edu.ph',
     avatar: pring,
-    bio: 'Snack enthusiast',
+    bio: 'Frieren enthusiast',
+    location: 'Makati, PH',
+    joinedAt: '2023-05-01',
+  },
+  '7': {
+    id: '7',
+    name: 'Enzo',
+    username: 'taroramen',
+    email: 'enzo.zinger@dlsu.edu.ph',
+    avatar: enzo,
+    bio: 'Zigger Enjoyer',
     location: 'Makati, PH',
     joinedAt: '2023-05-01',
   }
@@ -172,91 +245,15 @@ export const mockPosts: Record<string, Post> = {
     space: 'ccs-gov',
     upvotes: 67,
     downvotes: 0,
-    commentCount: 3, 
+    commentCount: 2,
     createdAt: '2 hours ago',
     tags: ['CSINSTY', 'IMPORTANT'],
     isOwner: true,
   },
   '2': {
     id: '2',
-    title: 'CHANGE MY MIND!',
-    content: 'Lgbt marriage complicates my classes!',
-    author: {
-      id: '2',
-      name: 'Teehee',
-      username: 'iloveapex',
-      avatar: diane,
-    },
-    space: 'freedom-wall',
-    upvotes: 63,
-    downvotes: 3,
-    commentCount: 2,
-    createdAt: '5 hours ago',
-    tags: ['Politics', 'Question', 'Debate'],
-    isEdited: true,
-    isOwner: false,
-  },
-  '3': {
-    id: '3',
-    title: 'Machine Project Help!',
-    content: 'cuz ms nats fucked me in my ass',
-    author: {
-      id: '3',
-      name: 'Sussus Amogus',
-      username: 'pieisspy',
-      avatar: karl,
-    },
-    space: 'PTS',
-    upvotes: 67,
-    downvotes: 0,
-    commentCount: 3, 
-    createdAt: '5 hours ago',
-    tags: ['CCPROG1', 'CCPROG2', 'CCPROG3', 'MP', 'anullset'],
-    isEdited: true,
-    isOwner: false,
-  },
- '5': {
-    id: '5',
-    title: 'Normal Lasallian Tuesday',
-    content: 'i was not in the mood today for someone to be watching hentai full speaker blast on the train today',
-    author: {
-      id: '5',
-      name: 'Floranaras',
-      username: 'callo',
-      avatar: callo,
-    },
-    space: 'freedom-wall',
-    upvotes: 35,
-    downvotes: 7,
-    commentCount: 1, 
-    createdAt: '2 days ago',
-    tags: ['life', 'commuter'],
-    isEdited: false,
-    isOwner: false,
-  },
-  6: {
-    id: '6',
-    title: 'Racism in the wild',
-    content: 'YOOO i’m seeing racism live the security officer is profiling the indian men on the train.',
-    author: {
-      id: '5',
-      name: 'Floranaras',
-      username: 'callo',
-      avatar: callo,
-    },
-    space: 'freedom-wall',
-    upvotes: 67,
-    downvotes: 7,
-    commentCount: 1, 
-    createdAt: '2 days ago',
-    tags: ['life', 'commuter'],
-    isEdited: false,
-    isOwner: false,
-  },
-  7: {
-    id: '7',
     title: 'CAT GOT YOUR... MAIL??!!',
-    content: 'As the day of hearts inches closer, a special delivery has been made just fur you~ 🌟💞 Make sure to check out some of our claw-some Cat-Mail at CADS until Friday, 6PM. 💌Sealed with sweet com-paw-ssion, these Cat-Mails will definitely warmly envelope you in love. 🫂 Catch you later at our booth this Valentine’s bazaar~ 😼💘',
+    content: 'As the day of hearts inches closer, a special delivery has been made just fur you~ 🌟💞 Make sure to check out some of our claw-some Cat-Mail at CADS until Friday, 6PM. 💌Sealed with sweet com-paw-ssion, these Cat-Mails will definitely warmly envelope you in love. 🫂 Catch you later at our booth this Valentine\'s bazaar~ 😼💘',
     author: {
       id: '5',
       name: 'Floranaras',
@@ -266,9 +263,66 @@ export const mockPosts: Record<string, Post> = {
     space: 'freedom-wall',
     upvotes: 39,
     downvotes: 0,
-    commentCount: 0, 
+    commentCount: 1,
     createdAt: 'today',
     tags: ['catlovers'],
+    isEdited: false,
+    isOwner: false,
+  },
+  '3': {
+    id: '3',
+    title: 'BREAKING NEWS: Local Shark terrorizes booths and ruins Valentines',
+    content: 'In an unprecedented attack on romance, a land shark has emerged from the depths of campus to wreak havoc on Valentines festivities. Booth operators describe scenes of absolute chaos as the predator circled their stands with concerning enthusiasm. Love is dead. The shark remains at large.',
+    author: {
+      id: '5',
+      name: 'Floranaras',
+      username: 'callo',
+      avatar: callo,
+    },
+    space: 'the-lasallian',
+    upvotes: 240,
+    downvotes: 67,
+    commentCount: 2,
+    createdAt: 'today',
+    tags: ['JawsButMakeItRomantic', 'SharkWeekButMakeItValentines', 'TheSharkening'],
+    isEdited: false,
+    isOwner: false,
+  },
+  '4': {
+    id: '4',
+    title: 'ST-MATH GOT HANDS',
+    content: 'pleaase doc g my integrals is kinda homeless. i was so proud of my trig sub i forgot i didnt even integrate it',
+    author: {
+      id: '3',
+      name: 'Sussus Amogus',
+      username: 'pieisspy',
+      avatar: karl,
+    },
+    space: 'pts',
+    upvotes: 670,
+    downvotes: 0,
+    commentCount: 1,
+    createdAt: '1 hour ago',
+    tags: ['1000Integrals'],
+    isEdited: false,
+    isOwner: false,
+  },
+  '8': {
+    id: '8',
+    title: 'KFC, WORST FAST FOOD',
+    content: 'Ok sge The context I love KFC Favorite Fastfood ko sya and I have this one order lagi Zinger Steak with Large Fries and Royal, separate sauce 4 times kami ni @tiamlee nag KFC From last week Hint senna toppu Last monday, no zinger Last tuesday, no zinger, pero may zinger sa tray, so I asked ano yan, person in front of me ordered the last zinger Last thursday, ang unti ng fries na binigay, not usual portions, naubos gravy, and they didnt give out extra bowls, may langaw pa sa royal ko This monday, no fries, pero may fries sa tray, so I asked ano yan, person IN FRONT OF ME AGAIN ordered the last batch of FRIES Then kahapon Nag KFC sila @tiamlee @Sherwynn AND YOUR TELLING ME KUNG KELAN WALA AKO',
+    author: {
+      id: '7',
+      name: 'Enzo',
+      username: 'taroramen',
+      avatar: enzo,
+    },
+    space: 'rinaldoeats',
+    upvotes: 167,
+    downvotes: 0,
+    commentCount: 4,
+    createdAt: '3 months ago',
+    tags: ['enzomeal'],
     isEdited: false,
     isOwner: false,
   }
@@ -279,39 +333,25 @@ export const mockComments: Record<string, CommentCardProps[]> = {
     {
       id: 'comment-1',
       author: {
-        id: 'user-codemaster',
-        name: 'CodeMaster',
-        username: 'codemaster',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=CodeMaster',
+        id: '7',
+        name: 'Enzo',
+        username: 'taroramen',
+        avatar: enzo,
       },
-      content: 'HAHAHAHAHA gago ka pre wag mo naman expose yung mga nag-bbreed',
-      upvotes: 12,
-      downvotes: 0,
-      createdAt: '1h ago',
-      badge: 'Senior',
-    },
-    {
-      id: 'comment-2',
-      author: {
-        id: 'user-random',
-        name: 'RandomStudent',
-        username: 'randomstudent',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=RandomStudent',
-      },
-      content: 'Context? HAHAHA',
+      content: '??!?!?',
       upvotes: 12,
       downvotes: 0,
       createdAt: '30m ago',
       replies: [
         {
-          id: 'comment-2-1',
+          id: 'comment-1-1',
           author: {
             id: '1',
             name: 'Thomas James C. Tiam-Lee',
             username: 'tiamlee',
             avatar: avatarImage,
           },
-          content: 'Secret lang yan HAHAHA',
+          content: 'you must stop breeding the horses',
           upvotes: 8,
           downvotes: 0,
           createdAt: '20m ago',
@@ -322,147 +362,152 @@ export const mockComments: Record<string, CommentCardProps[]> = {
   ],
   '2': [
     {
-      id: 'comment-3',
+      id: 'comment-2-1',
       author: {
-        id: 'user-thoughtful',
-        name: 'ThoughtfulArcher',
-        username: 'thoughtfularcher',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Thoughtful',
+        id: '2',
+        name: 'Teehee',
+        username: 'iloveapex',
+        avatar: diane,
       },
-      content:
-        'I respectfully disagree. Marriage equality doesn\'t affect anyone\'s classes. Let\'s keep discussions civil and focus on facts.',
-      upvotes: 18,
-      downvotes: 2,
-      createdAt: '3h ago',
-      badge: 'Moderator',
-    },
-    {
-      id: 'comment-4',
-      author: {
-        id: 'user-debate',
-        name: 'DebateKing',
-        username: 'debateking',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Debate',
-      },
-      content: 'Bakit naman complicated? Explain mo naman',
-      upvotes: 6,
-      downvotes: 1,
-      createdAt: '2h ago',
+      content: 'meow meow',
+      upvotes: 15,
+      downvotes: 0,
+      createdAt: '1 hour ago',
     },
   ],
   '3': [
     {
-      id: 'comment-5',
+      id: 'comment-3-1',
       author: {
-        id: 'user-helpful',
-        name: 'HelpfulSenior',
-        username: 'helpfulsenior',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Helpful',
+        id: '7',
+        name: 'Enzo',
+        username: 'taroramen',
+        avatar: enzo,
       },
-      content:
-        'Ms. Nats is actually really fair if you ask her questions during consultation hours. Try going to her office!',
-      upvotes: 25,
+      content: 'THATS ME',
+      upvotes: 156,
       downvotes: 0,
-      createdAt: '4h ago',
-      badge: 'Senior',
+      createdAt: '2 hours ago',
       replies: [
         {
-          id: 'comment-5-1',
+          id: 'comment-3-1-1',
           author: {
-            id: '2',
-            name: 'Sussus Amogus',
-            username: 'pieisspy',
-            avatar: karl,
+            id: '5',
+            name: 'Floranaras',
+            username: 'callo',
+            avatar: callo,
           },
-          content: 'Thanks! Will try that',
-          upvotes: 3,
+          content: 'do dinosaur next',
+          upvotes: 45,
           downvotes: 0,
-          createdAt: '3h ago',
-          badge: 'OP',
+          createdAt: '1 hour ago',
         },
       ],
-    },
-    {
-      id: 'comment-6',
-      author: {
-        id: 'user-survivor',
-        name: 'CCPROGSurvivor',
-        username: 'ccprogsurvivor',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Survivor',
-      },
-      content: 'CCPROG1 machine project talaga yung trial by fire. Good luck pre!',
-      upvotes: 10,
-      downvotes: 0,
-      createdAt: '2h ago',
     },
   ],
   '4': [
     {
-      id: 'comment-7',
+      id: 'comment-4-1',
       author: {
         id: '3',
         name: 'Sussus Amogus',
         username: 'pieisspy',
         avatar: karl,
       },
-      content:
-        'DADDY CHENG?!?!??',
-      upvotes: 25,
+      content: 'me when i get people killed from a free falling object because i integrated wrong and got the wrong time',
+      upvotes: 89,
       downvotes: 0,
-      createdAt: '4h ago',
-      badge: 'Natsochist',
-   },
+      createdAt: '30m ago',
+      badge: 'OP',
+    },
   ],
-  '5': [
+  '8': [
     {
       id: 'comment-8',
+      author: {
+        id: '1',
+        name: 'Thomas James C. Tiam-Lee',
+        username: 'tiamlee',
+        avatar: avatarImage,
+      },
+      content: 'Day 1 of getting an enzo meal out of spite',
+      upvotes: 67,
+      downvotes: 0,
+      createdAt: '3 months ago',
+    },
+    {
+      id: 'comment-9',
+      author: {
+        id: '2',
+        name: 'Teehee',
+        username: 'iloveapex',
+        avatar: diane,
+      },
+      content: 'Day 2 of getting an enzo meal out of spite',
+      upvotes: 61,
+      downvotes: 0,
+      createdAt: '3 months ago',
+    },
+    {
+      id: 'comment-10',
+      author: {
+        id: '3',
+        name: 'Sussus Amogus',
+        username: 'pieisspy',
+        avatar: karl,
+      },
+      content: 'Day 3 of getting an enzo meal out of spite',
+      upvotes: 56,
+      downvotes: 0,
+      createdAt: '3 months ago',
+    },
+    {
+      id: 'comment-11',
       author: {
         id: '6',
         name: 'Pringles',
         username: 'whotftakesthenamezex',
         avatar: pring,
       },
-      content:
-        'mb bro...it takes the edge off...',
-      upvotes: 25,
+      content: 'Day 4 of getting an enzo meal out of spite',
+      upvotes: 56,
       downvotes: 0,
-      createdAt: 'Yesterday',
-      badge: 'Frieren Enjoyer',
-   },
+      createdAt: '3 months ago',
+    },
   ],
-  '6': [
-    {
-      id: 'comment-9',
-      author: {
-        id: '6',
-        name: 'callo',
-        username: 'callo',
-        avatar: callo,
-      },
-      content:
-        'update the indian man turned about to be a dlsu student.',
-      upvotes: 70,
-      downvotes: 0,
-      createdAt: 'Yesterday',
-      badge: 'OP',
-   },
-  ]
+}
+
+// Utility to count nested comments
+const countComments = (comments: CommentCardProps[]): number => {
+  return comments.reduce((total, comment) => {
+    return total + 1 + (comment.replies ? countComments(comment.replies) : 0)
+  }, 0)
+}
+
+// Helper Functions
+export const getAllSpaces = (): Space[] => {
+  return mockSpaces
+}
+
+export const getSpaceByName = (name: string): Space | undefined => {
+  return mockSpaces.find(s => s.name.toLowerCase() === name?.toLowerCase())
+}
+
+export const getPostsBySpace = (spaceName: string): Post[] => {
+  return Object.values(mockPosts)
+    .filter(post => post.space.toLowerCase() === spaceName?.toLowerCase())
 }
 
 export const getAllPosts = (): Post[] => {
-  return Object.keys(mockPosts)
-    .sort()
-    .map(id => mockPosts[id])
+  return Object.values(mockPosts)
 }
 
 export const getAllUsers = (): User[] => {
-  return Object.keys(mockUsers)
-		.sort()
-		.map(id => mockUsers[id])
+  return Object.values(mockUsers)
 }
 
 export const getUserById = (id: string): User | null => {
-	return mockUsers[id] || null
+  return mockUsers[id] || null
 }
 
 export const getPostById = (id: string): Post | null => {
@@ -473,20 +518,28 @@ export const getCommentsByPostId = (postId: string): CommentCardProps[] => {
   return mockComments[postId] || []
 }
 
-const countComments = (comments: CommentCardProps[]): number => {
-  return comments.reduce((total, comment) => {
-    return total + 1 + (comment.replies ? countComments(comment.replies) : 0)
-  }, 0)
+export const addSpace = (space: Space): void => {
+  mockSpaces.push(space)
 }
 
-Object.keys(mockPosts).forEach((postId) => {
-  const post = mockPosts[postId]
-  const comments = mockComments[postId] || []
-  const actualCount = countComments(comments)
-  
-  if (post.commentCount !== actualCount) {
-    console.warn(
-      `Post ${postId} comment count mismatch: expected ${post.commentCount}, actual ${actualCount}`
-    )
+export const updateSpaceJoinStatus = (spaceName: string, isJoined: boolean): void => {
+  const space = mockSpaces.find(s => s.name.toLowerCase() === spaceName?.toLowerCase())
+  if (space) {
+    space.isJoined = isJoined
   }
-})
+}
+
+// Validate comment counts (development only)
+if (process.env.NODE_ENV === 'development') {
+  Object.keys(mockPosts).forEach((postId) => {
+    const post = mockPosts[postId]
+    const comments = mockComments[postId] || []
+    const actualCount = countComments(comments)
+    
+    if (post.commentCount !== actualCount) {
+      console.warn(
+        `Post ${postId} comment count mismatch: expected ${post.commentCount}, actual ${actualCount}`
+      )
+    }
+  })
+}

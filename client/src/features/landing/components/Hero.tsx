@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import car from "@/assets/post/car.jpg";
 
 export const Hero = () => {
-  const post7 = mockPosts[7];
+  const post7 = mockPosts[2];
 
   return (
     <section className="py-16 px-4">
