@@ -12,7 +12,8 @@ import {
   RulesWidget,
   YourSpacesWidget,
   SpaceSortBar,
-  SpaceEmptyState
+  SpaceEmptyState,
+  SpaceLoadingState
 } from '@/features/spaces/components'
 
 export default function Space() {
@@ -32,14 +33,18 @@ export default function Space() {
 
   if (!space) {
     return (
-      <MainLayout>
-        <div className="text-center py-20">
-          <h1 className="text-2xl font-bold mb-4 dark:text-white">
-            Space Not Found
-          </h1>
-          <Button onClick={() => navigate('/spaces')}>Browse Spaces</Button>
+   <MainLayout
+      maxWidth="max-w-full"
+      leftSidebar={
+        <div className="flex flex-col gap-6 px-4">
+          <SidebarNav />
+          <div className="h-px bg-gray-200 dark:bg-gray-800" />
+          <YourSpacesWidget />
         </div>
-      </MainLayout>
+      }
+    >
+      <SpaceLoadingState />
+    </MainLayout>
     )
   }
 
