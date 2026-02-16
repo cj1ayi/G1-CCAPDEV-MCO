@@ -4,6 +4,7 @@ import LegendsYuch from "@/assets/loginpics/legendsyuch.jpg";
 import SunriseHenry from "@/assets/loginpics/sunerisehenry.jpg";
 import SunriseMig from "@/assets/loginpics/sunrisestmig.jpg";
 import SundownHenry from "@/assets/loginpics/sundownhenry.jpg";
+import SunriseLS from "@/assets/loginpics/lssunrise.png";
 
 // React
 import { useState } from "react";
@@ -48,6 +49,12 @@ const Signup = () => {
       alt: "Sundown Henry",
       weight: 300,
     },
+    {
+      src: SunriseLS,
+      alt: "Sundown LS",
+      weight: 300,
+    },
+ 
     {
       src: LegendsYuch,
       alt: "Legends Yuch",
