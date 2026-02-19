@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components'
-import { YourSpacesWidget } from '@/features/spaces/components'
-import { TrendingWidget } from '@/features/posts/components'
-import { RulesWidget } from '@/features/spaces/components'
 import { Filter, Feed } from '@/features/explore/components'
+import { DefaultLeftSidebar, DefaultRightSidebar } from '@/components/layout'
 
 const Explore = () => {
   const [currentSort, setCurrentSort] = useState<
@@ -14,17 +11,10 @@ const Explore = () => {
     <MainLayout
       maxWidth="max-w-6xl"
       leftSidebar={
-        <div className="space-y-6">
-          <SidebarNav />
-          <div className="h-px bg-gray-200 dark:bg-gray-800" />
-          <YourSpacesWidget />
-        </div>
+        <DefaultLeftSidebar />
       }
       rightSidebar={
-        <>
-          <TrendingWidget />
-          <RulesWidget />
-        </>
+        <DefaultRightSidebar />
       }
     >
       <Filter active={currentSort} onChange={setCurrentSort} />
