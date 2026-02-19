@@ -9,11 +9,12 @@ import {
   UseCommentVotingReturn
 } from '../types'
 
+
 export function useCommentVoting(): UseCommentVotingReturn {
   const [votes, setVotes] = useState<Record<string, VoteType>>({})
 
   const toggleVote = useCallback((
-    commentId: string, voteType: 'up' | 'down') => {
+    commentId: string, voteType: VoteType) => {
     setVotes((prev) => ({
       ...prev,
       [commentId]: prev[commentId] === voteType ? null : voteType,
