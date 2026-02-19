@@ -4,6 +4,7 @@ import { ArrowLeft, X } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import { postService } from '@/features/posts/services'
+import { LoadingSpinner, ErrorState } from '@/components/shared'
 import { cn } from '@/lib/utils'
 
 import { 
@@ -130,18 +131,7 @@ export default function EditPostPage() {
   if (isLoading) {
     return (
       <MainLayout maxWidth="max-w-6xl">
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <span className={cn(
-              "material-symbols-outlined text-[48px]",
-              "animate-spin text-primary")}>
-              progress_activity
-            </span>
-            <p className="text-gray-500 dark:text-gray-400 mt-4">
-              Loading post...
-            </p>
-          </div>
-        </div>
+        <LoadingSpinner text="Loading post..." />
       </MainLayout>
     )
   }
@@ -149,17 +139,10 @@ export default function EditPostPage() {
   if (error) {
     return (
       <MainLayout maxWidth="max-w-6xl">
-        <div className="flex items-center justify-center py-20">
-          <Card className="text-center p-8">
-            <h1 className={cn(
-              "text-2xl font-bold text-gray-900 dark:text-white mb-4")}>
-              {error}
-            </h1>
-            <Button variant="primary" onClick={() => navigate(-1)}>
-              Go Back
-            </Button>
-          </Card>
-        </div>
+        <ErrorState
+          title={error}
+          onRetry={() => navigate(-1)}
+        />
       </MainLayout>
     )
   }

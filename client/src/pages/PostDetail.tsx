@@ -1,11 +1,9 @@
 import { useParams } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { usePostDetailView } from '@/features/posts/hooks/usePostDetailView';
-import { Card, Button } from '@/components/ui';
 import { SidebarNav } from '@/features/navigation/components';
 import { YourSpacesWidget } from '@/features/spaces/components';
-import { cn } from '@/lib/utils';
+import { LoadingSpinner, ErrorState } from '@/components/shared';
 
 import { 
   PostDetailHeader, 
@@ -33,9 +31,7 @@ export default function PostDetail() {
   if (isLoading) {
     return (
       <MainLayout>
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        <LoadingSpinner text="Loading post..."/>
       </MainLayout>
     );
   }
@@ -43,14 +39,12 @@ export default function PostDetail() {
   if (!post) {
     return (
       <MainLayout>
-        <Card className="text-center py-20 px-6">
-          <h1 className="text-2xl font-bold mb-4">Post not found</h1>
-          <p className="text-muted-foreground mb-6">
-            This post has been removed or doesn't exist.
-          </p>
-          <Button onClick={() => navigate(-1)}>Go Back</Button>
-        </Card>
-      </MainLayout>
+        <ErrorState
+          title="Post not found"
+          message="This post has been removed or does not exist"
+          onRetry={() => navigate(-1)}
+        />
+     </MainLayout>
     );
   }
 
@@ -89,17 +83,12 @@ export default function PostDetail() {
         </div>
 
         {comments.isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        ) : comments.error ? (
-          <Card className={cn(
-            "p-4 bg-destructive/10 border-destructive/20",
-            "text-destructive text-center text-sm"
-            )}
-          >
-            {comments.error.message}
-          </Card>
+          <LoadingSpinner size="sm" text="Loading comments..."/>
+       ) : comments.error ? (
+          <ErrorState
+            title="Failed to load comments"
+            message={comments.error.message}
+          />
         ) : (
           <CommentSection
             comments={comments.data}
