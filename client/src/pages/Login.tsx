@@ -1,9 +1,5 @@
 import React from "react";
 import AnimoForumsLogoWhite from "@/assets/logo/AnimoForumsLogoWhite.svg";
-import LegendsYuch from "@/assets/loginpics/legendsyuch.jpg";
-import SunriseHenry from "@/assets/loginpics/sunerisehenry.jpg";
-import SunriseMig from "@/assets/loginpics/sunrisestmig.jpg";
-import SundownHenry from "@/assets/loginpics/sundownhenry.jpg";
 
 // React
 import { useState } from "react";
@@ -22,7 +18,7 @@ import { useImageRotation } from "@/hooks/";
 import { useAuth } from "@/features/auth/hooks/";
 
 // Utils
-import { cn } from "@/lib/utils";
+import { cn, BACKGROUND_IMAGES } from "@/lib/utils";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,29 +28,6 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
-
-  const BACKGROUND_IMAGES = [
-    {
-      src: SunriseHenry,
-      alt: "Sunrise Henry",
-      weight: 300,
-    },
-    {
-      src: SunriseMig,
-      alt: "Sunrise St. Miguel",
-      weight: 300,
-    },
-    {
-      src: SundownHenry,
-      alt: "Sundown Henry",
-      weight: 300,
-    },
-    {
-      src: LegendsYuch,
-      alt: "Legends Yuch",
-      weight: 1,
-    },
-  ];
 
   const { currentIndex } = useImageRotation({
     images: BACKGROUND_IMAGES,
