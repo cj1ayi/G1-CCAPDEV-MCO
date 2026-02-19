@@ -1,5 +1,10 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import LegendsYuch from "@/assets/loginpics/legendsyuch.jpg";
+import SunriseHenry from "@/assets/loginpics/sunerisehenry.jpg";
+import SunriseMig from "@/assets/loginpics/sunrisestmig.jpg";
+import SundownHenry from "@/assets/loginpics/sundownhenry.jpg";
+
 
 /*
  * Merges Tailwind CSS classes with clsx and handles conflicts via 
@@ -274,4 +279,28 @@ export const retry = async <T>(
 export const isValidDLSUEmail = (email: string): boolean => {
     return /^[\w.-]+@dlsu\.edu\.ph$/.test(email);
 }
+
+export const BACKGROUND_IMAGES = [
+    {
+      src: SunriseHenry,
+      alt: "Sunrise Henry",
+      weight: 300,
+    },
+    {
+      src: SunriseMig,
+      alt: "Sunrise St. Miguel",
+      weight: 300,
+    },
+    {
+      src: SundownHenry,
+      alt: "Sundown Henry",
+      weight: 300,
+    },
+    {
+      src: LegendsYuch,
+      alt: "Legends Yuch",
+      weight: 1,
+    },
+];
+
 
