@@ -1,4 +1,4 @@
-import { Post } from '@/lib/mockData'
+import { Post } from '@/features/posts/types'
 
 import sharkImage from '@/assets/post/shark.jpg'
 import carImage from '@/assets/post/car.jpg'
