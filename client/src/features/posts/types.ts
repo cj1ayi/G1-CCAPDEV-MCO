@@ -20,6 +20,7 @@ export interface Post {
   imageUrl?: string
   tags: string[]
   isOwner?: boolean
+  isEdited?: boolean
 }
 
 // Component Props
@@ -116,6 +117,7 @@ export interface PostFormData {
   space: string
   imageUrl: string
   tags: string[]
+  flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
 }
 
 export interface ValidationErrors {
@@ -132,8 +134,8 @@ export interface DeletePostModalProps {
 }
 
 export interface PostDetailHeaderProps {
-  post: any; 
-  onEdit: () => void;
-  onDelete: () => void;
-  onSpaceClick: () => void;
+  post: Post
+  onEdit: () => void | Promise<void>
+  onDelete: () => void
+  onSpaceClick: () => void
 }
