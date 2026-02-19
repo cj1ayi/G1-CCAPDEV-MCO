@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { spaceService } from '../services/spaceService'
-import { type Space, type Post } from '@/lib/mockData'
-
-export type SortType = 'hot' | 'new' | 'top'
+import { SortOption } from '../types'
+import { Space } from '@/features/spaces/types'
+import { Post } from '@/features/posts/types'
 
 export const useSpacePage = (spaceName?: string) => {
   const navigate = useNavigate()
   const [space, setSpace] = useState<Space | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
-  const [sortBy, setSortBy] = useState<SortType>('hot')
+  const [sortBy, setSortBy] = useState<SortOption>('hot')
   const [isJoined, setIsJoined] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 

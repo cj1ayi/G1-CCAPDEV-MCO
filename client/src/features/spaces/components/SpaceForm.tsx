@@ -49,7 +49,7 @@ export const SpaceForm = ({ onSubmit, onCancel, isLoading }: SpaceFormProps) => 
             label="Category"
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-            options={CATEGORIES}
+            options={CATEGORIES.map(cat => ({value: cat, label: cat}))}
           />
 
           <Textarea
