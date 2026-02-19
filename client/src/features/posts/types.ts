@@ -50,14 +50,6 @@ export interface PostCardProps {
   onClick?: () => void
 }
 
-export interface PostDetailHeaderProps {
-  isDark: boolean
-  onToggleDarkMode: () => void
-  backUrl?: string
-  homeUrl?: string
-  siteName?: string
-}
-
 export interface PostDetailBreadcrumbsProps {
   space: string
   title: string
