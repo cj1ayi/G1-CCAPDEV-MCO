@@ -2,6 +2,7 @@ import { User } from '../types'
 import { 
   getCurrentUser as getAuthUser 
 } from "@/features/auth/services/authService";
+import { Post } from '@/features/posts/types'
 
 class UserService {
   private storageKey = 'animoforums_users'
@@ -15,6 +16,10 @@ class UserService {
     localStorage.setItem(this.storageKey, JSON.stringify(users))
   }
 
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   private async seedIfNeeded(): Promise<void> {
     const users = this.getStore()
     if (users.length > 0) return
@@ -25,8 +30,7 @@ class UserService {
 
       if (mockUsers && mockUsers.length > 0) {
         this.setStore(mockUsers)
-        console.log("so much users bae")
-        console.log(`${mockUsers.length}`) 
+        console.log(`Seeded ${mockUsers.length} users`) 
       }
     } catch (err) {
       console.log('No mock users found')
@@ -38,8 +42,27 @@ class UserService {
     return this.getStore()
   }
 
+  async getUserByUsername(username: string): Promise<User | null> {
+    await this.seedIfNeeded()
+    await this.delay(200)
+
+    const users = this.getStore()
+    const user = users.find(
+      u => u.username.toLowerCase() === username.toLowerCase()
+    )
+
+    if (!user) {
+      console.log(`User not found: ${username}`)
+      return null
+    }
+
+    return user
+  }
+
   async getUserById(id: string): Promise<User | null> {
     await this.seedIfNeeded()
+    await this.delay(200)
+    
     const users = this.getStore()
     return users.find(user => user.id === id) || null
   }
@@ -49,8 +72,22 @@ class UserService {
     return getAuthUser() 
   }
 
+  async getUserPosts(userId: string): Promise<Post[]> {
+    await this.delay(200)
+    
+    try {
+      const { getAllPosts } = await import('@/lib/mockData')
+      const allPosts = getAllPosts()
+      return allPosts.filter(post => post.author.id === userId)
+    } catch (err) {
+      console.error('Failed to get user posts:', err)
+      return []
+    }
+  }
+
   async updateUser(id: string, updates: Partial<User>): Promise<User> {
     await this.seedIfNeeded()
+    await this.delay(200)
 
     const users = this.getStore()
     const index = users.findIndex(u => u.id === id)
@@ -73,6 +110,7 @@ class UserService {
   async resetToMockData(): Promise<void> {
     localStorage.removeItem(this.storageKey)
     await this.seedIfNeeded()
+    console.log('User data reset to mock data')
   }
 }
 

@@ -23,7 +23,7 @@ export const YourSpacesWidget = () => {
       </div>
       <div className="space-y-1">
         {spaces.map((space) => {
-          const spaceHref = `/space/${space.name}`
+          const spaceHref = `/r/${space.name}`
           const isActive = location.pathname === spaceHref
 
           return (

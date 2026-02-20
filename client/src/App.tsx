@@ -44,9 +44,9 @@ const App = () => {
           <Route path="/post/:id/edit" element={<EditPost/>} />
           
           {/* User & Space Routes */}
-          <Route path="/profile/:id" element={<Profile/>} />
+          <Route path="/profile/:username" element={<Profile/>} />
           <Route path="/profile/edit" element={<EditProfile/>} />
-          <Route path="/space/:name" element={<Space/>} />
+          <Route path="/r/:name" element={<Space/>} />
           <Route path="/spaces" element={<SpacesDirectory />} />
           <Route path="/spaces/create" element={<CreateSpace />} />
  

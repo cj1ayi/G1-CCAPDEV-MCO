@@ -9,7 +9,7 @@ import { postService } from '@/features/posts/services'
 import { ProfileTab } from '../types'
 
 export const useProfileView = () => {
-  const { id } = useParams<{ id: string }>()
+  const { username } = useParams<{ username: string }>()
   
   const [user, setUser] = useState<any>(null)
   const [posts, setPosts] = useState<any[]>([])
@@ -18,13 +18,13 @@ export const useProfileView = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!id) {
+      if (!username) {
         setIsLoading(false)
         return
       }
 
       try {
-        const fetchedUser = await userService.getUserById(id)
+        const fetchedUser = await userService.getUserByUsername(username)
         if (fetchedUser) {
           setUser(fetchedUser)
           const allPosts = await postService.getAllPosts()
@@ -40,7 +40,7 @@ export const useProfileView = () => {
       }
     }
     fetchData()
-  }, [id])
+  }, [username])
 
   return {
     user,

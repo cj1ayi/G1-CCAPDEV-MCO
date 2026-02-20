@@ -149,7 +149,7 @@ const CommentCard = ({
         {/* Comment Header */}
         <div className="flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <Link to={`/profile/${author.id}`}>
+            <Link to={`/profile/${author.username}`}>
               <Avatar
                 size={depth === 0 ? 'md' : 'sm'}
                 name={author.name}
@@ -163,7 +163,7 @@ const CommentCard = ({
               </span>
             ) : (
               <Link 
-                to={`/profile/${author.id}`}
+                to={`/profile/${author.username}`}
                 className={cn(
                   "text-sm font-semibold",
                   "text-gray-900 dark:text-white",

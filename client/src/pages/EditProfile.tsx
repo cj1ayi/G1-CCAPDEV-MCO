@@ -82,7 +82,7 @@ const EditProfile = () => {
 
     try {
       await userService.updateUser(user.id, formData)
-      navigate(`/profile/${user.id}`)
+      navigate(`/profile/${user.username}`)
     } catch (error) {
       console.error('Error updating profile:', error)
       alert('Failed to update profile. Please try again.')
@@ -92,7 +92,7 @@ const EditProfile = () => {
   }
 
   const handleCancel = () => {
-    if (user) navigate(`/profile/${user.id}`)
+    if (user) navigate(`/profile/${user.username}`)
   }
 
   if (isLoading) {

@@ -161,7 +161,7 @@ const PostCard = ({
                 )}
                 onClick={(e) => {
                   e.stopPropagation()
-                  window.location.href = `/space/${space}`
+                  window.location.href = `/r/${space}`
                 }}
               >
                 {spaceIcon && (
@@ -178,7 +178,7 @@ const PostCard = ({
                 <span className="hover:underline cursor-pointer font-semibold"
                   onClick={(e) => {
                   e.stopPropagation()
-                  window.location.href = `/profile/${author.id}`
+                  window.location.href = `/profile/${author.username}`
                   }}
                 >
                   u/{author.username}
