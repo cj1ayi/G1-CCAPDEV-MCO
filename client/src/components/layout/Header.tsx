@@ -165,12 +165,12 @@ export const Header = ({
           <>
             <Link to="/login">
               <Button variant="ghost" size="sm">
-                Log in
+                Sign In
               </Button>
             </Link>
             <Link to="/signup">
               <Button variant="primary" size="sm">
-                Sign up
+                Join Community
               </Button>
             </Link>
           </>
@@ -228,12 +228,12 @@ export const Header = ({
               <>
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
-                    Log in
+                    Sign in
                   </Button>
                 </Link>
                 <Link to="/signup">
                   <Button variant="primary" size="sm">
-                    Sign up
+                    Join Community
                   </Button>
                 </Link>
               </>
