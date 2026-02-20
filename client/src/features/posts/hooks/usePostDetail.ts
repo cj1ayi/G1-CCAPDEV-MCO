@@ -70,7 +70,7 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
   }
 
   const handleSpaceClick = () => {
-    if (post?.space) navigate(`/space/${post.space}`)
+    if (post?.space) navigate(`/r/${post.space}`)
   }
 
   return {

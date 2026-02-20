@@ -10,7 +10,7 @@ export const useCreateSpace = () => {
     setIsSubmitting(true)
     try {
       const newSpace = await spaceService.createSpace(data)
-      navigate(`/space/${newSpace.name}`)
+      navigate(`/r/${newSpace.name}`)
     } catch (error) {
       console.error('Failed to create space:', error)
       alert('Error creating space. Please try again.')

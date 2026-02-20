@@ -39,7 +39,7 @@ export const useSpaces = () => {
     catch (e) { setSpaces(prev => prev.map(s => s.id === id ? { ...s, isJoined: space.isJoined } : s)) }
   }
 
-  const goToSpace = (name: string) => navigate(`/space/${name}`)
+  const goToSpace = (name: string) => navigate(`/r/${name}`)
   const goToCreateSpace = () => navigate('/spaces/create')
 
   const processedSpaces = useMemo(() => {
