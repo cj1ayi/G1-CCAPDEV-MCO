@@ -9,20 +9,10 @@ import enzo from '@/assets/pfp/enzo.gif'
 import { CommentCardProps } from '@/features/comments/types'
 import { Post } from '@/features/posts/types'
 import { Space, SpaceRule } from '@/features/spaces/types'
+import { User } from '@/features/profile/types'
 
-export type { Post, Space, SpaceRule }
-
-// User type - specific to mockData (not used in features yet)
-export interface User {
-  id: string
-  name: string
-  username: string
-  email?: string
-  avatar?: string
-  bio?: string
-  location?: string
-  joinedAt?: string
-}
+// Re-export types for convenience
+export type { Post, Space, SpaceRule, User }
 
 // Helper function to create URL-friendly slugs
 export const createSpaceSlug = (displayName: string): string => {

@@ -9,6 +9,7 @@ export interface User {
   twitter?: string
   github?: string
   linkedin?: string
+  email?: string
 }
 
 export interface ActivityFeedProps {
