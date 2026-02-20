@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { CommentCardProps } from '../components'
+import type { CommentCardProps } from '../types'
 import { commentService } from '../services/'
 
 import { 
