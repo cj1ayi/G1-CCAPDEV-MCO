@@ -30,15 +30,16 @@ export const SpaceSortBar = (
         align="left"
         trigger={
           <button
-            className="flex items-center gap-2 px-4 py-2 rounded-lg
+            className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg
               bg-surface-light dark:bg-surface-dark
               border border-gray-200 dark:border-gray-700
               hover:border-primary dark:hover:border-primary
-              text-sm font-medium transition-colors"
+              text-xs sm:text-sm font-medium transition-colors
+              w-full sm:w-auto"
           >
-            <CurrentIcon className="size-4" />
-            {currentOption?.label || 'Sort'}
-            <ChevronDown className="size-4" />
+            <CurrentIcon className="size-3 sm:size-4 flex-shrink-0" />
+            <span className="truncate">{currentOption?.label || 'Sort'}</span>
+            <ChevronDown className="size-3 sm:size-4 flex-shrink-0 ml-auto" />
           </button>
         }
       >
