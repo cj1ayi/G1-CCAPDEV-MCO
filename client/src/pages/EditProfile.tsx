@@ -6,6 +6,8 @@ import { SidebarNav } from '@/features/navigation/components'
 import { YourSpacesWidget } from '@/features/spaces/components'
 import { Camera, Save, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/useToast'
+import { Toast } from '@/components/ui/Toast'
 
 import { 
   Card, 
@@ -19,6 +21,7 @@ import {
 
 const EditProfile = () => {
   const navigate = useNavigate()
+  const { toasts, error: showError, removeToast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -85,7 +88,7 @@ const EditProfile = () => {
       navigate(`/profile/${user.username}`)
     } catch (error) {
       console.error('Error updating profile:', error)
-      alert('Failed to update profile. Please try again.')
+      showError('Failed to update profile. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -267,6 +270,17 @@ const EditProfile = () => {
           </div>
         </form>
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map(toast => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          duration={toast.duration}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </MainLayout>
   )
 }

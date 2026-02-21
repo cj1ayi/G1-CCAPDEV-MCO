@@ -1,17 +1,28 @@
 import { MainLayout } from '@/components/layout/MainLayout'
+import { SidebarNav } from '@/features/navigation/components'
 import { SpaceForm } from '@/features/spaces/components'
 import { useCreateSpace } from '@/features/spaces/hooks/useCreateSpace'
-import { DefaultLeftSidebar } from '@/components/layout'
 import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/useToast'
+import { Toast } from '@/components/ui/Toast'
 
 const CreateSpace = () => {
   const { handleCreate, isSubmitting, onCancel } = useCreateSpace()
+  const { toasts, error: showError, removeToast } = useToast()
+
+  const handleSubmit = async (data: any) => {
+    try {
+      await handleCreate(data)
+    } catch (error) {
+      showError('Error creating space. Please try again.')
+    }
+  }
 
   return (
     <MainLayout
       maxWidth="max-w-3xl"
-      leftSidebar={<DefaultLeftSidebar/>}
+      leftSidebar={<SidebarNav />}
     >
       <div className="space-y-6">
         <button 
@@ -34,11 +45,22 @@ const CreateSpace = () => {
         </div>
 
         <SpaceForm 
-          onSubmit={handleCreate} 
+          onSubmit={handleSubmit} 
           onCancel={onCancel} 
           isLoading={isSubmitting} 
         />
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map(toast => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          duration={toast.duration}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </MainLayout>
   )
 }

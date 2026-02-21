@@ -6,6 +6,8 @@ import { SidebarNav } from '@/features/navigation/components'
 import { postService } from '@/features/posts/services'
 import { LoadingSpinner, ErrorState } from '@/components/shared'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/useToast'
+import { Toast } from '@/components/ui/Toast'
 
 import { 
   Card, 
@@ -14,11 +16,11 @@ import {
   Textarea, 
   Badge 
 } from '@/components/ui'
-import { DefaultLeftSidebar } from '@/components/layout'
 
 export default function EditPostPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { toasts, error: showError, warning: showWarning, removeToast } = useToast()
   
   const [formData, setFormData] = useState({
     title: '',
@@ -103,7 +105,7 @@ export default function EditPostPage() {
       
       navigate(`/post/${id}`)
     } catch (error) {
-      alert('Failed to update post. Please try again.')
+      showError('Failed to update post. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -113,7 +115,7 @@ export default function EditPostPage() {
     const validation = postService.validateTag(tagInput, formData.tags)
     
     if (!validation.valid) {
-      alert(validation.error)
+      showWarning(validation.error || 'Invalid tag')
       return
     }
     
@@ -151,7 +153,12 @@ export default function EditPostPage() {
   return (
     <MainLayout
       maxWidth="max-w-6xl"
-      leftSidebar={<DefaultLeftSidebar/>}
+      leftSidebar={
+        <div className="flex flex-col gap-6">
+          <SidebarNav />
+          <div className="h-px bg-gray-200 dark:bg-gray-800" />
+        </div>
+      }
     >
       <div className="w-full">
         <Card className="mb-6">
@@ -304,6 +311,17 @@ export default function EditPostPage() {
           </form>
         </Card>
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map(toast => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          duration={toast.duration}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </MainLayout>
   )
 }

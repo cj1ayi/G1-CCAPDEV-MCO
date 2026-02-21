@@ -8,6 +8,8 @@ import { CommentActions } from './CommentActions'
 import { CommentMenu } from './CommentMenu'
 import { CommentReplyForm } from './CommentReplyForm'
 import { DeleteCommentModal } from '../DeleteCommentModal'
+import { useToast } from '@/hooks/useToast'
+import { Toast } from '@/components/ui/Toast'
 
 const CommentCard = ({
   id,
@@ -39,6 +41,7 @@ const CommentCard = ({
   const [isReplying, setIsReplying] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
+  const { toasts, error: showError, removeToast } = useToast()
   const menuRef = useRef<HTMLDivElement>(null)
   const maxDepth = 5
   const hasReplies = replies.length > 0
@@ -73,7 +76,7 @@ const CommentCard = ({
       setIsEditing(false)
     } catch (error) {
       console.error('Failed to edit comment:', error)
-      alert('Failed to edit comment. Please try again.')
+      showError('Failed to edit comment. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -120,101 +123,114 @@ const CommentCard = ({
   }
 
   return (
-    <div
-      className={cn(
-        'group',
-        depth > 0 && [
-          'ml-6 md:ml-8 pl-4',
-          'border-l-2 border-gray-200 dark:border-gray-800',
-          'hover:border-gray-300 dark:hover:border-gray-600',
-          'transition-colors',
-        ]
-      )}
-    >
-      <div className="py-3">
-        {/* Header with Menu */}
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <CommentHeader
-            author={author}
-            createdAt={createdAt}
-            editedAt={editedAt}
-            isOP={isOP}
+    <>
+      <div
+        className={cn(
+          'group',
+          depth > 0 && [
+            'ml-6 md:ml-8 pl-4',
+            'border-l-2 border-gray-200 dark:border-gray-800',
+            'hover:border-gray-300 dark:hover:border-gray-600',
+            'transition-colors',
+          ]
+        )}
+      >
+        <div className="py-3">
+          {/* Header with Menu */}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <CommentHeader
+              author={author}
+              createdAt={createdAt}
+              editedAt={editedAt}
+              isOP={isOP}
+              isDeleted={isDeleted}
+              badge={badge}
+              depth={depth}
+            />
+            <CommentMenu
+              isOwner={isOwner}
+              isEditing={isEditing}
+              isDeleted={isDeleted}
+              showMenu={showMenu}
+              menuRef={menuRef}
+              onToggleMenu={() => setShowMenu(!showMenu)}
+              onEditClick={handleEditClick}
+              onDeleteClick={handleDeleteClick}
+            />
+          </div>
+
+          {/* Content */}
+          <CommentContent
+            content={content}
             isDeleted={isDeleted}
-            badge={badge}
-            depth={depth}
-          />
-          <CommentMenu
-            isOwner={isOwner}
             isEditing={isEditing}
-            isDeleted={isDeleted}
-            showMenu={showMenu}
-            menuRef={menuRef}
-            onToggleMenu={() => setShowMenu(!showMenu)}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteClick}
+            editContent={editContent}
+            isSaving={isSaving}
+            onEditContentChange={setEditContent}
+            onSaveEdit={handleSaveEdit}
+            onCancelEdit={handleCancelEdit}
           />
+
+          {/* Actions (Voting + Reply) */}
+          {!isEditing && (
+            <div className="flex items-center gap-3">
+              <CommentVoting
+                upvotes={upvotes}
+                downvotes={downvotes}
+                isUpvoted={isUpvoted}
+                isDownvoted={isDownvoted}
+                isDeleted={isDeleted}
+                onUpvote={onUpvote}
+                onDownvote={onDownvote}
+              />
+              {depth < maxDepth && onReply && (
+                <CommentActions
+                  isDeleted={isDeleted}
+                  isReplying={isReplying}
+                  onReplyClick={handleReplyClick}
+                />
+              )}
+            </div>
+          )}
+
+          {/* Reply Form */}
+          {isReplying && (
+            <CommentReplyForm
+              onSubmit={handleSubmitReply}
+              onCancel={handleCancelReply}
+            />
+          )}
         </div>
 
-        {/* Content */}
-        <CommentContent
-          content={content}
-          isDeleted={isDeleted}
-          isEditing={isEditing}
-          editContent={editContent}
-          isSaving={isSaving}
-          onEditContentChange={setEditContent}
-          onSaveEdit={handleSaveEdit}
-          onCancelEdit={handleCancelEdit}
-        />
-
-        {/* Actions (Voting + Reply) */}
-        {!isEditing && (
-          <div className="flex items-center gap-3">
-            <CommentVoting
-              upvotes={upvotes}
-              downvotes={downvotes}
-              isUpvoted={isUpvoted}
-              isDownvoted={isDownvoted}
-              isDeleted={isDeleted}
-              onUpvote={onUpvote}
-              onDownvote={onDownvote}
-            />
-            {depth < maxDepth && onReply && (
-              <CommentActions
-                isDeleted={isDeleted}
-                isReplying={isReplying}
-                onReplyClick={handleReplyClick}
-              />
-            )}
+        {/* Nested Replies (Recursion) */}
+        {replies.length > 0 && depth < maxDepth && (
+          <div className="space-y-0">
+            {replies.map((reply: CommentCardProps) => (
+              <CommentCard key={reply.id} {...reply} depth={depth + 1} />
+            ))}
           </div>
         )}
 
-        {/* Reply Form */}
-        {isReplying && (
-          <CommentReplyForm
-            onSubmit={handleSubmitReply}
-            onCancel={handleCancelReply}
-          />
-        )}
+        {/* Delete Modal */}
+        <DeleteCommentModal
+          isOpen={isDeleteModalOpen}
+          hasReplies={hasReplies}
+          onConfirm={handleDeleteConfirm}
+          onClose={() => setIsDeleteModalOpen(false)}
+        />
       </div>
 
-      {/* Nested Replies (Recursion) */}
-      {replies.length > 0 && depth < maxDepth && (
-        <div className="space-y-0">
-          {replies.map((reply: CommentCardProps) => (
-            <CommentCard key={reply.id} {...reply} depth={depth + 1} />
-          ))}
-        </div>
-      )}
-
-      {/* Delete Modal */}
-      <DeleteCommentModal
-        isOpen={isDeleteModalOpen}
-        hasReplies={hasReplies}
-        onConfirm={handleDeleteConfirm}
-        onClose={() => setIsDeleteModalOpen(false)}
-      />
-    </div>
+      {/* Toast Notifications */}
+      {toasts.map(toast => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          duration={toast.duration}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
+    </>
   )
 }
 
