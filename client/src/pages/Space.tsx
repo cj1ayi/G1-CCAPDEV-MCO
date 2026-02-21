@@ -1,12 +1,15 @@
+import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useParams } from 'react-router-dom'
-import { PostCard } from '@/features/posts/components'
+import { PostCard, DeletePostModal } from '@/features/posts/components'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { useSpacePage } from '@/features/spaces/hooks/useSpacePage'
 import { DefaultLeftSidebar, DefaultRightSidebar } from '@/components/layout'
-import { EmptyState, ErrorState, FeedSkeleton, SpaceHeaderSkeleton } from '@/components/shared'
+import { EmptyState, ErrorState, FeedSkeleton } from '@/components/shared'
 import { FileText } from 'lucide-react'
+import { postService } from '@/features/posts/services'
+import { Post } from '@/features/posts/types'
 
 import { 
   SpaceHeader,
@@ -26,12 +29,26 @@ export default function Space() {
     handleCreatePost, 
     handleVote,
     navigate,
-    isLoading,
-    isLoadingPosts
+    isLoading
   } = useSpacePage(name)
 
+  // Delete modal state
+  const [deleteModalPost, setDeleteModalPost] = useState<Post | null>(null)
 
-  // Initial loading - show full skeleton
+  const handleDeletePost = async () => {
+    if (!deleteModalPost) return
+
+    try {
+      await postService.deletePost(deleteModalPost.id)
+      setDeleteModalPost(null)
+      // Optionally refresh the page to show updated list
+      window.location.reload()
+    } catch (error) {
+      console.error('Failed to delete post:', error)
+      throw error // Let modal handle error
+    }
+  }
+
   if (isLoading) {
     return (
       <MainLayout
@@ -39,14 +56,11 @@ export default function Space() {
         leftSidebar={<DefaultLeftSidebar/>}
         rightSidebar={<DefaultRightSidebar/>}
       >
-        <SpaceHeaderSkeleton />
-        <div className="h-4" />
         <FeedSkeleton count={5} />
       </MainLayout>
     )
   }
 
-  // Space not found
   if (!space) {
     return (
    <MainLayout
@@ -74,7 +88,7 @@ export default function Space() {
         <DefaultRightSidebar/>
       }
     >
-      {/* Header Section - Always visible */}
+      {/* 2. Header Section */}
       <SpaceHeader 
         space={space} 
         isJoined={isJoined} 
@@ -82,14 +96,23 @@ export default function Space() {
         postCount={posts.length} 
       />
 
-      {/* Feed Controls */}
+      {/* 3. Global Action Trigger */}
+      <Button
+        variant="outline"
+        fullWidth
+        leftIcon={<Plus className="size-4" />}
+        onClick={handleCreatePost}
+        className="justify-start mb-6"
+      >
+        Create a post in r/{space.name}
+      </Button>
+
+      {/* 4. Feed Controls */}
       <SpaceSortBar currentSort={sortBy} onSortChange={setSortBy} />
 
-      {/* Posts Feed - Show skeleton when filtering */}
+      {/* 5. Posts Feed */}
       <div className="space-y-4 mt-6">
-        {isLoadingPosts ? (
-          <FeedSkeleton count={5} />
-        ) : posts.length === 0 ? (
+        {posts.length === 0 ? (
           <EmptyState
             icon={<FileText className="h-16 w-16"/>}
             title="No posts yet"
@@ -107,13 +130,22 @@ export default function Space() {
               onUpvote={() => handleVote(post.id, 'up')}
               onDownvote={() => handleVote(post.id, 'down')}
               onClick={() => navigate(`/post/${post.id}`)}
-              onEdit={() => navigate(`/post/${post.id}/edit`)}
-              onDelete={() => console.log('Delete post:', post.id)}
+              onEdit={post.isOwner ? () => navigate(`/post/${post.id}/edit`) : undefined}
+              onDelete={post.isOwner ? () => setDeleteModalPost(post) : undefined}
             />
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalPost && (
+        <DeletePostModal
+          isOpen={!!deleteModalPost}
+          postTitle={deleteModalPost.title}
+          onConfirm={handleDeletePost}
+          onClose={() => setDeleteModalPost(null)}
+        />
+      )}
     </MainLayout>
   )
 }
-

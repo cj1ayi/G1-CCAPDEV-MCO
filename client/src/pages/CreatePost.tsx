@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, X } from 'lucide-react'
 import { postService } from '@/features/posts/services'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components'
-import { mockSpaces as SPACES }  from '@/lib/mockData'
-import { YourSpacesWidget } from '@/features/spaces/components'
+import { DefaultLeftSidebar } from '@/components/layout'
 import { cn } from '@/lib/utils'
 
 import { 
@@ -13,7 +11,6 @@ import {
   Button, 
   Input, 
   Textarea, 
-  Select, 
   Badge 
 } from '@/components/ui'
 
@@ -106,13 +103,7 @@ export default function CreatePostPage() {
   return (
     <MainLayout
       maxWidth="max-w-6xl"
-      leftSidebar={
-        <div className="space-y-6">
-          <SidebarNav />
-          <div className="h-px bg-gray-200 dark:bg-gray-800" />
-          <YourSpacesWidget />
-        </div>
-      }
+      leftSidebar={<DefaultLeftSidebar/>}
  
     >
       <div className="w-full">

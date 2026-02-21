@@ -1,16 +1,17 @@
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components'
 import { SpaceForm } from '@/features/spaces/components'
 import { useCreateSpace } from '@/features/spaces/hooks/useCreateSpace'
+import { DefaultLeftSidebar } from '@/components/layout'
 import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
 const CreateSpace = () => {
   const { handleCreate, isSubmitting, onCancel } = useCreateSpace()
 
   return (
     <MainLayout
       maxWidth="max-w-3xl"
-      leftSidebar={<SidebarNav />}
+      leftSidebar={<DefaultLeftSidebar/>}
     >
       <div className="space-y-6">
         <button 

@@ -14,6 +14,7 @@ import {
   Textarea, 
   Badge 
 } from '@/components/ui'
+import { DefaultLeftSidebar } from '@/components/layout'
 
 export default function EditPostPage() {
   const { id } = useParams<{ id: string }>()
@@ -150,12 +151,7 @@ export default function EditPostPage() {
   return (
     <MainLayout
       maxWidth="max-w-6xl"
-      leftSidebar={
-        <div className="flex flex-col gap-6">
-          <SidebarNav />
-          <div className="h-px bg-gray-200 dark:bg-gray-800" />
-        </div>
-      }
+      leftSidebar={<DefaultLeftSidebar/>}
     >
       <div className="w-full">
         <Card className="mb-6">
