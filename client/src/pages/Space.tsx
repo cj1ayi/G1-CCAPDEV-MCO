@@ -5,7 +5,7 @@ import { PostCard } from '@/features/posts/components'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { useSpacePage } from '@/features/spaces/hooks/useSpacePage'
 import { DefaultLeftSidebar, DefaultRightSidebar } from '@/components/layout'
-import { EmptyState, ErrorState, LoadingSpinner } from '@/components/shared'
+import { EmptyState, ErrorState, FeedSkeleton, SpaceHeaderSkeleton } from '@/components/shared'
 import { FileText } from 'lucide-react'
 
 import { 
@@ -26,23 +26,27 @@ export default function Space() {
     handleCreatePost, 
     handleVote,
     navigate,
-    isLoading
+    isLoading,
+    isLoadingPosts
   } = useSpacePage(name)
 
 
+  // Initial loading - show full skeleton
   if (isLoading) {
     return (
       <MainLayout
-        maxWidth="max-w-full"
-        leftSidebar={
-          <DefaultLeftSidebar/>
-        }
+        maxWidth="max-w-6xl"
+        leftSidebar={<DefaultLeftSidebar/>}
+        rightSidebar={<DefaultRightSidebar/>}
       >
-        <LoadingSpinner text="Loading space..." />
+        <SpaceHeaderSkeleton />
+        <div className="h-4" />
+        <FeedSkeleton count={5} />
       </MainLayout>
     )
   }
 
+  // Space not found
   if (!space) {
     return (
    <MainLayout
@@ -70,7 +74,7 @@ export default function Space() {
         <DefaultRightSidebar/>
       }
     >
-      {/* 2. Header Section */}
+      {/* Header Section - Always visible */}
       <SpaceHeader 
         space={space} 
         isJoined={isJoined} 
@@ -78,23 +82,14 @@ export default function Space() {
         postCount={posts.length} 
       />
 
-      {/* 3. Global Action Trigger */}
-      <Button
-        variant="outline"
-        fullWidth
-        leftIcon={<Plus className="size-4" />}
-        onClick={handleCreatePost}
-        className="justify-start mb-6"
-      >
-        Create a post in r/{space.name}
-      </Button>
-
-      {/* 4. Feed Controls */}
+      {/* Feed Controls */}
       <SpaceSortBar currentSort={sortBy} onSortChange={setSortBy} />
 
-      {/* 5. Posts Feed */}
+      {/* Posts Feed - Show skeleton when filtering */}
       <div className="space-y-4 mt-6">
-        {posts.length === 0 ? (
+        {isLoadingPosts ? (
+          <FeedSkeleton count={5} />
+        ) : posts.length === 0 ? (
           <EmptyState
             icon={<FileText className="h-16 w-16"/>}
             title="No posts yet"
@@ -121,3 +116,4 @@ export default function Space() {
     </MainLayout>
   )
 }
+

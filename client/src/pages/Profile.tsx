@@ -4,7 +4,7 @@ import { YourSpacesWidget } from '@/features/spaces/components'
 import { useProfileView } from '@/features/profile/hooks/useProfileView'
 import { userService } from '@/features/profile/services/userService'
 import { useEffect, useState } from 'react'
-import { LoadingSpinner, ErrorState } from '@/components/shared'
+import { ErrorState, ProfileHeaderSkeleton, FeedSkeleton } from '@/components/shared'
 
 import { 
   ProfileHeader,
@@ -25,8 +25,19 @@ const Profile = () => {
 
   if (isLoading) {
     return (
-      <MainLayout>
-        <LoadingSpinner text="Loading profile..."/>
+      <MainLayout
+        maxWidth="max-w-full"
+        leftSidebar={
+          <div className="flex flex-col gap-6 px-4">
+            <SidebarNav />
+            <div className="h-px bg-gray-200 dark:bg-gray-800" />
+            <YourSpacesWidget />
+          </div>
+        }
+      >
+        <ProfileHeaderSkeleton />
+        <div className="h-6" />
+        <FeedSkeleton count={3} />
       </MainLayout>
     )
   }

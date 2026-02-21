@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { spaceService } from '../services/spaceService'
 import { Space } from '../types'
+import { useLoadingBar } from '@/hooks'
 
 export const useSpaces = () => {
   const navigate = useNavigate()
@@ -12,6 +13,7 @@ export const useSpaces = () => {
   const [sortBy, setSortBy] = useState('A-Z')
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const { startLoading, stopLoading } = useLoadingBar()
 
   const loadSpaces = useCallback(async (pageNum: number) => {
     const { data, hasMore } = await spaceService.getSpaces(pageNum)
@@ -20,7 +22,12 @@ export const useSpaces = () => {
   }, [])
 
   useEffect(() => {
-    loadSpaces(1).then(() => setIsLoading(false))
+    startLoading()
+    loadSpaces(1).then(() => {
+      setIsLoading(false)
+      stopLoading()
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadSpaces])
 
   const loadMore = async () => {

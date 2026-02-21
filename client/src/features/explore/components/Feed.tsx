@@ -1,23 +1,35 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PostCard } from '@/features/posts/components'
+import { FeedSkeleton } from '@/components/shared'
 import { postService } from '@/features/posts/services'
 import { commentService } from '@/features/comments/services'
 import { getTotalCommentCount } from '@/features/comments/utils/comment-utils'
 import { Post } from '@/features/posts/types'
+import { useLoadingBar } from '@/hooks'
 
 export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
   const navigate = useNavigate()
   const [posts, setPosts] = useState<Post[]>([])
   const [votes, setVotes] = useState<Record<string, 'up' | 'down' | null>>({})
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const { startLoading, stopLoading } = useLoadingBar()
 
   useEffect(() => {
     const loadPosts = async () => {
+      startLoading()
+      setIsInitialLoad(true)
+      setPosts([]) // Clear old posts immediately for clean transition
+      
       const sortedPosts = await postService.getSortedPosts(sortBy)
       setPosts(sortedPosts)
+      
+      setIsInitialLoad(false)
+      stopLoading()
     }
     loadPosts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortBy]) 
 
   useEffect(() => {
@@ -70,6 +82,11 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
     }
 
     return { displayUpvotes, displayDownvotes }
+  }
+
+  // Show skeleton on initial load
+  if (isInitialLoad) {
+    return <FeedSkeleton count={5} />
   }
 
   return (

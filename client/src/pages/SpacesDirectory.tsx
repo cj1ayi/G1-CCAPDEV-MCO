@@ -4,6 +4,7 @@ import { Button } from '@/components/ui'
 import { useSpaces } from '@/features/spaces/hooks'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
+import { SpaceCardsSkeleton } from '@/components/shared'
 
 import {
   YourSpacesWidget,
@@ -50,9 +51,7 @@ const SpacesDirectory = () => {
         />
 
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <RotateCw className="animate-spin text-primary size-10" />
-          </div>
+          <SpaceCardsSkeleton count={9} />
         ) : (
           <div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"

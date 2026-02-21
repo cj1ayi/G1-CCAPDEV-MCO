@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { usePostDetailView } from '@/features/posts/hooks/usePostDetailView';
 import { SidebarNav } from '@/features/navigation/components';
 import { YourSpacesWidget } from '@/features/spaces/components';
-import { LoadingSpinner, ErrorState } from '@/components/shared';
+import { ErrorState, PostDetailSkeleton, CommentsSkeleton } from '@/components/shared';
 
 import { 
   PostDetailHeader, 
@@ -30,8 +30,18 @@ export default function PostDetail() {
 
   if (isLoading) {
     return (
-      <MainLayout>
-        <LoadingSpinner text="Loading post..."/>
+      <MainLayout
+        maxWidth="max-w-6xl"
+        leftSidebar={
+          <div className="space-y-6">
+            <SidebarNav />
+            <div className="h-px bg-gray-200 dark:bg-gray-800" />
+            <YourSpacesWidget />
+          </div>
+        }
+      >
+        <PostDetailSkeleton />
+        <CommentsSkeleton count={3} />
       </MainLayout>
     );
   }
@@ -83,7 +93,7 @@ export default function PostDetail() {
         </div>
 
         {comments.isLoading ? (
-          <LoadingSpinner size="sm" text="Loading comments..."/>
+          <CommentsSkeleton count={5} />
        ) : comments.error ? (
           <ErrorState
             title="Failed to load comments"

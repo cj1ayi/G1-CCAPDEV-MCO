@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { commentService } from "@/features/comments/services";
+import { LoadingBar } from '@/components/shared'
+import { useLoadingBar } from '@/hooks'
 
 import {
   Home,
@@ -21,6 +23,8 @@ import {
 
 const App = () => {
   const hasSeeded = localStorage.getItem("comments_seeded");
+  const { isLoading } = useLoadingBar();
+  
   if (!hasSeeded) {
     commentService.resetToMockData().then(() => {
       localStorage.setItem("comments_seeded", "true");
@@ -30,6 +34,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
+      <LoadingBar isLoading={isLoading} />
       <AuthProvider>
         <Routes>
           {/* Home */}

@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui'
-import { Flame, Clock, TrendingUp } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Dropdown, DropdownItem } from '@/components/ui'
+import { Flame, Clock, TrendingUp, ChevronDown } from 'lucide-react'
 import { SortOption } from '../services/spaceService'
 
 interface SpaceSortBarProps {
@@ -21,27 +20,39 @@ const SORT_OPTIONS: Array<{
 
 export const SpaceSortBar = (
   { currentSort, onSortChange }: SpaceSortBarProps) => {
+  
+  const currentOption = SORT_OPTIONS.find(opt => opt.value === currentSort)
+  const CurrentIcon = currentOption?.icon || Flame
+
   return (
-    <div className={cn(
-      "flex items-center gap-2 pb-4 border-b border-gray-200",
-      "dark:border-gray-800 overflow-x-auto",
-      )}
-    >
-      {SORT_OPTIONS.map(({ value, label, icon: Icon }) => (
-        <Button
-          key={value}
-          variant={currentSort === value ? 'primary' : 'ghost'}
-          size="sm"
-          onClick={() => onSortChange(value)}
-          leftIcon={<Icon className="h-4 w-4" />}
-          className={cn(
-            'whitespace-nowrap',
-            currentSort === value && 'font-bold'
-          )}
-        >
-          {label}
-        </Button>
-      ))}
+    <div className="pb-4 border-b border-gray-200 dark:border-gray-800">
+      <Dropdown
+        align="left"
+        trigger={
+          <button
+            className="flex items-center gap-2 px-4 py-2 rounded-lg
+              bg-surface-light dark:bg-surface-dark
+              border border-gray-200 dark:border-gray-700
+              hover:border-primary dark:hover:border-primary
+              text-sm font-medium transition-colors"
+          >
+            <CurrentIcon className="size-4" />
+            {currentOption?.label || 'Sort'}
+            <ChevronDown className="size-4" />
+          </button>
+        }
+      >
+        {SORT_OPTIONS.map(({ value, label, icon: Icon }) => (
+          <DropdownItem
+            key={value}
+            icon={<Icon className="size-4" />}
+            onClick={() => onSortChange(value)}
+            className={currentSort === value ? 'bg-gray-100 dark:bg-gray-800' : ''}
+          >
+            {label}
+          </DropdownItem>
+        ))}
+      </Dropdown>
     </div>
   )
 }
