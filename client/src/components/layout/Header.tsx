@@ -12,6 +12,7 @@ interface HeaderProps {
     name: string
     avatarUrl?: string
     id: number
+    username?: string  // Add username field
   }
   onSearch?: (query: string) => void
   onCreatePost?: () => void
@@ -19,20 +20,20 @@ interface HeaderProps {
   messageCount?: number
   isMobileMenuOpen?: boolean
   onToggleMobileMenu?: () => void
-
+  
   // Desktop sidebar collapse
   isDesktopSidebarCollapsed?: boolean
   onToggleDesktopSidebar?: () => void
-
+  
   // Dark mode
   isDark?: boolean
   onToggleDarkMode?: () => void
 }
 
-export const Header = ({
+export const Header = ({ 
   variant = 'default',
-  user,
-  onSearch,
+  user, 
+  onSearch, 
   onCreatePost,
   notifCount = 0,
   messageCount = 0,
@@ -165,19 +166,19 @@ export const Header = ({
             {/* Create Post Button - Only show on non-landing pages */}
             {variant !== 'landing' && (
               <>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleCreatePost}
-                  leftIcon={<Plus className="h-4 w-4" />}
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  onClick={handleCreatePost} 
+                  leftIcon={<Plus className="h-4 w-4" />} 
                   className="hidden sm:inline-flex"
                 >
                   Create
                 </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleCreatePost}
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  onClick={handleCreatePost} 
                   className="sm:hidden !px-2"
                 >
                   <Plus className="h-4 w-4" />
@@ -211,13 +212,13 @@ export const Header = ({
 
             {/* User Avatar - Only show on non-landing pages */}
             {variant !== 'landing' && (
-              <Link to={`/profile/${user.id}`} className="ml-1">
-                <Avatar
-                  src={user.avatarUrl}
-                  alt={user.name}
-                  fallback={user.name.charAt(0).toUpperCase()}
+              <Link to={`/profile/${user.username || user.name}`} className="ml-1">
+                <Avatar 
+                  src={user.avatarUrl} 
+                  alt={user.name} 
+                  fallback={user.name.charAt(0).toUpperCase()} 
                   size="sm"
-                  className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                  className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" 
                 />
               </Link>
             )}

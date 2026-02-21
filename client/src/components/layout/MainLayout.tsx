@@ -46,7 +46,12 @@ export const MainLayout = ({
       <Header
         variant={headerVariant}
         user={ headerVariant === 'landing' ? undefined: user
-        ? { name: user.name, id: Number(user.id), avatarUrl: user.avatar }
+        ? { 
+            name: user.name, 
+            id: Number(user.id), 
+            avatarUrl: user.avatar,
+            username: user.username 
+          }
         : undefined
         }
         isDark={isDark}
