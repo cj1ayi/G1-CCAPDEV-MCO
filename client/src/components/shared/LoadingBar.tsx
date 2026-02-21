@@ -62,7 +62,7 @@ export const LoadingBar = ({ isLoading, className }: LoadingBarProps) => {
         style={{
           width: `${progress}%`,
           height: '2px',
-          backgroundColor: '#007036',
+          backgroundColor: '#00944a',
           boxShadow: '0 0 8px rgba(0, 112, 54, 0.6)',
           transition: progress === 100 
             ? 'width 0.3s ease-out' 
