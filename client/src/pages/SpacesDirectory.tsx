@@ -9,7 +9,6 @@ import { SpaceCardsSkeleton } from '@/components/shared'
 import {
   YourSpacesWidget,
   SpaceCard,
-  CreateSpaceCard,
   SpaceDirectoryHeader,
   SpaceFilters
 } from '@/features/spaces/components'
@@ -42,7 +41,7 @@ const SpacesDirectory = () => {
       }
     >
       <div className="space-y-8">
-        <SpaceDirectoryHeader />
+        <SpaceDirectoryHeader onCreateSpace={goToCreateSpace} />
         <SpaceFilters
           activeFilter={filter}
           onFilterChange={setFilter}
@@ -64,7 +63,6 @@ const SpacesDirectory = () => {
                 onClick={goToSpace}
               />
             ))}
-            <CreateSpaceCard onClick={goToCreateSpace} />
           </div>
         )}
 

@@ -7,7 +7,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth'
 
 interface MainLayoutProps {
   headerVariant?: 'default' | 'landing'
-  leftSidebar?: ReactNode
+  leftSidebar?: ReactNode | ((props: { isCollapsed: boolean }) => ReactNode)
   rightSidebar?: ReactNode
   children: ReactNode
   maxWidth?: string
@@ -116,7 +116,8 @@ export const MainLayout = ({
         )}
       </div>
 
-      <Footer />
+      {/* Footer - Only on landing page */}
+      {headerVariant === 'landing' && <Footer />}
     </div>
   )
 }
