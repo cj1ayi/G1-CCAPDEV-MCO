@@ -120,26 +120,26 @@ export const Header = ({
       </div>
 
       {/* Center: Search */}
-      {variant !== 'landing' && (
-        <form onSubmit={handleSearch} className="relative flex-1 max-w-xl">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search AnimoForums..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={cn(
-              'w-full h-10 pl-10 pr-4 rounded-full',
-              'bg-gray-100 dark:bg-surface-input',
-              'border border-border-light dark:border-border-dark',
-              'focus:border-primary focus:bg-white dark:focus:bg-surface-dark',
-              'outline-none focus:ring-2 focus:ring-primary/20',
-              'text-sm text-gray-900 dark:text-white',
-              'placeholder:text-gray-500 dark:placeholder:text-gray-400',
-              'transition-all'
-            )}
-          />
-        </form>
+      { variant !== 'landing' && (
+              <form onSubmit={handleSearch} className="relative flex-1 max-w-xl">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search AnimoForums..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={cn(
+            'w-full h-10 pl-10 pr-4 rounded-full',
+            'bg-gray-100 dark:bg-surface-input',
+            'border border-border-light dark:border-border-dark',
+            'focus:border-primary focus:bg-white dark:focus:bg-surface-dark',
+            'outline-none focus:ring-2 focus:ring-primary/20',
+            'text-sm text-gray-900 dark:text-white',
+            'placeholder:text-gray-500 dark:placeholder:text-gray-400',
+            'transition-all'
+          )}
+        />
+      </form>
       )}
 
       {/* Right: Actions */}
@@ -148,9 +148,9 @@ export const Header = ({
         {onToggleDarkMode && (
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={onToggleDarkMode}
-            className="hover:bg-gray-100 dark:hover:bg-surface-darker h-10 w-10 p-0"
+            className="hover:bg-gray-100 dark:hover:bg-surface-darker"
           >
             {isDark ? (
               <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" />
@@ -160,84 +160,67 @@ export const Header = ({
           </Button>
         )}
 
-        {variant === 'landing' ? (
-          // Landing page: Always show login/signup
+        {variant !== 'landing' && user && (
+          <>
+            {/* Create Post Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCreatePost}
+              className="hover:bg-gray-100 dark:hover:bg-surface-darker"
+            >
+              <Plus className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+
+            {/* Notifications */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative hover:bg-gray-100 dark:hover:bg-surface-darker"
+            >
+              <Bell className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              {notifCount > 0 && (
+                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
+              )}
+            </Button>
+
+            {/* Messages */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative hover:bg-gray-100 dark:hover:bg-surface-darker"
+            >
+              <MessageSquare className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              {messageCount > 0 && (
+                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
+              )}
+            </Button>
+
+            {/* User Avatar/Menu */}
+            <Link to={`/profile/${user.id}`} className="ml-2">
+              <Avatar
+                src={user.avatarUrl}
+                alt={user.name}
+                fallback={user.name.charAt(0).toUpperCase()}
+                size="sm"
+                className="hover:ring-2 hover:ring-primary/50 transition-all"
+              />
+            </Link>
+          </>
+        )}
+
+        {variant !== 'landing' && !user && (
           <>
             <Link to="/login">
               <Button variant="ghost" size="sm">
-                Sign In
+                Log in
               </Button>
             </Link>
             <Link to="/signup">
               <Button variant="primary" size="sm">
-                Join Community
+                Sign up
               </Button>
             </Link>
-          </>
-        ) : (
-          // Default variant: Show user actions or login/signup
-          <>
-            {user ? (
-              <>
-                {/* Create Post Button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCreatePost}
-                  className="hover:bg-gray-100 dark:hover:bg-surface-darker h-10 w-10 p-0"
-                >
-                  <Plus className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                </Button>
-
-                {/* Notifications */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="relative hover:bg-gray-100 dark:hover:bg-surface-darker h-10 w-10 p-0"
-                >
-                  <Bell className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                  {notifCount > 0 && (
-                    <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
-                  )}
-                </Button>
-
-                {/* Messages */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="relative hover:bg-gray-100 dark:hover:bg-surface-darker h-10 w-10 p-0"
-                >
-                  <MessageSquare className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                  {messageCount > 0 && (
-                    <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
-                  )}
-                </Button>
-
-                {/* User Avatar/Menu */}
-                <Link to={`/profile/${user.id}`} className="ml-2">
-                  <Avatar
-                    src={user.avatarUrl}
-                    alt={user.name}
-                    fallback={user.name.charAt(0).toUpperCase()}
-                    size="sm"
-                    className="hover:ring-2 hover:ring-primary/50 transition-all"
-                  />
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/login">
-                  <Button variant="ghost" size="sm">
-                    Sign in
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button variant="primary" size="sm">
-                    Join Community
-                  </Button>
-                </Link>
-              </>
-            )}
           </>
         )}
       </div>
