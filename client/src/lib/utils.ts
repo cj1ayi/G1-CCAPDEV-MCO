@@ -4,6 +4,7 @@ import LegendsYuch from "@/assets/loginpics/legendsyuch.jpg";
 import SunriseHenry from "@/assets/loginpics/sunerisehenry.jpg";
 import SunriseMig from "@/assets/loginpics/sunrisestmig.jpg";
 import SundownHenry from "@/assets/loginpics/sundownhenry.jpg";
+import HenryChairs from '@/assets/loginpics/henrychairs.jpg';
 
 
 /*
@@ -281,7 +282,7 @@ export const isValidDLSUEmail = (email: string): boolean => {
 }
 
 export const BACKGROUND_IMAGES = [
-    {
+   {
       src: SunriseHenry,
       alt: "Sunrise Henry",
       weight: 300,
@@ -300,6 +301,11 @@ export const BACKGROUND_IMAGES = [
       src: LegendsYuch,
       alt: "Legends Yuch",
       weight: 1,
+    },
+    {
+      src: HenryChairs,
+      alt: "Sundown Henry Chairs",
+      weight: 300,
     },
 ];
 
