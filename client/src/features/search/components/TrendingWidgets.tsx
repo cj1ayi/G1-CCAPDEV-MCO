@@ -26,7 +26,6 @@ return (
 			<div className="flex flex-wrap gap-2">	
 				<Badge variant="outline">67</Badge>
 				<Badge variant="outline">Skibidi Meme</Badge>
-				<Badge variant="outline">Nate touches a minor!</Badge>
 				<Badge variant="outline">feet</Badge>
 				<Badge variant="outline">No tuition increase</Badge>
 				<Badge variant="outline">coding</Badge>
