@@ -20,8 +20,8 @@ export const ProfileNavbar = ({
   return (
     <section
       className={cn(
-        "bg-white dark:bg-gray-800",
-        "border-b border-border-light dark:border-border-dark"
+        "bg-white dark:bg-[#1a1a1b]",
+        "border-b border-border-light dark:border-gray-700"
       )}
     >
       <div

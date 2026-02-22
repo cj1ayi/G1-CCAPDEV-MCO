@@ -5,15 +5,14 @@ import {
   DropdownSeparator, 
   DropdownLabel
 } from '@/components/ui'
+
 import { 
-  Camera, 
   UserPlus, 
   Mail, 
   MoreHorizontal, 
-  User, 
   Settings, 
   LogOut, 
-  Edit 
+  Edit,
 } from 'lucide-react'
 
 import { motion } from "framer-motion"
@@ -38,18 +37,6 @@ export const ProfileHeader = ({
         )}
       >
         <span className="text-gray-500 dark:text-gray-400">Add a profile cover</span>
-        <button
-          className={cn(
-            'absolute bottom-4 right-4 px-3 py-1.5',
-            'text-xs font-semibold rounded-full',
-            'bg-black/60 text-white backdrop-blur',
-            'hover:bg-black/80 transition',
-            'flex items-center gap-2'
-          )}
-        >
-          <Camera className="w-4 h-4" />
-          Edit Cover
-        </button>
       </div>
 
       {/* BANNER */}
@@ -96,6 +83,7 @@ export const ProfileHeader = ({
           <div className="flex gap-3 md:mt-0">
             {isOwnProfile ? (
               <>
+                {/* OWN PROFILE: Edit button + Settings menu */}
                 <Button 
                   leftIcon={<Edit className="h-4 w-4" />} 
                   size="md"
@@ -129,6 +117,7 @@ export const ProfileHeader = ({
               </>
             ) : (
               <>
+                {/* OTHER USER'S PROFILE: Follow + Message buttons only, NO menu */}
                 <Button leftIcon={<UserPlus className="h-4 w-4" />} size="md">
                   Follow
                 </Button>
@@ -139,34 +128,7 @@ export const ProfileHeader = ({
                 >
                   Message
                 </Button>
-                <Dropdown
-                  align="right"
-                  trigger={
-                    <Button size="md" variant="ghost">
-                      <MoreHorizontal className="h-5 w-5" />
-                    </Button>
-                  }
-                >
-                  <DropdownLabel>Account</DropdownLabel>
-                  <DropdownItem 
-                    icon={<User className="h-4 w-4" />}
-                  >
-                    Profile
-                  </DropdownItem>
-                  <DropdownItem 
-                    icon={<Settings className="h-4 w-4" />}
-                  >
-                    Settings
-                  </DropdownItem>
-                  <DropdownSeparator />
-                  <DropdownItem 
-                    icon={<LogOut className="h-4 w-4" />} 
-                    destructive
-                  >
-                    Report
-                  </DropdownItem>
-                </Dropdown>
-              </>
+             </>
             )}
           </div>
         </div>
