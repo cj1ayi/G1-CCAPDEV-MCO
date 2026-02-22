@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, Plus, Bell, MessageSquare, Menu, X, Moon, Sun, PanelLeftClose, PanelLeft } from 'lucide-react'
 import { Button, Avatar } from '@/components/ui'
+import { AvatarDropdown } from '@/components/ui/AvatarDropdown'  // ADD THIS LINE
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -12,10 +13,11 @@ interface HeaderProps {
     name: string
     avatarUrl?: string
     id: number
-    username?: string  // Add username field
+    username?: string
   }
   onSearch?: (query: string) => void
   onCreatePost?: () => void
+  onLogout?: () => void
   notifCount?: number
   messageCount?: number
   isMobileMenuOpen?: boolean
@@ -35,6 +37,7 @@ export const Header = ({
   user, 
   onSearch, 
   onCreatePost,
+  onLogout,  // ADD THIS LINE
   notifCount = 0,
   messageCount = 0,
   isMobileMenuOpen = false,
@@ -210,17 +213,18 @@ export const Header = ({
               </Button>
             )}
 
-            {/* User Avatar - Only show on non-landing pages */}
+            {/* REPLACED: User Avatar with Dropdown */}
             {variant !== 'landing' && (
-              <Link to={`/profile/${user.username || user.name}`} className="ml-1">
-                <Avatar 
-                  src={user.avatarUrl} 
-                  alt={user.name} 
-                  fallback={user.name.charAt(0).toUpperCase()} 
-                  size="sm"
-                  className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" 
+              <div className="ml-1">
+                <AvatarDropdown
+                  user={{
+                    name: user.name,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl
+                  }}
+                  onLogout={onLogout}
                 />
-              </Link>
+              </div>
             )}
           </>
         ) : (
