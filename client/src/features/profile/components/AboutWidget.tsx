@@ -30,24 +30,24 @@ export const AboutWidget = ({ user }: { user: any }) => {
 				<CardContent>
 					<div className="text-gray-600 dark:text-gray-300">
 						<div className="py-4">
-							<div className="h-px w-full bg-gray-200" />
+							<div className="h-px w-full bg-gray-200 dark:bg-gray-700" />
 						</div>
-						<div className="flex items-center gap-2 text-sm text-gray-600">
+						<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
 							<Calendar className="w-4 h-4" />
 							<span>{user.joinedAt}</span>
 						</div>
 
-						<div className="flex items-center gap-2 text-sm text-gray-600">
+						<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
 							<GraduationCap className="w-4 h-4" />
 							<span>BS Computer Science</span>
 						</div>
 
-						<div className="flex items-center gap-2 text-sm text-gray-600">
+						<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
 							<MapPin className="w-4 h-4" />
 							<span>{user.location}</span>
 						</div>
 						<div className="py-4">
-							<div className="h-px w-full bg-gray-200" />
+							<div className="h-px w-full bg-gray-200 dark:bg-gray-700" />
 						</div>
 						<div className="flex items-center gap-3">
 						{user.twitter && (
@@ -57,7 +57,7 @@ export const AboutWidget = ({ user }: { user: any }) => {
 								rel="noopener noreferrer"
 								className={cn(
                   "text-gray-600 dark:text-gray-400",
-                  "hover:text-primary transition"
+                  "hover:text-primary dark:hover:text-primary transition"
                 )}
 							>
 								<Twitter className="w-4 h-4" />
@@ -71,7 +71,7 @@ export const AboutWidget = ({ user }: { user: any }) => {
 								rel="noopener noreferrer"
 								className={cn(
                   "text-gray-600 dark:text-gray-400",
-                  "hover:text-primary transition")}
+                  "hover:text-primary dark:hover:text-primary transition")}
 							>
 								<Github className="w-4 h-4" />
 							</a>
@@ -84,7 +84,7 @@ export const AboutWidget = ({ user }: { user: any }) => {
 								rel="noopener noreferrer"
 								className={cn(
                   "text-gray-600 dark:text-gray-400",
-                  "hover:text-primary transition")}
+                  "hover:text-primary dark:hover:text-primary transition")}
 							>
 								<Linkedin className="w-4 h-4" />
 							</a>
