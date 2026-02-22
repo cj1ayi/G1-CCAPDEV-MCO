@@ -50,7 +50,7 @@ export const PostDetailContent = ({
               )}
               onClick={(e) => {
                   e.stopPropagation()
-                  window.location.href = `/space/${post.space}`
+                  window.location.href = `/r/${post.space}`
                 }}
             >
               {post.spaceIcon && (
@@ -110,7 +110,7 @@ export const PostDetailContent = ({
                 <span className="hover:underline cursor-pointer font-semibold"
                   onClick={(e) => {
                   e.stopPropagation()
-                  window.location.href = `/profile/${post.author.id}`
+                  window.location.href = `/profile/${post.author.username}`
                   }}
                 >
                   u/{post.author.username}

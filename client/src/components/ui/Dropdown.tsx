@@ -93,8 +93,8 @@ export const DropdownItem = ({
   return (
     <button
       onClick={(e) => {
-        e.stopPropagation()
         onClick?.(e)
+        // Dropdown will close via parent onClick
       }}
       disabled={disabled}
       className={cn(

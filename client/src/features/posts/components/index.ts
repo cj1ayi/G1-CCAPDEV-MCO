@@ -1,4 +1,4 @@
-export { default as PostCard } from './PostCard'
+export { PostCard } from './PostCard'
 export { PostDetailHeader } from './PostDetailHeader'
 export { PostDetailBreadcrumbs } from './PostDetailBreadcrumbs'
 export { PostDetailContent } from './PostDetailContent'

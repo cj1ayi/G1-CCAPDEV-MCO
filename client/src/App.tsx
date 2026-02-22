@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { commentService } from "@/features/comments/services";
+import { LoadingBar } from "@/components/shared";
 
 import {
   Home,
@@ -21,6 +22,7 @@ import {
 
 const App = () => {
   const hasSeeded = localStorage.getItem("comments_seeded");
+  
   if (!hasSeeded) {
     commentService.resetToMockData().then(() => {
       localStorage.setItem("comments_seeded", "true");
@@ -31,6 +33,8 @@ const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <LoadingBar />
+        
         <Routes>
           {/* Home */}
           <Route path="/" element={<Home/>} />
@@ -44,9 +48,9 @@ const App = () => {
           <Route path="/post/:id/edit" element={<EditPost/>} />
           
           {/* User & Space Routes */}
-          <Route path="/profile/:id" element={<Profile/>} />
+          <Route path="/profile/:username" element={<Profile/>} />
           <Route path="/profile/edit" element={<EditProfile/>} />
-          <Route path="/space/:name" element={<Space/>} />
+          <Route path="/r/:name" element={<Space/>} />
           <Route path="/spaces" element={<SpacesDirectory />} />
           <Route path="/spaces/create" element={<CreateSpace />} />
  

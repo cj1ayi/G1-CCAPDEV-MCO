@@ -1,10 +1,5 @@
-import { 
-  CommentCard, 
-  CommentCardProps 
-} from '../components'
-
-import { CommentSectionProps } from '../types'
-
+import { CommentCard } from '../components'
+import type { CommentCardProps, CommentSectionProps } from '../types'
 import { cn } from '@/lib/utils'
 
 export const CommentSection = ({ 
@@ -32,7 +27,7 @@ export const CommentSection = ({
       </div>
 
       <div className="space-y-6">
-        {comments.map((comment) => (
+        {comments.map((comment: CommentCardProps) => (
           <CommentCard key={comment.id} {...comment} />
         ))}
       </div>
@@ -43,4 +38,3 @@ export const CommentSection = ({
     </>
   )
 }
-

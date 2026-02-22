@@ -4,22 +4,23 @@ import { ArrowLeft, X } from 'lucide-react'
 import { postService } from '@/features/posts/services'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
-import { mockSpaces as SPACES }  from '@/lib/mockData'
 import { YourSpacesWidget } from '@/features/spaces/components'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/useToast'
+import { Toast } from '@/components/ui/Toast'
 
 import { 
   Card, 
   Button, 
   Input, 
   Textarea, 
-  Select, 
   Badge 
 } from '@/components/ui'
 
 
 export default function CreatePostPage() {
   const navigate = useNavigate()
+  const { toasts, error: showError, warning: showWarning, removeToast } = useToast()
 
   const [formData, setFormData] = useState({
     title: '',
@@ -73,7 +74,7 @@ export default function CreatePostPage() {
       navigate(`/post/${newPost.id}`)
     } catch (error) {
       console.error('Failed to create post:', error)
-      alert('Failed to create post. Please try again.')
+      showError('Failed to create post. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -84,11 +85,11 @@ export default function CreatePostPage() {
 
     if (!tag) return
     if (formData.tags.length >= 5) {
-      alert('Maximum 5 tags allowed')
+      showWarning('Maximum 5 tags allowed')
       return
     }
     if (formData.tags.includes(tag)) {
-      alert('Tag already added')
+      showWarning('Tag already added')
       return
     }
 
@@ -277,6 +278,17 @@ export default function CreatePostPage() {
           </form>
         </Card>
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map(toast => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          duration={toast.duration}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </MainLayout>
   )
 }

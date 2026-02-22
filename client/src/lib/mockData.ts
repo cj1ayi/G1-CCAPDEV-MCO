@@ -4,61 +4,15 @@ import karl from '@/assets/pfp/karl.png'
 import callo from '@/assets/pfp/callo.png'
 import pring from '@/assets/pfp/pring.gif'
 import enzo from '@/assets/pfp/enzo.gif'
+
+// Import types from features (Single source of truth)
 import { CommentCardProps } from '@/features/comments/types'
+import { Post } from '@/features/posts/types'
+import { Space, SpaceRule } from '@/features/spaces/types'
+import { User } from '@/features/profile/types'
 
-export interface SpaceRule {
-  title: string
-  description: string
-}
-
-export interface Space {
-  id: string
-  name: string
-  displayName: string
-  description: string
-  memberCount: string
-  postCount: string
-  icon: string
-  iconType: 'text' | 'image' | 'emoji'
-  category: 'Official' | 'Batch' | 'Lifestyle' | 'Academic' | 'Interest'
-  colorScheme: string
-  isJoined?: boolean
-  isActive?: boolean
-  bannerUrl?: string
-  rules: SpaceRule[]
-  createdDate: string
-}
-
-export interface Post {
-  id: string
-  title: string
-  content: string
-  author: {
-    id: string
-    name: string
-    username: string
-    avatar: any
-  }
-  space: string
-  upvotes: number
-  downvotes: number
-  commentCount: number
-  createdAt: string
-  tags: string[]
-  isEdited?: boolean
-  isOwner?: boolean
-}
-
-export interface User {
-  id: string
-  name: string
-  username: string
-  email?: string
-  avatar: any
-  bio?: string
-  location?: string
-  joinedAt?: string
-}
+// Re-export types for convenience
+export type { Post, Space, SpaceRule, User }
 
 // Helper function to create URL-friendly slugs
 export const createSpaceSlug = (displayName: string): string => {

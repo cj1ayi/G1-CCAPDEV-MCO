@@ -7,7 +7,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth'
 
 interface MainLayoutProps {
   headerVariant?: 'default' | 'landing'
-  leftSidebar?: ReactNode
+  leftSidebar?: ReactNode | ((props: { isCollapsed: boolean }) => ReactNode)
   rightSidebar?: ReactNode
   children: ReactNode
   maxWidth?: string
@@ -21,8 +21,22 @@ export const MainLayout = ({
   maxWidth = "max-w-4xl"
 }: MainLayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(() => {
+    // Load from localStorage
+    const saved = localStorage.getItem('sidebar_collapsed')
+    return saved === 'true'
+  })
+  
   const { isDark, toggleDarkMode } = useDarkMode()
   const { user } = useAuth()
+
+  const toggleDesktopSidebar = () => {
+    setIsDesktopSidebarCollapsed(prev => {
+      const newValue = !prev
+      localStorage.setItem('sidebar_collapsed', String(newValue))
+      return newValue
+    })
+  }
 
   return (
     <div className={cn(
@@ -32,28 +46,41 @@ export const MainLayout = ({
       <Header
         variant={headerVariant}
         user={ headerVariant === 'landing' ? undefined: user
-        ? { name: user.name, id: Number(user.id), avatarUrl: user.avatar }
+        ? { 
+            name: user.name, 
+            id: Number(user.id), 
+            avatarUrl: user.avatar,
+            username: user.username 
+          }
         : undefined
         }
         isDark={isDark}
         onToggleDarkMode={toggleDarkMode}
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        // Pass desktop collapse state
+        isDesktopSidebarCollapsed={isDesktopSidebarCollapsed}
+        onToggleDesktopSidebar={toggleDesktopSidebar}
       />
 
       <div className="flex flex-1 w-full relative">
         {/* Left Sidebar Slot */}
         {leftSidebar && (
           <>
-            {/* Desktop Sidebar */}
-            <aside className={cn(
-              "hidden xl:block w-64 sticky top-16 h-[calc(100vh-4rem)]",
-              "overflow-y-auto border-r dark:border-gray-800",
-              "pt-4"
-            )}>
-              {leftSidebar}
-            </aside>
+            {/* Desktop Sidebar - Fully Closeable */}
+            {!isDesktopSidebarCollapsed && (
+              <aside className={cn(
+                "hidden xl:block w-64 sticky top-16 h-[calc(100vh-4rem)]",
+                "overflow-y-auto border-r dark:border-gray-800",
+                "pt-4"
+              )}>
+                {typeof leftSidebar === 'function' 
+                  ? leftSidebar({ isCollapsed: false })
+                  : leftSidebar
+                }
+              </aside>
+            )}
 
-            {/* Mobile Sidebar */}
+            {/* Mobile Sidebar - Full drawer */}
             {isMobileMenuOpen && (
               <>
                 {/* Backdrop */}
@@ -69,7 +96,10 @@ export const MainLayout = ({
                   "dark:border-gray-800 overflow-y-auto",
                   "pt-4"
                 )}>
-                  {leftSidebar}
+                  {typeof leftSidebar === 'function' 
+                    ? leftSidebar({ isCollapsed: false })
+                    : leftSidebar
+                  }
                 </aside>
               </>
             )}
@@ -91,7 +121,8 @@ export const MainLayout = ({
         )}
       </div>
 
-      <Footer />
+      {/* Footer - Only on landing page */}
+      {headerVariant === 'landing' && <Footer />}
     </div>
   )
 }

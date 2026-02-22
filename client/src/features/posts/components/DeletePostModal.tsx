@@ -10,7 +10,6 @@ import { DeletePostModalProps } from '../types'
 
 export const DeletePostModal = ({
   isOpen,
-  postTitle,
   onConfirm,
   onClose,
 }: DeletePostModalProps) => {
@@ -23,6 +22,7 @@ export const DeletePostModal = ({
 
     try {
       await onConfirm()
+      onClose()
     } catch (err) {
       setError('Failed to delete post. Please try again.')
       console.error(err)
@@ -35,8 +35,9 @@ export const DeletePostModal = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      size="sm"
     >
-      <div className="space-y-4">
+      <div className="p-6 space-y-4">
         {/* Warning Icon */}
         <div className="flex justify-center">
           <div
@@ -58,14 +59,10 @@ export const DeletePostModal = ({
               'text-gray-900 dark:text-white'
             )}
           >
-            Are you sure you want to delete this post?
+            Delete post?
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            "{postTitle}"
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            This action cannot be undone. All comments and votes will also be
-            removed.
+            This post will be permanently deleted. This action cannot be undone.
           </p>
         </div>
 
@@ -78,7 +75,9 @@ export const DeletePostModal = ({
               'rounded-lg p-3 text-center'
             )}
           >
-            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+            <p className="text-red-600 dark:text-red-400 text-sm">
+              {error}
+            </p>
           </div>
         )}
 
@@ -96,19 +95,10 @@ export const DeletePostModal = ({
             variant="danger"
             onClick={handleConfirm}
             disabled={isDeleting}
+            isLoading={isDeleting}
             className="flex-1"
           >
-            {isDeleting ? (
-              <span className="flex items-center gap-2">
-                <span className={cn(
-                  "material-symbols-outlined animate-spin text-[18px]")}>
-                  progress_activity
-                </span>
-                Deleting...
-              </span>
-            ) : (
-              'Delete Post'
-            )}
+            Delete
           </Button>
         </div>
       </div>

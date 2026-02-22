@@ -7,24 +7,30 @@ import { useParams } from 'react-router-dom'
 import { userService } from '../services'
 import { postService } from '@/features/posts/services'
 import { ProfileTab } from '../types'
+import { useLoadingBar } from '@/hooks'
 
 export const useProfileView = () => {
-  const { id } = useParams<{ id: string }>()
+  const { username } = useParams<{ username: string }>()
   
   const [user, setUser] = useState<any>(null)
   const [posts, setPosts] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<ProfileTab>('Overview')
+  const { startLoading, stopLoading } = useLoadingBar()
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!id) {
+      if (!username) {
         setIsLoading(false)
+        stopLoading()
         return
       }
 
+      startLoading()
+      setIsLoading(true)
+
       try {
-        const fetchedUser = await userService.getUserById(id)
+        const fetchedUser = await userService.getUserByUsername(username)
         if (fetchedUser) {
           setUser(fetchedUser)
           const allPosts = await postService.getAllPosts()
@@ -37,10 +43,12 @@ export const useProfileView = () => {
         console.error(err)
       } finally {
         setIsLoading(false)
+        stopLoading()
       }
     }
     fetchData()
-  }, [id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username])
 
   return {
     user,

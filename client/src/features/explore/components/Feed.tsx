@@ -1,24 +1,38 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PostCard } from '@/features/posts/components'
+import { PostCard, DeletePostModal } from '@/features/posts/components'
+import { FeedSkeleton } from '@/components/shared'
 import { postService } from '@/features/posts/services'
 import { commentService } from '@/features/comments/services'
 import { getTotalCommentCount } from '@/features/comments/utils/comment-utils'
 import { Post } from '@/features/posts/types'
+import { useLoadingBar } from '@/hooks'
 
 export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
   const navigate = useNavigate()
   const [posts, setPosts] = useState<Post[]>([])
   const [votes, setVotes] = useState<Record<string, 'up' | 'down' | null>>({})
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const { startLoading, stopLoading } = useLoadingBar()
+
+  // Delete modal state
+  const [deleteModalPost, setDeleteModalPost] = useState<Post | null>(null)
 
   useEffect(() => {
     const loadPosts = async () => {
+      startLoading()
+      setIsInitialLoad(true)
+      setPosts([]) // Clear old posts immediately for clean transition
+      
       const sortedPosts = await postService.getSortedPosts(sortBy)
       setPosts(sortedPosts)
+      
+      setIsInitialLoad(false)
+      stopLoading()
     }
     loadPosts()
-  }, [sortBy]) 
+  }, [sortBy, startLoading, stopLoading]) 
 
   useEffect(() => {
     // init votes for all posts
@@ -54,6 +68,20 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
     }))
   }
 
+  const handleDeletePost = async () => {
+    if (!deleteModalPost) return
+
+    try {
+      await postService.deletePost(deleteModalPost.id)
+      // Remove post from list
+      setPosts(prev => prev.filter(p => p.id !== deleteModalPost.id))
+      setDeleteModalPost(null)
+    } catch (error) {
+      console.error('Failed to delete post:', error)
+      throw error // Let modal handle error
+    }
+  }
+
   const getDisplayVotes = (
     postId: string,
     baseUpvotes: number,
@@ -72,54 +100,61 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
     return { displayUpvotes, displayDownvotes }
   }
 
+  // Show skeleton on initial load
+  if (isInitialLoad) {
+    return <FeedSkeleton count={5} />
+  }
+
   return (
-    <div className="space-y-4">
-      {posts.map((post) => {
-        const { displayUpvotes, displayDownvotes } = getDisplayVotes(
-          post.id,
-          post.upvotes,
-          post.downvotes
-        )
-        const voteState = votes[post.id]
-        
-        // Use real comment count from service, or fallback to mock data
-        const realCommentCount = commentCounts[post.id] ?? post.commentCount
+    <>
+      <div className="space-y-4">
+        {posts.map((post) => {
+          const { displayUpvotes, displayDownvotes } = getDisplayVotes(
+            post.id,
+            post.upvotes,
+            post.downvotes
+          )
+          const voteState = votes[post.id]
+          
+          // Use real comment count from service, or fallback to mock data
+          const realCommentCount = commentCounts[post.id] ?? post.commentCount
 
-        console.log(
-          `Rendering Post ${post.id}: base=${post.upvotes}, ` +
-          `display=${displayUpvotes}, voteState=${voteState}, ` +
-          `comments=${realCommentCount}`
-        )
+          return (
+            <PostCard
+              key={post.id}
+              {...post}
+              upvotes={displayUpvotes}
+              downvotes={displayDownvotes}
+              commentCount={realCommentCount}
+              isUpvoted={voteState === 'up'}
+              isDownvoted={voteState === 'down'}
+              onClick={() => navigate(`/post/${post.id}`)}
+              onUpvote={() => toggleVote(post.id, 'up')}
+              onDownvote={() => toggleVote(post.id, 'down')}
+              onEdit={
+                post.isOwner
+                  ? () => navigate(`/post/${post.id}/edit`)
+                  : undefined
+              }
+              onDelete={
+                post.isOwner
+                  ? () => setDeleteModalPost(post)
+                  : undefined
+              }
+            />
+          )
+        })}
+      </div>
 
-        return (
-          <PostCard
-            key={post.id}
-            {...post}
-            upvotes={displayUpvotes}
-            downvotes={displayDownvotes}
-            commentCount={realCommentCount}
-            isUpvoted={voteState === 'up'}
-            isDownvoted={voteState === 'down'}
-            onClick={() => navigate(`/post/${post.id}`)}
-            onUpvote={() => toggleVote(post.id, 'up')}
-            onDownvote={() => toggleVote(post.id, 'down')}
-            onEdit={
-              post.isOwner
-                ? () => alert(`Edit post ${post.id}`)
-                : undefined
-            }
-            onDelete={
-              post.isOwner
-                ? () => {
-                    if (confirm('Delete this post?')) {
-                      alert(`Post ${post.id} deleted!`)
-                    }
-                  }
-                : undefined
-            }
-          />
-        )
-      })}
-    </div>
+      {/* Delete Confirmation Modal */}
+      {deleteModalPost && (
+        <DeletePostModal
+          isOpen={!!deleteModalPost}
+          postTitle={deleteModalPost.title}
+          onConfirm={handleDeletePost}
+          onClose={() => setDeleteModalPost(null)}
+        />
+      )}
+    </>
   )
 }

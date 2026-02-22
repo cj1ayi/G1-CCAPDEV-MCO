@@ -1,3 +1,13 @@
+// Space Categories constant
+export const CATEGORIES: string[] = [
+  'Official',
+  'Batch',
+  'Lifestyle',
+  'Academic',
+  'Interest',
+]
+
+// Space Types
 export interface SpaceRule {
   title: string
   description: string
@@ -11,7 +21,7 @@ export interface Space {
   memberCount: string
   postCount: string
   icon: string
-  iconType: 'text' | 'image'
+  iconType: 'text' | 'image' | 'emoji'
   category: 'Official' | 'Batch' | 'Lifestyle' | 'Academic' | 'Interest'
   colorScheme: string
   isJoined?: boolean
@@ -21,21 +31,10 @@ export interface Space {
   createdDate: string
 }
 
-export interface SpaceFiltersProps {
-  activeFilter: string
-  onFilterChange: (filter: string) => void
-  currentSort: string
-  onSortChange: (sort: string) => void
-}
+// Sort Options
+export type SortOption = 'hot' | 'new' | 'top' | 'week' | 'month' | 'year'
 
-export const CATEGORIES = [
-  { value: 'Academic', label: 'Academic' },
-  { value: 'Official', label: 'Official' },
-  { value: 'Lifestyle', label: 'Lifestyle' },
-  { value: 'Interest', label: 'Interest' },
-  { value: 'Batch', label: 'Batch' },
-]
-
+// Component Props
 export interface SpaceHeaderProps {
   space: Space
   isJoined: boolean
@@ -43,6 +42,37 @@ export interface SpaceHeaderProps {
   postCount: number
 }
 
+export interface SpaceAboutWidgetProps {
+  space: Space
+  postCount: number
+}
 
+export interface SpaceSortBarProps {
+  currentSort: SortOption
+  onSortChange: (sort: SortOption) => void
+}
 
+export interface SpaceEmptyStateProps {
+  spaceName: string
+  onCreatePost: () => void
+}
 
+export interface SpaceCardProps extends Space {
+  onClick?: () => void
+  onJoinToggle?: () => void
+}
+
+export interface SpaceFiltersProps {
+  activeFilter: string
+  onFilterChange: (filter: string) => void
+  currentSort: string
+  onSortChange: (sort: string) => void
+}
+
+export interface CreateSpaceDto {
+  name: string
+  displayName: string
+  description: string
+  category: Space['category']
+  icon: string
+}

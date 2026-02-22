@@ -1,24 +1,24 @@
+import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useParams } from 'react-router-dom'
-import { PostCard } from '@/features/posts/components'
+import { PostCard, DeletePostModal } from '@/features/posts/components'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components'
 import { useSpacePage } from '@/features/spaces/hooks/useSpacePage'
+import { DefaultLeftSidebar, DefaultRightSidebar } from '@/components/layout'
+import { EmptyState, ErrorState, FeedSkeleton } from '@/components/shared'
+import { FileText } from 'lucide-react'
+import { postService } from '@/features/posts/services'
+import { Post } from '@/features/posts/types'
 
 import { 
   SpaceHeader,
-  SpaceAboutWidget,
-  RulesWidget,
-  YourSpacesWidget,
   SpaceSortBar,
-  SpaceEmptyState,
-  SpaceLoadingState
 } from '@/features/spaces/components'
 
 export default function Space() {
   const { name } = useParams<{ name: string }>()
-  
+
   const { 
     space, 
     posts, 
@@ -28,22 +28,52 @@ export default function Space() {
     toggleJoin, 
     handleCreatePost, 
     handleVote,
-    navigate 
+    navigate,
+    isLoading
   } = useSpacePage(name)
+
+  // Delete modal state
+  const [deleteModalPost, setDeleteModalPost] = useState<Post | null>(null)
+
+  const handleDeletePost = async () => {
+    if (!deleteModalPost) return
+
+    try {
+      await postService.deletePost(deleteModalPost.id)
+      setDeleteModalPost(null)
+      // Optionally refresh the page to show updated list
+      window.location.reload()
+    } catch (error) {
+      console.error('Failed to delete post:', error)
+      throw error // Let modal handle error
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <MainLayout
+        maxWidth="max-w-6xl"
+        leftSidebar={<DefaultLeftSidebar/>}
+        rightSidebar={<DefaultRightSidebar/>}
+      >
+        <FeedSkeleton count={5} />
+      </MainLayout>
+    )
+  }
 
   if (!space) {
     return (
    <MainLayout
       maxWidth="max-w-full"
       leftSidebar={
-        <div className="flex flex-col gap-6 px-4">
-          <SidebarNav />
-          <div className="h-px bg-gray-200 dark:bg-gray-800" />
-          <YourSpacesWidget />
-        </div>
+        <DefaultLeftSidebar/>
       }
     >
-      <SpaceLoadingState />
+      <ErrorState
+        title="Space Not Found"
+        message="This space does not exist."
+        onRetry={() => navigate('/spaces')}
+      />
     </MainLayout>
     )
   }
@@ -52,17 +82,10 @@ export default function Space() {
     <MainLayout
       maxWidth="max-w-6xl"
       leftSidebar={
-        <div className="flex flex-col gap-6">
-          <SidebarNav />
-          <div className="h-px bg-gray-200 dark:bg-gray-800" />
-          <YourSpacesWidget />
-        </div>
+        <DefaultLeftSidebar/>
       } 
       rightSidebar={
-        <div className="space-y-4">
-          <SpaceAboutWidget space={space} postCount={posts.length} />
-          <RulesWidget rules={space.rules} />
-        </div>
+        <DefaultRightSidebar/>
       }
     >
       {/* 2. Header Section */}
@@ -90,9 +113,14 @@ export default function Space() {
       {/* 5. Posts Feed */}
       <div className="space-y-4 mt-6">
         {posts.length === 0 ? (
-          <SpaceEmptyState 
-            spaceName={space.name} 
-            onCreatePost={handleCreatePost} 
+          <EmptyState
+            icon={<FileText className="h-16 w-16"/>}
+            title="No posts yet"
+            description={`Be the the first to post in r/${space.name}`}
+            action={{
+              label: 'Create Post',
+              onClick: handleCreatePost
+            }}
           />
         ) : (
           posts.map((post) => (
@@ -102,12 +130,22 @@ export default function Space() {
               onUpvote={() => handleVote(post.id, 'up')}
               onDownvote={() => handleVote(post.id, 'down')}
               onClick={() => navigate(`/post/${post.id}`)}
-              onEdit={() => navigate(`/post/${post.id}/edit`)}
-              onDelete={() => console.log('Delete post:', post.id)}
+              onEdit={post.isOwner ? () => navigate(`/post/${post.id}/edit`) : undefined}
+              onDelete={post.isOwner ? () => setDeleteModalPost(post) : undefined}
             />
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalPost && (
+        <DeletePostModal
+          isOpen={!!deleteModalPost}
+          postTitle={deleteModalPost.title}
+          onConfirm={handleDeletePost}
+          onClose={() => setDeleteModalPost(null)}
+        />
+      )}
     </MainLayout>
   )
 }

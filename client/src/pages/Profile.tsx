@@ -4,14 +4,13 @@ import { YourSpacesWidget } from '@/features/spaces/components'
 import { useProfileView } from '@/features/profile/hooks/useProfileView'
 import { userService } from '@/features/profile/services/userService'
 import { useEffect, useState } from 'react'
+import { ErrorState, ProfileHeaderSkeleton, FeedSkeleton } from '@/components/shared'
 
 import { 
   ProfileHeader,
   ProfileNavbar,
   ProfileSidebar,
   ProfileActivity,
-  ProfileLoadingState,
-  ProfileNotFound
 } from '@/features/profile/components'
 
 const Profile = () => {
@@ -24,8 +23,35 @@ const Profile = () => {
 
   const isOwnProfile = currentUser && user && currentUser.id === user.id
 
-  if (isLoading) return <ProfileLoadingState />
-  if (!user) return <ProfileNotFound />
+  if (isLoading) {
+    return (
+      <MainLayout
+        maxWidth="max-w-full"
+        leftSidebar={
+          <div className="flex flex-col gap-6 px-4">
+            <SidebarNav />
+            <div className="h-px bg-gray-200 dark:bg-gray-800" />
+            <YourSpacesWidget />
+          </div>
+        }
+      >
+        <ProfileHeaderSkeleton />
+        <div className="h-6" />
+        <FeedSkeleton count={3} />
+      </MainLayout>
+    )
+  }
+
+  if (!user) {
+    return (
+      <MainLayout>
+        <ErrorState
+          title="User not found"
+          message="This user does not exist or has been deleted."
+        />
+      </MainLayout>
+    )
+  }
 
   return (
     <MainLayout

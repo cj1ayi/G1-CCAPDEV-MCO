@@ -4,6 +4,7 @@ import { postService } from '../services'
 import { getPostById as getMockPost } from '@/lib/mockData'
 import { useVoting } from './useVoting'
 import { getCurrentUser } from '@/features/auth/services/authService'
+import { useLoadingBar } from '@/hooks'
 
 interface UsePostDetailOptions {
   postId: string | undefined
@@ -16,6 +17,7 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
   const [post, setPost] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const { startLoading, stopLoading } = useLoadingBar()
 
   const { voteState, toggleVote, getDisplayVotes } = useVoting()
 
@@ -23,8 +25,12 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
     const fetchPost = async () => {
       if (!postId) {
         setIsLoading(false)
+        stopLoading()
         return
       }
+
+      startLoading()
+      setIsLoading(true)
 
       try {
         let fetchedPost = await postService.getPostById(postId)
@@ -46,10 +52,12 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
         console.error('Error fetching post:', error)
       } finally {
         setIsLoading(false)
+        stopLoading()
       }
     }
 
     fetchPost()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId])
 
   const displayVotes = post ? getDisplayVotes(
@@ -70,7 +78,7 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
   }
 
   const handleSpaceClick = () => {
-    if (post?.space) navigate(`/space/${post.space}`)
+    if (post?.space) navigate(`/r/${post.space}`)
   }
 
   return {

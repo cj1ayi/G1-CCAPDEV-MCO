@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { spaceService } from '../services/spaceService'
-import { type Space, type Post } from '@/lib/mockData'
-
-export type SortType = 'hot' | 'new' | 'top'
+import { SortOption } from '../types'
+import { Space } from '@/features/spaces/types'
+import { Post } from '@/features/posts/types'
+import { useLoadingBar } from '@/hooks'
 
 export const useSpacePage = (spaceName?: string) => {
   const navigate = useNavigate()
   const [space, setSpace] = useState<Space | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
-  const [sortBy, setSortBy] = useState<SortType>('hot')
+  const [sortBy, setSortBy] = useState<SortOption>('hot')
   const [isJoined, setIsJoined] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false)
+  const { startLoading, stopLoading } = useLoadingBar()
 
+  // Load space data (only on initial mount or space name change)
   useEffect(() => {
     const loadSpace = async () => {
       console.log('useSpacePage - spaceName:', spaceName)
@@ -21,40 +25,70 @@ export const useSpacePage = (spaceName?: string) => {
         console.log('No spaceName provided')
         setSpace(null)
         setIsLoading(false)
+        stopLoading()
         return
       }
 
+      startLoading()
       setIsLoading(true)
 
       try {
-        // FIX: Use spaceService instead of mockData
         const foundSpace = await spaceService.getSpaceByName(spaceName)
         console.log('Found space:', foundSpace)
 
         if (foundSpace) {
           setSpace(foundSpace)
           setIsJoined(foundSpace.isJoined || false)
-
-          const spacePosts = await spaceService
-            .getSpacePosts(spaceName, sortBy as any)
-          console.log('Found posts for space:', spacePosts)
-          setPosts(spacePosts)
         } else {
           console.log('Space not found:', spaceName)
           setSpace(null)
-          setPosts([])
         }
       } catch (error) {
         console.error('Error loading space:', error)
         setSpace(null)
-        setPosts([])
       } finally {
         setIsLoading(false)
+        stopLoading()
       }
     }
 
     loadSpace()
-  }, [spaceName, sortBy])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spaceName])
+
+  // Load posts (on initial mount, space name change, or sort change)
+  useEffect(() => {
+    const loadPosts = async () => {
+      if (!spaceName) {
+        setPosts([])
+        return
+      }
+
+      // Only show loading bar for sort changes, not initial load
+      if (!isLoading) {
+        startLoading()
+        setIsLoadingPosts(true)
+        setPosts([]) // Clear posts for smooth transition
+      }
+
+      try {
+        const spacePosts = await spaceService.getSpacePosts(spaceName, sortBy as any)
+        console.log('Found posts for space:', spacePosts)
+        setPosts(spacePosts)
+      } catch (error) {
+        console.error('Error loading posts:', error)
+        setPosts([])
+      } finally {
+        if (!isLoading) {
+          setIsLoadingPosts(false)
+          stopLoading()
+        }
+      }
+    }
+
+    loadPosts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spaceName, sortBy, isLoading])
 
   const toggleJoin = async () => {
     if (!space) return
@@ -98,6 +132,7 @@ export const useSpacePage = (spaceName?: string) => {
     setSortBy,
     isJoined,
     isLoading,
+    isLoadingPosts,
     toggleJoin,
     handleCreatePost,
     handleVote,

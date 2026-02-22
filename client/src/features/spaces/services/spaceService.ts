@@ -1,8 +1,9 @@
-import { getAllSpaces, Space } from '@/lib/mockData'
+import { getAllSpaces } from '@/lib/mockData'
 import { Post } from '@/features/posts/types'
 import { postService } from '@/features/posts/services/postService'
+import { Space, SortOption } from '../types'
+export type { SortOption }
 
-export type SortOption = 'hot' | 'new' | 'week' | 'month' | 'year'
 
 export interface CreateSpaceDto {
   name: string

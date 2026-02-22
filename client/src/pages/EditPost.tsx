@@ -4,7 +4,10 @@ import { ArrowLeft, X } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import { postService } from '@/features/posts/services'
+import { LoadingSpinner, ErrorState } from '@/components/shared'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/useToast'
+import { Toast } from '@/components/ui/Toast'
 
 import { 
   Card, 
@@ -17,6 +20,7 @@ import {
 export default function EditPostPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { toasts, error: showError, warning: showWarning, removeToast } = useToast()
   
   const [formData, setFormData] = useState({
     title: '',
@@ -101,7 +105,7 @@ export default function EditPostPage() {
       
       navigate(`/post/${id}`)
     } catch (error) {
-      alert('Failed to update post. Please try again.')
+      showError('Failed to update post. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -111,7 +115,7 @@ export default function EditPostPage() {
     const validation = postService.validateTag(tagInput, formData.tags)
     
     if (!validation.valid) {
-      alert(validation.error)
+      showWarning(validation.error || 'Invalid tag')
       return
     }
     
@@ -130,18 +134,7 @@ export default function EditPostPage() {
   if (isLoading) {
     return (
       <MainLayout maxWidth="max-w-6xl">
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <span className={cn(
-              "material-symbols-outlined text-[48px]",
-              "animate-spin text-primary")}>
-              progress_activity
-            </span>
-            <p className="text-gray-500 dark:text-gray-400 mt-4">
-              Loading post...
-            </p>
-          </div>
-        </div>
+        <LoadingSpinner text="Loading post..." />
       </MainLayout>
     )
   }
@@ -149,17 +142,10 @@ export default function EditPostPage() {
   if (error) {
     return (
       <MainLayout maxWidth="max-w-6xl">
-        <div className="flex items-center justify-center py-20">
-          <Card className="text-center p-8">
-            <h1 className={cn(
-              "text-2xl font-bold text-gray-900 dark:text-white mb-4")}>
-              {error}
-            </h1>
-            <Button variant="primary" onClick={() => navigate(-1)}>
-              Go Back
-            </Button>
-          </Card>
-        </div>
+        <ErrorState
+          title={error}
+          onRetry={() => navigate(-1)}
+        />
       </MainLayout>
     )
   }
@@ -325,6 +311,17 @@ export default function EditPostPage() {
           </form>
         </Card>
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map(toast => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          duration={toast.duration}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </MainLayout>
   )
 }
