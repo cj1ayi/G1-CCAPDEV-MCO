@@ -16,7 +16,7 @@ export const TrendingCarousel = () => {
     Autoplay({ delay: 3000, stopOnInteraction: false })
   ])
 
-  const { posts, handlePostClick, getCategoryColor } = useTrendingPosts(5)
+  const { posts, getCategoryColor } = useTrendingPosts(5)
   const thumbnails = useThumbnails(posts)
 
   return (

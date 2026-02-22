@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom'
 import { 
   Dropdown, 
   DropdownItem, 
   DropdownSeparator,
   Avatar 
 } from '@/components/ui'
+
 import { 
   User, 
   Camera, 
@@ -13,7 +13,10 @@ import {
   Moon,
   Sun
 } from 'lucide-react'
+
 import { useDarkMode } from '@/hooks/useDarkMode'
+import { useNavigate } from 'react-router-dom'
+import { cn } from '@/lib/utils'
 
 interface AvatarDropdownProps {
   user: {
@@ -24,7 +27,10 @@ interface AvatarDropdownProps {
   onLogout?: () => void
 }
 
-export const AvatarDropdown = ({ user, onLogout }: AvatarDropdownProps) => {
+export const AvatarDropdown = ({ 
+  user, 
+  onLogout 
+}: AvatarDropdownProps) => {
   const navigate = useNavigate()
   const { isDark, toggleDarkMode } = useDarkMode()
 
@@ -37,12 +43,17 @@ export const AvatarDropdown = ({ user, onLogout }: AvatarDropdownProps) => {
           alt={user.name} 
           fallback={user.name.charAt(0).toUpperCase()} 
           size="sm"
-          className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" 
+          className={cn(
+            "cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+          )} 
         />
       }
     >
       {/* Profile Section */}
-      <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+      <div className={cn(
+        "px-3 py-2 border-b border-gray-200 dark:border-gray-700"
+        )}
+      >
         <DropdownItem
           icon={<User className="h-4 w-4" />}
           onClick={() => navigate(`/profile/${user.username || user.name}`)}
@@ -65,7 +76,10 @@ export const AvatarDropdown = ({ user, onLogout }: AvatarDropdownProps) => {
       </DropdownItem>
 
       <DropdownItem
-        icon={isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        icon={isDark 
+          ? <Sun className="h-4 w-4" /> 
+          : <Moon className="h-4 w-4" />
+        }
         onClick={toggleDarkMode}
       >
         Display Mode

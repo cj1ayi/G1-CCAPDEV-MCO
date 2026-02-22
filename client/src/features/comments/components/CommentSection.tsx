@@ -1,10 +1,13 @@
 import { CommentCard } from '../components'
-import type { CommentCardProps, CommentSectionProps } from '../types'
+import type {
+  CommentCardProps,
+  CommentSectionProps,
+} from '../types'
 import { cn } from '@/lib/utils'
 
-export const CommentSection = ({ 
-  comments, 
-  totalCount
+export const CommentSection = ({
+  comments,
+  totalCount,
 }: CommentSectionProps) => {
   if (comments.length === 0) {
     return null
@@ -19,7 +22,7 @@ export const CommentSection = ({
         <div
           className={cn(
             'text-xs text-gray-500 uppercase',
-            'tracking-wide font-semibold'
+            'tracking-wide font-semibold',
           )}
         >
           Sorted by Best

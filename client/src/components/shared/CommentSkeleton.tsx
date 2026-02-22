@@ -54,10 +54,10 @@ export const CommentSkeleton = ({
 export const CommentsSkeleton = ({ count = 3 }: { count?: number }) => {
   return (
     <div className="space-y-2">
-      {Array.from({ length: count }).map((_, i) => (
+      {Array.from({ length: count }).map((_, j) => (
         <CommentSkeleton 
-          key={i} 
-          withReplies={i === 0} // Only first comment has replies
+          key={j} 
+          withReplies={j === 0}         
         />
       ))}
     </div>

@@ -1,4 +1,3 @@
-export { default } from './CommentCard'
 export { CommentCard } from './CommentCard'
 export { CommentHeader } from './CommentHeader'
 export { CommentContent } from './CommentContent'
@@ -7,7 +6,6 @@ export { CommentActions } from './CommentActions'
 export { CommentMenu } from './CommentMenu'
 export { CommentReplyForm } from './CommentReplyForm'
 
-// Export types
 export type {
   CommentHeaderProps,
   CommentContentProps,

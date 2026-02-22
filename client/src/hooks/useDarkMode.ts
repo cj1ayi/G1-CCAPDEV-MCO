@@ -5,6 +5,28 @@ interface UseDarkModeReturn {
   toggleDarkMode: () => void
 }
 
+/**
+ * Hook to manage dark mode state and synchronize with DOM and
+ * localStorage.
+ *
+ * Features:
+ * - Persists dark mode preference to localStorage
+ * - Respects system color scheme preference on first load
+ * - Syncs state when document class changes externally
+ * - Updates document.documentElement class on state change
+ *
+ * @returns {UseDarkModeReturn} Object containing isDark state and
+ *   toggleDarkMode function
+ *
+ * @example
+ * const { isDark, toggleDarkMode } = useDarkMode()
+ *
+ * return (
+ *   <button onClick={toggleDarkMode}>
+ *     {isDark ? 'Light Mode' : 'Dark Mode'}
+ *   </button>
+ * )
+ */
 export const useDarkMode = (): UseDarkModeReturn => {
   const [isDark, setIsDark] = useState(() => {
     const stored = localStorage.getItem('darkMode')
@@ -15,6 +37,7 @@ export const useDarkMode = (): UseDarkModeReturn => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   })
 
+  // Apply dark mode class to document and persist to localStorage
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark')
@@ -25,9 +48,13 @@ export const useDarkMode = (): UseDarkModeReturn => {
     }
   }, [isDark])
 
+  // Watch for external changes to dark mode class
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      const hasClass = document.documentElement.classList.contains('dark')
+      const hasClass = document
+        .documentElement
+        .classList
+        .contains('dark')
       if (hasClass !== isDark) {
         setIsDark(hasClass)
       }
@@ -42,7 +69,7 @@ export const useDarkMode = (): UseDarkModeReturn => {
   }, [isDark])
 
   const toggleDarkMode = useCallback(() => {
-    setIsDark(prev => !prev)
+    setIsDark((prev) => !prev)
   }, [])
 
   return { isDark, toggleDarkMode }

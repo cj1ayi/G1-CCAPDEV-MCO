@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useLoadingStore } from '@/hooks/useLoadingBar'
+import { cn } from '@/lib/utils'
 
 export const LoadingBar = () => {
   const location = useLocation()
@@ -32,7 +33,9 @@ export const LoadingBar = () => {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 h-1 bg-primary z-[9999] transition-all duration-200 ease-out shadow-lg"
+      className={cn(
+        "fixed top-0 left-0 right-0 h-1 bg-primary z-[9999]",
+        "transition-all duration-200 ease-out shadow-lg")}
       style={{
         width: `${progress}%`,
         opacity: isLoading ? 1 : 0,

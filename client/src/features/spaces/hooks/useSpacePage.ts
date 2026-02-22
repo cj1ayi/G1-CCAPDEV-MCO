@@ -72,7 +72,8 @@ export const useSpacePage = (spaceName?: string) => {
       }
 
       try {
-        const spacePosts = await spaceService.getSpacePosts(spaceName, sortBy as any)
+        const spacePosts = await spaceService.getSpacePosts(
+          spaceName, sortBy as any)
         console.log('Found posts for space:', spacePosts)
         setPosts(spacePosts)
       } catch (error) {

@@ -29,7 +29,8 @@ export const RulesWidget = ({ rules = GENERAL_RULES }) => {
           dark:bg-gray-800/50"
       >
         <h3 className="text-sm font-bold uppercase flex items-center gap-2">
-          <span className="material-symbols-outlined text-[16px] text-gray-400">
+          <span 
+            className="material-symbols-outlined text-[16px] text-gray-400">
             gavel
           </span>
           Community Rules

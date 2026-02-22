@@ -28,7 +28,8 @@ export const PostCardActions = ({
         aria-label={`${commentCount} comments`}
       >
         <MessageSquare className="h-4 w-4" />
-        <span>{commentCount} {commentCount === 1 ? 'Comment' : 'Comments'}</span>
+        <span>{commentCount} {commentCount === 1 
+          ? 'Comment' : 'Comments'}</span>
       </button>
 
       {/* Share Button */}

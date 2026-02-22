@@ -5,7 +5,9 @@ interface DefaultLeftSidebarProps {
   isCollapsed?: boolean
 }
 
-export const DefaultLeftSidebar = ({ isCollapsed = false }: DefaultLeftSidebarProps) => {
+export const DefaultLeftSidebar = ({ 
+  isCollapsed = false 
+}: DefaultLeftSidebarProps) => {
   return (
     <div className="space-y-6 px-3">
       <SidebarNav isCollapsed={isCollapsed} />

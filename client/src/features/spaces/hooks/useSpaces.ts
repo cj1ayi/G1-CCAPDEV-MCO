@@ -41,9 +41,11 @@ export const useSpaces = () => {
   const toggleJoin = async (id: string) => {
     const space = spaces.find(s => s.id === id)
     if (!space) return
-    setSpaces(prev => prev.map(s => s.id === id ? { ...s, isJoined: !s.isJoined } : s))
+    setSpaces(prev => prev.map(
+      s => s.id === id ? { ...s, isJoined: !s.isJoined } : s))
     try { await spaceService.toggleJoin(id, !!space.isJoined) } 
-    catch (e) { setSpaces(prev => prev.map(s => s.id === id ? { ...s, isJoined: space.isJoined } : s)) }
+    catch (e) { setSpaces(prev => prev
+      .map(s => s.id === id ? { ...s, isJoined: space.isJoined } : s)) }
   }
 
   const goToSpace = (name: string) => navigate(`/r/${name}`)
@@ -51,12 +53,15 @@ export const useSpaces = () => {
 
   const processedSpaces = useMemo(() => {
     let result = [...spaces]
-    if (filter !== 'All Spaces') result = result.filter(s => s.category === filter)
+    if (filter !== 'All Spaces') 
+      result = result.filter(s => s.category === filter)
+
     result.sort((a, b) => {
       if (sortBy === 'A-Z') return a.displayName.localeCompare(b.displayName)
       if (sortBy === 'Z-A') return b.displayName.localeCompare(a.displayName)
       if (sortBy === 'Members') {
-        const parse = (s: string) => parseFloat(s) * (s.includes('k') ? 1000 : 1)
+        const parse = (s: string) => parseFloat(s) * (
+          s.includes('k') ? 1000 : 1)
         return parse(b.memberCount) - parse(a.memberCount)
       }
       return 0

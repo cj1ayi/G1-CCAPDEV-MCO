@@ -20,9 +20,14 @@ export const MainLayout = ({
   children,
   maxWidth = "max-w-4xl"
 }: MainLayoutProps) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(() => {
-    // Load from localStorage
+  const [
+    isMobileMenuOpen, 
+    setIsMobileMenuOpen
+  ] = useState(false)
+  const [
+    isDesktopSidebarCollapsed, 
+    setIsDesktopSidebarCollapsed
+  ] = useState(() => {
     const saved = localStorage.getItem('sidebar_collapsed')
     return saved === 'true'
   })

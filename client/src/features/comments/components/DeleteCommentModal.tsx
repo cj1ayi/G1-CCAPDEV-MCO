@@ -29,11 +29,7 @@ export const DeleteCommentModal = ({
   }
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="sm"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} size="sm">
       <div className="p-6 space-y-4">
         {/* Warning Icon */}
         <div className="flex justify-center">
@@ -41,11 +37,10 @@ export const DeleteCommentModal = ({
             className={cn(
               'w-16 h-16 rounded-full',
               'bg-red-100 dark:bg-red-900/20',
-              'flex items-center justify-center'
+              'flex items-center justify-center',
             )}
           >
-            <AlertTriangle 
-              className="h-8 w-8 text-red-600 dark:text-red-400" />
+            <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
           </div>
         </div>
 
@@ -54,33 +49,39 @@ export const DeleteCommentModal = ({
           <h3
             className={cn(
               'text-lg font-semibold',
-              'text-gray-900 dark:text-white'
+              'text-gray-900 dark:text-white',
             )}
           >
             Delete comment?
           </h3>
-          
+
           {hasReplies ? (
             <div className="space-y-2">
-              <p className={cn(
-                "text-sm text-gray-600 dark:text-gray-300 font-medium")}>
+              <p
+                className={cn(
+                  'text-sm text-gray-600 dark:text-gray-300',
+                  'font-medium',
+                )}
+              >
                 This comment has replies.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Your comment will be marked as 
-                <span 
+                Your comment will be marked as
+                <span
                   className={cn(
-                    "font-mono text-gray-600 dark:text-gray-300"
+                    'font-mono text-gray-600 dark:text-gray-300',
                   )}
                 >
                   [deleted]
-                </span> 
-                and your username will be removed, but replies will remain visible.
+                </span>
+                and your username will be removed, but
+                replies will remain visible.
               </p>
             </div>
           ) : (
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              This comment will be permanently deleted. This action cannot be undone.
+              This comment will be permanently deleted.
+              This action cannot be undone.
             </p>
           )}
         </div>
@@ -91,7 +92,7 @@ export const DeleteCommentModal = ({
             className={cn(
               'bg-red-50 dark:bg-red-900/20',
               'border border-red-200 dark:border-red-800',
-              'rounded-lg p-3 text-center'
+              'rounded-lg p-3 text-center',
             )}
           >
             <p className="text-red-600 dark:text-red-400 text-sm">
