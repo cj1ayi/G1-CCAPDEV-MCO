@@ -40,8 +40,8 @@ export const ProfileNavbar = ({
               "pb-3 border-b-2 transition-colors",
               "text-sm font-semibold whitespace-nowrap px-1",
               activeTab === tab
-                ? "border-primary text-primary"
-                : "border-transparent text-gray-500 hover:text-gray-900"
+                ? "border-primary text-primary dark:text-primary"
+                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             )}
           >
             {tab}

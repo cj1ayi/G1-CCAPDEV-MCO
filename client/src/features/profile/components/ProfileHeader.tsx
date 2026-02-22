@@ -37,7 +37,7 @@ export const ProfileHeader = ({
         "items-center justify-center -mt-4 md:-mt-6"
         )}
       >
-        <span className="text-gray-500">Add a profile cover</span>
+        <span className="text-gray-500 dark:text-gray-400">Add a profile cover</span>
         <button
           className={cn(
             'absolute bottom-4 right-4 px-3 py-1.5',
@@ -53,7 +53,7 @@ export const ProfileHeader = ({
       </div>
 
       {/* BANNER */}
-      <div className="bg-white dark:bg-gray-700 relative z-0 p-6 md:p-10">
+      <div className="bg-white dark:bg-surface-dark relative z-0 p-6 md:p-10">
         <div className={cn(
           "max-w-7xl mx-auto h-full flex flex-col md:flex-row",
           "items-start md:items-center justify-between gap-4"
@@ -71,8 +71,8 @@ export const ProfileHeader = ({
                 src={user.avatar}
                 alt={user.name}
                 className={cn(
-                  "w-28 h-28 md:w-36 md:h-36 bg-gray-200 object-cover",
-                  "rounded-full border-4 border-white shadow-lg",
+                  "w-28 h-28 md:w-36 md:h-36 bg-gray-200 dark:bg-gray-700 object-cover",
+                  "rounded-full border-4 border-white dark:border-gray-800 shadow-lg",
                   "-mt-14 md:-mt-16"
                 )}
               />
@@ -88,7 +88,7 @@ export const ProfileHeader = ({
               <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
                 {user.name}
               </h1>
-              <p className="text-[#5e8d75] mt-1">@{user.username}</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">@{user.username}</p>
             </motion.div>
           </div>
 
