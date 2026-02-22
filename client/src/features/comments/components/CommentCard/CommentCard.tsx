@@ -11,8 +11,7 @@ import { DeleteCommentModal } from '../DeleteCommentModal'
 import { useToast } from '@/hooks/useToast'
 import { Toast } from '@/components/ui/Toast'
 
-const CommentCard = ({
-  id,
+export const CommentCard = ({
   content,
   author,
   upvotes,
@@ -33,7 +32,6 @@ const CommentCard = ({
   replies = [],
   depth = 0,
 }: CommentCardProps) => {
-  // State
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(content)
   const [isSaving, setIsSaving] = useState(false)
@@ -46,27 +44,28 @@ const CommentCard = ({
   const maxDepth = 5
   const hasReplies = replies.length > 0
 
-  // Click outside to close menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
         setShowMenu(false)
       }
     }
 
     if (showMenu) {
       document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showMenu])
 
-  // Guard clause
   if (!author) {
     console.error('CommentCard: Missing required author prop')
     return null
   }
 
-  // Handlers
   const handleSaveEdit = async () => {
     if (!editContent.trim() || !onEdit) return
 
@@ -132,7 +131,7 @@ const CommentCard = ({
             'border-l-2 border-gray-200 dark:border-gray-800',
             'hover:border-gray-300 dark:hover:border-gray-600',
             'transition-colors',
-          ]
+          ],
         )}
       >
         <div className="py-3">
@@ -206,7 +205,11 @@ const CommentCard = ({
         {replies.length > 0 && depth < maxDepth && (
           <div className="space-y-0">
             {replies.map((reply: CommentCardProps) => (
-              <CommentCard key={reply.id} {...reply} depth={depth + 1} />
+              <CommentCard
+                key={reply.id}
+                {...reply}
+                depth={depth + 1}
+              />
             ))}
           </div>
         )}
@@ -221,7 +224,7 @@ const CommentCard = ({
       </div>
 
       {/* Toast Notifications */}
-      {toasts.map(toast => (
+      {toasts.map((toast) => (
         <Toast
           key={toast.id}
           message={toast.message}
@@ -234,5 +237,3 @@ const CommentCard = ({
   )
 }
 
-export default CommentCard
-export { CommentCard }

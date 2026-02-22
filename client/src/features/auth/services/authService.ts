@@ -1,226 +1,300 @@
-import { 
-  mockUsers, 
-  type User as MockUser 
-} from "@/lib/mockData";
+import {
+  mockUsers,
+  type User as MockUser,
+} from '@/lib/mockData'
 
-import { 
+import {
   AuthUser,
   SESSION_KEY,
   REMEMBER_KEY,
   SIGNUP_USERS_KEY,
-} from "../types"
+} from '../types'
+
+type SignupUser = MockUser & { email: string; password: string }
 
 /**
- * AuthService - Handles authentication operations
- * 
- * Current: Uses localStorage/sessionStorage for mock auth
- * TODO (Phase 2): Replace with API calls to backend
+ * Service for handling authentication operations.
+ *
+ * Features:
+ * - Mock authentication using localStorage/sessionStorage
+ * - Support for "Remember Me" functionality
+ * - Separate mock users and signup users databases
+ * - Type-safe user conversion and session management
+ *
+ * @note Currently uses local storage for mock auth. Will be
+ *   replaced with API calls in Phase 2.
+ *
+ * @example
+ * const user = authService.login('username', 'password')
+ * if (user) {
+ *   console.log('Logged in:', user.name)
+ * }
  */
 class AuthService {
-  // ---------------------------------------------------------------------------
-  // Private Helper Methods
-  // ---------------------------------------------------------------------------
-
-  /** Get the right storage based on whether "Remember Me" was checked */
+  /**
+   * Get appropriate storage based on "Remember Me" setting.
+   * Uses localStorage if remember is true, sessionStorage
+   * otherwise.
+   */
   private getSessionStorage(): Storage {
-    return localStorage.getItem(REMEMBER_KEY) === "true"
+    return localStorage.getItem(REMEMBER_KEY) === 'true'
       ? localStorage
-      : sessionStorage;
+      : sessionStorage
   }
 
-  /** Get users registered through signup (stored in localStorage) */
-  private getSignupUsers(): (MockUser & { email: string; password: string })[] {
+  /**
+   * Retrieve signup users from localStorage with error
+   * handling.
+   */
+  private getSignupUsers(): SignupUser[] {
     try {
-      return JSON.parse(localStorage.getItem(SIGNUP_USERS_KEY) || "[]");
+      return JSON.parse(
+        localStorage.getItem(SIGNUP_USERS_KEY) || '[]'
+      )
     } catch {
-      return [];
+      return []
     }
   }
 
-  /** Save signup users to localStorage */
-  private saveSignupUsers(users: (MockUser & { email: string; password: string })[]): void {
-    localStorage.setItem(SIGNUP_USERS_KEY, JSON.stringify(users));
+  /**
+   * Persist signup users to localStorage.
+   */
+  private saveSignupUsers(users: SignupUser[]): void {
+    localStorage.setItem(SIGNUP_USERS_KEY, JSON.stringify(users))
   }
 
-  /** Save user session to appropriate storage */
+  /**
+   * Save user session to appropriate storage based on
+   * remember setting.
+   */
   private saveSession(user: AuthUser): void {
-    this.getSessionStorage().setItem(SESSION_KEY, JSON.stringify(user));
+    this.getSessionStorage().setItem(
+      SESSION_KEY,
+      JSON.stringify(user)
+    )
   }
 
-  /** Clear all session data */
+  /**
+   * Clear all session data from both storages and remember
+   * flag.
+   */
   private clearSession(): void {
-    sessionStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem(REMEMBER_KEY);
+    sessionStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(REMEMBER_KEY)
   }
 
-  /** Convert MockUser to AuthUser */
+  /**
+   * Convert MockUser to AuthUser by extracting relevant
+   * fields.
+   */
   private toAuthUser(user: MockUser): AuthUser {
     return {
       id: user.id,
       name: user.name,
       username: user.username,
-      avatar: user.avatar,
+      avatar: user.avatar ||
+        `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`,
       bio: user.bio,
       location: user.location,
       joinedAt: user.joinedAt,
-    };
+    }
   }
 
-  // ---------------------------------------------------------------------------
-  // Public API Methods
-  // ---------------------------------------------------------------------------
-
   /**
-   * Login with username/email + password.
+   * Authenticate user with username/email and password.
    *
-   * For mock users: password is their username (e.g. "tiamlee" / "tiamlee").
-   * For signup users: password is whatever they registered with.
+   * Checks both mock users (password = username) and signup
+   * users (password from registration). Supports optional
+   * "Remember Me" persistence.
    *
-   * TODO (Phase 2): Replace with POST /api/auth/login
+   * @param usernameOrEmail Username or email address
+   * @param password User password (username for mock users)
+   * @param remember Persist session in localStorage
+   *
+   * @returns AuthUser on success, null on failure
+   *
+   * @example
+   * const user = authService.login('john_doe', 'password')
+   * const user = authService.login('john@example.com',
+   *   'password', true)
    */
   login(
     usernameOrEmail: string,
     password: string,
     remember: boolean = false
   ): AuthUser | null {
-    const input = usernameOrEmail.toLowerCase().trim();
+    const input = usernameOrEmail.toLowerCase().trim()
 
-    // 1. Check mock users — password is their username, allow login by username or email
+    // Check mock users (password is username)
     const mockUser = Object.values(mockUsers).find(
       (u) =>
         (u.username.toLowerCase() === input ||
           (u.email && u.email.toLowerCase() === input)) &&
-        password === u.username // password for mock users is always their username
-    );
+        password === u.username
+    )
 
     if (mockUser) {
       if (remember) {
-        localStorage.setItem(REMEMBER_KEY, "true");
+        localStorage.setItem(REMEMBER_KEY, 'true')
       } else {
-        localStorage.removeItem(REMEMBER_KEY);
+        localStorage.removeItem(REMEMBER_KEY)
       }
-      const authUser = this.toAuthUser(mockUser);
-      this.saveSession(authUser);
-      return authUser;
+      const authUser = this.toAuthUser(mockUser)
+      this.saveSession(authUser)
+      return authUser
     }
 
-    // 2. Check signup users (registered through the signup form)
-    const signupUsers = this.getSignupUsers();
+    // Check signup users
+    const signupUsers = this.getSignupUsers()
     const signupUser = signupUsers.find(
       (u) =>
         (u.username.toLowerCase() === input ||
           (u.email && u.email.toLowerCase() === input)) &&
         u.password === password
-    );
+    )
 
     if (signupUser) {
       if (remember) {
-        localStorage.setItem(REMEMBER_KEY, "true");
+        localStorage.setItem(REMEMBER_KEY, 'true')
       } else {
-        localStorage.removeItem(REMEMBER_KEY);
+        localStorage.removeItem(REMEMBER_KEY)
       }
-      const authUser = this.toAuthUser(signupUser);
-      this.saveSession(authUser);
-      return authUser;
+      const authUser = this.toAuthUser(signupUser)
+      this.saveSession(authUser)
+      return authUser
     }
 
-    return null;
+    return null
   }
 
   /**
-   * Register a new account.
-   * @returns AuthUser on success, null if username/email taken.
+   * Register a new user account.
    *
-   * TODO (Phase 2): Replace with POST /api/auth/register
+   * Validates username and email are not already taken across
+   * both mock and signup users. Auto-logs in new user after
+   * successful registration.
+   *
+   * @param email User email address
+   * @param username Unique username
+   * @param password User password
+   *
+   * @returns AuthUser on success, null if credentials taken
+   *
+   * @example
+   * const user = authService.signup(
+   *   'john@example.com',
+   *   'john_doe',
+   *   'secure_password'
+   * )
    */
   signup(
     email: string,
     username: string,
     password: string
   ): AuthUser | null {
-    // Check against mock users
+    // Check mock users for taken username
     const mockTaken = Object.values(mockUsers).some(
       (u) => u.username.toLowerCase() === username.toLowerCase()
-    );
-    if (mockTaken) return null;
+    )
+    if (mockTaken) return null
 
-    // Check against existing signups
-    const signupUsers = this.getSignupUsers();
+    // Check signup users for taken username/email
+    const signupUsers = this.getSignupUsers()
     const signupTaken = signupUsers.some(
       (u) =>
         u.username.toLowerCase() === username.toLowerCase() ||
         (u.email && u.email.toLowerCase() === email.toLowerCase())
-    );
-    if (signupTaken) return null;
+    )
+    if (signupTaken) return null
 
-    const newUser = {
+    const newUser: SignupUser = {
       id: `user_${Date.now()}`,
       name: username,
       username,
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
-      bio: "",
-      location: "",
-      joinedAt: new Date().toISOString().split("T")[0],
+      bio: '',
+      location: '',
+      joinedAt: new Date().toISOString().split('T')[0],
       email,
       password,
-    };
+    }
 
-    this.saveSignupUsers([...signupUsers, newUser]);
+    this.saveSignupUsers([...signupUsers, newUser])
 
-    // Auto-login after signup (session only, no remember)
-    const authUser = this.toAuthUser(newUser);
-    this.saveSession(authUser);
-    return authUser;
+    // Auto-login after signup
+    const authUser = this.toAuthUser(newUser)
+    this.saveSession(authUser)
+    return authUser
   }
 
   /**
-   * Get the currently logged-in user, if any.
-   * Checks sessionStorage first, then localStorage (for remembered sessions).
+   * Retrieve currently authenticated user.
    *
-   * TODO (Phase 2): Replace with GET /api/auth/me
+   * Checks localStorage first if "Remember Me" is set,
+   * otherwise checks sessionStorage.
+   *
+   * @returns AuthUser if authenticated, null otherwise
+   *
+   * @example
+   * const user = authService.getCurrentUser()
+   * if (user) {
+   *   console.log('User:', user.name)
+   * }
    */
   getCurrentUser(): AuthUser | null {
     try {
-      // If Remember Me is set, prefer localStorage, else sessionStorage
-      const remember = localStorage.getItem(REMEMBER_KEY) === "true";
-      let session: string | null = null;
+      const remember =
+        localStorage.getItem(REMEMBER_KEY) === 'true'
+      let session: string | null = null
+
       if (remember) {
-        session = localStorage.getItem(SESSION_KEY);
+        session = localStorage.getItem(SESSION_KEY)
       } else {
-        session = sessionStorage.getItem(SESSION_KEY);
+        session = sessionStorage.getItem(SESSION_KEY)
       }
-      if (!session) return null;
-      return JSON.parse(session) as AuthUser;
+
+      if (!session) return null
+      return JSON.parse(session) as AuthUser
     } catch {
-      return null;
+      return null
     }
   }
 
   /**
-   * Log out the current user.
+   * Log out the current user and clear all session data.
    *
-   * TODO (Phase 2): Replace with POST /api/auth/logout
+   * @example
+   * authService.logout()
    */
   logout(): void {
-    this.clearSession();
+    this.clearSession()
   }
 
   /**
-   * Check if someone is currently authenticated.
+   * Check if a user is currently authenticated.
+   *
+   * @returns true if user is logged in, false otherwise
+   *
+   * @example
+   * if (authService.isAuthenticated()) {
+   *   // Show authenticated UI
+   * }
    */
   isAuthenticated(): boolean {
-    return this.getCurrentUser() !== null;
+    return this.getCurrentUser() !== null
   }
 }
 
 // Export singleton instance
 export const authService = new AuthService()
 
-// Also export individual methods for backwards compatibility
-// (Remove these later if you want to force using authService.method())
+// Export bound methods for backwards compatibility
 export const login = authService.login.bind(authService)
 export const signup = authService.signup.bind(authService)
-export const getCurrentUser = authService.getCurrentUser.bind(authService)
+export const getCurrentUser = authService.getCurrentUser.bind(
+  authService
+)
 export const logout = authService.logout.bind(authService)
-export const isAuthenticated = authService.isAuthenticated.bind(authService)
+export const isAuthenticated =
+  authService.isAuthenticated.bind(authService)

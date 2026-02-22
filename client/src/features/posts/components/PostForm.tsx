@@ -1,9 +1,23 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { Input, Textarea, Select, Button, Card } from '@/components/ui'
-import { X, Image as ImageIcon, Tag as TagIcon } from 'lucide-react'
-import type { PostFormData, PostFormErrors, Post } from '../types'
+import {
+  Input,
+  Textarea,
+  Select,
+  Button,
+  Card,
+} from '@/components/ui'
+import {
+  X,
+  Image as ImageIcon,
+  Tag as TagIcon,
+} from 'lucide-react'
+import type {
+  PostFormData,
+  PostFormErrors,
+  Post,
+} from '../types'
 
 interface PostFormProps {
   initialData?: Post
@@ -28,16 +42,15 @@ const FLAIR_OPTIONS = [
   { value: 'Marketplace', label: 'Marketplace' },
 ]
 
-export const PostForm = ({ 
-  initialData, 
-  mode, 
-  onSubmit, 
-  onCancel 
+export const PostForm = ({
+  initialData,
+  mode,
+  onSubmit,
+  onCancel,
 }: PostFormProps) => {
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
-  // Form state
+
   const [formData, setFormData] = useState<PostFormData>({
     title: initialData?.title || '',
     content: initialData?.content || '',
@@ -50,7 +63,6 @@ export const PostForm = ({
   const [errors, setErrors] = useState<PostFormErrors>({})
   const [tagInput, setTagInput] = useState('')
 
-  // Validate form
   const validateForm = (): boolean => {
     const newErrors: PostFormErrors = {}
 
@@ -70,7 +82,10 @@ export const PostForm = ({
       newErrors.space = 'Please select a space'
     }
 
-    if (formData.imageUrl && !isValidUrl(formData.imageUrl)) {
+    if (
+      formData.imageUrl &&
+      !isValidUrl(formData.imageUrl)
+    ) {
       newErrors.imageUrl = 'Please enter a valid image URL'
     }
 
@@ -87,7 +102,6 @@ export const PostForm = ({
     }
   }
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -100,27 +114,32 @@ export const PostForm = ({
       await onSubmit(formData)
     } catch (error) {
       console.error('Failed to submit post:', error)
-      setErrors({ 
-        title: 'Failed to save post. Please try again.' 
+      setErrors({
+        title: 'Failed to save post. Please try again.',
       })
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // Handle tag addition
   const handleAddTag = () => {
     const tag = tagInput.trim().toLowerCase()
-    
+
     if (!tag) return
-    
+
     if (formData.tags.length >= 5) {
-      setErrors({ ...errors, tags: 'Maximum 5 tags allowed' })
+      setErrors({
+        ...errors,
+        tags: 'Maximum 5 tags allowed',
+      })
       return
     }
-    
+
     if (formData.tags.includes(tag)) {
-      setErrors({ ...errors, tags: 'Tag already added' })
+      setErrors({
+        ...errors,
+        tags: 'Tag already added',
+      })
       return
     }
 
@@ -135,7 +154,7 @@ export const PostForm = ({
   const handleRemoveTag = (tagToRemove: string) => {
     setFormData({
       ...formData,
-      tags: formData.tags.filter(tag => tag !== tagToRemove),
+      tags: formData.tags.filter((tag) => tag !== tagToRemove),
     })
   }
 
@@ -155,7 +174,7 @@ export const PostForm = ({
           <label
             className={cn(
               'block text-sm font-semibold mb-2',
-              'text-gray-900 dark:text-white'
+              'text-gray-900 dark:text-white',
             )}
           >
             Choose a Space *
@@ -175,7 +194,9 @@ export const PostForm = ({
             ))}
           </Select>
           {errors.space && (
-            <p className="text-red-500 text-xs mt-1">{errors.space}</p>
+            <p className="text-red-500 text-xs mt-1">
+              {errors.space}
+            </p>
           )}
           {mode === 'edit' && (
             <p className="text-xs text-gray-500 mt-1">
@@ -189,7 +210,7 @@ export const PostForm = ({
           <label
             className={cn(
               'block text-sm font-semibold mb-2',
-              'text-gray-900 dark:text-white'
+              'text-gray-900 dark:text-white',
             )}
           >
             Title *
@@ -204,7 +225,9 @@ export const PostForm = ({
           />
           <div className="flex justify-between items-center mt-1">
             {errors.title ? (
-              <p className="text-red-500 text-xs">{errors.title}</p>
+              <p className="text-red-500 text-xs">
+                {errors.title}
+              </p>
             ) : (
               <span className="text-xs text-gray-500">
                 {formData.title.length}/300 characters
@@ -218,7 +241,7 @@ export const PostForm = ({
           <label
             className={cn(
               'block text-sm font-semibold mb-2',
-              'text-gray-900 dark:text-white'
+              'text-gray-900 dark:text-white',
             )}
           >
             Content *
@@ -226,14 +249,19 @@ export const PostForm = ({
           <Textarea
             value={formData.content}
             onChange={(e) =>
-              setFormData({ ...formData, content: e.target.value })
+              setFormData({
+                ...formData,
+                content: e.target.value,
+              })
             }
             placeholder="What are your thoughts?"
             rows={10}
             className="resize-none"
           />
           {errors.content && (
-            <p className="text-red-500 text-xs mt-1">{errors.content}</p>
+            <p className="text-red-500 text-xs mt-1">
+              {errors.content}
+            </p>
           )}
         </div>
 
@@ -242,7 +270,7 @@ export const PostForm = ({
           <label
             className={cn(
               'block text-sm font-semibold mb-2',
-              'text-gray-900 dark:text-white'
+              'text-gray-900 dark:text-white',
             )}
           >
             Flair (Optional)
@@ -269,7 +297,7 @@ export const PostForm = ({
           <label
             className={cn(
               'block text-sm font-semibold mb-2',
-              'text-gray-900 dark:text-white'
+              'text-gray-900 dark:text-white',
             )}
           >
             <div className="flex items-center gap-2">
@@ -280,34 +308,39 @@ export const PostForm = ({
           <Input
             value={formData.imageUrl}
             onChange={(e) =>
-              setFormData({ ...formData, imageUrl: e.target.value })
+              setFormData({
+                ...formData,
+                imageUrl: e.target.value,
+              })
             }
             placeholder="https://example.com/image.jpg"
             type="url"
           />
           {errors.imageUrl && (
-            <p className="text-red-500 text-xs mt-1">{errors.imageUrl}</p>
+            <p className="text-red-500 text-xs mt-1">
+              {errors.imageUrl}
+            </p>
           )}
-          
-          {/* Image Preview */}
-          {formData.imageUrl && isValidUrl(formData.imageUrl) && (
-            <div className="mt-3">
-              <img
-                src={formData.imageUrl}
-                alt="Preview"
-                className={cn(
-                  'w-full rounded-lg object-cover max-h-64',
-                  'border border-gray-200 dark:border-gray-700'
-                )}
-                onError={() => {
-                  setErrors({
-                    ...errors,
-                    imageUrl: 'Failed to load image',
-                  })
-                }}
-              />
-            </div>
-          )}
+
+          {formData.imageUrl &&
+            isValidUrl(formData.imageUrl) && (
+              <div className="mt-3">
+                <img
+                  src={formData.imageUrl}
+                  alt="Preview"
+                  className={cn(
+                    'w-full rounded-lg object-cover max-h-64',
+                    'border border-gray-200 dark:border-gray-700',
+                  )}
+                  onError={() => {
+                    setErrors({
+                      ...errors,
+                      imageUrl: 'Failed to load image',
+                    })
+                  }}
+                />
+              </div>
+            )}
         </div>
 
         {/* Tags */}
@@ -315,7 +348,7 @@ export const PostForm = ({
           <label
             className={cn(
               'block text-sm font-semibold mb-2',
-              'text-gray-900 dark:text-white'
+              'text-gray-900 dark:text-white',
             )}
           >
             <div className="flex items-center gap-2">
@@ -323,7 +356,7 @@ export const PostForm = ({
               Tags (Optional)
             </div>
           </label>
-          
+
           <div className="flex gap-2">
             <Input
               value={tagInput}
@@ -340,17 +373,21 @@ export const PostForm = ({
               type="button"
               onClick={handleAddTag}
               variant="secondary"
-              disabled={!tagInput.trim() || formData.tags.length >= 5}
+              disabled={
+                !tagInput.trim() ||
+                formData.tags.length >= 5
+              }
             >
               Add
             </Button>
           </div>
-          
+
           {errors.tags && (
-            <p className="text-red-500 text-xs mt-1">{errors.tags}</p>
+            <p className="text-red-500 text-xs mt-1">
+              {errors.tags}
+            </p>
           )}
 
-          {/* Tag List */}
           {formData.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
               {formData.tags.map((tag) => (
@@ -361,7 +398,7 @@ export const PostForm = ({
                     'px-3 py-1 rounded-full',
                     'bg-gray-100 dark:bg-gray-800',
                     'text-xs font-medium',
-                    'text-gray-700 dark:text-gray-300'
+                    'text-gray-700 dark:text-gray-300',
                   )}
                 >
                   #{tag}
@@ -370,7 +407,7 @@ export const PostForm = ({
                     onClick={() => handleRemoveTag(tag)}
                     className={cn(
                       'ml-1 hover:text-red-500',
-                      'transition-colors'
+                      'transition-colors',
                     )}
                   >
                     <X className="h-3 w-3" />
@@ -385,7 +422,6 @@ export const PostForm = ({
         </div>
       </Card>
 
-      {/* Action Buttons */}
       <div className="flex gap-3 justify-end">
         <Button
           type="button"
@@ -402,13 +438,20 @@ export const PostForm = ({
         >
           {isSubmitting ? (
             <span className="flex items-center gap-2">
-              <span className="material-symbols-outlined animate-spin text-[18px]">
+              <span className={cn(
+                "material-symbols-outlined animate-spin text-[18px]")}>
                 progress_activity
               </span>
-              {mode === 'create' ? 'Posting...' : 'Saving...'}
+              {mode === 'create'
+                ? 'Posting...'
+                : 'Saving...'}
             </span>
           ) : (
-            <span>{mode === 'create' ? 'Post' : 'Save Changes'}</span>
+            <span>
+              {mode === 'create'
+                ? 'Post'
+                : 'Save Changes'}
+            </span>
           )}
         </Button>
       </div>

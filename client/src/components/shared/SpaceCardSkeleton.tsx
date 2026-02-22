@@ -1,9 +1,10 @@
 import { Card } from '@/components/ui'
 import { Skeleton, SkeletonAvatar, SkeletonText } from './Skeleton'
-
+import { cn } from '@/lib/utils'
 export const SpaceCardSkeleton = () => {
   return (
-    <Card className="hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+    <Card className={cn(
+      "hover:border-gray-300 dark:hover:border-gray-700 transition-colors")}>
       <div className="flex items-start gap-4">
         {/* Icon */}
         <SkeletonAvatar size="md" />
@@ -30,8 +31,8 @@ export const SpaceCardSkeleton = () => {
 export const SpaceCardsSkeleton = ({ count = 6 }: { count?: number }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {Array.from({ length: count }).map((_, i) => (
-        <SpaceCardSkeleton key={i} />
+      {Array.from({ length: count }).map((_, j) => (
+        <SpaceCardSkeleton key={j} />
       ))}
     </div>
   )

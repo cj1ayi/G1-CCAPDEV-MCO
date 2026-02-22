@@ -47,7 +47,8 @@ export const DeletePostModal = ({
               'flex items-center justify-center'
             )}
           >
-            <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
+            <AlertTriangle 
+              className="h-8 w-8 text-red-600 dark:text-red-400" />
           </div>
         </div>
 

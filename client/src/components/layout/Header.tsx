@@ -1,40 +1,53 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Plus, Bell, MessageSquare, Menu, X, Moon, Sun, PanelLeftClose, PanelLeft } from 'lucide-react'
-import { Button, Avatar } from '@/components/ui'
-import React, { useState } from 'react'
-import { cn } from '@/lib/utils'
 
+import {
+  Search,
+  Plus,
+  Bell,
+  MessageSquare,
+  Menu,
+  X,
+  Moon,
+  Sun,
+  PanelLeftClose,
+  PanelLeft,
+} from 'lucide-react'
+
+import React, { useState } from 'react'
+import { Button } from '@/components/ui'
+import { AvatarDropdown } from '@/components/ui/AvatarDropdown'
+import { cn } from '@/lib/utils'
 import AnimoForumsLogoHat from '@/assets/logo/AnimoForumsLogoHat.svg'
+
+interface User {
+  name: string
+  avatarUrl?: string
+  id: number
+  username?: string
+}
 
 interface HeaderProps {
   variant?: 'default' | 'landing'
-  user?: {
-    name: string
-    avatarUrl?: string
-    id: number
-    username?: string  // Add username field
-  }
+  user?: User
   onSearch?: (query: string) => void
   onCreatePost?: () => void
+  onLogout?: () => void
   notifCount?: number
   messageCount?: number
   isMobileMenuOpen?: boolean
   onToggleMobileMenu?: () => void
-  
-  // Desktop sidebar collapse
   isDesktopSidebarCollapsed?: boolean
   onToggleDesktopSidebar?: () => void
-  
-  // Dark mode
   isDark?: boolean
   onToggleDarkMode?: () => void
 }
 
-export const Header = ({ 
+export const Header = ({
   variant = 'default',
-  user, 
-  onSearch, 
+  user,
+  onSearch,
   onCreatePost,
+  onLogout,
   notifCount = 0,
   messageCount = 0,
   isMobileMenuOpen = false,
@@ -42,7 +55,7 @@ export const Header = ({
   isDesktopSidebarCollapsed = false,
   onToggleDesktopSidebar,
   isDark = false,
-  onToggleDarkMode
+  onToggleDarkMode,
 }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
@@ -64,12 +77,14 @@ export const Header = ({
   }
 
   return (
-    <header className={cn(
-      'sticky top-0 z-50 h-16 px-4 lg:px-6',
-      'flex items-center justify-between gap-4',
-      'bg-surface-light dark:bg-surface-dark',
-      'border-b border-border-light dark:border-border-dark'
-    )}>
+    <header
+      className={cn(
+        'sticky top-0 z-50 h-16 px-4 lg:px-6',
+        'flex items-center justify-between gap-4',
+        'bg-surface-light dark:bg-surface-dark',
+        'border-b border-border-light dark:border-border-dark',
+      )}
+    >
       {/* Left: Hamburger + Desktop Toggle + Logo */}
       <div className="flex items-center gap-3">
         {/* Mobile Menu Toggle */}
@@ -79,9 +94,11 @@ export const Header = ({
             className={cn(
               'xl:hidden p-2 rounded-lg',
               'hover:bg-gray-100 dark:hover:bg-surface-darker',
-              'transition-colors'
+              'transition-colors',
             )}
-            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={
+              isMobileMenuOpen ? 'Close menu' : 'Open menu'
+            }
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6 text-gray-700 dark:text-gray-300" />
@@ -98,21 +115,35 @@ export const Header = ({
             className={cn(
               'hidden xl:flex p-2 rounded-lg',
               'hover:bg-gray-100 dark:hover:bg-surface-darker',
-              'transition-colors'
+              'transition-colors',
             )}
-            aria-label={isDesktopSidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'}
-            title={isDesktopSidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'}
+            aria-label={
+              isDesktopSidebarCollapsed
+                ? 'Expand navigation'
+                : 'Collapse navigation'
+            }
+            title={
+              isDesktopSidebarCollapsed
+                ? 'Expand navigation'
+                : 'Collapse navigation'
+            }
           >
             {isDesktopSidebarCollapsed ? (
-              <PanelLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              <PanelLeft 
+                className="h-5 w-5 text-gray-700 dark:text-gray-300" />
             ) : (
-              <PanelLeftClose className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              <PanelLeftClose 
+                className="h-5 w-5 text-gray-700 dark:text-gray-300" />
             )}
           </button>
         )}
 
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img src={AnimoForumsLogoHat} alt="AnimoForums" className="h-9 w-9" />
+          <img
+            src={AnimoForumsLogoHat}
+            alt="AnimoForums"
+            className="h-9 w-9"
+          />
           <span className="hidden sm:block text-xl font-black text-primary">
             AnimoForums
           </span>
@@ -121,8 +152,14 @@ export const Header = ({
 
       {/* Center: Search */}
       {variant !== 'landing' && (
-        <form onSubmit={handleSearch} className="relative flex-1 max-w-xl">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <form
+          onSubmit={handleSearch}
+          className="relative flex-1 max-w-xl"
+        >
+          <Search className={cn(
+            "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
+            )}
+          />
           <input
             type="text"
             placeholder="Search AnimoForums..."
@@ -132,11 +169,12 @@ export const Header = ({
               'w-full h-10 pl-10 pr-4 rounded-full',
               'bg-gray-100 dark:bg-surface-input',
               'border border-border-light dark:border-border-dark',
-              'focus:border-primary focus:bg-white dark:focus:bg-surface-dark',
+              'focus:border-primary focus:bg-white',
+              'dark:focus:bg-surface-dark',
               'outline-none focus:ring-2 focus:ring-primary/20',
               'text-sm text-gray-900 dark:text-white',
               'placeholder:text-gray-500 dark:placeholder:text-gray-400',
-              'transition-all'
+              'transition-all',
             )}
           />
         </form>
@@ -144,14 +182,16 @@ export const Header = ({
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-        {/* Dark Mode Toggle - Always visible */}
+        {/* Dark Mode Toggle */}
         {onToggleDarkMode && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggleDarkMode}
             className="!px-2"
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={
+              isDark ? 'Switch to light mode' : 'Switch to dark mode'
+            }
           >
             {isDark ? (
               <Sun className="h-5 w-5" />
@@ -163,22 +203,22 @@ export const Header = ({
 
         {user ? (
           <>
-            {/* Create Post Button - Only show on non-landing pages */}
+            {/* Create Post Button */}
             {variant !== 'landing' && (
               <>
-                <Button 
-                  variant="primary" 
-                  size="sm" 
-                  onClick={handleCreatePost} 
-                  leftIcon={<Plus className="h-4 w-4" />} 
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleCreatePost}
+                  leftIcon={<Plus className="h-4 w-4" />}
                   className="hidden sm:inline-flex"
                 >
                   Create
                 </Button>
-                <Button 
-                  variant="primary" 
-                  size="sm" 
-                  onClick={handleCreatePost} 
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleCreatePost}
                   className="sm:hidden !px-2"
                 >
                   <Plus className="h-4 w-4" />
@@ -186,50 +226,73 @@ export const Header = ({
               </>
             )}
 
-            {/* Notifications - Only show on non-landing pages */}
+            {/* Notifications */}
             {variant !== 'landing' && (
-              <Button variant="ghost" size="sm" className="relative !px-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative !px-2"
+              >
                 <Bell className="h-5 w-5" />
                 {notifCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">
+                  <span className={cn(
+                    "absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]",
+                    "px-1 flex items-center justify-center bg-red-500",
+                    "text-white text-xs font-bold rounded-full")}>
                     {notifCount > 99 ? '99+' : notifCount}
                   </span>
                 )}
               </Button>
             )}
 
-            {/* Messages - Only show on non-landing pages */}
+            {/* Messages */}
             {variant !== 'landing' && (
-              <Button variant="ghost" size="sm" className="relative !px-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative !px-2"
+              >
                 <MessageSquare className="h-5 w-5" />
                 {messageCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">
+                  <span className={cn(
+                    "absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]",
+                    "px-1 flex items-center justify-center bg-red-500",
+                    "text-white text-xs font-bold rounded-full")}>
                     {messageCount > 99 ? '99+' : messageCount}
                   </span>
                 )}
               </Button>
             )}
 
-            {/* User Avatar - Only show on non-landing pages */}
+            {/* User Avatar with Dropdown */}
             {variant !== 'landing' && (
-              <Link to={`/profile/${user.username || user.name}`} className="ml-1">
-                <Avatar 
-                  src={user.avatarUrl} 
-                  alt={user.name} 
-                  fallback={user.name.charAt(0).toUpperCase()} 
-                  size="sm"
-                  className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" 
+              <div className="ml-1">
+                <AvatarDropdown
+                  user={{
+                    name: user.name,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl,
+                  }}
+                  onLogout={onLogout}
                 />
-              </Link>
+              </div>
             )}
           </>
         ) : (
           <>
-            {/* Login/Signup - Show on both landing and default */}
-            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
+            {/* Login/Signup */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/login')}
+            >
               Sign In
             </Button>
-            <Button variant="primary" size="sm" onClick={() => navigate('/signup')}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate('/signup')}
+            >
               Join Community
             </Button>
           </>

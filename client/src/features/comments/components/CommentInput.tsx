@@ -22,8 +22,11 @@ export const CommentInput = ({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Submit on Cmd/Ctrl + Enter
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !isSubmitting) {
+    if (
+      (e.metaKey || e.ctrlKey) &&
+      e.key === 'Enter' &&
+      !isSubmitting
+    ) {
       e.preventDefault()
       handleSubmit()
     }
@@ -35,19 +38,22 @@ export const CommentInput = ({
         'bg-surface-light dark:bg-surface-dark',
         'rounded-xl shadow-soft',
         'border border-gray-100 dark:border-gray-800',
-        'p-4 sm:p-6'
+        'p-4 sm:p-6',
       )}
     >
       <p className="text-sm text-gray-500 mb-2">
-        Comment as <span className="font-medium text-primary"> Current User
+        Comment as{' '}
+        <span className="font-medium text-primary">
+          Current User
         </span>
       </p>
+
       <div
         className={cn(
           'border border-gray-300 dark:border-gray-700',
           'rounded-lg overflow-hidden',
           'transition-all',
-          isFocused && 'ring-2 ring-primary/50 border-primary'
+          isFocused && 'ring-2 ring-primary/50 border-primary',
         )}
       >
         {/* Formatting Toolbar */}
@@ -56,13 +62,13 @@ export const CommentInput = ({
             'bg-gray-50 dark:bg-gray-800',
             'border-b border-gray-300 dark:border-gray-700',
             'px-3 py-2 flex items-center gap-2',
-            'text-gray-600 dark:text-gray-400'
+            'text-gray-600 dark:text-gray-400',
           )}
         >
           <button
             type="button"
             className={cn(
-              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded'
+              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded',
             )}
             title="Bold"
           >
@@ -73,7 +79,7 @@ export const CommentInput = ({
           <button
             type="button"
             className={cn(
-              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded'
+              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded',
             )}
             title="Italic"
           >
@@ -84,7 +90,7 @@ export const CommentInput = ({
           <button
             type="button"
             className={cn(
-              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded'
+              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded',
             )}
             title="Link"
           >
@@ -95,7 +101,7 @@ export const CommentInput = ({
           <button
             type="button"
             className={cn(
-              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded'
+              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded',
             )}
             title="Code"
           >
@@ -115,16 +121,17 @@ export const CommentInput = ({
           autoFocus={autoFocus}
           disabled={isSubmitting}
           className={cn(
-            'w-full bg-transparent border-none p-4 min-h-[120px]',
-            'focus:ring-0 text-slate-800 dark:text-slate-200 resize-y',
-            'outline-none',
-            isSubmitting && 'opacity-50 cursor-not-allowed'
+            'w-full bg-transparent border-none p-4',
+            'min-h-[120px]',
+            'focus:ring-0 text-slate-800 dark:text-slate-200',
+            'resize-y outline-none',
+            isSubmitting && 'opacity-50 cursor-not-allowed',
           )}
           placeholder={placeholder}
         />
       </div>
 
-      {/* Submit Button */}
+      {/* Submit Section */}
       <div className="flex justify-end gap-2 mt-3">
         {onCancel && (
           <button
@@ -136,7 +143,7 @@ export const CommentInput = ({
               'px-4 py-2 rounded-lg font-medium text-sm',
               'hover:bg-gray-100 dark:hover:bg-gray-800',
               'transition-colors',
-              isSubmitting && 'opacity-50 cursor-not-allowed'
+              isSubmitting && 'opacity-50 cursor-not-allowed',
             )}
           >
             Cancel
@@ -153,12 +160,12 @@ export const CommentInput = ({
             'flex items-center gap-2',
             content.trim() && !isSubmitting
               ? 'hover:bg-primary-dark'
-              : 'opacity-50 cursor-not-allowed'
+              : 'opacity-50 cursor-not-allowed',
           )}
         >
           {isSubmitting && (
-            <span
-              className="material-symbols-outlined text-[16px] animate-spin">
+            <span className={cn(
+              "material-symbols-outlined text-[16px] animate-spin")}>
               progress_activity
             </span>
           )}
@@ -166,7 +173,6 @@ export const CommentInput = ({
         </button>
       </div>
 
-      {/* Hint */}
       <p className="text-xs text-gray-400 mt-2">
         Tip: Press Cmd/Ctrl + Enter to submit
       </p>

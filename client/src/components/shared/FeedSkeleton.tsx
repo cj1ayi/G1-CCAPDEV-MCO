@@ -7,8 +7,8 @@ interface FeedSkeletonProps {
 export const FeedSkeleton = ({ count = 5 }: FeedSkeletonProps) => {
   return (
     <div className="space-y-4">
-      {Array.from({ length: count }).map((_, i) => (
-        <PostCardSkeleton key={i} />
+      {Array.from({ length: count }).map((_, j) => (
+        <PostCardSkeleton key={j} />
       ))}
     </div>
   )

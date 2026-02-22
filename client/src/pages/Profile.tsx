@@ -21,7 +21,25 @@ const Profile = () => {
     userService.getCurrentUser().then(setCurrentUser)
   }, [])
 
-  const isOwnProfile = currentUser && user && currentUser.id === user.id
+  // More robust check - compare both id and username
+  const isOwnProfile = !!(
+    currentUser && 
+    user && 
+    (
+      currentUser.id === user.id || 
+      currentUser.username === user.username ||
+      currentUser.name === user.name
+    )
+  )
+
+  // Debug logging (remove after fixing)
+  useEffect(() => {
+    if (currentUser && user) {
+      console.log('Current User:', { id: currentUser.id, username: currentUser.username, name: currentUser.name })
+      console.log('Profile User:', { id: user.id, username: user.username, name: user.name })
+      console.log('Is Own Profile:', isOwnProfile)
+    }
+  }, [currentUser, user, isOwnProfile])
 
   if (isLoading) {
     return (

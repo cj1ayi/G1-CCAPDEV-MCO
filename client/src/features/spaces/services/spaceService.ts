@@ -59,12 +59,16 @@ class SpaceService {
     
     // If not found, try case-insensitive match
     if (!space) {
-      space = spaces.find(s => s.name.toLowerCase() === spaceName.toLowerCase())
+      space = spaces.find(
+        s => s.name.toLowerCase() === spaceName.toLowerCase()
+      )
     }
     
     // If still not found, try displayName
     if (!space) {
-      space = spaces.find(s => s.displayName.toLowerCase() === spaceName.toLowerCase())
+      space = spaces.find(
+        s => s.displayName.toLowerCase() === spaceName.toLowerCase()
+      )
     }
     
     console.log('getSpaceByName - Found:', space ? space.name : 'null')
@@ -93,9 +97,14 @@ class SpaceService {
       postCount: '0',
       isActive: true,
       isJoined: true,
-      createdDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      createdDate: new Date().toLocaleDateString('en-US', { 
+        month: 'short', day: 'numeric', year: 'numeric' 
+      }),
       rules: [
-        { title: 'Be Respectful', description: 'Follow community guidelines.' }
+        { 
+          title: 'Be Respectful', 
+          description: 'Follow community guidelines.' 
+        }
       ]
     }
 
@@ -110,7 +119,10 @@ class SpaceService {
     return !currentStatus
   }
 
-  async getSpacePosts(spaceName: string, sortBy: SortOption = 'hot'): Promise<Post[]> {
+  async getSpacePosts(
+    spaceName: string, 
+    sortBy: SortOption = 'hot'
+  ): Promise<Post[]> {
     const allPosts = await postService.getAllPosts()
     
     const spacePosts = allPosts.filter(post => post.space === spaceName)

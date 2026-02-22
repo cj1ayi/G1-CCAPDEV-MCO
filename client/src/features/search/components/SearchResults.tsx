@@ -12,7 +12,6 @@ function useQuery() {
 }
 
 export function SearchResults() {
-  const navigate = useNavigate()
   const query = useQuery()
   const searchTerm = query.get('q')?.toLowerCase() || ''
 

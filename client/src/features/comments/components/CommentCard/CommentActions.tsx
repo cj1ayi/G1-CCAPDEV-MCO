@@ -19,7 +19,8 @@ export const CommentActions = ({
         'text-xs font-medium transition-colors',
         isReplying
           ? 'text-primary bg-primary/10'
-          : 'text-gray-500 hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-800'
+          : 'text-gray-500 hover:text-primary ' +
+              'hover:bg-gray-100 dark:hover:bg-gray-800',
       )}
     >
       <MessageSquare className="h-3.5 w-3.5" />
