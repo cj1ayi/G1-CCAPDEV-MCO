@@ -139,23 +139,33 @@ export function calculateDepth(parentComment: Comment | null): number {
  * Convert CommentTreeNode to CommentCardProps (for backwards compatibility)
  */
 export function treeToLegacyFormat(tree: CommentTreeNode[]): any[] {
-  return tree.map(node => ({
-    id: node._id,
-    content: node.deletedAt ? '[deleted]' : node.content,
-    author: {
-      id: node.authorId,
-      name: node.author.displayName,
-      username: node.author.username,
-      avatar: node.author.avatar
-    },
-    upvotes: Math.max(0, node.voteScore),
-    downvotes: Math.max(0, -node.voteScore),
-    createdAt: formatTimeAgo(node.createdAt),
-    editedAt: node.editedAt ? formatTimeAgo(node.editedAt) : undefined,
-    isDeleted: node.deletedAt !== null,
-    depth: node.depth,
-    replies: node.replies.length > 0 ? treeToLegacyFormat(node.replies) : undefined
-  }))
+  return tree.map(node => {
+
+    const isDeleted = node.deletedAt !== null
+
+    return {
+      id: node._id,
+      content:  isDeleted ? '[deleted]' : node.content,
+      author: isDeleted ? {
+        id: 'deleted',
+        name: '[deleted]',
+        username: 'deleted',
+        avatar: undefined 
+      } : {
+        id: node.authorId,
+        name: node.author.displayName,
+        username: node.author.username,
+        avatar: node.author.avatar
+      },
+      upvotes: Math.max(0, node.voteScore),
+      downvotes: Math.max(0, -node.voteScore),
+      createdAt: formatTimeAgo(node.createdAt),
+      editedAt: node.editedAt ? formatTimeAgo(node.editedAt) : undefined,
+      isDeleted: isDeleted,
+      depth: node.depth,
+      replies: node.replies.length > 0 ? treeToLegacyFormat(node.replies) : undefined
+    }
+  })
 }
 
 /**
