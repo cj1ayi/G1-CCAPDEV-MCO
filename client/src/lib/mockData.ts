@@ -10,6 +10,15 @@ import { CommentCardProps } from '@/features/comments/types'
 import { Post } from '@/features/posts/types'
 import { Space, SpaceRule } from '@/features/spaces/types'
 import { User } from '@/features/profile/types'
+import {
+  Comment,
+  CommentWithAuthor,
+  CommentTreeNode
+} from '@/features/comments/types'
+import { 
+  buildCommentTree, 
+  treeToLegacyFormat 
+} from '@/features/comments/utils/comment-tree-builder'
 
 // Re-export types for convenience
 export type { Post, Space, SpaceRule, User }
@@ -282,153 +291,215 @@ export const mockPosts: Record<string, Post> = {
   }
 }
 
-export const mockComments: Record<string, CommentCardProps[]> = {
+export const mockCommentsFlatData: Record<string, Comment[]> = {
   '1': [
     {
-      id: 'comment-1',
-      author: {
-        id: '7',
-        name: 'Enzo',
-        username: 'taroramen',
-        avatar: enzo,
-      },
+      _id: 'comment-1',
+      postId: '1',
+      authorId: '7',
+      parentId: null,
       content: '??!?!?',
-      upvotes: 12,
-      downvotes: 0,
-      createdAt: '30m ago',
-      replies: [
-        {
-          id: 'comment-1-1',
-          author: {
-            id: '1',
-            name: 'Thomas James C. Tiam-Lee',
-            username: 'tiamlee',
-            avatar: avatarImage,
-          },
-          content: 'you must stop breeding the horses',
-          upvotes: 8,
-          downvotes: 0,
-          createdAt: '20m ago',
-          badge: 'OP',
-        },
-      ],
+      depth: 0,
+      createdAt: new Date(Date.now() - 1800000), // 30m ago
+      updatedAt: new Date(Date.now() - 1800000),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
     },
+    {
+      _id: 'comment-1-1',
+      postId: '1',
+      authorId: '1',
+      parentId: 'comment-1',
+      content: 'you must stop breeding the horses',
+      depth: 1,
+      createdAt: new Date(Date.now() - 1200000), // 20m ago
+      updatedAt: new Date(Date.now() - 1200000),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
+    }
   ],
   '2': [
     {
-      id: 'comment-2-1',
-      author: {
-        id: '2',
-        name: 'Teehee',
-        username: 'iloveapex',
-        avatar: diane,
-      },
+      _id: 'comment-2-1',
+      postId: '2',
+      authorId: '2',
+      parentId: null,
       content: 'meow meow',
-      upvotes: 15,
-      downvotes: 0,
-      createdAt: '1 hour ago',
-    },
+      depth: 0,
+      createdAt: new Date(Date.now() - 3600000), // 1h ago
+      updatedAt: new Date(Date.now() - 3600000),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
+    }
   ],
   '3': [
     {
-      id: 'comment-3-1',
-      author: {
-        id: '7',
-        name: 'Enzo',
-        username: 'taroramen',
-        avatar: enzo,
-      },
+      _id: 'comment-3-1',
+      postId: '3',
+      authorId: '7',
+      parentId: null,
       content: 'THATS ME',
-      upvotes: 156,
-      downvotes: 0,
-      createdAt: '2 hours ago',
-      replies: [
-        {
-          id: 'comment-3-1-1',
-          author: {
-            id: '5',
-            name: 'Floranaras',
-            username: 'callo',
-            avatar: callo,
-          },
-          content: 'do dinosaur next',
-          upvotes: 45,
-          downvotes: 0,
-          createdAt: '1 hour ago',
-        },
-      ],
+      depth: 0,
+      createdAt: new Date(Date.now() - 7200000), // 2h ago
+      updatedAt: new Date(Date.now() - 7200000),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
     },
+    {
+      _id: 'comment-3-1-1',
+      postId: '3',
+      authorId: '5',
+      parentId: 'comment-3-1',
+      content: 'do dinosaur next',
+      depth: 1,
+      createdAt: new Date(Date.now() - 3600000), // 1h ago
+      updatedAt: new Date(Date.now() - 3600000),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
+    }
   ],
   '4': [
     {
-      id: 'comment-4-1',
-      author: {
-        id: '3',
-        name: 'Sussus Amogus',
-        username: 'pieisspy',
-        avatar: karl,
-      },
+      _id: 'comment-4-1',
+      postId: '4',
+      authorId: '3',
+      parentId: null,
       content: 'me when i get people killed from a free falling object because i integrated wrong and got the wrong time',
-      upvotes: 89,
-      downvotes: 0,
-      createdAt: '30m ago',
-      badge: 'OP',
-    },
+      depth: 0,
+      createdAt: new Date(Date.now() - 1800000), // 30m ago
+      updatedAt: new Date(Date.now() - 1800000),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
+    }
   ],
   '8': [
     {
-      id: 'comment-8',
-      author: {
-        id: '1',
-        name: 'Thomas James C. Tiam-Lee',
-        username: 'tiamlee',
-        avatar: avatarImage,
-      },
+      _id: 'comment-8',
+      postId: '8',
+      authorId: '1',
+      parentId: null,
       content: 'Day 1 of getting an enzo meal out of spite',
-      upvotes: 67,
-      downvotes: 0,
-      createdAt: '3 months ago',
+      depth: 0,
+      createdAt: new Date('2024-11-27T10:00:00Z'),
+      updatedAt: new Date('2024-11-27T10:00:00Z'),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
     },
     {
-      id: 'comment-9',
-      author: {
-        id: '2',
-        name: 'Teehee',
-        username: 'iloveapex',
-        avatar: diane,
-      },
+      _id: 'comment-9',
+      postId: '8',
+      authorId: '2',
+      parentId: null,
       content: 'Day 2 of getting an enzo meal out of spite',
-      upvotes: 61,
-      downvotes: 0,
-      createdAt: '3 months ago',
+      depth: 0,
+      createdAt: new Date('2024-11-28T10:00:00Z'),
+      updatedAt: new Date('2024-11-28T10:00:00Z'),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
     },
     {
-      id: 'comment-10',
-      author: {
-        id: '3',
-        name: 'Sussus Amogus',
-        username: 'pieisspy',
-        avatar: karl,
-      },
+      _id: 'comment-10',
+      postId: '8',
+      authorId: '3',
+      parentId: null,
       content: 'Day 3 of getting an enzo meal out of spite',
-      upvotes: 56,
-      downvotes: 0,
-      createdAt: '3 months ago',
+      depth: 0,
+      createdAt: new Date('2024-11-29T10:00:00Z'),
+      updatedAt: new Date('2024-11-29T10:00:00Z'),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
     },
     {
-      id: 'comment-11',
-      author: {
-        id: '6',
-        name: 'Pringles',
-        username: 'whotftakesthenamezex',
-        avatar: pring,
-      },
+      _id: 'comment-11',
+      postId: '8',
+      authorId: '6',
+      parentId: null,
       content: 'Day 4 of getting an enzo meal out of spite',
-      upvotes: 56,
-      downvotes: 0,
-      createdAt: '3 months ago',
+      depth: 0,
+      createdAt: new Date('2024-11-30T10:00:00Z'),
+      updatedAt: new Date('2024-11-30T10:00:00Z'),
+      editedAt: null,
+      deletedAt: null,
+      deletedBy: null
+    }
+  ]
+}
+
+/**
+ * Helper: Populate comment with author
+ */
+function populateCommentAuthor(comment: Comment): CommentWithAuthor {
+  const author = mockUsers[comment.authorId]
+  if (!author) {
+    throw new Error(`Author not found: ${comment.authorId}`)
+  }
+  
+  return {
+    ...comment,
+    author: {
+      _id: author.id,
+      username: author.username,
+      displayName: author.name,
+      avatar: author.avatar || ''
     },
-  ],
+    voteScore: 0, // TODO: Calculate from votes
+    userVote: null
+  }
+}
+
+/**
+ * Helper: Get flat comments for post
+ */
+export function getFlatCommentsByPostId(postId: string): Comment[] {
+  return mockCommentsFlatData[postId] || []
+}
+
+/**
+ * Helper: Get comment tree for post
+ */
+export function getCommentTreeForPost(postId: string): CommentTreeNode[] {
+  const flat = getFlatCommentsByPostId(postId)
+  const populated = flat.map(populateCommentAuthor)
+  return buildCommentTree(populated)
+}
+
+/**
+ * BACKWARDS COMPATIBILITY: Keep old format working
+ * This converts flat data to nested format for existing components
+ */
+export const mockComments: Record<string, CommentCardProps[]> = Object.keys(mockCommentsFlatData).reduce((acc, postId) => {
+  const tree = getCommentTreeForPost(postId)
+  acc[postId] = treeToLegacyFormat(tree) as any
+  return acc
+}, {} as Record<string, CommentCardProps[]>)
+
+/**
+ * Helper: Get comments by user (NOW EASY!)
+ */
+export function getCommentsByUserId(userId: string): Comment[] {
+  const allComments: Comment[] = []
+  Object.values(mockCommentsFlatData).forEach(postComments => {
+    const userComments = postComments.filter(c => c.authorId === userId)
+    allComments.push(...userComments)
+  })
+  return allComments
+}
+
+/**
+ * Helper: Count active comments
+ */
+export function countActiveComments(postId: string): number {
+  const comments = getFlatCommentsByPostId(postId)
+  return comments.filter(c => c.deletedAt === null).length
 }
 
 // Utility to count nested comments
