@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { commentService } from "@/features/comments/services";
 import { LoadingBar } from "@/components/shared";
+import { VotingProvider } from "./features/votes/VotingContext";
 
 import {
   Home,
@@ -33,6 +34,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <VotingProvider>
         <LoadingBar />
         
         <Routes>
@@ -62,6 +64,7 @@ const App = () => {
           {/* Search */}
           <Route path="/search" element={<Search/>} />
      </Routes>
+    </VotingProvider>
     </AuthProvider>
   </BrowserRouter>
   );
