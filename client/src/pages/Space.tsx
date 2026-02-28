@@ -1,4 +1,7 @@
-import { useState } from 'react'
+// Space page with real comment counts
+// Location: client/src/pages/Space.tsx
+
+import { useState, useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useParams } from 'react-router-dom'
@@ -9,12 +12,16 @@ import { DefaultLeftSidebar, DefaultRightSidebar } from '@/components/layout'
 import { EmptyState, ErrorState, FeedSkeleton } from '@/components/shared'
 import { FileText } from 'lucide-react'
 import { postService } from '@/features/posts/services'
+import { commentService } from '@/features/comments/services'
+import { getTotalCommentCount } from '@/features/comments/utils/comment-utils'
 import { Post } from '@/features/posts/types'
 
 import { 
   SpaceHeader,
   SpaceSortBar,
 } from '@/features/spaces/components'
+
+type CommentCountMap = Record<string, number>
 
 export default function Space() {
   const { name } = useParams<{ name: string }>()
@@ -32,8 +39,30 @@ export default function Space() {
     isLoading
   } = useSpacePage(name)
 
-  // Delete modal state
   const [deleteModalPost, setDeleteModalPost] = useState<Post | null>(null)
+  const [commentCounts, setCommentCounts] = useState<CommentCountMap>({})
+
+  useEffect(() => {
+    const loadCounts = async () => {
+      if (posts.length === 0) return
+
+      const counts: CommentCountMap = {}
+      
+      for (const post of posts) {
+        try {
+          const comments = await commentService.getCommentsByPostId(post.id)
+          counts[post.id] = getTotalCommentCount(comments)
+        } catch (err) {
+          console.warn(`Failed to load comments for post ${post.id}:`, err)
+          counts[post.id] = post.commentCount
+        }
+      }
+      
+      setCommentCounts(counts)
+    }
+
+    loadCounts()
+  }, [posts])
 
   const handleDeletePost = async () => {
     if (!deleteModalPost) return
@@ -41,11 +70,10 @@ export default function Space() {
     try {
       await postService.deletePost(deleteModalPost.id)
       setDeleteModalPost(null)
-      // Optionally refresh the page to show updated list
       window.location.reload()
     } catch (error) {
       console.error('Failed to delete post:', error)
-      throw error // Let modal handle error
+      throw error
     }
   }
 
@@ -63,32 +91,25 @@ export default function Space() {
 
   if (!space) {
     return (
-   <MainLayout
-      maxWidth="max-w-full"
-      leftSidebar={
-        <DefaultLeftSidebar/>
-      }
-    >
-      <ErrorState
-        title="Space Not Found"
-        message="This space does not exist."
-        onRetry={() => navigate('/spaces')}
-      />
-    </MainLayout>
+      <MainLayout
+        maxWidth="max-w-full"
+        leftSidebar={<DefaultLeftSidebar/>}
+      >
+        <ErrorState
+          title="Space Not Found"
+          message="This space does not exist."
+          onRetry={() => navigate('/spaces')}
+        />
+      </MainLayout>
     )
   }
 
   return (
     <MainLayout
       maxWidth="max-w-6xl"
-      leftSidebar={
-        <DefaultLeftSidebar/>
-      } 
-      rightSidebar={
-        <DefaultRightSidebar/>
-      }
+      leftSidebar={<DefaultLeftSidebar/>} 
+      rightSidebar={<DefaultRightSidebar/>}
     >
-      {/* 2. Header Section */}
       <SpaceHeader 
         space={space} 
         isJoined={isJoined} 
@@ -96,7 +117,6 @@ export default function Space() {
         postCount={posts.length} 
       />
 
-      {/* 3. Global Action Trigger */}
       <Button
         variant="outline"
         fullWidth
@@ -107,10 +127,8 @@ export default function Space() {
         Create a post in r/{space.name}
       </Button>
 
-      {/* 4. Feed Controls */}
       <SpaceSortBar currentSort={sortBy} onSortChange={setSortBy} />
 
-      {/* 5. Posts Feed */}
       <div className="space-y-4 mt-6">
         {posts.length === 0 ? (
           <EmptyState
@@ -123,21 +141,33 @@ export default function Space() {
             }}
           />
         ) : (
-          posts.map((post) => (
-            <PostCard
-              key={post.id}
-              {...post}
-              onUpvote={() => handleVote(post.id, 'up')}
-              onDownvote={() => handleVote(post.id, 'down')}
-              onClick={() => navigate(`/post/${post.id}`)}
-              onEdit={post.isOwner ? () => navigate(`/post/${post.id}/edit`) : undefined}
-              onDelete={post.isOwner ? () => setDeleteModalPost(post) : undefined}
-            />
-          ))
+          posts.map((post) => {
+            const realCommentCount = commentCounts[post.id] ?? post.commentCount
+            
+            return (
+              <PostCard
+                key={post.id}
+                {...post}
+                commentCount={realCommentCount}
+                onUpvote={() => handleVote(post.id, 'up')}
+                onDownvote={() => handleVote(post.id, 'down')}
+                onClick={() => navigate(`/post/${post.id}`)}
+                onEdit={
+                  post.isOwner 
+                    ? () => navigate(`/post/${post.id}/edit`) 
+                    : undefined
+                }
+                onDelete={
+                  post.isOwner 
+                    ? () => setDeleteModalPost(post) 
+                    : undefined
+                }
+              />
+            )
+          })
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
       {deleteModalPost && (
         <DeletePostModal
           isOpen={!!deleteModalPost}

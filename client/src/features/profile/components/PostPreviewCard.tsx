@@ -1,3 +1,6 @@
+// Post preview card with dynamic ownership check
+// Location: client/src/features/profile/components/PostPreviewCard.tsx
+
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { PostCard } from "@/features/posts/components"
@@ -5,74 +8,106 @@ import { DeletePostModal } from "@/features/posts/components"
 import { commentService } from "@/features/comments/services"
 import { postService } from "@/features/posts/services"
 import { getTotalCommentCount } from "@/features/comments/utils/comment-utils"
+import { useVoting } from "@/features/votes/VotingContext"
+import { getCurrentUser } from "@/features/auth/services/authService"
 
-export function PostPreviewCard({ post }: { post: any }) {
+export function PostPreviewCard({ post, onUpdate }: { 
+  post: any
+  onUpdate?: () => void 
+}) {
   const navigate = useNavigate()
-
-  const [vote, setVote] = useState<'up' | 'down' | null>(null)
   const [commentCount, setCommentCount] = useState<number>(post.commentCount)
-  
-  // Delete modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [currentPost, setCurrentPost] = useState(post)
+
+  const { votes, toggleVote, getDisplayVotes } = useVoting()
 
   useEffect(() => {
     const loadComments = async () => {
+      if (!post || !post.id) return
+
       try {
         const comments = await commentService.getCommentsByPostId(post.id)
         setCommentCount(getTotalCommentCount(comments))
       } catch (err) {
-        setCommentCount(post.commentCount)
+        console.warn('Failed to load comment count:', err)
+        setCommentCount(post.commentCount || 0)
       }
     }
 
     loadComments()
   }, [post.id, post.commentCount])
 
-  const toggleVote = (voteType: 'up' | 'down') => {
-    setVote((prev) => (prev === voteType ? null : voteType))
-  }
-
-  const handleDelete = async () => {
-    try {
-      await postService.deletePost(post.id)
-      setIsDeleteModalOpen(false)
-      // Optionally: trigger a refresh or navigate away
-      // window.location.reload() or navigate('/') or call a parent callback
-    } catch (error) {
-      console.error('Failed to delete post:', error)
-      throw error // Let the modal handle the error
+  const handleVote = async (voteType: 'up' | 'down') => {
+    if (!post || !post.id) return
+    
+    await toggleVote(post.id, 'post', voteType)
+    
+    const updatedPost = await postService.getPostById(post.id)
+    if (updatedPost) {
+      setCurrentPost(updatedPost)
+    }
+    
+    if (onUpdate) {
+      onUpdate()
     }
   }
 
-  const displayUpvotes = post.upvotes + (vote === 'up' ? 1 : 0)
-  const displayDownvotes = post.downvotes + (vote === 'down' ? 1 : 0)
+  const handleDelete = async () => {
+    if (!post || !post.id) return
+
+    try {
+      await postService.deletePost(post.id)
+      setIsDeleteModalOpen(false)
+      
+      if (onUpdate) {
+        onUpdate()
+      }
+    } catch (error) {
+      console.error('Failed to delete post:', error)
+      throw error
+    }
+  }
+
+  const checkOwnership = () => {
+    const currentUser = getCurrentUser()
+    if (!currentUser || !currentPost || !currentPost.author) {
+      return false
+    }
+    return currentUser.id === currentPost.author.id
+  }
+
+  const isOwner = checkOwnership()
+
+  const { upvotes, downvotes } = getDisplayVotes(
+    currentPost.id,
+    'post',
+    currentPost.upvotes,
+    currentPost.downvotes
+  )
+
+  const voteKey = `post:${currentPost.id}`
+  const voteState = votes[voteKey]
 
   return (
     <>
       <PostCard
-        {...post}
-        upvotes={displayUpvotes}
-        downvotes={displayDownvotes}
+        {...currentPost}
+        upvotes={upvotes}
+        downvotes={downvotes}
         commentCount={commentCount}
-        isUpvoted={vote === 'up'}
-        isDownvoted={vote === 'down'}
-        onClick={() => navigate(`/post/${post.id}`)}
-        onUpvote={() => toggleVote("up")}
-        onDownvote={() => toggleVote("down")}
-        onEdit={
-          post.isOwner ? () => navigate(`/post/${post.id}/edit`) : undefined
-        }
-        onDelete={
-          post.isOwner 
-            ? () => setIsDeleteModalOpen(true)  // Open modal instead of alert
-            : undefined
-        }
+        isUpvoted={voteState === 'up'}
+        isDownvoted={voteState === 'down'}
+        onClick={() => navigate(`/post/${currentPost.id}`)}
+        onUpvote={() => handleVote("up")}
+        onDownvote={() => handleVote("down")}
+        onEdit={isOwner ? () => navigate(`/post/${currentPost.id}/edit`) : undefined}
+        onDelete={isOwner ? () => setIsDeleteModalOpen(true) : undefined}
       />
 
-      {/* Delete Confirmation Modal */}
       <DeletePostModal
         isOpen={isDeleteModalOpen}
-        postTitle={post.title}
+        postTitle={currentPost.title}
         onConfirm={handleDelete}
         onClose={() => setIsDeleteModalOpen(false)}
       />

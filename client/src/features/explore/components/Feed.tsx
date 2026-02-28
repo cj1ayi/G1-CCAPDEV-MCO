@@ -1,85 +1,78 @@
+// Feed with auto-refetch after voting (Reddit-style)
+// Location: client/src/features/explore/components/Feed.tsx
+
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  PostCard,
-  DeletePostModal,
-} from '@/features/posts/components'
+import { PostCard, DeletePostModal } from '@/features/posts/components'
 import { FeedSkeleton } from '@/components/shared'
 import { postService } from '@/features/posts/services'
 import { commentService } from '@/features/comments/services'
 import { getTotalCommentCount } from '@/features/comments/utils/comment-utils'
 import { Post } from '@/features/posts/types'
 import { useLoadingBar } from '@/hooks'
+import { useVoting } from '@/features/votes/VotingContext'
 
-type VoteState = Record<string, 'up' | 'down' | null>
 type CommentCountMap = Record<string, number>
 
-export const Feed = ({
-  sortBy = 'best',
-}: {
-  sortBy?: string
-}) => {
+export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
   const navigate = useNavigate()
   const [posts, setPosts] = useState<Post[]>([])
-  const [votes, setVotes] = useState<VoteState>({})
-  const [commentCounts, setCommentCounts] =
-    useState<CommentCountMap>({})
+  const [commentCounts, setCommentCounts] = useState<CommentCountMap>({})
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const { startLoading, stopLoading } = useLoadingBar()
-  const [deleteModalPost, setDeleteModalPost] =
-    useState<Post | null>(null)
+  const [deleteModalPost, setDeleteModalPost] = useState<Post | null>(null)
+
+  const { votes, toggleVote, getDisplayVotes } = useVoting()
+
+  const loadPosts = async () => {
+    try {
+      const sortedPosts = await postService.getSortedPosts(sortBy)
+      setPosts(sortedPosts)
+    } catch (err) {
+      console.error('Failed to load posts:', err)
+    }
+  }
 
   useEffect(() => {
-    const loadPosts = async () => {
+    const initialLoad = async () => {
       startLoading()
       setIsInitialLoad(true)
       setPosts([])
 
-      const sortedPosts = await postService.getSortedPosts(
-        sortBy,
-      )
-      setPosts(sortedPosts)
+      await loadPosts()
 
       setIsInitialLoad(false)
       stopLoading()
     }
-    loadPosts()
+    
+    initialLoad()
   }, [sortBy, startLoading, stopLoading])
 
   useEffect(() => {
-    const initVotes: VoteState = {}
-    posts.forEach((p) => (initVotes[p.id] = null))
-    setVotes(initVotes)
-  }, [posts])
-
-  useEffect(() => {
     const loadCounts = async () => {
+      if (posts.length === 0) return
+
       const counts: CommentCountMap = {}
+      
       for (const post of posts) {
         try {
-          const comments =
-            await commentService.getCommentsByPostId(post.id)
+          const comments = await commentService.getCommentsByPostId(post.id)
           counts[post.id] = getTotalCommentCount(comments)
-        } catch {
+        } catch (err) {
+          console.warn(`Failed to load comments for post ${post.id}:`, err)
           counts[post.id] = post.commentCount
         }
       }
+      
       setCommentCounts(counts)
     }
 
-    if (posts.length > 0) {
-      loadCounts()
-    }
+    loadCounts()
   }, [posts])
 
-  const toggleVote = (
-    postId: string,
-    voteType: 'up' | 'down',
-  ) => {
-    setVotes((prev) => ({
-      ...prev,
-      [postId]: prev[postId] === voteType ? null : voteType,
-    }))
+  const handleVote = async (postId: string, voteType: 'up' | 'down') => {
+    await toggleVote(postId, 'post', voteType)
+    await loadPosts()
   }
 
   const handleDeletePost = async () => {
@@ -87,32 +80,11 @@ export const Feed = ({
 
     try {
       await postService.deletePost(deleteModalPost.id)
-      setPosts((prev) =>
-        prev.filter((p) => p.id !== deleteModalPost.id),
-      )
+      setPosts(prev => prev.filter(p => p.id !== deleteModalPost.id))
       setDeleteModalPost(null)
     } catch (error) {
       console.error('Failed to delete post:', error)
-      throw error
     }
-  }
-
-  const getDisplayVotes = (
-    postId: string,
-    baseUpvotes: number,
-    baseDownvotes: number,
-  ) => {
-    const voteState = votes[postId]
-    let displayUpvotes = baseUpvotes
-    let displayDownvotes = baseDownvotes
-
-    if (voteState === 'up') {
-      displayUpvotes += 1
-    } else if (voteState === 'down') {
-      displayDownvotes += 1
-    }
-
-    return { displayUpvotes, displayDownvotes }
   }
 
   if (isInitialLoad) {
@@ -122,38 +94,36 @@ export const Feed = ({
   return (
     <>
       <div className="space-y-4">
-        {posts.map((post) => {
-          const { displayUpvotes, displayDownvotes } =
-            getDisplayVotes(
-              post.id,
-              post.upvotes,
-              post.downvotes,
-            )
-          const voteState = votes[post.id]
-          const realCommentCount =
-            commentCounts[post.id] ?? post.commentCount
+        {posts.map(post => {
+          const { upvotes, downvotes } = getDisplayVotes(
+            post.id,
+            'post',
+            post.upvotes,
+            post.downvotes
+          )
+          
+          const voteKey = `post:${post.id}`
+          const voteState = votes[voteKey]
+          const realCommentCount = commentCounts[post.id] ?? post.commentCount
 
           return (
             <PostCard
               key={post.id}
               {...post}
-              upvotes={displayUpvotes}
-              downvotes={displayDownvotes}
+              upvotes={upvotes}
+              downvotes={downvotes}
               commentCount={realCommentCount}
               isUpvoted={voteState === 'up'}
               isDownvoted={voteState === 'down'}
               onClick={() => navigate(`/post/${post.id}`)}
-              onUpvote={() => toggleVote(post.id, 'up')}
-              onDownvote={() => toggleVote(post.id, 'down')}
+              onUpvote={() => handleVote(post.id, 'up')}
+              onDownvote={() => handleVote(post.id, 'down')}
               onEdit={
-                post.isOwner
-                  ? () => navigate(`/post/${post.id}/edit`)
-                  : undefined
+                post.isOwner ? () => navigate(`/post/${post.id}/edit`) : 
+                undefined
               }
               onDelete={
-                post.isOwner
-                  ? () => setDeleteModalPost(post)
-                  : undefined
+                post.isOwner ? () => setDeleteModalPost(post) : undefined
               }
             />
           )

@@ -2,24 +2,26 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { postService } from '../services'
 import { getPostById as getMockPost } from '@/lib/mockData'
-import { useVoting } from './useVoting'
 import { getCurrentUser } from '@/features/auth/services/authService'
 import { useLoadingBar } from '@/hooks'
+import { useVoting } from '@/features/votes/VotingContext'
 
 interface UsePostDetailOptions {
   postId: string | undefined
   backUrl?: string
 }
 
-export const usePostDetail = ({ postId, backUrl = '/explore' }: 
-                              UsePostDetailOptions) => {
+export const usePostDetail = ({ 
+  postId, 
+  backUrl = '/explore' 
+}: UsePostDetailOptions) => {
   const navigate = useNavigate()
   const [post, setPost] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const { startLoading, stopLoading } = useLoadingBar()
 
-  const { voteState, toggleVote, getDisplayVotes } = useVoting()
+  const { votes, toggleVote, getDisplayVotes } = useVoting()
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -57,17 +59,25 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
     }
 
     fetchPost()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId])
+  }, [postId, startLoading, stopLoading])
 
-  const displayVotes = post ? getDisplayVotes(
-    post.upvotes, post.downvotes) : { upvotes: 0, downvotes: 0 }
+  const displayVotes = post && postId
+    ? getDisplayVotes(postId, 'post', post.upvotes, post.downvotes)
+    : { upvotes: 0, downvotes: 0 }
+  
   const score = displayVotes.upvotes - displayVotes.downvotes
+  const voteKey = postId ? `post:${postId}` : ''
+  const voteState = voteKey ? votes[voteKey] : null
 
-  const handleEdit = () => navigate(`/post/${postId}/edit`)
+  const handleEdit = () => {
+    if (postId) {
+      navigate(`/post/${postId}/edit`)
+    }
+  }
   
   const handleDelete = async () => {
     if (!postId) return
+    
     try {
       await postService.deletePost(postId)
       setIsDeleteModalOpen(false)
@@ -78,7 +88,21 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
   }
 
   const handleSpaceClick = () => {
-    if (post?.space) navigate(`/r/${post.space}`)
+    if (post?.space) {
+      navigate(`/r/${post.space}`)
+    }
+  }
+
+  const handleUpvote = () => {
+    if (postId) {
+      toggleVote(postId, 'post', 'up')
+    }
+  }
+
+  const handleDownvote = () => {
+    if (postId) {
+      toggleVote(postId, 'post', 'down')
+    }
   }
 
   return {
@@ -87,8 +111,8 @@ export const usePostDetail = ({ postId, backUrl = '/explore' }:
     score,
     isUpvoted: voteState === 'up',
     isDownvoted: voteState === 'down',
-    onUpvote: () => toggleVote('up'),
-    onDownvote: () => toggleVote('down'),
+    onUpvote: handleUpvote,
+    onDownvote: handleDownvote,
     isDeleteModalOpen,
     openDeleteModal: () => setIsDeleteModalOpen(true),
     closeDeleteModal: () => setIsDeleteModalOpen(false),

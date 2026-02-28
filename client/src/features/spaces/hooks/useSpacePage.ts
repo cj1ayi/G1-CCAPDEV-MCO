@@ -1,3 +1,6 @@
+// Space page hook with refetch after voting
+// Location: client/src/features/spaces/hooks/useSpacePage.ts
+
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { spaceService } from '../services/spaceService'
@@ -5,6 +8,7 @@ import { SortOption } from '../types'
 import { Space } from '@/features/spaces/types'
 import { Post } from '@/features/posts/types'
 import { useLoadingBar } from '@/hooks'
+import { useVoting } from '@/features/votes/VotingContext'
 
 export const useSpacePage = (spaceName?: string) => {
   const navigate = useNavigate()
@@ -16,7 +20,27 @@ export const useSpacePage = (spaceName?: string) => {
   const [isLoadingPosts, setIsLoadingPosts] = useState(false)
   const { startLoading, stopLoading } = useLoadingBar()
 
-  // Load space data (only on initial mount or space name change)
+  const { votes, toggleVote, getDisplayVotes } = useVoting()
+
+  const loadPosts = async () => {
+    if (!spaceName) {
+      setPosts([])
+      return
+    }
+
+    try {
+      const spacePosts = await spaceService.getSpacePosts(
+        spaceName, 
+        sortBy as any
+      )
+      console.log('Found posts for space:', spacePosts)
+      setPosts(spacePosts)
+    } catch (error) {
+      console.error('Error loading posts:', error)
+      setPosts([])
+    }
+  }
+
   useEffect(() => {
     const loadSpace = async () => {
       console.log('useSpacePage - spaceName:', spaceName)
@@ -53,42 +77,25 @@ export const useSpacePage = (spaceName?: string) => {
     }
 
     loadSpace()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spaceName])
+  }, [spaceName, startLoading, stopLoading])
 
-  // Load posts (on initial mount, space name change, or sort change)
   useEffect(() => {
-    const loadPosts = async () => {
-      if (!spaceName) {
-        setPosts([])
-        return
-      }
-
-      // Only show loading bar for sort changes, not initial load
+    const loadPostsEffect = async () => {
       if (!isLoading) {
         startLoading()
         setIsLoadingPosts(true)
-        setPosts([]) // Clear posts for smooth transition
+        setPosts([])
       }
 
-      try {
-        const spacePosts = await spaceService.getSpacePosts(
-          spaceName, sortBy as any)
-        console.log('Found posts for space:', spacePosts)
-        setPosts(spacePosts)
-      } catch (error) {
-        console.error('Error loading posts:', error)
-        setPosts([])
-      } finally {
-        if (!isLoading) {
-          setIsLoadingPosts(false)
-          stopLoading()
-        }
+      await loadPosts()
+
+      if (!isLoading) {
+        setIsLoadingPosts(false)
+        stopLoading()
       }
     }
 
-    loadPosts()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    loadPostsEffect()
   }, [spaceName, sortBy, isLoading])
 
   const toggleJoin = async () => {
@@ -113,22 +120,35 @@ export const useSpacePage = (spaceName?: string) => {
     navigate('/post/create')
   }
 
-  const handleVote = (postId: string, voteType: 'up' | 'down') => {
-    setPosts(posts.map(post => {
-      if (post.id === postId) {
-        return {
-          ...post,
-          upvotes: voteType === 'up' ? post.upvotes + 1 : post.upvotes,
-          downvotes: voteType === 'down' ? post.downvotes + 1 : post.downvotes
-        }
-      }
-      return post
-    }))
+  const handleVote = async (postId: string, voteType: 'up' | 'down') => {
+    if (!postId) return
+    await toggleVote(postId, 'post', voteType)
+    await loadPosts()
   }
+
+  const postsWithVotes = posts.map(post => {
+    const { upvotes, downvotes } = getDisplayVotes(
+      post.id,
+      'post',
+      post.upvotes,
+      post.downvotes
+    )
+    
+    const voteKey = `post:${post.id}`
+    const voteState = votes[voteKey]
+
+    return {
+      ...post,
+      upvotes,
+      downvotes,
+      isUpvoted: voteState === 'up',
+      isDownvoted: voteState === 'down'
+    }
+  })
 
   return {
     space,
-    posts,
+    posts: postsWithVotes,
     sortBy,
     setSortBy,
     isJoined,
