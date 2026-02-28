@@ -1,6 +1,10 @@
+// PostCardHeader with formatted dates
+// Location: client/src/features/posts/components/PostCardHeader.tsx
+
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react'
 import { Dropdown, DropdownItem, DropdownSeparator } from '@/components/ui'
 import { cn } from '@/lib/utils'
+import { formatTimeAgo } from '@/lib/dateUtils'
 import type { PostCardHeaderProps } from './types'
 import { FLAIR_COLORS } from './types'
 
@@ -53,7 +57,7 @@ export const PostCardHeader = ({
           u/{author.username}
         </span>
         <span>•</span>
-        <span>{createdAt}</span>
+        <span>{formatTimeAgo(createdAt)}</span>
 
         {/* Flair */}
         {flair && (
