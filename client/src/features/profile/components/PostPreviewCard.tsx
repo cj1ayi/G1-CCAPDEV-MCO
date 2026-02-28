@@ -1,4 +1,4 @@
-// Post preview card with refetch after voting
+// Post preview card with dynamic ownership check
 // Location: client/src/features/profile/components/PostPreviewCard.tsx
 
 import { useEffect, useState } from "react"
@@ -9,6 +9,7 @@ import { commentService } from "@/features/comments/services"
 import { postService } from "@/features/posts/services"
 import { getTotalCommentCount } from "@/features/comments/utils/comment-utils"
 import { useVoting } from "@/features/votes/VotingContext"
+import { getCurrentUser } from "@/features/auth/services/authService"
 
 export function PostPreviewCard({ post, onUpdate }: { 
   post: any
@@ -23,11 +24,14 @@ export function PostPreviewCard({ post, onUpdate }: {
 
   useEffect(() => {
     const loadComments = async () => {
+      if (!post || !post.id) return
+
       try {
         const comments = await commentService.getCommentsByPostId(post.id)
         setCommentCount(getTotalCommentCount(comments))
       } catch (err) {
-        setCommentCount(post.commentCount)
+        console.warn('Failed to load comment count:', err)
+        setCommentCount(post.commentCount || 0)
       }
     }
 
@@ -35,7 +39,7 @@ export function PostPreviewCard({ post, onUpdate }: {
   }, [post.id, post.commentCount])
 
   const handleVote = async (voteType: 'up' | 'down') => {
-    if (!post.id) return
+    if (!post || !post.id) return
     
     await toggleVote(post.id, 'post', voteType)
     
@@ -50,9 +54,12 @@ export function PostPreviewCard({ post, onUpdate }: {
   }
 
   const handleDelete = async () => {
+    if (!post || !post.id) return
+
     try {
       await postService.deletePost(post.id)
       setIsDeleteModalOpen(false)
+      
       if (onUpdate) {
         onUpdate()
       }
@@ -61,6 +68,16 @@ export function PostPreviewCard({ post, onUpdate }: {
       throw error
     }
   }
+
+  const checkOwnership = () => {
+    const currentUser = getCurrentUser()
+    if (!currentUser || !currentPost || !currentPost.author) {
+      return false
+    }
+    return currentUser.id === currentPost.author.id
+  }
+
+  const isOwner = checkOwnership()
 
   const { upvotes, downvotes } = getDisplayVotes(
     currentPost.id,
@@ -84,14 +101,8 @@ export function PostPreviewCard({ post, onUpdate }: {
         onClick={() => navigate(`/post/${currentPost.id}`)}
         onUpvote={() => handleVote("up")}
         onDownvote={() => handleVote("down")}
-        onEdit={
-          currentPost.isOwner 
-            ? () => navigate(`/post/${currentPost.id}/edit`) 
-            : undefined
-        }
-        onDelete={
-          currentPost.isOwner ? () => setIsDeleteModalOpen(true) : undefined
-        }
+        onEdit={isOwner ? () => navigate(`/post/${currentPost.id}/edit`) : undefined}
+        onDelete={isOwner ? () => setIsDeleteModalOpen(true) : undefined}
       />
 
       <DeletePostModal

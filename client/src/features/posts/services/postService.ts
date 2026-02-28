@@ -1,3 +1,6 @@
+// Post service with real vote totals from voteService
+// Location: client/src/features/posts/services/postService.ts
+
 import { Post } from '@/features/posts/types'
 import { 
   getCurrentUser as getAuthUser 
@@ -61,6 +64,12 @@ class PostService {
     }
   }
 
+  private calculateOwnership(post: Post): Post {
+    const currentUser = getAuthUser()
+    const isOwner = currentUser ? post.author.id === currentUser.id : false
+    return { ...post, isOwner }
+  }
+
   private async applyRealVoteTotals(posts: Post[]): Promise<Post[]> {
     if (!posts || posts.length === 0) return []
     
@@ -74,14 +83,15 @@ class PostService {
       
       try {
         const stats = await voteService.getVoteStats(post.id, 'post')
-        postsWithVotes.push({
+        const postWithVotes = {
           ...post,
           upvotes: stats.upvotes,
           downvotes: stats.downvotes
-        })
+        }
+        postsWithVotes.push(this.calculateOwnership(postWithVotes))
       } catch (err) {
         console.warn(`Failed to get votes for post ${post.id}:`, err)
-        postsWithVotes.push(post)
+        postsWithVotes.push(this.calculateOwnership(post))
       }
     }
     
@@ -270,14 +280,13 @@ class PostService {
       createdAt: 'Just now',
       imageUrl: dto.imageUrl,
       tags: dto.tags || [],
-      isOwner: true,
     }
 
     const posts = this.getStore()
     const updatedPosts = [newPost, ...posts]
     this.setStore(updatedPosts)
 
-    return newPost
+    return this.calculateOwnership(newPost)
   }
 
   async updatePost(id: string, dto: UpdatePostDto): Promise<Post> {
