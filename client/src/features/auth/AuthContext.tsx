@@ -1,74 +1,104 @@
+// Auth context with user change events for vote reloading
+// Location: client/src/features/auth/AuthContext.tsx
+
 import { 
   createContext, 
   useState, 
   useEffect, 
   useCallback, 
   type ReactNode 
-} from "react";
+} from "react"
 
 import {
   login as loginService,
   signup as signupService,
   logout as logoutService,
   getCurrentUser,
-} from "@/features/auth/services";
+} from "@/features/auth/services"
 
 import { 
   AuthUser, 
   AuthContextType 
-} from "@/features/auth/types";
+} from "@/features/auth/types"
 
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+)
 
-export const AuthContext = createContext<
-AuthContextType | undefined>(undefined);
+const AUTH_CHANGE_EVENT = 'auth-user-changed'
 
-// ---------------------------------------------------------------------------
-// Provider
-// ---------------------------------------------------------------------------
+function dispatchAuthChange() {
+  window.dispatchEvent(new CustomEvent(AUTH_CHANGE_EVENT))
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Rehydrate session on mount (handles "Remember Me" persistence)
   useEffect(() => {
-    const stored = getCurrentUser();
-    if (stored) setUser(stored);
-    setIsLoading(false);
-  }, []);
+    const stored = getCurrentUser()
+    if (stored) {
+      setUser(stored)
+    }
+    setIsLoading(false)
+  }, [])
 
   const login = useCallback(
-    (usernameOrEmail: string, 
-     password: string, remember: boolean = false): boolean => {
-      const result = loginService(usernameOrEmail, password, remember);
+    (
+      usernameOrEmail: string, 
+      password: string, 
+      remember: boolean = false
+    ): boolean => {
+      const result = loginService(usernameOrEmail, password, remember)
       if (result) {
-        setUser(result);
-        return true;
+        setUser(result)
+        dispatchAuthChange()
+        return true
       }
-      return false;
+      return false
     },
     []
-  );
+  )
 
   const signup = useCallback(
     (email: string, username: string, password: string): boolean => {
-      const result = signupService(email, username, password);
+      const result = signupService(email, username, password)
       if (result) {
-        setUser(result);
-        return true;
+        setUser(result)
+        dispatchAuthChange()
+        return true
       }
-      return false;
+      return false
     },
     []
-  );
+  )
 
   const logout = useCallback(() => {
-    logoutService();
-    setUser(null);
-  }, []);
+    logoutService()
+    setUser(null)
+    dispatchAuthChange()
+  }, [])
+
+  const contextValue = {
+    user,
+    isLoading,
+    login,
+    signup,
+    logout
+  }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}
+
+export function useAuthChangeListener(callback: () => void) {
+  useEffect(() => {
+    window.addEventListener(AUTH_CHANGE_EVENT, callback)
+    return () => {
+      window.removeEventListener(AUTH_CHANGE_EVENT, callback)
+    }
+  }, [callback])
+}
