@@ -3,6 +3,7 @@ import { PostDetailVoteColumn } from './PostDetailVoteColumn'
 import { PostDetailActions } from './PostDetailActions'
 import { Avatar } from '@/components/ui'
 import type { PostDetailContentProps } from '../types'
+import { formatTimeAgo } from '@/lib/dateUtils'
 
 export const PostDetailContent = ({
   post,
@@ -117,7 +118,7 @@ export const PostDetailContent = ({
                 </span>
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {post.createdAt}
+                {formatTimeAgo(post.createdAt)}
               </p>
             </div>
           </div>

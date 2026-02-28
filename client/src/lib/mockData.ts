@@ -5,7 +5,6 @@ import callo from '@/assets/pfp/callo.png'
 import pring from '@/assets/pfp/pring.gif'
 import enzo from '@/assets/pfp/enzo.gif'
 
-// Import types from features (Single source of truth)
 import { CommentCardProps } from '@/features/comments/types'
 import { Post } from '@/features/posts/types'
 import { Space, SpaceRule } from '@/features/spaces/types'
@@ -20,10 +19,8 @@ import {
   treeToLegacyFormat 
 } from '@/features/comments/utils/comment-tree-builder'
 
-// Re-export types for convenience
 export type { Post, Space, SpaceRule, User }
 
-// Helper function to create URL-friendly slugs
 export const createSpaceSlug = (displayName: string): string => {
   return displayName
     .toLowerCase()
@@ -36,7 +33,7 @@ export const mockSpaces: Space[] = [
     id: '1',
     name: 'ccs-gov',
     displayName: 'CCS Student Gov',
-    description: 'Official updates, announcements, and support from the College of Computer Studies Student Government.',
+    description: 'Official updates, announcements, and support from the CCS Student Government.',
     memberCount: '1.2k',
     postCount: '450',
     icon: 'C',
@@ -48,16 +45,25 @@ export const mockSpaces: Space[] = [
     createdDate: 'Aug 24, 2018',
     bannerUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Xukxb2LT4Mj6TjnwhnNtFL4ao6VlYjxduRaoL2twXEpqafKTN0IYPbjjgb5qVdtBLv7KGnqQjFEIs5PVihem28O11xmtCfpUyyrD4BGyJbd58psZuBZSEguY-fvrpnbbrNLOLSTMLGUCiZTmRfTKyZKfOF3l1YQMRt0cK4fOqXOYKBMlVy12c9NkO65iOvmRD4rrZTzHQr_w4E8wpkhdaGDtZq3d6SBP03g0VhBp5q2CnqRbvxmZcEIGBdshM0VZqXHjgBDMJA',
     rules: [
-      { title: 'Be Respectful', description: 'We are all Lasallians here. No hate speech.' },
-      { title: 'No NSFW Content', description: 'Keep it clean and wholesome.' },
-      { title: 'DLSU Related Only', description: 'Memes must be relevant to university life.' }
+      { 
+        title: 'Be Respectful', 
+        description: 'We are all Lasallians here. No hate speech.' 
+      },
+      { 
+        title: 'No NSFW Content', 
+        description: 'Keep it clean and wholesome.' 
+      },
+      { 
+        title: 'DLSU Related Only', 
+        description: 'Memes must be relevant to university life.' 
+      }
     ]
   },
   {
     id: '2',
     name: 'freedom-wall',
     displayName: 'DLSU Freedom Wall',
-    description: 'Express yourself anonymously. The pulse of the Lasallian community. Keep it respectful.',
+    description: 'Express yourself anonymously. The pulse of the Lasallian community.',
     memberCount: '5.6k',
     postCount: '10k+',
     icon: 'F',
@@ -75,7 +81,7 @@ export const mockSpaces: Space[] = [
     id: '3',
     name: 'the-lasallian',
     displayName: 'TheLasallian',
-    description: 'The official student publication of De La Salle University. The bastion of issue-oriented critical thinking.',
+    description: 'The official student publication of De La Salle University.',
     memberCount: '1.2k',
     postCount: '450',
     icon: 'L',
@@ -87,16 +93,25 @@ export const mockSpaces: Space[] = [
     createdDate: 'Aug 24, 2018',
     bannerUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Xukxb2LT4Mj6TjnwhnNtFL4ao6VlYjxduRaoL2twXEpqafKTN0IYPbjjgb5qVdtBLv7KGnqQjFEIs5PVihem28O11xmtCfpUyyrD4BGyJbd58psZuBZSEguY-fvrpnbbrNLOLSTMLGUCiZTmRfTKyZKfOF3l1YQMRt0cK4fOqXOYKBMlVy12c9NkO65iOvmRD4rrZTzHQr_w4E8wpkhdaGDtZq3d6SBP03g0VhBp5q2CnqRbvxmZcEIGBdshM0VZqXHjgBDMJA',
     rules: [
-      { title: 'Be Respectful', description: 'We are all Lasallians here. No hate speech.' },
-      { title: 'No NSFW Content', description: 'Keep it clean and wholesome.' },
-      { title: 'DLSU Related Only', description: 'Memes must be relevant to university life.' }
+      { 
+        title: 'Be Respectful', 
+        description: 'We are all Lasallians here. No hate speech.' 
+      },
+      { 
+        title: 'No NSFW Content', 
+        description: 'Keep it clean and wholesome.' 
+      },
+      { 
+        title: 'DLSU Related Only', 
+        description: 'Memes must be relevant to university life.' 
+      }
     ]
   },
   {
     id: '4',
     name: 'pts',
     displayName: 'Paul Tan Society',
-    description: 'Academic help and support for struggling students. No judgment, just help.',
+    description: 'Academic help and support for struggling students.',
     memberCount: '890',
     postCount: '234',
     icon: 'P',
@@ -106,15 +121,21 @@ export const mockSpaces: Space[] = [
     isJoined: false,
     createdDate: 'Jan 15, 2020',
     rules: [
-      { title: 'Be Respectful', description: 'No shaming students for asking questions.' },
-      { title: 'Academic Integrity', description: 'Help, don\'t enable cheating.' }
+      { 
+        title: 'Be Respectful', 
+        description: 'No shaming students for asking questions.' 
+      },
+      { 
+        title: 'Academic Integrity', 
+        description: 'Help, don\'t enable cheating.' 
+      }
     ]
   },
   {
     id: '5',
     name: 'rinaldoeats',
     displayName: 'RinaldoEats',
-    description: 'Rinaldo\'s official food recommendations and restaurant reviews. Trust the process, trust the appetite.',
+    description: 'Rinaldo\'s official food recommendations and restaurant reviews.',
     memberCount: '890',
     postCount: '234',
     icon: '🍔',
@@ -124,9 +145,18 @@ export const mockSpaces: Space[] = [
     isJoined: false,
     createdDate: 'Jan 15, 2020',
     rules: [
-      { title: 'Trust Rinaldo', description: 'If Rinaldo recommends it, it slaps. No debate.' },
-      { title: 'No Food Shaming', description: 'All cuisines welcome. We support the hustle.' },
-      { title: 'Honest Reviews Only', description: 'Keep it real. Good or bad, tell the truth.' }
+      { 
+        title: 'Trust Rinaldo', 
+        description: 'If Rinaldo recommends it, it slaps. No debate.' 
+      },
+      { 
+        title: 'No Food Shaming', 
+        description: 'All cuisines welcome. We support the hustle.' 
+      },
+      { 
+        title: 'Honest Reviews Only', 
+        description: 'Keep it real. Good or bad, tell the truth.' 
+      }
     ]
   },
 ]
@@ -194,7 +224,7 @@ export const mockUsers: Record<string, User> = {
   }
 }
 
-export const mockPosts: Record<string, Post> = {
+export const getMockPosts = (): Record<string, Post> => ({
   '1': {
     id: '1',
     title: 'ANNOUNCEMENT URGENT !!!',
@@ -209,14 +239,14 @@ export const mockPosts: Record<string, Post> = {
     upvotes: 67,
     downvotes: 0,
     commentCount: 2,
-    createdAt: '2 hours ago',
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     tags: ['CSINSTY', 'IMPORTANT'],
     isOwner: true,
   },
   '2': {
     id: '2',
     title: 'CAT GOT YOUR... MAIL??!!',
-    content: 'As the day of hearts inches closer, a special delivery has been made just fur you~ 🌟💞 Make sure to check out some of our claw-some Cat-Mail at CADS until Friday, 6PM. 💌Sealed with sweet com-paw-ssion, these Cat-Mails will definitely warmly envelope you in love. 🫂 Catch you later at our booth this Valentine\'s bazaar~ 😼💘',
+    content: 'As the day of hearts inches closer, a special delivery has been made just fur you~ 🌟💞',
     author: {
       id: '5',
       name: 'Floranaras',
@@ -227,7 +257,7 @@ export const mockPosts: Record<string, Post> = {
     upvotes: 39,
     downvotes: 0,
     commentCount: 1,
-    createdAt: '12 hours ago',
+    createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
     tags: ['catlovers'],
     isEdited: false,
     isOwner: false,
@@ -235,7 +265,7 @@ export const mockPosts: Record<string, Post> = {
   '3': {
     id: '3',
     title: 'BREAKING NEWS: Local Shark terrorizes booths and ruins Valentines',
-    content: 'In an unprecedented attack on romance, a land shark has emerged from the depths of campus to wreak havoc on Valentines festivities. Booth operators describe scenes of absolute chaos as the predator circled their stands with concerning enthusiasm. Love is dead. The shark remains at large.',
+    content: 'In an unprecedented attack on romance, a land shark has emerged from the depths of campus to wreak havoc on Valentines festivities.',
     author: {
       id: '5',
       name: 'Floranaras',
@@ -246,15 +276,15 @@ export const mockPosts: Record<string, Post> = {
     upvotes: 240,
     downvotes: 67,
     commentCount: 2,
-    createdAt: '12 hours ago',
-    tags: ['JawsButMakeItRomantic', 'SharkWeekButMakeItValentines', 'TheSharkening'],
+    createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    tags: ['JawsButMakeItRomantic', 'SharkWeekButMakeItValentines'],
     isEdited: false,
     isOwner: false,
   },
   '4': {
     id: '4',
     title: 'ST-MATH GOT HANDS',
-    content: 'pleaase doc g my integrals is kinda homeless. i was so proud of my trig sub i forgot i didnt even integrate it',
+    content: 'pleaase doc g my integrals is kinda homeless.',
     author: {
       id: '3',
       name: 'Sussus Amogus',
@@ -265,7 +295,7 @@ export const mockPosts: Record<string, Post> = {
     upvotes: 670,
     downvotes: 0,
     commentCount: 1,
-    createdAt: '1 hour ago',
+    createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     tags: ['1000Integrals'],
     isEdited: false,
     isOwner: false,
@@ -273,7 +303,7 @@ export const mockPosts: Record<string, Post> = {
   '8': {
     id: '8',
     title: 'KFC, WORST FAST FOOD',
-    content: 'Ok sge The context I love KFC Favorite Fastfood ko sya and I have this one order lagi Zinger Steak with Large Fries and Royal, separate sauce 4 times kami ni @tiamlee nag KFC From last week Hint senna toppu Last monday, no zinger Last tuesday, no zinger, pero may zinger sa tray, so I asked ano yan, person in front of me ordered the last zinger Last thursday, ang unti ng fries na binigay, not usual portions, naubos gravy, and they didnt give out extra bowls, may langaw pa sa royal ko This monday, no fries, pero may fries sa tray, so I asked ano yan, person IN FRONT OF ME AGAIN ordered the last batch of FRIES Then kahapon Nag KFC sila @tiamlee @Sherwynn AND YOUR TELLING ME KUNG KELAN WALA AKO',
+    content: 'Ok sge The context I love KFC Favorite Fastfood ko sya...',
     author: {
       id: '7',
       name: 'Enzo',
@@ -284,12 +314,14 @@ export const mockPosts: Record<string, Post> = {
     upvotes: 167,
     downvotes: 0,
     commentCount: 4,
-    createdAt: '3 months ago',
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
     tags: ['enzomeal'],
     isEdited: false,
     isOwner: false,
   }
-}
+})
+
+export const mockPosts = getMockPosts()
 
 export const mockCommentsFlatData: Record<string, Comment[]> = {
   '1': [
@@ -300,7 +332,7 @@ export const mockCommentsFlatData: Record<string, Comment[]> = {
       parentId: null,
       content: '??!?!?',
       depth: 0,
-      createdAt: new Date(Date.now() - 1800000), // 30m ago
+      createdAt: new Date(Date.now() - 1800000),
       updatedAt: new Date(Date.now() - 1800000),
       editedAt: null,
       deletedAt: null,
@@ -313,7 +345,7 @@ export const mockCommentsFlatData: Record<string, Comment[]> = {
       parentId: 'comment-1',
       content: 'you must stop breeding the horses',
       depth: 1,
-      createdAt: new Date(Date.now() - 1200000), // 20m ago
+      createdAt: new Date(Date.now() - 1200000),
       updatedAt: new Date(Date.now() - 1200000),
       editedAt: null,
       deletedAt: null,
@@ -328,7 +360,7 @@ export const mockCommentsFlatData: Record<string, Comment[]> = {
       parentId: null,
       content: 'meow meow',
       depth: 0,
-      createdAt: new Date(Date.now() - 3600000), // 1h ago
+      createdAt: new Date(Date.now() - 3600000),
       updatedAt: new Date(Date.now() - 3600000),
       editedAt: null,
       deletedAt: null,
@@ -343,7 +375,7 @@ export const mockCommentsFlatData: Record<string, Comment[]> = {
       parentId: null,
       content: 'THATS ME',
       depth: 0,
-      createdAt: new Date(Date.now() - 7200000), // 2h ago
+      createdAt: new Date(Date.now() - 7200000),
       updatedAt: new Date(Date.now() - 7200000),
       editedAt: null,
       deletedAt: null,
@@ -356,7 +388,7 @@ export const mockCommentsFlatData: Record<string, Comment[]> = {
       parentId: 'comment-3-1',
       content: 'do dinosaur next',
       depth: 1,
-      createdAt: new Date(Date.now() - 3600000), // 1h ago
+      createdAt: new Date(Date.now() - 3600000),
       updatedAt: new Date(Date.now() - 3600000),
       editedAt: null,
       deletedAt: null,
@@ -369,9 +401,9 @@ export const mockCommentsFlatData: Record<string, Comment[]> = {
       postId: '4',
       authorId: '3',
       parentId: null,
-      content: 'me when i get people killed from a free falling object because i integrated wrong and got the wrong time',
+      content: 'me when i get people killed from a free falling object',
       depth: 0,
-      createdAt: new Date(Date.now() - 1800000), // 30m ago
+      createdAt: new Date(Date.now() - 1800000),
       updatedAt: new Date(Date.now() - 1800000),
       editedAt: null,
       deletedAt: null,
@@ -434,9 +466,6 @@ export const mockCommentsFlatData: Record<string, Comment[]> = {
   ]
 }
 
-/**
- * Helper: Populate comment with author
- */
 function populateCommentAuthor(comment: Comment): CommentWithAuthor {
   const author = mockUsers[comment.authorId]
   if (!author) {
@@ -451,40 +480,28 @@ function populateCommentAuthor(comment: Comment): CommentWithAuthor {
       displayName: author.name,
       avatar: author.avatar || ''
     },
-    voteScore: 0, // TODO: Calculate from votes
+    voteScore: 0,
     userVote: null
   }
 }
 
-/**
- * Helper: Get flat comments for post
- */
 export function getFlatCommentsByPostId(postId: string): Comment[] {
   return mockCommentsFlatData[postId] || []
 }
 
-/**
- * Helper: Get comment tree for post
- */
 export function getCommentTreeForPost(postId: string): CommentTreeNode[] {
   const flat = getFlatCommentsByPostId(postId)
   const populated = flat.map(populateCommentAuthor)
   return buildCommentTree(populated)
 }
 
-/**
- * BACKWARDS COMPATIBILITY: Keep old format working
- * This converts flat data to nested format for existing components
- */
-export const mockComments: Record<string, CommentCardProps[]> = Object.keys(mockCommentsFlatData).reduce((acc, postId) => {
-  const tree = getCommentTreeForPost(postId)
-  acc[postId] = treeToLegacyFormat(tree) as any
-  return acc
-}, {} as Record<string, CommentCardProps[]>)
+export const mockComments: Record<string, CommentCardProps[]> = 
+  Object.keys(mockCommentsFlatData).reduce((acc, postId) => {
+    const tree = getCommentTreeForPost(postId)
+    acc[postId] = treeToLegacyFormat(tree) as any
+    return acc
+  }, {} as Record<string, CommentCardProps[]>)
 
-/**
- * Helper: Get comments by user (NOW EASY!)
- */
 export function getCommentsByUserId(userId: string): Comment[] {
   const allComments: Comment[] = []
   Object.values(mockCommentsFlatData).forEach(postComments => {
@@ -494,22 +511,17 @@ export function getCommentsByUserId(userId: string): Comment[] {
   return allComments
 }
 
-/**
- * Helper: Count active comments
- */
 export function countActiveComments(postId: string): number {
   const comments = getFlatCommentsByPostId(postId)
   return comments.filter(c => c.deletedAt === null).length
 }
 
-// Utility to count nested comments
 const countComments = (comments: CommentCardProps[]): number => {
   return comments.reduce((total, comment) => {
     return total + 1 + (comment.replies ? countComments(comment.replies) : 0)
   }, 0)
 }
 
-// Helper Functions
 export const getAllSpaces = (): Space[] => {
   return mockSpaces
 }
@@ -519,12 +531,12 @@ export const getSpaceByName = (name: string): Space | undefined => {
 }
 
 export const getPostsBySpace = (spaceName: string): Post[] => {
-  return Object.values(mockPosts)
+  return Object.values(getMockPosts())
     .filter(post => post.space.toLowerCase() === spaceName?.toLowerCase())
 }
 
 export const getAllPosts = (): Post[] => {
-  return Object.values(mockPosts)
+  return Object.values(getMockPosts())
 }
 
 export const getAllUsers = (): User[] => {
@@ -536,7 +548,8 @@ export const getUserById = (id: string): User | null => {
 }
 
 export const getPostById = (id: string): Post | null => {
-  return mockPosts[id] || null
+  const posts = getMockPosts()
+  return posts[id] || null
 }
 
 export const getCommentsByPostId = (postId: string): CommentCardProps[] => {
@@ -547,23 +560,29 @@ export const addSpace = (space: Space): void => {
   mockSpaces.push(space)
 }
 
-export const updateSpaceJoinStatus = (spaceName: string, isJoined: boolean): void => {
-  const space = mockSpaces.find(s => s.name.toLowerCase() === spaceName?.toLowerCase())
+export const updateSpaceJoinStatus = (
+  spaceName: string, 
+  isJoined: boolean
+): void => {
+  const space = mockSpaces.find(
+    s => s.name.toLowerCase() === spaceName?.toLowerCase()
+  )
   if (space) {
     space.isJoined = isJoined
   }
 }
 
-// Validate comment counts (development only)
 if (process.env.NODE_ENV === 'development') {
-  Object.keys(mockPosts).forEach((postId) => {
-    const post = mockPosts[postId]
+  const posts = getMockPosts()
+  Object.keys(posts).forEach((postId) => {
+    const post = posts[postId]
     const comments = mockComments[postId] || []
     const actualCount = countComments(comments)
     
     if (post.commentCount !== actualCount) {
       console.warn(
-        `Post ${postId} comment count mismatch: expected ${post.commentCount}, actual ${actualCount}`
+        `Post ${postId} comment count mismatch: ` +
+        `expected ${post.commentCount}, actual ${actualCount}`
       )
     }
   })
