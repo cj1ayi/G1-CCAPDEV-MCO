@@ -277,7 +277,7 @@ class PostService {
       upvotes: 0,
       downvotes: 0,
       commentCount: 0,
-      createdAt: 'Just now',
+      createdAt: new Date().toISOString(),
       imageUrl: dto.imageUrl,
       tags: dto.tags || [],
     }
