@@ -27,8 +27,7 @@ export const useSpaces = () => {
       setIsLoading(false)
       stopLoading()
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadSpaces])
+  }, [loadSpaces, startLoading, stopLoading])
 
   const loadMore = async () => {
     setIsLoadingMore(true)
@@ -41,11 +40,20 @@ export const useSpaces = () => {
   const toggleJoin = async (id: string) => {
     const space = spaces.find(s => s.id === id)
     if (!space) return
-    setSpaces(prev => prev.map(
-      s => s.id === id ? { ...s, isJoined: !s.isJoined } : s))
-    try { await spaceService.toggleJoin(id, !!space.isJoined) } 
-    catch (e) { setSpaces(prev => prev
-      .map(s => s.id === id ? { ...s, isJoined: space.isJoined } : s)) }
+    
+    const newJoinStatus = !space.isJoined
+    
+    setSpaces(prev => 
+      prev.map(s => s.id === id ? { ...s, isJoined: newJoinStatus } : s)
+    )
+    
+    try {
+      await spaceService.toggleJoin(id)
+    } catch (err) {
+      setSpaces(prev => 
+        prev.map(s => s.id === id ? { ...s, isJoined: space.isJoined } : s)
+      )
+    }
   }
 
   const goToSpace = (name: string) => navigate(`/r/${name}`)
@@ -53,19 +61,31 @@ export const useSpaces = () => {
 
   const processedSpaces = useMemo(() => {
     let result = [...spaces]
-    if (filter !== 'All Spaces') 
+    
+    if (filter !== 'All Spaces') {
       result = result.filter(s => s.category === filter)
+    }
 
     result.sort((a, b) => {
-      if (sortBy === 'A-Z') return a.displayName.localeCompare(b.displayName)
-      if (sortBy === 'Z-A') return b.displayName.localeCompare(a.displayName)
-      if (sortBy === 'Members') {
-        const parse = (s: string) => parseFloat(s) * (
-          s.includes('k') ? 1000 : 1)
-        return parse(b.memberCount) - parse(a.memberCount)
+      if (sortBy === 'A-Z') {
+        return a.displayName.localeCompare(b.displayName)
       }
+      
+      if (sortBy === 'Z-A') {
+        return b.displayName.localeCompare(a.displayName)
+      }
+      
+      if (sortBy === 'Members') {
+        const parseCount = (s: string) => {
+          const num = parseFloat(s)
+          return s.includes('k') ? num * 1000 : num
+        }
+        return parseCount(b.memberCount) - parseCount(a.memberCount)
+      }
+      
       return 0
     })
+    
     return result
   }, [spaces, filter, sortBy])
 
