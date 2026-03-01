@@ -30,6 +30,10 @@ export const getPosts = async (req: Request, res: Response) => {
     
     let posts = Post.find(query).populate('author', 'username displayName avatar');
 
+    // Basic sorting logic. Might break idk.
+    if (sort === 'new') posts = posts.sort({ createdAt: -1 });
+    else posts = posts.sort({ upvotes: -1 });
+
     const results = await posts;
     res.json(results);
   } catch (error) {
