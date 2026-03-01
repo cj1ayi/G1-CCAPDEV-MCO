@@ -24,11 +24,12 @@ export interface Space {
   iconType: 'text' | 'image' | 'emoji'
   category: 'Official' | 'Batch' | 'Lifestyle' | 'Academic' | 'Interest'
   colorScheme: string
-  isJoined?: boolean
   isActive?: boolean
   bannerUrl?: string
   rules: SpaceRule[]
   createdDate: string
+  ownerId: string
+  isJoined?: boolean
 }
 
 // Sort Options
@@ -75,4 +76,11 @@ export interface CreateSpaceDto {
   description: string
   category: Space['category']
   icon: string
+}
+
+export interface SpaceMember {
+  id: string
+  userId: string
+  spaceId: string
+  joinedAt: string
 }

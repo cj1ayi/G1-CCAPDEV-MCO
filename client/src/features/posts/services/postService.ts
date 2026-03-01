@@ -1,11 +1,12 @@
-// Post service with real vote totals from voteService
+// Post service with author population
 // Location: client/src/features/posts/services/postService.ts
 
-import { Post } from '@/features/posts/types'
+import { Post, StoredPost } from '@/features/posts/types'
 import { 
   getCurrentUser as getAuthUser 
 } from "@/features/auth/services/authService"
 import { voteService } from '@/features/votes/services/voteService'
+import { getUserById } from '@/lib/mockData'
 
 export interface CreatePostDto {
   title: string
@@ -26,7 +27,7 @@ class PostService {
   private storageKey = 'animoforums_posts'
   private seeded = false
 
-  private getStore(): Post[] {
+  private getStore(): StoredPost[] {
     try {
       const data = localStorage.getItem(this.storageKey)
       return data ? JSON.parse(data) : []
@@ -36,11 +37,38 @@ class PostService {
     }
   }
 
-  private setStore(posts: Post[]): void {
+  private setStore(posts: StoredPost[]): void {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(posts))
     } catch (err) {
       console.error('Failed to save posts to storage:', err)
+    }
+  }
+
+  private populateAuthor(post: StoredPost): Post {
+    const user = getUserById(post.authorId)
+
+    if (!user) {
+      console.warn(`Author not found for post ${post.id}:`, post.authorId)
+      return {
+        ...post,
+        author: {
+          id: post.authorId,
+          name: 'Unknown User',
+          username: 'deleted',
+          avatar: ''
+        }
+      }
+    }
+
+    return {
+      ...post,
+      author: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        avatar: user.avatar || ''
+      }
     }
   }
 
@@ -66,18 +94,21 @@ class PostService {
 
   private calculateOwnership(post: Post): Post {
     const currentUser = getAuthUser()
-    const isOwner = currentUser ? post.author.id === currentUser.id : false
+    if (!currentUser || !post || !post.author) {
+      return { ...post, isOwner: false }
+    }
+
+    const isOwner = currentUser.id === post.author.id
     return { ...post, isOwner }
   }
 
-  private async applyRealVoteTotals(posts: Post[]): Promise<Post[]> {
+  private async applyRealVoteTotals(posts: StoredPost[]): Promise<Post[]> {
     if (!posts || posts.length === 0) return []
     
-    const postsWithVotes = []
+    const postsWithVotes: Post[] = []
     
     for (const post of posts) {
       if (!post || !post.id) {
-        postsWithVotes.push(post)
         continue
       }
       
@@ -88,10 +119,12 @@ class PostService {
           upvotes: stats.upvotes,
           downvotes: stats.downvotes
         }
-        postsWithVotes.push(this.calculateOwnership(postWithVotes))
+        const withAuthor = this.populateAuthor(postWithVotes)
+        postsWithVotes.push(this.calculateOwnership(withAuthor))
       } catch (err) {
         console.warn(`Failed to get votes for post ${post.id}:`, err)
-        postsWithVotes.push(this.calculateOwnership(post))
+        const withAuthor = this.populateAuthor(post)
+        postsWithVotes.push(this.calculateOwnership(withAuthor))
       }
     }
     
@@ -132,11 +165,7 @@ class PostService {
       return { post: null, error: 'Post ID is required' }
     }
 
-    const { getCurrentUser } = await import(
-      '@/features/auth/services/authService'
-    )
-    const currentUser = getCurrentUser()
-
+    const currentUser = getAuthUser()
     const posts = this.getStore()
     const post = posts.find(p => p.id === id)
 
@@ -159,8 +188,9 @@ class PostService {
         return { post: null, error: 'Post not found' }
       }
 
+      const populated = this.populateAuthor(mockPost)
       const isOwner = currentUser 
-        ? mockPost.author.id === currentUser.id 
+        ? populated.author.id === currentUser.id 
         : false
         
       if (!isOwner) {
@@ -170,7 +200,7 @@ class PostService {
         }
       }
       
-      return { post: { ...mockPost, isOwner: true }, error: null }
+      return { post: { ...populated, isOwner: true }, error: null }
     } catch (err) {
       console.log('Post not found in mock data')
       return { post: null, error: 'Post not found' }
@@ -178,10 +208,13 @@ class PostService {
   }
 
   private validateOwnership(
-    post: Post, 
+    post: StoredPost, 
     currentUser: any
   ): { post: Post | null; error: string | null } {
-    const isOwner = currentUser ? post.author.id === currentUser.id : false
+    const populated = this.populateAuthor(post)
+    const isOwner = currentUser 
+      ? populated.author.id === currentUser.id 
+      : false
     
     if (!isOwner) {
       return { 
@@ -190,7 +223,7 @@ class PostService {
       }
     }
 
-    return { post: { ...post, isOwner: true }, error: null }
+    return { post: { ...populated, isOwner: true }, error: null }
   }
 
   async getPostsBySpace(space: string): Promise<Post[]> {
@@ -263,17 +296,12 @@ class PostService {
       throw new Error('Not authenticated')
     }
 
-    const newPost: Post = {
+    const newPost: StoredPost = {
       id: this.generatePostId(),
       title: dto.title,
       content: dto.content,
       space: dto.space,
-      author: {
-        id: currentUser.id,
-        name: currentUser.name,
-        username: currentUser.username,
-        avatar: currentUser.avatar,
-      },
+      authorId: currentUser.id,
       upvotes: 0,
       downvotes: 0,
       commentCount: 0,
@@ -286,7 +314,8 @@ class PostService {
     const updatedPosts = [newPost, ...posts]
     this.setStore(updatedPosts)
 
-    return this.calculateOwnership(newPost)
+    const populated = this.populateAuthor(newPost)
+    return this.calculateOwnership(populated)
   }
 
   async updatePost(id: string, dto: UpdatePostDto): Promise<Post> {
@@ -306,7 +335,10 @@ class PostService {
 
     const currentUser = getAuthUser()
     const post = posts[postIndex]
-    const isOwner = currentUser ? post.author.id === currentUser.id : false
+    const populated = this.populateAuthor(post)
+    const isOwner = currentUser 
+      ? populated.author.id === currentUser.id 
+      : false
     
     if (!isOwner) {
       throw new Error('Not authorized')
@@ -321,7 +353,8 @@ class PostService {
     posts[postIndex] = updatedPost
     this.setStore(posts)
 
-    return updatedPost
+    const updatedPopulated = this.populateAuthor(updatedPost)
+    return this.calculateOwnership(updatedPopulated)
   }
 
   async deletePost(id: string): Promise<void> {
@@ -339,7 +372,10 @@ class PostService {
     }
 
     const currentUser = getAuthUser()
-    const isOwner = currentUser ? post.author.id === currentUser.id : false
+    const populated = this.populateAuthor(post)
+    const isOwner = currentUser 
+      ? populated.author.id === currentUser.id 
+      : false
     
     if (!isOwner) {
       throw new Error('Not authorized')
@@ -352,7 +388,7 @@ class PostService {
   async votePost(
     id: string,
     voteType: 'up' | 'down' | null
-  ): Promise<Post> {
+  ): Promise<Post | null> {
     await this.delay(100)
 
     const posts = this.getStore()
@@ -362,7 +398,7 @@ class PostService {
       throw new Error('Post not found')
     }
 
-    return post
+    return this.populateAuthor(post)
   }
 
   async incrementCommentCount(id: string): Promise<void> {
@@ -414,9 +450,9 @@ class PostService {
     const totalComments = this.calculateTotalComments(posts)
     const spaces = this.getUniqueSpaces(posts)
 
-    console.log(`  Total posts: ${posts.length}`)
-    console.log(`  Total comments: ${totalComments}`)
-    console.log(`  Spaces: ${spaces.length}`)
+    console.log(`Total posts: ${posts.length}`)
+    console.log(`Total comments: ${totalComments}`)
+    console.log(`Spaces: ${spaces.length}`)
 
     this.logSpaceStats(posts, spaces)
   }
@@ -437,44 +473,22 @@ class PostService {
     return `post-${timestamp}-${random}`
   }
 
-  private calculateTotalComments(posts: Post[]): number {
+  private calculateTotalComments(posts: StoredPost[]): number {
     return posts.reduce(
       (sum, post) => sum + (post.commentCount || 0), 
       0
     )
   }
 
-  private getUniqueSpaces(posts: Post[]): string[] {
+  private getUniqueSpaces(posts: StoredPost[]): string[] {
     return [...new Set(posts.map(p => p.space))]
   }
 
-  private logSpaceStats(posts: Post[], spaces: string[]): void {
+  private logSpaceStats(posts: StoredPost[], spaces: string[]): void {
     for (const space of spaces) {
       const count = posts.filter(p => p.space === space).length
-      console.log(`    ${space}: ${count} posts`)
+      console.log(`  ${space}: ${count} posts`)
     }
-  }
-
-  private parseTimeAgo(timeStr: string): number {
-    if (!timeStr) return 999999
-    
-    const lowerStr = timeStr.toLowerCase()
-    if (lowerStr === 'just now') return 0
-    if (lowerStr === 'yesterday') return 1440
-
-    const match = lowerStr.match(/(\d+)/)
-    if (!match) return 999999
-    
-    const num = parseInt(match[1])
-    
-    if (lowerStr.includes('minute')) return num
-    if (lowerStr.includes('hour')) return num * 60
-    if (lowerStr.includes('day')) return num * 1440
-    if (lowerStr.includes('week')) return num * 10080
-    if (lowerStr.includes('month')) return num * 43200
-    if (lowerStr.includes('year')) return num * 525600
-    
-    return 999999
   }
 
   async getSortedPosts(sortBy: string): Promise<Post[]> {
@@ -494,10 +508,11 @@ class PostService {
   }
 
   private sortByNew(posts: Post[]): Post[] {
-    return posts.sort(
-      (a, b) => this.parseTimeAgo(a.createdAt) - 
-               this.parseTimeAgo(b.createdAt)
-    )
+    return posts.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return dateB - dateA
+    })
   }
 
   private sortByTop(posts: Post[]): Post[] {
@@ -522,7 +537,7 @@ if (typeof window !== 'undefined') {
     clear: () => postService.clearAll(),
   }
 
-  console.log('  postService.stats()  - View post stats')
-  console.log('  postService.reset()  - Reset to mock data')
-  console.log('  postService.clear()  - Clear all posts')
+  console.log('postService.stats() - View post stats')
+  console.log('postService.reset() - Reset to mock data')
+  console.log('postService.clear() - Clear all posts')
 }

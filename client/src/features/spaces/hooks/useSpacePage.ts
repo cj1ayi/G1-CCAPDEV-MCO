@@ -105,11 +105,7 @@ export const useSpacePage = (spaceName?: string) => {
     setIsJoined(newJoinStatus)
 
     try {
-      await spaceService.toggleJoin(space.id, isJoined)
-
-      if (space) {
-        setSpace({ ...space, isJoined: newJoinStatus })
-      }
+      await spaceService.toggleJoin(space.id)
     } catch (error) {
       console.error('Error toggling join:', error)
       setIsJoined(!newJoinStatus)

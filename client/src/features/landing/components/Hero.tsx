@@ -1,20 +1,29 @@
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui";
-import { GraduationCap } from "lucide-react";
-import { HeroPostCard } from "./HeroPostCard";
-import { mockPosts } from "@/lib/mockData";
-import { cn } from "@/lib/utils";
-import car from "@/assets/post/car.jpg";
+import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
+import { Button } from "@/components/ui"
+import { GraduationCap } from "lucide-react"
+import { HeroPostCard } from "./HeroPostCard"
+import { cn } from "@/lib/utils"
+import car from "@/assets/post/car.jpg"
+import { useEffect, useState } from "react"
+import { Post } from "@/features/posts/types"
+import { postService } from "@/features/posts/services"
 
 export const Hero = () => {
-  const post7 = mockPosts[2];
+  const [post7, setPost7] = useState<Post | null>(null)
+
+  useEffect(() => {
+    const loadPost = async () => {
+      const posts = await postService.getAllPosts()
+      setPost7(posts[2] || null)
+    }
+    loadPost()
+  }, [])
 
   return (
     <section className="py-16 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Text Content */}
           <motion.div
             className="space-y-6"
             initial={{ opacity: 0, x: -30 }}
@@ -64,12 +73,11 @@ export const Hero = () => {
             </div>
           </motion.div>
 
-          {/* Featured Card */}
           <div className="hidden md:block">
             {post7 && <HeroPostCard post={post7} thumbnail={car} />}
           </div>
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
