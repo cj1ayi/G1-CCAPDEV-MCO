@@ -6,7 +6,7 @@ import pring from '@/assets/pfp/pring.gif'
 import enzo from '@/assets/pfp/enzo.gif'
 
 import { CommentCardProps } from '@/features/comments/types'
-import { Post } from '@/features/posts/types'
+import { StoredPost } from '@/features/posts/types'
 import { Space, SpaceRule } from '@/features/spaces/types'
 import { User } from '@/features/profile/types'
 import {
@@ -20,7 +20,7 @@ import {
 } from '@/features/comments/utils/comment-tree-builder'
 import { SpaceMember } from '@/features/spaces/types'
 
-export type { Post, Space, SpaceRule, User }
+export type { StoredPost, Space, SpaceRule, User }
 
 export const createSpaceSlug = (displayName: string): string => {
   return displayName
@@ -225,35 +225,24 @@ export const mockUsers: Record<string, User> = {
   }
 }
 
-export const getMockPosts = (): Record<string, Post> => ({
+export const getMockPosts = (): Record<string, StoredPost> => ({
   '1': {
     id: '1',
     title: 'ANNOUNCEMENT URGENT !!!',
     content: 'tama na pag breed ng mga kabayo oi',
-    author: {
-      id: '1',
-      name: 'Thomas James C. Tiam-Lee',
-      username: 'tiamlee',
-      avatar: avatarImage,
-    },
+    authorId: '1',
     space: 'ccs-gov',
     upvotes: 67,
     downvotes: 0,
     commentCount: 2,
     createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     tags: ['CSINSTY', 'IMPORTANT'],
-    isOwner: true,
   },
   '2': {
     id: '2',
     title: 'CAT GOT YOUR... MAIL??!!',
     content: 'As the day of hearts inches closer, a special delivery has been made just fur you~ 🌟💞',
-    author: {
-      id: '5',
-      name: 'Floranaras',
-      username: 'callo',
-      avatar: callo,
-    },
+    authorId: '5',
     space: 'freedom-wall',
     upvotes: 39,
     downvotes: 0,
@@ -261,18 +250,12 @@ export const getMockPosts = (): Record<string, Post> => ({
     createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
     tags: ['catlovers'],
     isEdited: false,
-    isOwner: false,
   },
   '3': {
     id: '3',
     title: 'BREAKING NEWS: Local Shark terrorizes booths and ruins Valentines',
     content: 'In an unprecedented attack on romance, a land shark has emerged from the depths of campus to wreak havoc on Valentines festivities.',
-    author: {
-      id: '5',
-      name: 'Floranaras',
-      username: 'callo',
-      avatar: callo,
-    },
+    authorId: '5',
     space: 'the-lasallian',
     upvotes: 240,
     downvotes: 67,
@@ -280,18 +263,12 @@ export const getMockPosts = (): Record<string, Post> => ({
     createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
     tags: ['JawsButMakeItRomantic', 'SharkWeekButMakeItValentines'],
     isEdited: false,
-    isOwner: false,
   },
   '4': {
     id: '4',
     title: 'ST-MATH GOT HANDS',
     content: 'pleaase doc g my integrals is kinda homeless.',
-    author: {
-      id: '3',
-      name: 'Sussus Amogus',
-      username: 'pieisspy',
-      avatar: karl,
-    },
+    authorId: '3',
     space: 'pts',
     upvotes: 670,
     downvotes: 0,
@@ -299,18 +276,12 @@ export const getMockPosts = (): Record<string, Post> => ({
     createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     tags: ['1000Integrals'],
     isEdited: false,
-    isOwner: false,
   },
   '8': {
     id: '8',
     title: 'KFC, WORST FAST FOOD',
     content: 'Ok sge The context I love KFC Favorite Fastfood ko sya...',
-    author: {
-      id: '7',
-      name: 'Enzo',
-      username: 'taroramen',
-      avatar: enzo,
-    },
+    authorId: '7',
     space: 'rinaldoeats',
     upvotes: 167,
     downvotes: 0,
@@ -318,11 +289,10 @@ export const getMockPosts = (): Record<string, Post> => ({
     createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
     tags: ['enzomeal'],
     isEdited: false,
-    isOwner: false,
   }
 })
 
-export const mockPosts = getMockPosts()
+export const mockPosts: Record<string, StoredPost> = getMockPosts()
 
 export const mockCommentsFlatData: Record<string, Comment[]> = {
   '1': [
@@ -505,10 +475,12 @@ export const mockComments: Record<string, CommentCardProps[]> =
 
 export function getCommentsByUserId(userId: string): Comment[] {
   const allComments: Comment[] = []
+  
   Object.values(mockCommentsFlatData).forEach(postComments => {
     const userComments = postComments.filter(c => c.authorId === userId)
     allComments.push(...userComments)
   })
+  
   return allComments
 }
 
@@ -519,7 +491,8 @@ export function countActiveComments(postId: string): number {
 
 const countComments = (comments: CommentCardProps[]): number => {
   return comments.reduce((total, comment) => {
-    return total + 1 + (comment.replies ? countComments(comment.replies) : 0)
+    const replyCount = comment.replies ? countComments(comment.replies) : 0
+    return total + 1 + replyCount
   }, 0)
 }
 
@@ -531,12 +504,12 @@ export const getSpaceByName = (name: string): Space | undefined => {
   return mockSpaces.find(s => s.name.toLowerCase() === name?.toLowerCase())
 }
 
-export const getPostsBySpace = (spaceName: string): Post[] => {
+export const getPostsBySpace = (spaceName: string): StoredPost[] => {
   return Object.values(getMockPosts())
     .filter(post => post.space.toLowerCase() === spaceName?.toLowerCase())
 }
 
-export const getAllPosts = (): Post[] => {
+export const getAllPosts = (): StoredPost[] => {
   return Object.values(getMockPosts())
 }
 
@@ -548,7 +521,7 @@ export const getUserById = (id: string): User | null => {
   return mockUsers[id] || null
 }
 
-export const getPostById = (id: string): Post | null => {
+export const getPostById = (id: string): StoredPost | null => {
   const posts = getMockPosts()
   return posts[id] || null
 }
@@ -561,9 +534,9 @@ export const addSpace = (space: Space): void => {
   mockSpaces.push(space)
 }
 
-
 if (process.env.NODE_ENV === 'development') {
   const posts = getMockPosts()
+  
   Object.keys(posts).forEach((postId) => {
     const post = posts[postId]
     const comments = mockComments[postId] || []
