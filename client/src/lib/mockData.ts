@@ -42,7 +42,7 @@ export const mockSpaces: Space[] = [
     category: 'Official',
     colorScheme: 'from-blue-500 to-cyan-400',
     isActive: true,
-    createdDate: 'Aug 24, 2018',
+    createdDate: '2018-08-24T00:00:00.000Z',
     bannerUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Xukxb2LT4Mj6TjnwhnNtFL4ao6VlYjxduRaoL2twXEpqafKTN0IYPbjjgb5qVdtBLv7KGnqQjFEIs5PVihem28O11xmtCfpUyyrD4BGyJbd58psZuBZSEguY-fvrpnbbrNLOLSTMLGUCiZTmRfTKyZKfOF3l1YQMRt0cK4fOqXOYKBMlVy12c9NkO65iOvmRD4rrZTzHQr_w4E8wpkhdaGDtZq3d6SBP03g0VhBp5q2CnqRbvxmZcEIGBdshM0VZqXHjgBDMJA',
     rules: [
       { 
@@ -71,7 +71,7 @@ export const mockSpaces: Space[] = [
     iconType: 'text',
     category: 'Lifestyle',
     colorScheme: 'from-pink-500 to-rose-400',
-    createdDate: 'Oct 24, 2016',
+    createdDate: '2016-10-24T00:00:00.000Z',
     rules: [
       { title: 'Anonymity', description: 'Do not dox other students.' },
       { title: 'Respect', description: 'No targeted harassment.' }
@@ -90,7 +90,7 @@ export const mockSpaces: Space[] = [
     category: 'Official',
     colorScheme: 'from-green-500 to-green-400',
     isActive: true,
-    createdDate: 'Aug 24, 2018',
+    createdDate: '2018-08-24T00:00:00.000Z',
     bannerUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Xukxb2LT4Mj6TjnwhnNtFL4ao6VlYjxduRaoL2twXEpqafKTN0IYPbjjgb5qVdtBLv7KGnqQjFEIs5PVihem28O11xmtCfpUyyrD4BGyJbd58psZuBZSEguY-fvrpnbbrNLOLSTMLGUCiZTmRfTKyZKfOF3l1YQMRt0cK4fOqXOYKBMlVy12c9NkO65iOvmRD4rrZTzHQr_w4E8wpkhdaGDtZq3d6SBP03g0VhBp5q2CnqRbvxmZcEIGBdshM0VZqXHjgBDMJA',
     rules: [
       { 
@@ -119,7 +119,7 @@ export const mockSpaces: Space[] = [
     iconType: 'text',
     category: 'Academic',
     colorScheme: 'from-purple-500 to-indigo-400',
-    createdDate: 'Jan 15, 2020',
+    createdDate: '2020-01-15T00:00:00.000Z',
     rules: [
       { 
         title: 'Be Respectful', 
@@ -143,7 +143,7 @@ export const mockSpaces: Space[] = [
     iconType: 'emoji',
     category: 'Lifestyle',
     colorScheme: 'from-orange-500 to-red-400',
-    createdDate: 'Jan 15, 2020',
+    createdDate: '2020-01-15T00:00:00.000Z',
     rules: [
       { 
         title: 'Trust Rinaldo', 
