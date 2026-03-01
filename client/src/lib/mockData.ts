@@ -18,6 +18,7 @@ import {
   buildCommentTree, 
   treeToLegacyFormat 
 } from '@/features/comments/utils/comment-tree-builder'
+import { SpaceMember } from '@/features/spaces/types'
 
 export type { Post, Space, SpaceRule, User }
 
@@ -40,7 +41,6 @@ export const mockSpaces: Space[] = [
     iconType: 'text',
     category: 'Official',
     colorScheme: 'from-blue-500 to-cyan-400',
-    isJoined: false,
     isActive: true,
     createdDate: 'Aug 24, 2018',
     bannerUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Xukxb2LT4Mj6TjnwhnNtFL4ao6VlYjxduRaoL2twXEpqafKTN0IYPbjjgb5qVdtBLv7KGnqQjFEIs5PVihem28O11xmtCfpUyyrD4BGyJbd58psZuBZSEguY-fvrpnbbrNLOLSTMLGUCiZTmRfTKyZKfOF3l1YQMRt0cK4fOqXOYKBMlVy12c9NkO65iOvmRD4rrZTzHQr_w4E8wpkhdaGDtZq3d6SBP03g0VhBp5q2CnqRbvxmZcEIGBdshM0VZqXHjgBDMJA',
@@ -57,7 +57,8 @@ export const mockSpaces: Space[] = [
         title: 'DLSU Related Only', 
         description: 'Memes must be relevant to university life.' 
       }
-    ]
+    ],
+    ownerId: '1'
   },
   {
     id: '2',
@@ -70,12 +71,12 @@ export const mockSpaces: Space[] = [
     iconType: 'text',
     category: 'Lifestyle',
     colorScheme: 'from-pink-500 to-rose-400',
-    isJoined: true,
     createdDate: 'Oct 24, 2016',
     rules: [
       { title: 'Anonymity', description: 'Do not dox other students.' },
       { title: 'Respect', description: 'No targeted harassment.' }
-    ]
+    ],
+    ownerId: '2'
   },
   {
     id: '3',
@@ -88,7 +89,6 @@ export const mockSpaces: Space[] = [
     iconType: 'text',
     category: 'Official',
     colorScheme: 'from-green-500 to-green-400',
-    isJoined: false,
     isActive: true,
     createdDate: 'Aug 24, 2018',
     bannerUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Xukxb2LT4Mj6TjnwhnNtFL4ao6VlYjxduRaoL2twXEpqafKTN0IYPbjjgb5qVdtBLv7KGnqQjFEIs5PVihem28O11xmtCfpUyyrD4BGyJbd58psZuBZSEguY-fvrpnbbrNLOLSTMLGUCiZTmRfTKyZKfOF3l1YQMRt0cK4fOqXOYKBMlVy12c9NkO65iOvmRD4rrZTzHQr_w4E8wpkhdaGDtZq3d6SBP03g0VhBp5q2CnqRbvxmZcEIGBdshM0VZqXHjgBDMJA',
@@ -105,7 +105,8 @@ export const mockSpaces: Space[] = [
         title: 'DLSU Related Only', 
         description: 'Memes must be relevant to university life.' 
       }
-    ]
+    ],
+    ownerId: '3'
   },
   {
     id: '4',
@@ -118,7 +119,6 @@ export const mockSpaces: Space[] = [
     iconType: 'text',
     category: 'Academic',
     colorScheme: 'from-purple-500 to-indigo-400',
-    isJoined: false,
     createdDate: 'Jan 15, 2020',
     rules: [
       { 
@@ -129,7 +129,8 @@ export const mockSpaces: Space[] = [
         title: 'Academic Integrity', 
         description: 'Help, don\'t enable cheating.' 
       }
-    ]
+    ],
+    ownerId: '1'
   },
   {
     id: '5',
@@ -142,7 +143,6 @@ export const mockSpaces: Space[] = [
     iconType: 'emoji',
     category: 'Lifestyle',
     colorScheme: 'from-orange-500 to-red-400',
-    isJoined: false,
     createdDate: 'Jan 15, 2020',
     rules: [
       { 
@@ -157,7 +157,8 @@ export const mockSpaces: Space[] = [
         title: 'Honest Reviews Only', 
         description: 'Keep it real. Good or bad, tell the truth.' 
       }
-    ]
+    ],
+    ownerId: '3'
   },
 ]
 
@@ -560,17 +561,6 @@ export const addSpace = (space: Space): void => {
   mockSpaces.push(space)
 }
 
-export const updateSpaceJoinStatus = (
-  spaceName: string, 
-  isJoined: boolean
-): void => {
-  const space = mockSpaces.find(
-    s => s.name.toLowerCase() === spaceName?.toLowerCase()
-  )
-  if (space) {
-    space.isJoined = isJoined
-  }
-}
 
 if (process.env.NODE_ENV === 'development') {
   const posts = getMockPosts()
@@ -586,4 +576,29 @@ if (process.env.NODE_ENV === 'development') {
       )
     }
   })
+}
+
+export const mockSpaceMembers: SpaceMember[] = [
+  {
+    id: 'member-1',
+    userId: '1',
+    spaceId: '1',
+    joinedAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'member-2',
+    userId: '2',
+    spaceId: '2',
+    joinedAt: new Date(Date.now() - 200 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'member-3',
+    userId: '1',
+    spaceId: '4',
+    joinedAt: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString()
+  }
+]
+
+export const getAllSpaceMembers = (): SpaceMember[] => {
+  return mockSpaceMembers
 }
