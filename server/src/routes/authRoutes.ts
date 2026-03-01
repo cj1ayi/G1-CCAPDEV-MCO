@@ -5,14 +5,21 @@ const router = Router();
 
 // @desc    Auth with Google
 // @route   GET /api/auth/google
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 
 // @desc    Google auth callback
 // @route   GET /api/auth/google/callback
-router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login' }),
+router.get(
+  '/google/callback',
+  passport.authenticate('google', {
+    // If domain verification fails, redirect to login with an error flag
+    failureRedirect: 'http://localhost:5173/login?error=unauthorized_domain',
+  }),
   (req, res) => {
-    // Successful authentication, redirect to explore page.
+    // Successful authentication
     res.redirect('http://localhost:5173/explore');
   }
 );
@@ -32,6 +39,7 @@ router.get('/me', (req, res) => {
 router.get('/logout', (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err);
+    res.clearCookie('connect.sid'); 
     res.status(200).json({ message: 'Logged out' });
   });
 });
