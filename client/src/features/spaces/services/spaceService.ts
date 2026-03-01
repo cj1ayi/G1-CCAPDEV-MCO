@@ -1,9 +1,13 @@
-import { getAllSpaces } from '@/lib/mockData'
+// Complete spaceService with membership system
+// Location: client/src/features/spaces/services/spaceService.ts
+
+import { getAllSpaces, getAllSpaceMembers } from '@/lib/mockData'
 import { Post } from '@/features/posts/types'
 import { postService } from '@/features/posts/services/postService'
-import { Space, SortOption } from '../types'
-export type { SortOption }
+import { getCurrentUser } from '@/features/auth/services/authService'
+import { Space, SpaceMember, SortOption } from '../types'
 
+export type { SortOption }
 
 export interface CreateSpaceDto {
   name: string
@@ -14,75 +18,129 @@ export interface CreateSpaceDto {
 }
 
 class SpaceService {
-  private storageKey = 'animoforums_spaces'
+  private spaceStorageKey = 'animoforums_spaces'
+  private memberStorageKey = 'animoforums_space_members'
 
-  private getStore(): Space[] {
-    const data = localStorage.getItem(this.storageKey)
-    return data ? JSON.parse(data) : []
-  }
-
-  private setStore(spaces: Space[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(spaces))
-  }
-
-  private async seedIfNeeded(): Promise<void> {
-    if (this.getStore().length === 0) {
-      console.log('Seeding spaces from mock data...')
-      this.setStore(getAllSpaces())
+  private getSpaceStore(): Space[] {
+    try {
+      const data = localStorage.getItem(this.spaceStorageKey)
+      return data ? JSON.parse(data) : []
+    } catch (err) {
+      console.error('Failed to parse spaces:', err)
+      return []
     }
   }
 
-  async getSpaces(page: number = 1, limit: number = 20): 
-    Promise<{ data: Space[], hasMore: boolean }> {
+  private setSpaceStore(spaces: Space[]): void {
+    try {
+      localStorage.setItem(this.spaceStorageKey, JSON.stringify(spaces))
+    } catch (err) {
+      console.error('Failed to save spaces:', err)
+    }
+  }
+
+  private getMemberStore(): SpaceMember[] {
+    try {
+      const data = localStorage.getItem(this.memberStorageKey)
+      return data ? JSON.parse(data) : []
+    } catch (err) {
+      console.error('Failed to parse members:', err)
+      return []
+    }
+  }
+
+  private setMemberStore(members: SpaceMember[]): void {
+    try {
+      localStorage.setItem(this.memberStorageKey, JSON.stringify(members))
+    } catch (err) {
+      console.error('Failed to save members:', err)
+    }
+  }
+
+  private async seedIfNeeded(): Promise<void> {
+    if (this.getSpaceStore().length === 0) {
+      console.log('Seeding spaces from mock data...')
+      this.setSpaceStore(getAllSpaces())
+    }
+    
+    if (this.getMemberStore().length === 0) {
+      console.log('Seeding space members from mock data...')
+      this.setMemberStore(getAllSpaceMembers())
+    }
+  }
+
+  private isUserJoined(spaceId: string, userId: string): boolean {
+    const members = this.getMemberStore()
+    return members.some(m => m.userId === userId && m.spaceId === spaceId)
+  }
+
+  private populateJoinStatus(space: Space): Space {
+    const currentUser = getCurrentUser()
+    if (!currentUser) {
+      return space
+    }
+
+    const isJoined = this.isUserJoined(space.id, currentUser.id)
+    return { ...space, isJoined }
+  }
+
+  async getSpaces(
+    page: number = 1, 
+    limit: number = 20
+  ): Promise<{ data: Space[], hasMore: boolean }> {
     await this.seedIfNeeded()
     await this.delay(400)
     
-    const allSpaces = this.getStore()
+    const allSpaces = this.getSpaceStore()
     const end = page * limit
+    
+    const spacesWithJoinStatus = allSpaces
+      .slice(0, end)
+      .map(space => this.populateJoinStatus(space))
+    
     return {
-      data: allSpaces.slice(0, end),
+      data: spacesWithJoinStatus,
       hasMore: end < allSpaces.length
     }
   }
 
   async getSpaceByName(spaceName: string): Promise<Space | null> {
+    if (!spaceName) return null
+    
     await this.seedIfNeeded()
+    const spaces = this.getSpaceStore()
     
-    const spaces = this.getStore()
-    
-    // Debug logging
-    console.log('getSpaceByName - Looking for:', spaceName)
-    console.log('getSpaceByName - Available spaces:', spaces.map(s => s.name))
-    
-    // Try exact match first
-    let space = spaces.find(s => s.name === spaceName)
-    
-    // If not found, try case-insensitive match
-    if (!space) {
-      space = spaces.find(
-        s => s.name.toLowerCase() === spaceName.toLowerCase()
-      )
-    }
-    
-    // If still not found, try displayName
-    if (!space) {
-      space = spaces.find(
-        s => s.displayName.toLowerCase() === spaceName.toLowerCase()
-      )
-    }
-    
-    console.log('getSpaceByName - Found:', space ? space.name : 'null')
+    const space = this.findSpace(spaces, spaceName)
     
     await this.delay(200)
-    return space || null
+    return space ? this.populateJoinStatus(space) : null
+  }
+
+  private findSpace(spaces: Space[], spaceName: string): Space | null {
+    const exactMatch = spaces.find(s => s.name === spaceName)
+    if (exactMatch) return exactMatch
+    
+    const caseInsensitiveMatch = spaces.find(
+      s => s.name.toLowerCase() === spaceName.toLowerCase()
+    )
+    if (caseInsensitiveMatch) return caseInsensitiveMatch
+    
+    const displayNameMatch = spaces.find(
+      s => s.displayName.toLowerCase() === spaceName.toLowerCase()
+    )
+    return displayNameMatch || null
   }
 
   async createSpace(dto: CreateSpaceDto): Promise<Space> {
     await this.delay(500)
-    const spaces = this.getStore()
+    
+    const currentUser = getCurrentUser()
+    if (!currentUser) {
+      throw new Error('Must be logged in to create space')
+    }
 
-    // Normalize the name properly
-    const normalizedName = dto.name.toLowerCase().replace(/\s+/g, '-')
+    const spaces = this.getSpaceStore()
+    const normalizedName = this.normalizeName(dto.name)
 
     const newSpace: Space = {
       id: `space-${Date.now()}`,
@@ -96,9 +154,11 @@ class SpaceService {
       memberCount: '1',
       postCount: '0',
       isActive: true,
-      isJoined: true,
+      ownerId: currentUser.id,
       createdDate: new Date().toLocaleDateString('en-US', { 
-        month: 'short', day: 'numeric', year: 'numeric' 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
       }),
       rules: [
         { 
@@ -108,23 +168,72 @@ class SpaceService {
       ]
     }
 
-    console.log('Creating space with name:', newSpace.name)
-    this.setStore([newSpace, ...spaces])
+    this.setSpaceStore([newSpace, ...spaces])
     
-    return newSpace
+    this.addMembership(currentUser.id, newSpace.id)
+    
+    return this.populateJoinStatus(newSpace)
   }
 
-  async toggleJoin(_id: string, currentStatus: boolean): Promise<boolean> {
+  private normalizeName(name: string): string {
+    if (!name) return ''
+    return name.toLowerCase().replace(/\s+/g, '-')
+  }
+
+  async toggleJoin(spaceId: string): Promise<boolean> {
     await this.delay(200)
-    return !currentStatus
+    
+    const currentUser = getCurrentUser()
+    if (!currentUser) {
+      throw new Error('Must be logged in to join spaces')
+    }
+
+    const isJoined = this.isUserJoined(spaceId, currentUser.id)
+    
+    if (isJoined) {
+      this.removeMembership(currentUser.id, spaceId)
+      return false
+    } else {
+      this.addMembership(currentUser.id, spaceId)
+      return true
+    }
+  }
+
+  private addMembership(userId: string, spaceId: string): void {
+    const members = this.getMemberStore()
+    
+    const exists = members.some(
+      m => m.userId === userId && m.spaceId === spaceId
+    )
+    
+    if (!exists) {
+      const newMember: SpaceMember = {
+        id: `member-${Date.now()}`,
+        userId,
+        spaceId,
+        joinedAt: new Date().toISOString()
+      }
+      
+      this.setMemberStore([...members, newMember])
+    }
+  }
+
+  private removeMembership(userId: string, spaceId: string): void {
+    const members = this.getMemberStore()
+    const filtered = members.filter(
+      m => !(m.userId === userId && m.spaceId === spaceId)
+    )
+    
+    this.setMemberStore(filtered)
   }
 
   async getSpacePosts(
     spaceName: string, 
     sortBy: SortOption = 'hot'
   ): Promise<Post[]> {
-    const allPosts = await postService.getAllPosts()
+    if (!spaceName) return []
     
+    const allPosts = await postService.getAllPosts()
     const spacePosts = allPosts.filter(post => post.space === spaceName)
     
     return this.sortPosts(spacePosts, sortBy)
@@ -135,52 +244,45 @@ class SpaceService {
     
     switch (sortBy) {
       case 'hot':
-        return sorted.sort((a, b) => {
-          const scoreA = a.upvotes - a.downvotes
-          const scoreB = b.upvotes - b.downvotes
-          return scoreB - scoreA
-        })
-        
+        return this.sortByHot(sorted)
       case 'new':
-        return sorted.sort((a, b) => {
-          const timeA = this.parseTimeAgo(a.createdAt)
-          const timeB = this.parseTimeAgo(b.createdAt)
-          return timeA - timeB 
-        })
-        
+        return this.sortByNew(sorted)
       case 'week':
       case 'month':
       case 'year':
-        return sorted.sort((a, b) => {
-          const scoreA = a.upvotes - a.downvotes
-          const scoreB = b.upvotes - b.downvotes
-          return scoreB - scoreA
-        })
-        
+        return this.sortByTop(sorted)
       default:
         return sorted
     }
   }
 
-  private parseTimeAgo(timeStr: string): number {
-    const lowerStr = timeStr.toLowerCase()
-    
-    const match = lowerStr.match(/(\d+)/)
-    if (!match) return 999999 
-    
-    const num = parseInt(match[1])
-    
-    if (lowerStr.includes('minute')) return num
-    if (lowerStr.includes('hour')) return num * 60
-    if (lowerStr.includes('day')) return num * 60 * 24
-    if (lowerStr.includes('week')) return num * 60 * 24 * 7
-    if (lowerStr.includes('month')) return num * 60 * 24 * 30
-    if (lowerStr.includes('year')) return num * 60 * 24 * 365
-    
-    return 999999 
+  private sortByHot(posts: Post[]): Post[] {
+    return posts.sort((a, b) => {
+      const scoreA = a.upvotes - a.downvotes
+      const scoreB = b.upvotes - b.downvotes
+      return scoreB - scoreA
+    })
+  }
+
+  private sortByNew(posts: Post[]): Post[] {
+    return posts.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return dateB - dateA
+    })
+  }
+
+  private sortByTop(posts: Post[]): Post[] {
+    return posts.sort((a, b) => {
+      const scoreA = a.upvotes - a.downvotes
+      const scoreB = b.upvotes - b.downvotes
+      return scoreB - scoreA
+    })
   }
 
   async getSpacePostCount(spaceName: string): Promise<number> {
+    if (!spaceName) return 0
+    
     const allPosts = await postService.getAllPosts()
     return allPosts.filter(post => post.space === spaceName).length
   }
@@ -188,6 +290,35 @@ class SpaceService {
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
+
+  reset(): void {
+    localStorage.removeItem(this.spaceStorageKey)
+    localStorage.removeItem(this.memberStorageKey)
+    console.log('Spaces and members reset')
+  }
+
+  stats(): void {
+    const spaces = this.getSpaceStore()
+    const members = this.getMemberStore()
+    
+    console.log(`Total spaces: ${spaces.length}`)
+    console.log(`Total memberships: ${members.length}`)
+    
+    spaces.forEach(space => {
+      const memberCount = members.filter(m => m.spaceId === space.id).length
+      console.log(`  ${space.name}: ${memberCount} members (owner: ${space.ownerId})`)
+    })
+  }
 }
 
 export const spaceService = new SpaceService()
+
+if (typeof window !== 'undefined') {
+  (window as any).spaceService = {
+    reset: () => spaceService.reset(),
+    stats: () => spaceService.stats()
+  }
+
+  console.log('  spaceService.reset() - Reset spaces and members')
+  console.log('  spaceService.stats() - View space stats')
+}
