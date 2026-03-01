@@ -1,16 +1,14 @@
-// Post Types
-export interface Post {
+// Post types with proper separation
+// Location: client/src/features/posts/types.ts
+
+// What's stored in DB/localStorage (no author object)
+export interface StoredPost {
   id: string
   title: string
   content: string
   space: string
   spaceIcon?: string
-  author: {
-    id: string
-    name: string
-    username: string
-    avatar?: string
-  }
+  authorId: string
   flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
   upvotes: number
   downvotes: number
@@ -19,8 +17,18 @@ export interface Post {
   editedAt?: string
   imageUrl?: string
   tags: string[]
-  isOwner?: boolean
   isEdited?: boolean
+}
+
+// What the UI receives (populated with author object)
+export interface Post extends StoredPost {
+  author: {
+    id: string
+    name: string
+    username: string
+    avatar?: string
+  }
+  isOwner?: boolean
 }
 
 // Component Props
@@ -87,7 +95,6 @@ export interface PostDetailVoteColumnProps {
   onDownvote: () => void
 }
 
-// Form Types
 export interface PostFormErrors {
   title?: string
   content?: string
