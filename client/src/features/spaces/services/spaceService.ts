@@ -1,4 +1,4 @@
-// Complete spaceService with membership system
+// Service Layer for spaces
 // Location: client/src/features/spaces/services/spaceService.ts
 
 import { getAllSpaces, getAllSpaceMembers } from '@/lib/mockData'
@@ -84,22 +84,35 @@ class SpaceService {
     return { ...space, isJoined }
   }
 
-  async getSpaces(
-    page: number = 1, 
-    limit: number = 20
-  ): Promise<{ data: Space[], hasMore: boolean }> {
-    await this.seedIfNeeded()
-    await this.delay(400)
-    
-    const allSpaces = this.getSpaceStore()
-    const end = page * limit
-    
-    const spacesWithJoinStatus = allSpaces
-      .slice(0, end)
-      .map(space => this.populateJoinStatus(space))
-    
+  private populateMemberCount(space: Space): Space {
+    const members = this.getMemberStore()
+    const count = members.filter(m => m.spaceId === space.id).length
     return {
-      data: spacesWithJoinStatus,
+      ...space,
+      memberCount: count.toString()
+    }
+  }
+
+  async getSpaces(
+    page: number = 1
+  ): Promise<{ data: Space[]; hasMore: boolean }> {
+    await this.seedIfNeeded()
+    await this.delay(100)
+
+    const allSpaces = this.getSpaceStore()
+    const pageSize = 20
+    const start = (page - 1) * pageSize
+    const end = start + pageSize
+    const paginatedSpaces = allSpaces.slice(start, end)
+
+    const spacesWithData = paginatedSpaces.map(space => {
+      const withJoinStatus = this.populateJoinStatus(space)
+      const withMemberCount = this.populateMemberCount(withJoinStatus)
+      return withMemberCount
+    })
+
+    return {
+      data: spacesWithData,
       hasMore: end < allSpaces.length
     }
   }
@@ -113,7 +126,12 @@ class SpaceService {
     const space = this.findSpace(spaces, spaceName)
     
     await this.delay(200)
-    return space ? this.populateJoinStatus(space) : null
+    
+    if (!space) return null
+    
+    const withJoinStatus = this.populateJoinStatus(space)
+    const withMemberCount = this.populateMemberCount(withJoinStatus)
+    return withMemberCount
   }
 
   private findSpace(spaces: Space[], spaceName: string): Space | null {
@@ -155,11 +173,7 @@ class SpaceService {
       postCount: '0',
       isActive: true,
       ownerId: currentUser.id,
-      createdDate: new Date().toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
-      }),
+      createdDate: new Date().toISOString(),
       rules: [
         { 
           title: 'Be Respectful', 
@@ -169,10 +183,10 @@ class SpaceService {
     }
 
     this.setSpaceStore([newSpace, ...spaces])
-    
     this.addMembership(currentUser.id, newSpace.id)
     
-    return this.populateJoinStatus(newSpace)
+    const withJoinStatus = this.populateJoinStatus(newSpace)
+    return this.populateMemberCount(withJoinStatus)
   }
 
   private normalizeName(name: string): string {
@@ -319,6 +333,6 @@ if (typeof window !== 'undefined') {
     stats: () => spaceService.stats()
   }
 
-  console.log('  spaceService.reset() - Reset spaces and members')
-  console.log('  spaceService.stats() - View space stats')
+  console.log('spaceService.reset() - Reset spaces and members')
+  console.log('spaceService.stats() - View space stats')
 }
