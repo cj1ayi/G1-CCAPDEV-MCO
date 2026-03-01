@@ -9,6 +9,8 @@ import connectDB from './config/db.js';
 import './config/passport.js';
 import authRoutes from './routes/authRoutes.js';
 
+import postRoutes from './routes/postRoutes.js';
+
 dotenv.config();
 
 const app = express();
@@ -43,6 +45,7 @@ app.use(passport.session());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/posts', postRoutes);
 
 const PORT = process.env.PORT || 3000;
 
