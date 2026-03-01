@@ -1,19 +1,31 @@
+// User service
+// Location: client/src/features/profile/services/userService.ts
+
 import { User } from '../types'
 import { 
   getCurrentUser as getAuthUser 
-} from "@/features/auth/services/authService";
+} from "@/features/auth/services/authService"
 import { Post } from '@/features/posts/types'
 
 class UserService {
   private storageKey = 'animoforums_users'
 
   private getStore(): User[] {
-    const data = localStorage.getItem(this.storageKey)
-    return data ? JSON.parse(data) : []
+    try {
+      const data = localStorage.getItem(this.storageKey)
+      return data ? JSON.parse(data) : []
+    } catch (err) {
+      console.error('Failed to parse users:', err)
+      return []
+    }
   }
 
   private setStore(users: User[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(users))
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(users))
+    } catch (err) {
+      console.error('Failed to save users:', err)
+    }
   }
 
   private delay(ms: number): Promise<void> {
@@ -43,6 +55,8 @@ class UserService {
   }
 
   async getUserByUsername(username: string): Promise<User | null> {
+    if (!username) return null
+    
     await this.seedIfNeeded()
     await this.delay(200)
 
@@ -60,6 +74,8 @@ class UserService {
   }
 
   async getUserById(id: string): Promise<User | null> {
+    if (!id) return null
+    
     await this.seedIfNeeded()
     await this.delay(200)
     
@@ -73,12 +89,14 @@ class UserService {
   }
 
   async getUserPosts(userId: string): Promise<Post[]> {
+    if (!userId) return []
+    
     await this.delay(200)
     
     try {
-      const { getAllPosts } = await import('@/lib/mockData')
-      const allPosts = getAllPosts()
-      return allPosts.filter(post => post.author.id === userId)
+      const { postService } = await import('@/features/posts/services')
+      const allPosts = await postService.getAllPosts()
+      return allPosts.filter(post => post.authorId === userId)
     } catch (err) {
       console.error('Failed to get user posts:', err)
       return []
@@ -86,6 +104,10 @@ class UserService {
   }
 
   async updateUser(id: string, updates: Partial<User>): Promise<User> {
+    if (!id) {
+      throw new Error('User ID is required')
+    }
+    
     await this.seedIfNeeded()
     await this.delay(200)
 
@@ -120,4 +142,6 @@ if (typeof window !== 'undefined') {
   (window as any).userService = {
     reset: () => userService.resetToMockData(),
   }
+  
+  console.log('userService.reset() - Reset to mock data')
 }
