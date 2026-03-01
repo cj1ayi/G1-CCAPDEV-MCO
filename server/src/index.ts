@@ -7,9 +7,10 @@ import passport from 'passport';
 
 import connectDB from './config/db.js';
 import './config/passport.js';
-import authRoutes from './routes/authRoutes.js';
 
+import authRoutes from './routes/authRoutes.js';
 import postRoutes from './routes/postRoutes.js';
+import commentRoutes from './routes/commentRoutes.js';
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ app.use(passport.session());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentRoutes);
 
 const PORT = process.env.PORT || 3000;
 
