@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "seed": "tsx src/seed.ts"
   },
   "dependencies": {
     "connect-mongo": "^6.0.0",
