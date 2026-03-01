@@ -1,10 +1,17 @@
 import { Router } from 'express';
+
 import { 
   createSpace, 
   getSpaces, 
   getSpaceByName, 
   toggleJoinSpace 
 } from '../controllers/spaceController.js';
+
+import {
+    spaceValidationRules,
+    validate
+} from '../middleware/validator.js';
+
 
 const router = Router();
 
@@ -15,7 +22,7 @@ const ensureAuth = (req: any, res: any, next: any) => {
 
 router.route('/')
   .get(getSpaces)
-  .post(ensureAuth, createSpace);
+  .post(ensureAuth, spaceValidationRules, validate, createSpace);
 
 router.get('/:name', getSpaceByName);
 router.post('/:id/toggle-join', ensureAuth, toggleJoinSpace);
