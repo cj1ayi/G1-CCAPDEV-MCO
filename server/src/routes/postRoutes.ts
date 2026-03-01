@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import { 
   createPost, 
   getPosts, 
@@ -6,9 +7,13 @@ import {
   deletePost 
 } from '../controllers/postController.js';
 
+import {
+    postValidationRules,
+    validate 
+} from '../middleware/validator.js';
+
 const router = Router();
 
-// Middleware to check if user is logged in
 const ensureAuth = (req: any, res: any, next: any) => {
   if (req.isAuthenticated()) return next();
   res.status(401).json({ message: 'Please log in first' });
@@ -16,7 +21,7 @@ const ensureAuth = (req: any, res: any, next: any) => {
 
 router.route('/')
   .get(getPosts)
-  .post(ensureAuth, createPost);
+  .post(ensureAuth, postValidationRules, validate, createPost); 
 
 router.route('/:id')
   .get(getPostById)

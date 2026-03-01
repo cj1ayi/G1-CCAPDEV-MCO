@@ -1,9 +1,15 @@
 import { Router } from 'express';
+
 import { 
   createComment, 
   getCommentsByPost, 
   deleteComment 
 } from '../controllers/commentController.js';
+
+import {
+    commentValidationRules,
+    validate
+} from '../middleware/validator.js';
 
 const router = Router();
 
@@ -13,7 +19,7 @@ const ensureAuth = (req: any, res: any, next: any) => {
 };
 
 // Base route: /api/comments
-router.post('/', ensureAuth, createComment);
+router.post('/', ensureAuth, commentValidationRules, validate, createComment);
 router.delete('/:id', ensureAuth, deleteComment);
 
 // Nested route: /api/comments/post/:postId
