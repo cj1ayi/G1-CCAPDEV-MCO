@@ -34,7 +34,9 @@ export const getSpaces = async (req: Request, res: Response) => {
 
 export const getSpaceByName = async (req: Request, res: Response) => {
   try {
-    const space = await Space.findOne({ name: req.params.name.toLowerCase() })
+    const spaceName = (req.params.name as string).toLowerCase();
+    
+    const space = await Space.findOne({ name: spaceName })
       .populate('owner', 'username displayName');
     
     if (!space) return res.status(404).json({ message: 'Space not found' });
@@ -52,11 +54,17 @@ export const toggleJoinSpace = async (req: Request, res: Response) => {
     if (!space) return res.status(404).json({ message: 'Space not found' });
 
     const userId = (req.user as any)._id;
-    const isMember = space.members.includes(userId);
+    
+    // Check if user is already a member
+    const isMember = space.members.some(
+      (id) => id.toString() === userId.toString()
+    );
 
     if (isMember) {
       // Leave
-      space.members = space.members.filter(id => id.toString() !== userId.toString());
+      space.members = space.members.filter(
+        (id) => id.toString() !== userId.toString()
+      );
     } else {
       // Join
       space.members.push(userId);
