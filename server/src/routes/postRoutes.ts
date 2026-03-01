@@ -1,11 +1,16 @@
 import { Router } from 'express';
+
 import { 
   createPost, 
   getPosts, 
   getPostById, 
   deletePost 
 } from '../controllers/postController.js';
-import { postValidationRules, validate } from '../middleware/validator.js';
+
+import {
+    postValidationRules,
+    validate 
+} from '../middleware/validator.js';
 
 const router = Router();
 
