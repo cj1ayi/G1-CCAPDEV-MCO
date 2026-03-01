@@ -12,6 +12,7 @@ import authRoutes from './routes/authRoutes.js';
 import postRoutes from './routes/postRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import spaceRoutes from './routes/spaceRoutes.js';
+import voteRoutes from './routes/voteRoutes.js';
 
 dotenv.config();
 
@@ -50,6 +51,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/spaces', spaceRoutes);
+app.use('/api/votes', voteRoutes);
 
 const PORT = process.env.PORT || 3000;
 
