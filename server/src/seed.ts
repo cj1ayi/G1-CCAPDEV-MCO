@@ -28,7 +28,7 @@ const seedData = async () => {
       {
         username: 'tiamlee',
         email: 'tiamlee@dlsu.edu.ph',
-        displayName: 'Thomas James C. Tiam-Lee',
+        name: 'Thomas James C. Tiam-Lee',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tiamlee',
         bio: 'CS Student • Loves cats',
         location: 'Manila, PH'
@@ -36,7 +36,7 @@ const seedData = async () => {
       {
         username: 'iloveapex',
         email: 'iloveapex@dlsu.edu.ph',
-        displayName: 'Teehee',
+        name: 'Teehee',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=iloveapex',
         bio: 'Frontend dev in training',
         location: 'QC, PH'
@@ -44,7 +44,7 @@ const seedData = async () => {
       {
         username: 'pieisspy',
         email: 'pieisspy@dlsu.edu.ph',
-        displayName: 'Sussus Amogus',
+        name: 'Sussus Amogus',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=pieisspy',
         bio: 'Just vibing',
         location: 'Cavite, PH'
@@ -52,7 +52,7 @@ const seedData = async () => {
       {
         username: 'callo',
         email: 'callo@dlsu.edu.ph',
-        displayName: 'Floranaras',
+        name: 'Floranaras',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=callo',
         bio: 'Commuter & gamer',
         location: 'Las Piñas, PH'
@@ -60,7 +60,7 @@ const seedData = async () => {
       {
         username: 'taroramen',
         email: 'enzo.zinger@dlsu.edu.ph',
-        displayName: 'Enzo',
+        name: 'Enzo',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=taroramen',
         bio: 'Zigger Enjoyer',
         location: 'Makati, PH'
@@ -75,7 +75,7 @@ const seedData = async () => {
         displayName: 'CCS Student Gov',
         description: 'Official updates and support from the CCS Student Government.',
         category: 'Official',
-        owner: users[0]._id,
+        ownerId: users[0]._id,
         members: [users[0]._id, users[1]._id],
         rules: [{ title: 'Be Respectful', description: 'No hate speech.' }]
       },
@@ -84,7 +84,7 @@ const seedData = async () => {
         displayName: 'DLSU Freedom Wall',
         description: 'Express yourself anonymously. The pulse of the community.',
         category: 'Lifestyle',
-        owner: users[1]._id,
+        ownerId: users[1]._id,
         members: [users[1]._id, users[2]._id, users[3]._id],
         rules: [{ title: 'Anonymity', description: 'Do not dox other students.' }]
       },
@@ -93,7 +93,7 @@ const seedData = async () => {
         displayName: 'TheLasallian',
         description: 'The official student publication of DLSU.',
         category: 'Official',
-        owner: users[3]._id,
+        ownerId: users[3]._id,
         members: [users[3]._id, users[4]._id]
       },
       {
@@ -101,7 +101,7 @@ const seedData = async () => {
         displayName: 'Paul Tan Society',
         description: 'Academic help and support for struggling students.',
         category: 'Academic',
-        owner: users[0]._id,
+        ownerId: users[0]._id,
         members: [users[0]._id, users[2]._id]
       },
       {
@@ -109,7 +109,7 @@ const seedData = async () => {
         displayName: 'RinaldoEats',
         description: 'Rinaldo\'s official food recommendations.',
         category: 'Lifestyle',
-        owner: users[2]._id,
+        ownerId: users[2]._id,
         members: [users[2]._id, users[4]._id]
       }
     ]);

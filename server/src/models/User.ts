@@ -4,7 +4,7 @@ export interface IUser extends Document {
   googleId?: string;
   username: string;
   email: string;
-  displayName: string;
+  name: string;  // FIXED: was displayName
   avatar?: string;
   bio?: string;
   location?: string;
@@ -29,7 +29,7 @@ const UserSchema: Schema = new Schema({
     unique: true,
     lowercase: true 
   },
-  displayName: { 
+  name: {  // FIXED: was displayName
     type: String, 
     required: true 
   },

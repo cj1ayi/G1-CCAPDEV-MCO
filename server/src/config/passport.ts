@@ -16,28 +16,25 @@ passport.use(
       try {
         const email = profile.emails?.[0].value || '';
 
-        // 1. Domain verification
         if (!email.endsWith('@dlsu.edu.ph')) {
           return done(null, false, { 
             message: 'Only DLSU email accounts are allowed.' 
           });
         }
 
-        // 2. Check if user already exists
         let user = await User.findOne({ googleId: profile.id });
 
         if (user) {
           return done(null, user);
         }
 
-        // 3. If not, create a new user
         const baseUsername = email.split('@')[0];
         
         user = await User.create({
           googleId: profile.id,
           email: email,
           username: `${baseUsername}_${Math.floor(Math.random() * 1000)}`,
-          displayName: profile.displayName,
+          name: profile.displayName,  // FIXED: was using displayName field
           avatar: profile.photos?.[0].value,
           joinedAt: new Date(),
         });
@@ -50,7 +47,6 @@ passport.use(
   )
 );
 
-// Session support ahh
 passport.serializeUser((user: any, done) => {
   done(null, user.id);
 });

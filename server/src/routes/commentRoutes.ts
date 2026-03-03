@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { 
   createComment, 
-  getCommentsByPost, 
+  getCommentsByPostId, 
   deleteComment 
 } from '../controllers/commentController.js';
 
@@ -23,6 +23,6 @@ router.post('/', ensureAuth, commentValidationRules, validate, createComment);
 router.delete('/:id', ensureAuth, deleteComment);
 
 // Nested route: /api/comments/post/:postId
-router.get('/post/:postId', getCommentsByPost);
+router.get('/post/:postId', getCommentsByPostId);
 
 export default router;

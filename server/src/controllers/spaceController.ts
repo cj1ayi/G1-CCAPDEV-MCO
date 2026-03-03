@@ -13,8 +13,8 @@ export const createSpace = async (req: Request, res: Response) => {
       description,
       category,
       icon,
-      owner: (req.user as any)._id,
-      members: [(req.user as any)._id] // Owner joins by default
+      ownerId: (req.user as any)._id,  // FIXED: was owner
+      members: [(req.user as any)._id]
     });
 
     res.status(201).json(space);
@@ -35,9 +35,7 @@ export const getSpaces = async (req: Request, res: Response) => {
 export const getSpaceByName = async (req: Request, res: Response) => {
   try {
     const spaceName = (req.params.name as string).toLowerCase();
-    
-    const space = await Space.findOne({ name: spaceName })
-      .populate('owner', 'username displayName');
+    const space = await Space.findOne({ name: spaceName });  // FIXED: removed .populate()
     
     if (!space) return res.status(404).json({ message: 'Space not found' });
     res.json(space);
@@ -54,19 +52,11 @@ export const toggleJoinSpace = async (req: Request, res: Response) => {
     if (!space) return res.status(404).json({ message: 'Space not found' });
 
     const userId = (req.user as any)._id;
-    
-    // Check if user is already a member
-    const isMember = space.members.some(
-      (id) => id.toString() === userId.toString()
-    );
+    const isMember = space.members.some(id => id.toString() === userId.toString());
 
     if (isMember) {
-      // Leave
-      space.members = space.members.filter(
-        (id) => id.toString() !== userId.toString()
-      );
+      space.members = space.members.filter(id => id.toString() !== userId.toString());
     } else {
-      // Join
       space.members.push(userId);
     }
 
