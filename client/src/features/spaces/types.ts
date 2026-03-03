@@ -30,6 +30,7 @@ export interface Space {
   createdDate: string
   owner: string
   isJoined?: boolean
+  updatedAt?: string
 }
 
 // Sort Options
@@ -76,6 +77,31 @@ export interface CreateSpaceDto {
   description: string
   category: Space['category']
   icon: string
+}
+
+export interface UpdateSpaceDto {
+  displayName: string
+  description: string
+  category: Space['category']
+  icon: string
+  rules: SpaceRule[]
+}
+
+export interface EditSpaceFormData {
+  displayName: string
+  description: string
+  category: Space['category']
+  icon: string
+  rules: SpaceRule[]
+}
+
+export interface EditSpaceFormErrors {
+  displayName?: string
+  description?: string
+  category?: string
+  icon?: string
+  rules?: string
+  ruleErrors?: { title?: string; description?: string }[]
 }
 
 export interface SpaceMember {
