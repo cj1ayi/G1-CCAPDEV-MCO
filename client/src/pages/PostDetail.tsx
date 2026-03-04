@@ -82,6 +82,8 @@ export default function PostDetail() {
           post={post}
           commentCount={comments.count}
           score={postActions.score}
+          upvotes={postActions.upvotes}
+          downvotes={postActions.downvotes}
           isUpvoted={postActions.isUpvoted}
           isDownvoted={postActions.isDownvoted}
           onUpvote={postActions.onUpvote}
