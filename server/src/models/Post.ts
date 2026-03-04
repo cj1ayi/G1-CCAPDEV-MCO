@@ -28,7 +28,7 @@ const PostSchema: Schema = new Schema({
   commentCount: { type: Number, default: 0 },
   imageUrl: { type: String },
   tags: [{ type: String }],
-  isEdited: { type: Date }
+  isEdited: { type: Boolean, default: false }
 }, {
   timestamps: true
 });
