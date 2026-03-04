@@ -1,3 +1,5 @@
+// Location: client/src/features/posts/hooks/usePostDetail.ts
+
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { postService } from '../services'
@@ -20,7 +22,7 @@ export const usePostDetail = ({
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const { startLoading, stopLoading } = useLoadingBar()
-  const { votes, toggleVote, getDisplayVotes } = useVoting()
+  const { votes, toggleVote } = useVoting()
 
   useEffect(() => {
     const loadPost = async () => {
@@ -37,7 +39,6 @@ export const usePostDetail = ({
         const fetchedPost = await postService.getPostById(postId)
 
         if (fetchedPost) {
-          // getCurrentUser is async — must await it
           const currentUser = await getCurrentUser()
           setPost({
             ...fetchedPost,
@@ -75,41 +76,39 @@ export const usePostDetail = ({
     }
   }
 
-const handleVote = async (voteType: 'up' | 'down') => {
-  if (!post) return
+  const handleVote = async (voteType: 'up' | 'down') => {
+    if (!post) return
 
-  const previousVote = votes[`post:${post.id}`]
-  await toggleVote(post.id, 'post', voteType)
+    const previousVote = votes[`post:${post.id}`] ?? null
+    await toggleVote(post.id, 'post', voteType)
 
-  setPost(prev => {
-    if (!prev) return prev
-    let { upvotes, downvotes } = prev
+    setPost(prev => {
+      if (!prev) return prev
+      let { upvotes, downvotes } = prev
 
-    if (voteType === 'up') {
-      if (previousVote === 'up') upvotes -= 1
-      else if (previousVote === 'down') { upvotes += 1; downvotes -= 1 }
-      else upvotes += 1
-    } else {
-      if (previousVote === 'down') downvotes -= 1
-      else if (previousVote === 'up') { downvotes += 1; upvotes -= 1 }
-      else downvotes += 1
-    }
+      if (voteType === 'up') {
+        if (previousVote === 'up') upvotes = Math.max(0, upvotes - 1)
+        else if (previousVote === 'down') { upvotes += 1; downvotes = Math.max(0, downvotes - 1) }
+        else upvotes += 1
+      } else {
+        if (previousVote === 'down') downvotes = Math.max(0, downvotes - 1)
+        else if (previousVote === 'up') { downvotes += 1; upvotes = Math.max(0, upvotes - 1) }
+        else downvotes += 1
+      }
 
-    return { ...prev, upvotes, downvotes }
-  })
-}
+      return { ...prev, upvotes, downvotes }
+    })
+  }
+
   const handleSpaceClick = () => {
     if (post) navigate(`/r/${post.space}`)
   }
 
-  // Get live vote counts from voting context
-  const voteData = post
-    ? getDisplayVotes(post.id, 'Post', post.upvotes, post.downvotes)
-    : { upvotes: 0, downvotes: 0 }
+  // Use local post state directly — no voteDeltas dependency
+  const upvotes = post?.upvotes ?? 0
+  const downvotes = post?.downvotes ?? 0
+  const score = upvotes - downvotes
 
-  const score = voteData.upvotes - voteData.downvotes
-
-  // Get current user's vote state from voting context
   const voteKey = post ? `post:${post.id}` : ''
   const currentVote = voteKey ? votes[voteKey] : null
 
@@ -118,11 +117,6 @@ const handleVote = async (voteType: 'up' | 'down') => {
 
   const openDeleteModal = () => setIsDeleteModalOpen(true)
   const closeDeleteModal = () => setIsDeleteModalOpen(false)
-
-  console.log('voteData:', voteData)
-  console.log('votes:', votes)
-  console.log('voteKey:', voteKey)
-  console.log('currentVote:', currentVote)
 
   return {
     post,
@@ -134,8 +128,8 @@ const handleVote = async (voteType: 'up' | 'down') => {
     handleVote,
     handleSpaceClick,
     score,
-    upvotes: voteData.upvotes,
-    downvotes: voteData.downvotes,
+    upvotes,
+    downvotes,
     isUpvoted: currentVote === 'up',
     isDownvoted: currentVote === 'down',
     onUpvote,
