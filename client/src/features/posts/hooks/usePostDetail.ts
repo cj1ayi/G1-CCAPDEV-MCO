@@ -20,7 +20,7 @@ export const usePostDetail = ({
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const { startLoading, stopLoading } = useLoadingBar()
-  const { toggleVote, getDisplayVotes } = useVoting()
+  const { votes, toggleVote, getDisplayVotes } = useVoting()
 
   useEffect(() => {
     const loadPost = async () => {
@@ -35,13 +35,15 @@ export const usePostDetail = ({
 
       try {
         const fetchedPost = await postService.getPostById(postId)
-        
+
         if (fetchedPost) {
-          const currentUser = getCurrentUser()
+          // getCurrentUser is async — must await it
+          const currentUser = await getCurrentUser()
           setPost({
             ...fetchedPost,
-            isOwner: currentUser 
-              ? fetchedPost.author.id === currentUser.id 
+            isOwner: currentUser
+              ? fetchedPost.author.id === currentUser.id ||
+                fetchedPost.authorId === currentUser.id
               : false,
           })
         } else {
@@ -60,14 +62,11 @@ export const usePostDetail = ({
   }, [postId, startLoading, stopLoading])
 
   const handleEdit = () => {
-    if (post) {
-      navigate(`/post/${post.id}/edit`)
-    }
+    if (post) navigate(`/post/${post.id}/edit`)
   }
 
   const handleDelete = async () => {
     if (!post) return
-
     try {
       await postService.deletePost(post.id)
       navigate(backUrl)
@@ -76,28 +75,54 @@ export const usePostDetail = ({
     }
   }
 
-  const handleVote = async (voteType: 'up' | 'down') => {
-    if (!post) return
-    await toggleVote(post.id, 'post', voteType)
-  }
+const handleVote = async (voteType: 'up' | 'down') => {
+  if (!post) return
 
-  const handleSpaceClick = () => {
-    if (post) {
-      navigate(`/r/${post.space}`)
+  const previousVote = votes[`post:${post.id}`]
+  await toggleVote(post.id, 'post', voteType)
+
+  setPost(prev => {
+    if (!prev) return prev
+    let { upvotes, downvotes } = prev
+
+    if (voteType === 'up') {
+      if (previousVote === 'up') upvotes -= 1
+      else if (previousVote === 'down') { upvotes += 1; downvotes -= 1 }
+      else upvotes += 1
+    } else {
+      if (previousVote === 'down') downvotes -= 1
+      else if (previousVote === 'up') { downvotes += 1; upvotes -= 1 }
+      else downvotes += 1
     }
+
+    return { ...prev, upvotes, downvotes }
+  })
+}
+  const handleSpaceClick = () => {
+    if (post) navigate(`/r/${post.space}`)
   }
 
-  const voteData = post 
-    ? getDisplayVotes(post.id, 'post', post.upvotes, post.downvotes)
+  // Get live vote counts from voting context
+  const voteData = post
+    ? getDisplayVotes(post.id, 'Post', post.upvotes, post.downvotes)
     : { upvotes: 0, downvotes: 0 }
 
   const score = voteData.upvotes - voteData.downvotes
+
+  // Get current user's vote state from voting context
+  const voteKey = post ? `post:${post.id}` : ''
+  const currentVote = voteKey ? votes[voteKey] : null
 
   const onUpvote = () => handleVote('up')
   const onDownvote = () => handleVote('down')
 
   const openDeleteModal = () => setIsDeleteModalOpen(true)
   const closeDeleteModal = () => setIsDeleteModalOpen(false)
+
+  console.log('voteData:', voteData)
+  console.log('votes:', votes)
+  console.log('voteKey:', voteKey)
+  console.log('currentVote:', currentVote)
 
   return {
     post,
@@ -109,8 +134,10 @@ export const usePostDetail = ({
     handleVote,
     handleSpaceClick,
     score,
-    isUpvoted: false,
-    isDownvoted: false,
+    upvotes: voteData.upvotes,
+    downvotes: voteData.downvotes,
+    isUpvoted: currentVote === 'up',
+    isDownvoted: currentVote === 'down',
     onUpvote,
     onDownvote,
     openDeleteModal,
