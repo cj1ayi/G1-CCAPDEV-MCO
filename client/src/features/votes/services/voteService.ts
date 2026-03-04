@@ -43,7 +43,7 @@ class VoteService {
       }
     } catch (err) {
       console.error('Failed to toggle vote:', err)
-      throw new Error(`Failed to toggle vote: ${err.message}`)
+      throw new Error(`Failed to toggle vote: ${(err as Error).message}`)
     }
   }
 
