@@ -60,6 +60,8 @@ export function usePostDetailView(postId?: string) {
     
     postActions: {
       score: postDetail.score,
+      upvotes: postDetail.upvotes,
+      downvotes: postDetail.downvotes,
       isUpvoted: postDetail.isUpvoted,
       isDownvoted: postDetail.isDownvoted,
       onUpvote: postDetail.onUpvote,
