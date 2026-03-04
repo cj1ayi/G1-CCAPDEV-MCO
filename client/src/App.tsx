@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/AuthContext";
-import { commentService } from "@/features/comments/services";
 import { LoadingBar } from "@/components/shared";
 import { VotingProvider } from "./features/votes/VotingContext";
 
@@ -22,15 +21,7 @@ import {
 
 
 const App = () => {
-  const hasSeeded = localStorage.getItem("comments_seeded");
   
-  if (!hasSeeded) {
-    commentService.resetToMockData().then(() => {
-      localStorage.setItem("comments_seeded", "true");
-      console.log("Comments auto-seeded on first load!");
-    });
-  }
-
   return (
     <BrowserRouter>
       <AuthProvider>
