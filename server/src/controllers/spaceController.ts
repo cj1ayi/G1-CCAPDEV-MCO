@@ -13,7 +13,7 @@ export const createSpace = async (req: Request, res: Response) => {
       description,
       category,
       icon,
-      ownerId: (req.user as any)._id,  // FIXED: was owner
+      owner: (req.user as any)._id,
       members: [(req.user as any)._id]
     });
 
@@ -35,7 +35,8 @@ export const getSpaces = async (req: Request, res: Response) => {
 export const getSpaceByName = async (req: Request, res: Response) => {
   try {
     const spaceName = (req.params.name as string).toLowerCase();
-    const space = await Space.findOne({ name: spaceName });  // FIXED: removed .populate()
+    const space = await Space.findOne({ name: spaceName })
+      .populate('owner', 'username name avatar');
     
     if (!space) return res.status(404).json({ message: 'Space not found' });
     res.json(space);
