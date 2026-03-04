@@ -94,3 +94,33 @@ export const deletePost = async (req: Request, res: Response) => {
     res.status(500).json({ message: (error as Error).message });
   }
 };
+
+export const updatePost = async (req: Request, res: Response) => {
+  try {
+    const post = await Post.findById(req.params.id)
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' })
+    }
+
+    if (post.author.toString() !== (req.user as any)._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized' })
+    }
+
+    const { title, content, imageUrl, tags, flair } = req.body
+
+    if (title) post.title = title
+    if (content) post.content = content
+    if (imageUrl !== undefined) post.imageUrl = imageUrl
+    if (tags) post.tags = tags
+    if (flair) post.flair = flair
+    post.isEdited = true 
+
+    await post.save()
+    await post.populate('author', 'username avatar')
+
+    res.json(formatPost(post))
+  } catch (error) {
+    res.status(400).json({ message: (error as Error).message })
+  }
+}
