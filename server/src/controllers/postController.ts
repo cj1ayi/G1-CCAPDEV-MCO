@@ -1,23 +1,20 @@
 import { Request, Response } from 'express';
 import Post from '../models/Post.js';
+import mongoose from 'mongoose';
 
-interface PopulatedAuthor {
-  _id: import('mongoose').Types.ObjectId;
-  username: string;
-  avatar?: string;
-}
+const formatPost = (post: mongoose.Document & Record<string, any>) => {
+  const obj = post.toObject();
+  const author = obj.author;
 
-interface PopulatedPost {
-  _id: import('mongoose').Types.ObjectId;
-  title: string;
-  content: string;
-  space: string;
-  author: PopulatedAuthor;
-  upvotes: number;
-  downvotes: number;
-  createdAt: Date;
-  [key: string]: any;
-}
+  return {
+    ...obj,
+    authorId: author._id.toString(),
+    author: {
+      username: author.username,
+      avatar: author.avatar
+    }
+  };
+};
 
 export const createPost = async (req: Request, res: Response) => {
   try {
@@ -38,19 +35,7 @@ export const createPost = async (req: Request, res: Response) => {
     });
 
     await newPost.populate('author', 'username avatar');
-
-    const populated = newPost as unknown as PopulatedPost;
-
-    const formatted = {
-      ...populated.toObject(),
-      authorId: populated.author._id.toString(),
-      author: {
-        username: populated.author.username,
-        avatar: populated.author.avatar
-      }
-    };
-
-    res.status(201).json(formatted);
+    res.status(201).json(formatPost(newPost));
   } catch (error) {
     res.status(400).json({ message: (error as Error).message });
   }
@@ -70,22 +55,7 @@ export const getPosts = async (req: Request, res: Response) => {
     }
 
     const results = await postsQuery;
-
-    const formatted = results.map((post) => {
-      const populated = post as unknown as PopulatedPost;
-      const obj = populated.toObject();
-
-      return {
-        ...obj,
-        authorId: obj.author._id.toString(),
-        author: {
-          username: obj.author.username,
-          avatar: obj.author.avatar
-        }
-      };
-    });
-
-    res.json(formatted);
+    res.json(results.map(formatPost));
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }
@@ -100,19 +70,7 @@ export const getPostById = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    const populated = post as unknown as PopulatedPost;
-    const obj = populated.toObject();
-
-    const formatted = {
-      ...obj,
-      authorId: obj.author._id.toString(),
-      author: {
-        username: obj.author.username,
-        avatar: obj.author.avatar
-      }
-    };
-
-    res.json(formatted);
+    res.json(formatPost(post));
   } catch (error) {
     res.status(500).json({ message: 'Invalid Post ID' });
   }
