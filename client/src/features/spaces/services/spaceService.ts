@@ -30,7 +30,7 @@ class SpaceService {
         const converted = convertObjectId(space)
         return {
           ...converted,
-          ownerId: converted.ownerId,
+          owner: converted.owner,
           memberCount: converted.members?.length.toString() || '0'
         }
       })
@@ -69,7 +69,7 @@ class SpaceService {
       const converted = convertObjectId(data)
       const space: Space = {
         ...converted,
-        ownerId: converted.ownerId,
+        owner: converted.owner,
         memberCount: converted.members?.length.toString() || '0'
       }
 
@@ -92,7 +92,7 @@ class SpaceService {
 
       return {
         ...converted,
-        ownerId: converted.ownerId,
+        owner: converted.owner,
         isJoined: true,
         memberCount: '1'
       }
