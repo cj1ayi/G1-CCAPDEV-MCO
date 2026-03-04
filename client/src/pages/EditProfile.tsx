@@ -85,7 +85,7 @@ const EditProfile = () => {
 
     try {
       await userService.updateUser(user.id, formData)
-      navigate(`/profile/${user.username}`)
+      navigate(`/profile/${formData.username}`)
     } catch (error) {
       console.error('Error updating profile:', error)
       showError('Failed to update profile. Please try again.')
