@@ -89,7 +89,7 @@ export function useComments({
         setError(null)
 
         // Optimistic update with real current user
-        const currentUser = getAuthUser()
+        const currentUser = await getAuthUser()
         const tempComment: CommentCardProps = {
           id: `temp-${Date.now()}`,
           content,
