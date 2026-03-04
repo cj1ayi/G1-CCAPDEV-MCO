@@ -74,6 +74,9 @@ export const PostDetailContent = ({
                 </span>
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">{formatTimeAgo(post.createdAt)}</p>
+              {post.isEdited && (
+                <span className="text-xs text-gray-400 italic">(edited)</span>
+              )}
             </div>
           </div>
 

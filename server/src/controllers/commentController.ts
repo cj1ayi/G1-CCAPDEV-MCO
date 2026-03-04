@@ -72,6 +72,7 @@ export const updateComment = async (req: Request, res: Response) => {
     }
 
     comment.content = content;
+    comment.editedAt = new Date()
     await comment.save();
 
     const author = await User.findById(comment.authorId).select('username avatar');
