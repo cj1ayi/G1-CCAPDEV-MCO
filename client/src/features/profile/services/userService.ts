@@ -1,98 +1,68 @@
-// User service
 // Location: client/src/features/profile/services/userService.ts
 
 import { User } from '../types'
-import { 
-  getCurrentUser as getAuthUser 
-} from "@/features/auth/services/authService"
+import { getCurrentUser as getAuthUser } from "@/features/auth/services/authService"
 import { Post } from '@/features/posts/types'
+import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
 
 class UserService {
-  private storageKey = 'animoforums_users'
-
-  private getStore(): User[] {
-    try {
-      const data = localStorage.getItem(this.storageKey)
-      return data ? JSON.parse(data) : []
-    } catch (err) {
-      console.error('Failed to parse users:', err)
-      return []
+  /**
+   * Map backend user shape to frontend User type.
+   * Backend: { _id, name, username, avatar, bio, location, joinedAt }
+   */
+  private mapUser(data: any): User {
+    const converted = convertObjectId(data)
+    return {
+      id: converted.id,
+      name: converted.name,
+      username: converted.username,
+      avatar: converted.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${converted.username}`,
+      bio: converted.bio || '',
+      location: converted.location || '',
+      joinedAt: converted.joinedAt,
+      email: converted.email,
     }
-  }
-
-  private setStore(users: User[]): void {
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(users))
-    } catch (err) {
-      console.error('Failed to save users:', err)
-    }
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }
-
-  private async seedIfNeeded(): Promise<void> {
-    const users = this.getStore()
-    if (users.length > 0) return
-
-    try {
-      const { getAllUsers } = await import('@/lib/mockData')
-      const mockUsers = getAllUsers()
-
-      if (mockUsers && mockUsers.length > 0) {
-        this.setStore(mockUsers)
-        console.log(`Seeded ${mockUsers.length} users`) 
-      }
-    } catch (err) {
-      console.log('No mock users found')
-    }
-  }
-
-  async getAllUsers(): Promise<User[]> {
-    await this.seedIfNeeded()
-    return this.getStore()
   }
 
   async getUserByUsername(username: string): Promise<User | null> {
     if (!username) return null
-    
-    await this.seedIfNeeded()
-    await this.delay(200)
 
-    const users = this.getStore()
-    const user = users.find(
-      u => u.username.toLowerCase() === username.toLowerCase()
-    )
-
-    if (!user) {
-      console.log(`User not found: ${username}`)
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/username/${username}`)
+      if (!response.ok) return null
+      const data = await response.json()
+      return this.mapUser(data)
+    } catch (err) {
+      console.error('Failed to fetch user by username:', err)
       return null
     }
-
-    return user
   }
 
   async getUserById(id: string): Promise<User | null> {
     if (!id) return null
-    
-    await this.seedIfNeeded()
-    await this.delay(200)
-    
-    const users = this.getStore()
-    return users.find(user => user.id === id) || null
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${id}`)
+      if (!response.ok) return null
+      const data = await response.json()
+      return this.mapUser(data)
+    } catch (err) {
+      console.error('Failed to fetch user by id:', err)
+      return null
+    }
   }
 
   async getCurrentUser(): Promise<User | null> {
-    await this.seedIfNeeded()
-    return getAuthUser() 
+    const authUser = await getAuthUser()
+    if (!authUser) return null
+
+    // AuthUser and User share the same shape — cast it directly
+    return authUser as unknown as User
   }
 
   async getUserPosts(userId: string): Promise<Post[]> {
     if (!userId) return []
-    
-    await this.delay(200)
-    
+
     try {
       const { postService } = await import('@/features/posts/services')
       const allPosts = await postService.getAllPosts()
@@ -104,44 +74,19 @@ class UserService {
   }
 
   async updateUser(id: string, updates: Partial<User>): Promise<User> {
-    if (!id) {
-      throw new Error('User ID is required')
+    if (!id) throw new Error('User ID is required')
+
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/users/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates)
+      })
+      const data = await response.json()
+      return this.mapUser(data)
+    } catch (err) {
+      throw new Error(`Failed to update user: ${(err as Error).message}`)
     }
-    
-    await this.seedIfNeeded()
-    await this.delay(200)
-
-    const users = this.getStore()
-    const index = users.findIndex(u => u.id === id)
-
-    if (index === -1) {
-      throw new Error('User not found')
-    }
-
-    const updatedUser = {
-      ...users[index],
-      ...updates,
-    }
-
-    users[index] = updatedUser
-    this.setStore(users)
-
-    return updatedUser
-  }
-
-  async resetToMockData(): Promise<void> {
-    localStorage.removeItem(this.storageKey)
-    await this.seedIfNeeded()
-    console.log('User data reset to mock data')
   }
 }
 
 export const userService = new UserService()
-
-if (typeof window !== 'undefined') {
-  (window as any).userService = {
-    reset: () => userService.resetToMockData(),
-  }
-  
-  console.log('userService.reset() - Reset to mock data')
-}
