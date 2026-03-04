@@ -1,9 +1,13 @@
-import { Plus, Check, Users, MessageSquare, Settings } from 'lucide-react'
+// Location: client/src/features/spaces/components/SpaceHeader.tsx
+
+import { Plus, Check, Users, MessageSquare, Settings, Trash2 } from 'lucide-react'
 import { Button, Badge } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { SpaceHeaderProps } from '../types'
 import { getCurrentUser } from '@/features/auth/services/authService'
+import { spaceService } from '../services/spaceService'
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export const SpaceHeader = ({ 
   space, 
@@ -12,12 +16,31 @@ export const SpaceHeader = ({
   postCount 
 }: SpaceHeaderProps) => {
   const [isOwner, setIsOwner] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     getCurrentUser().then(user => {
-      setIsOwner(!!user && user.id === space.owner)
+      const ownerId = typeof space.owner === 'object' 
+        ? (space.owner as any).id 
+        : space.owner
+      setIsOwner(!!user && user.id === ownerId)
     })
   }, [space.owner])
+
+  const handleDelete = async () => {
+    setIsDeleting(true)
+    try {
+      await spaceService.deleteSpace(space.id)
+      navigate('/spaces')
+    } catch (error) {
+      console.error('Failed to delete space:', error)
+    } finally {
+      setIsDeleting(false)
+      setIsDeleteModalOpen(false)
+    }
+  }
 
   return (
     <div className="mb-6">
@@ -86,15 +109,22 @@ export const SpaceHeader = ({
               </Button>
               
               {isOwner && (
-                <Button
-                  variant="outline"
-                  leftIcon={<Settings className="size-4" />}
-                  onClick={() => {
-                    console.log('Edit space:', space.name)
-                  }}
-                >
-                  Edit
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    leftIcon={<Settings className="size-4" />}
+                    onClick={() => console.log('Edit space:', space.name)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    leftIcon={<Trash2 className="size-4" />}
+                    onClick={() => setIsDeleteModalOpen(true)}
+                  >
+                    Delete
+                  </Button>
+                </>
               )}
             </div>
           </div>
@@ -112,15 +142,46 @@ export const SpaceHeader = ({
               icon={<MessageSquare className="size-4" />} 
               label={`${postCount} posts`} 
             />
-            <Badge 
-              variant="secondary" 
-              size="sm"
-            >
+            <Badge variant="secondary" size="sm">
               {space.category}
             </Badge>
           </div>
         </div>
       </div>
+
+      {/* Delete Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className={cn(
+            "bg-white dark:bg-surface-dark rounded-xl shadow-xl",
+            "p-6 max-w-md w-full mx-4"
+          )}>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              Delete Space
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
+              Are you sure you want to delete <span className="font-semibold">r/{space.name}</span>? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleDelete}
+                isLoading={isDeleting}
+                className="bg-red-500 hover:bg-red-600"
+              >
+                Delete Space
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

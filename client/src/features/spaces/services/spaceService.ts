@@ -55,8 +55,11 @@ class SpaceService {
     space: SpaceWithMembers,
     currentUser: { id: string } | null
   ): boolean {
-    if (!currentUser) return false
-    return space.members?.includes(currentUser.id) ?? false
+    if (!currentUser || !space.members) return false
+    return space.members.some((member: any) => {
+      const memberId = typeof member === 'object' ? member.id || member._id : member
+      return memberId === currentUser.id
+    })
   }
 
   async getSpaceByName(spaceName: string): Promise<Space | null> {
@@ -67,13 +70,14 @@ class SpaceService {
       const data = await response.json()
 
       const converted = convertObjectId(data)
-      const space: Space = {
+      const currentUser = await getCurrentUser()
+
+      return {
         ...converted,
         owner: converted.owner,
-        memberCount: converted.members?.length.toString() || '0'
+        memberCount: converted.members?.length.toString() || '0',
+        isJoined: this.checkIsJoined(converted, currentUser)
       }
-
-      return space
     } catch (err) {
       console.error('Failed to fetch space:', err)
       return null
@@ -119,6 +123,12 @@ class SpaceService {
   private getErrorMessage(err: unknown): string {
     if (err instanceof Error) return err.message
     return String(err)
+  }
+
+  async deleteSpace(spaceId: string): Promise<void> {
+    await fetchWithAuth(`${API_BASE_URL}/spaces/${spaceId}`, {
+      method: 'DELETE'
+    })
   }
 
   async getSpacePosts(
