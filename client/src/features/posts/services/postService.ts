@@ -21,14 +21,14 @@ export interface UpdatePostDto {
 class PostService {
   private populateAuthor(post: StoredPost): Post {
     // If author object already exists from backend, use it
-    if (post.author && typeof post.author === 'object') {
+    if ((post as any).author && typeof (post as any).author === 'object') {
       return {
         ...post,
         author: {
           id: post.authorId,
-          name: post.author.username, // Map username to name
-          username: post.author.username,
-          avatar: post.author.avatar || ''
+          name: (post as any).author.username, // Map username to name
+          username: (post as any).author.username,
+          avatar: (post as any).author.avatar || ''
         }
       }
     }
@@ -59,6 +59,7 @@ class PostService {
       }
     }
   }
+  
   private async calculateOwnership(post: Post): Promise<Post> {
     const currentUser = await getAuthUser()
     if (!currentUser || !post || !post.author) {
@@ -72,16 +73,16 @@ class PostService {
   private async applyPopulation(posts: StoredPost[]): Promise<Post[]> {
     if (!posts || posts.length === 0) return []
 
-      const populated: Post[] = []
+    const populated: Post[] = []
 
-      for (const post of posts) {
-        if (!post || !post.id) continue
+    for (const post of posts) {
+      if (!post || !post.id) continue
 
-          const withAuthor = this.populateAuthor(post)
-          populated.push(await this.calculateOwnership(withAuthor))
-      }
+      const withAuthor = this.populateAuthor(post)
+      populated.push(await this.calculateOwnership(withAuthor))
+    }
 
-      return populated
+    return populated
   }
 
   async getAllPosts(): Promise<Post[]> {
@@ -93,7 +94,8 @@ class PostService {
         const converted = convertObjectId(post)
         return {
           ...converted,
-          authorId: converted.authorId
+          authorId: converted.authorId,
+          author: post.author // Preserve author from backend
         }
       })
 
@@ -107,44 +109,46 @@ class PostService {
   async getPostById(id: string): Promise<Post | null> {
     if (!id) return null
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/posts/${id}`)
-        const data = await response.json()
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts/${id}`)
+      const data = await response.json()
 
-        const converted = convertObjectId(data)
-        const post: StoredPost = {
-          ...converted,
-          authorId: converted.authorId
-        }
-
-        const populated = await this.applyPopulation([post])
-        return populated[0] || null
-      } catch (err) {
-        console.error('Failed to fetch post:', err)
-        return null
+      const converted = convertObjectId(data)
+      const post: StoredPost = {
+        ...converted,
+        authorId: converted.authorId,
+        author: data.author // Preserve author from backend
       }
+
+      const populated = await this.applyPopulation([post])
+      return populated[0] || null
+    } catch (err) {
+      console.error('Failed to fetch post:', err)
+      return null
+    }
   }
 
   async getPostsBySpace(space: string): Promise<Post[]> {
     if (!space) return []
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/posts?space=${space}`)
-        const data = await response.json()
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts?space=${space}`)
+      const data = await response.json()
 
-        const posts: StoredPost[] = data.map((post: any) => {
-          const converted = convertObjectId(post)
-          return {
-            ...converted,
-            authorId: converted.authorId
-          }
-        })
+      const posts: StoredPost[] = data.map((post: any) => {
+        const converted = convertObjectId(post)
+        return {
+          ...converted,
+          authorId: converted.authorId,
+          author: post.author // Preserve author from backend
+        }
+      })
 
-        return this.applyPopulation(posts)
-      } catch (err) {
-        console.error('Failed to fetch space posts:', err)
-        return []
-      }
+      return this.applyPopulation(posts)
+    } catch (err) {
+      console.error('Failed to fetch space posts:', err)
+      return []
+    }
   }
 
   async createPost(dto: CreatePostDto): Promise<Post> {
@@ -159,13 +163,14 @@ class PostService {
 
       const post: StoredPost = {
         ...converted,
-        authorId: converted.authorId
+        authorId: converted.authorId,
+        author: data.author // Preserve author from backend
       }
 
       const populated = this.populateAuthor(post)
       return this.calculateOwnership(populated)
     } catch (err) {
-      throw new Error(`Failed to create post: ${err.message}`)
+      throw new Error(`Failed to create post: ${(err as Error).message}`)
     }
   }
 
@@ -185,13 +190,14 @@ class PostService {
 
       const post: StoredPost = {
         ...converted,
-        authorId: converted.authorId
+        authorId: converted.authorId,
+        author: data.author // Preserve author from backend
       }
 
       const populated = this.populateAuthor(post)
       return this.calculateOwnership(populated)
     } catch (err) {
-      throw new Error(`Failed to update post: ${err.message}`)
+      throw new Error(`Failed to update post: ${(err as Error).message}`)
     }
   }
 
@@ -205,7 +211,7 @@ class PostService {
         method: 'DELETE'
       })
     } catch (err) {
-      throw new Error(`Failed to delete post: ${err.message}`)
+      throw new Error(`Failed to delete post: ${(err as Error).message}`)
     }
   }
 
@@ -261,7 +267,8 @@ class PostService {
         const converted = convertObjectId(post)
         return {
           ...converted,
-          authorId: converted.authorId
+          authorId: converted.authorId,
+          author: post.author // Preserve author from backend
         }
       })
 
