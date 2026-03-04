@@ -7,8 +7,7 @@ export const createComment = async (req: Request, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
 
-    const { postId } = req.params;
-    const { content, parentId } = req.body;
+    const { postId, content, parentId } = req.body;
 
     const newComment = await Comment.create({
       content,
@@ -122,8 +121,8 @@ const cleanupAncestors = async (parentId: string | null, postId: string): Promis
 
 export const deleteComment = async (req: Request, res: Response) => {
   try {
-    const postId = req.params.postId as string;
-    const commentId = req.params.commentId as string;
+    const commentId = req.params.id as string
+    const postId = req.body.postId
 
     const comment = await Comment.findById(commentId);
     if (!comment) return res.status(404).json({ message: 'Comment not found' });
