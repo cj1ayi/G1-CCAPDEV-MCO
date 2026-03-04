@@ -1,12 +1,29 @@
 import { Request, Response } from 'express';
 import Post from '../models/Post.js';
+import mongoose from 'mongoose';
+
+const formatPost = (post: mongoose.Document & Record<string, any>) => {
+  const obj = post.toObject();
+  const author = obj.author;
+
+  return {
+    ...obj,
+    authorId: author._id.toString(),
+    author: {
+      username: author.username,
+      avatar: author.avatar
+    }
+  };
+};
 
 export const createPost = async (req: Request, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
 
     const { title, content, space, imageUrl, tags, flair } = req.body;
-    
+
     const newPost = await Post.create({
       title,
       content,
@@ -17,7 +34,8 @@ export const createPost = async (req: Request, res: Response) => {
       author: (req.user as any)._id
     });
 
-    res.status(201).json(newPost);
+    await newPost.populate('author', 'username avatar');
+    res.status(201).json(formatPost(newPost));
   } catch (error) {
     res.status(400).json({ message: (error as Error).message });
   }
@@ -26,16 +44,18 @@ export const createPost = async (req: Request, res: Response) => {
 export const getPosts = async (req: Request, res: Response) => {
   try {
     const { space, sort } = req.query;
-    let query = space ? { space: space as string } : {};
-    
-    let posts = Post.find(query).populate('author', 'username displayName avatar');
+    const query = space ? { space: space as string } : {};
 
-    // Basic sorting logic. Might break idk.
-    if (sort === 'new') posts = posts.sort({ createdAt: -1 });
-    else posts = posts.sort({ upvotes: -1 });
+    let postsQuery = Post.find(query).populate('author', 'username avatar');
 
-    const results = await posts;
-    res.json(results);
+    if (sort === 'new') {
+      postsQuery = postsQuery.sort({ createdAt: -1 });
+    } else {
+      postsQuery = postsQuery.sort({ upvotes: -1 });
+    }
+
+    const results = await postsQuery;
+    res.json(results.map(formatPost));
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }
@@ -44,10 +64,13 @@ export const getPosts = async (req: Request, res: Response) => {
 export const getPostById = async (req: Request, res: Response) => {
   try {
     const post = await Post.findById(req.params.id)
-      .populate('author', 'username displayName avatar');
-    
-    if (!post) return res.status(404).json({ message: 'Post not found' });
-    res.json(post);
+      .populate('author', 'username avatar');
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    res.json(formatPost(post));
   } catch (error) {
     res.status(500).json({ message: 'Invalid Post ID' });
   }
@@ -56,11 +79,13 @@ export const getPostById = async (req: Request, res: Response) => {
 export const deletePost = async (req: Request, res: Response) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ message: 'Post not found' });
 
-    // Check ownership
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
     if (post.author.toString() !== (req.user as any)._id.toString()) {
-      return res.status(403).json({ message: 'Not authorized to delete this post' });
+      return res.status(403).json({ message: 'Not authorized' });
     }
 
     await post.deleteOne();

@@ -1,7 +1,1 @@
-export { 
-  login, 
-  logout, 
-  signup, 
-  getCurrentUser, 
-  isAuthenticated 
-} from './authService'
+export * from './authService'

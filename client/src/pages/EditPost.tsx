@@ -45,15 +45,7 @@ export default function EditPostPage() {
       }
 
       try {
-        const { 
-          post, 
-          error: fetchError 
-        } = await postService.getPostForEdit(id)
-        
-        if (fetchError) {
-          setError(fetchError)
-          return
-        }
+        const post = await postService.getPostById(id)
 
         if (post) {
           setFormData({

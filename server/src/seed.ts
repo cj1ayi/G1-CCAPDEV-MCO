@@ -14,7 +14,6 @@ const seedData = async () => {
     await mongoose.connect(process.env.MONGODB_URI!);
     console.log('Connected.');
 
-    // 1. Clear existing data
     console.log('Wiping existing collections...');
     await User.deleteMany({});
     await Post.deleteMany({});
@@ -22,13 +21,12 @@ const seedData = async () => {
     await Space.deleteMany({});
     await Vote.deleteMany({});
 
-    // 2. Seed Users
     console.log('Seeding Users...');
     const users = await User.insertMany([
       {
         username: 'tiamlee',
         email: 'tiamlee@dlsu.edu.ph',
-        displayName: 'Thomas James C. Tiam-Lee',
+        name: 'Thomas James C. Tiam-Lee',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tiamlee',
         bio: 'CS Student • Loves cats',
         location: 'Manila, PH'
@@ -36,7 +34,7 @@ const seedData = async () => {
       {
         username: 'iloveapex',
         email: 'iloveapex@dlsu.edu.ph',
-        displayName: 'Teehee',
+        name: 'Teehee',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=iloveapex',
         bio: 'Frontend dev in training',
         location: 'QC, PH'
@@ -44,7 +42,7 @@ const seedData = async () => {
       {
         username: 'pieisspy',
         email: 'pieisspy@dlsu.edu.ph',
-        displayName: 'Sussus Amogus',
+        name: 'Sussus Amogus',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=pieisspy',
         bio: 'Just vibing',
         location: 'Cavite, PH'
@@ -52,7 +50,7 @@ const seedData = async () => {
       {
         username: 'callo',
         email: 'callo@dlsu.edu.ph',
-        displayName: 'Floranaras',
+        name: 'Floranaras',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=callo',
         bio: 'Commuter & gamer',
         location: 'Las Piñas, PH'
@@ -60,14 +58,13 @@ const seedData = async () => {
       {
         username: 'taroramen',
         email: 'enzo.zinger@dlsu.edu.ph',
-        displayName: 'Enzo',
+        name: 'Enzo',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=taroramen',
         bio: 'Zigger Enjoyer',
         location: 'Makati, PH'
       }
     ]);
 
-    // 3. Seed Spaces
     console.log('Seeding Spaces...');
     const spaces = await Space.insertMany([
       {
@@ -114,7 +111,6 @@ const seedData = async () => {
       }
     ]);
 
-    // 4. Seed Posts
     console.log('Seeding Posts...');
     const posts = await Post.insertMany([
       {
@@ -160,7 +156,6 @@ const seedData = async () => {
       }
     ]);
 
-    // 5. Seed Comments
     console.log('Seeding Comments...');
     const rootComment = await Comment.create({
       postId: posts[0]._id,
@@ -191,12 +186,11 @@ const seedData = async () => {
       }
     ]);
 
-    // Update comment counts on posts
     await Post.findByIdAndUpdate(posts[0]._id, { commentCount: 2 });
     await Post.findByIdAndUpdate(posts[1]._id, { commentCount: 1 });
     await Post.findByIdAndUpdate(posts[4]._id, { commentCount: 1 });
 
-    console.log('Database successfully seeded with Phase 1 data!');
+    console.log('Database successfully seeded!');
     process.exit();
   } catch (error) {
     console.error('Seeding failed:', error);

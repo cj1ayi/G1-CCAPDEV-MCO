@@ -49,7 +49,7 @@ export const SpaceCard = ({
                     'font-black',
                     isMaterialIcon
                       ? 'material-symbols-outlined text-3xl'
-                      : space.icon.length > 2
+                      : space.icon?.length > 2
                         ? 'text-lg'
                         : 'text-2xl'
                   )}

@@ -28,7 +28,7 @@ export interface Space {
   bannerUrl?: string
   rules: SpaceRule[]
   createdDate: string
-  ownerId: string
+  owner: string
   isJoined?: boolean
 }
 
