@@ -69,15 +69,14 @@ export function PostPreviewCard({ post, onUpdate }: {
     }
   }
 
-  const checkOwnership = () => {
-    const currentUser = getCurrentUser()
-    if (!currentUser || !currentPost || !currentPost.author) {
-      return false
-    }
-    return currentUser.id === currentPost.author.id
-  }
 
-  const isOwner = checkOwnership()
+  const [isOwner, setIsOwner] = useState(false)
+
+  useEffect(() => {
+    getCurrentUser().then(user => {
+      setIsOwner(!!user && !!currentPost?.author && user.id === currentPost.author.id)
+    })
+  }, [currentPost?.author?.id])
 
   const { upvotes, downvotes } = getDisplayVotes(
     currentPost.id,
