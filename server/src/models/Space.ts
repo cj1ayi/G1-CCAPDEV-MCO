@@ -6,7 +6,7 @@ export interface ISpace extends Document {
   description: string;
   icon?: string;
   category: 'Official' | 'Batch' | 'Lifestyle' | 'Academic' | 'Interest';
-  ownerId: mongoose.Types.ObjectId;  // FIXED: was owner
+  owner: mongoose.Types.ObjectId;
   members: mongoose.Types.ObjectId[];
   rules: { title: string; description: string }[];
   bannerUrl?: string;
@@ -28,7 +28,7 @@ const SpaceSchema: Schema = new Schema({
     enum: ['Official', 'Batch', 'Lifestyle', 'Academic', 'Interest'],
     default: 'Interest'
   },
-  ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },  // FIXED
+  owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   rules: [{
     title: { type: String },
