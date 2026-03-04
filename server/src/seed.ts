@@ -14,7 +14,6 @@ const seedData = async () => {
     await mongoose.connect(process.env.MONGODB_URI!);
     console.log('Connected.');
 
-    // 1. Clear existing data
     console.log('Wiping existing collections...');
     await User.deleteMany({});
     await Post.deleteMany({});
@@ -22,7 +21,6 @@ const seedData = async () => {
     await Space.deleteMany({});
     await Vote.deleteMany({});
 
-    // 2. Seed Users
     console.log('Seeding Users...');
     const users = await User.insertMany([
       {
@@ -67,7 +65,6 @@ const seedData = async () => {
       }
     ]);
 
-    // 3. Seed Spaces
     console.log('Seeding Spaces...');
     const spaces = await Space.insertMany([
       {
@@ -75,7 +72,7 @@ const seedData = async () => {
         displayName: 'CCS Student Gov',
         description: 'Official updates and support from the CCS Student Government.',
         category: 'Official',
-        ownerId: users[0]._id,
+        owner: users[0]._id,
         members: [users[0]._id, users[1]._id],
         rules: [{ title: 'Be Respectful', description: 'No hate speech.' }]
       },
@@ -84,7 +81,7 @@ const seedData = async () => {
         displayName: 'DLSU Freedom Wall',
         description: 'Express yourself anonymously. The pulse of the community.',
         category: 'Lifestyle',
-        ownerId: users[1]._id,
+        owner: users[1]._id,
         members: [users[1]._id, users[2]._id, users[3]._id],
         rules: [{ title: 'Anonymity', description: 'Do not dox other students.' }]
       },
@@ -93,7 +90,7 @@ const seedData = async () => {
         displayName: 'TheLasallian',
         description: 'The official student publication of DLSU.',
         category: 'Official',
-        ownerId: users[3]._id,
+        owner: users[3]._id,
         members: [users[3]._id, users[4]._id]
       },
       {
@@ -101,7 +98,7 @@ const seedData = async () => {
         displayName: 'Paul Tan Society',
         description: 'Academic help and support for struggling students.',
         category: 'Academic',
-        ownerId: users[0]._id,
+        owner: users[0]._id,
         members: [users[0]._id, users[2]._id]
       },
       {
@@ -109,12 +106,11 @@ const seedData = async () => {
         displayName: 'RinaldoEats',
         description: 'Rinaldo\'s official food recommendations.',
         category: 'Lifestyle',
-        ownerId: users[2]._id,
+        owner: users[2]._id,
         members: [users[2]._id, users[4]._id]
       }
     ]);
 
-    // 4. Seed Posts
     console.log('Seeding Posts...');
     const posts = await Post.insertMany([
       {
@@ -160,7 +156,6 @@ const seedData = async () => {
       }
     ]);
 
-    // 5. Seed Comments
     console.log('Seeding Comments...');
     const rootComment = await Comment.create({
       postId: posts[0]._id,
@@ -191,12 +186,11 @@ const seedData = async () => {
       }
     ]);
 
-    // Update comment counts on posts
     await Post.findByIdAndUpdate(posts[0]._id, { commentCount: 2 });
     await Post.findByIdAndUpdate(posts[1]._id, { commentCount: 1 });
     await Post.findByIdAndUpdate(posts[4]._id, { commentCount: 1 });
 
-    console.log('Database successfully seeded with Phase 1 data!');
+    console.log('Database successfully seeded!');
     process.exit();
   } catch (error) {
     console.error('Seeding failed:', error);
