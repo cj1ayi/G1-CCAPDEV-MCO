@@ -89,7 +89,7 @@ export function useComments({
         setError(null)
 
         // Optimistic update with real current user
-        const currentUser = getAuthUser()
+        const currentUser = await getAuthUser()
         const tempComment: CommentCardProps = {
           id: `temp-${Date.now()}`,
           content,
@@ -113,7 +113,7 @@ export function useComments({
             addReplyToCommentOptimistic(prev, parentId, tempComment)
           )
         }
-
+        console.log('createComment dto:', { postId, content, parentId })
         // Call service
         await commentService.createComment({ postId, content, parentId })
 
