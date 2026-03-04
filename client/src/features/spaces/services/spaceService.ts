@@ -14,13 +14,19 @@ export interface CreateSpaceDto {
   icon: string
 }
 
+interface SpaceWithMembers extends Space {
+  members?: string[]
+}
+
 class SpaceService {
-  async getSpaces(page: number = 1): Promise<{ data: Space[]; hasMore: boolean }> {
+  async getSpaces(
+    page: number = 1
+  ): Promise<{ data: Space[]; hasMore: boolean }> {
     try {
       const response = await fetch(`${API_BASE_URL}/spaces?page=${page}`)
       const data = await response.json()
-      
-      const spaces: Space[] = data.map((space: any) => {
+
+      const spaces: SpaceWithMembers[] = data.map((space: any) => {
         const converted = convertObjectId(space)
         return {
           ...converted,
@@ -28,13 +34,13 @@ class SpaceService {
           memberCount: converted.members?.length.toString() || '0'
         }
       })
-      
+
       const currentUser = await getCurrentUser()
-      const spacesWithJoinStatus = spaces.map(space => ({
+      const spacesWithJoinStatus = spaces.map((space) => ({
         ...space,
-        isJoined: currentUser ? space.members?.includes(currentUser.id) : false
+        isJoined: this.checkIsJoined(space, currentUser)
       }))
-      
+
       return {
         data: spacesWithJoinStatus,
         hasMore: spaces.length === 20
@@ -45,20 +51,28 @@ class SpaceService {
     }
   }
 
+  private checkIsJoined(
+    space: SpaceWithMembers,
+    currentUser: { id: string } | null
+  ): boolean {
+    if (!currentUser) return false
+    return space.members?.includes(currentUser.id) ?? false
+  }
+
   async getSpaceByName(spaceName: string): Promise<Space | null> {
     if (!spaceName) return null
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/spaces/${spaceName}`)
       const data = await response.json()
-      
+
       const converted = convertObjectId(data)
       const space: Space = {
         ...converted,
         ownerId: converted.ownerId,
         memberCount: converted.members?.length.toString() || '0'
       }
-      
+
       return space
     } catch (err) {
       console.error('Failed to fetch space:', err)
@@ -72,10 +86,10 @@ class SpaceService {
         method: 'POST',
         body: JSON.stringify(dto)
       })
-      
+
       const data = await response.json()
       const converted = convertObjectId(data)
-      
+
       return {
         ...converted,
         ownerId: converted.ownerId,
@@ -83,35 +97,45 @@ class SpaceService {
         memberCount: '1'
       }
     } catch (err) {
-      throw new Error(`Failed to create space: ${err.message}`)
+      throw new Error(`Failed to create space: ${this.getErrorMessage(err)}`)
     }
   }
 
   async toggleJoin(spaceId: string): Promise<boolean> {
     try {
-      const response = await fetchWithAuth(`${API_BASE_URL}/spaces/${spaceId}/toggle-join`, {
-        method: 'POST'
-      })
-      
+      const response = await fetchWithAuth(
+        `${API_BASE_URL}/spaces/${spaceId}/toggle-join`,
+        { method: 'POST' }
+      )
+
       const data = await response.json()
       return data.isJoined
     } catch (err) {
-      throw new Error(`Failed to toggle space membership: ${err.message}`)
+      const msg = 'Failed to toggle space membership'
+      throw new Error(`${msg}: ${this.getErrorMessage(err)}`)
     }
   }
 
-  async getSpacePosts(spaceName: string, sortBy: SortOption = 'hot'): Promise<Post[]> {
+  private getErrorMessage(err: unknown): string {
+    if (err instanceof Error) return err.message
+    return String(err)
+  }
+
+  async getSpacePosts(
+    spaceName: string,
+    sortBy: SortOption = 'hot'
+  ): Promise<Post[]> {
     if (!spaceName) return []
-    
+
     const allPosts = await postService.getAllPosts()
-    const spacePosts = allPosts.filter(post => post.space === spaceName)
-    
+    const spacePosts = allPosts.filter((post) => post.space === spaceName)
+
     return this.sortPosts(spacePosts, sortBy)
   }
 
   private sortPosts(posts: Post[], sortBy: SortOption): Post[] {
     const sorted = [...posts]
-    
+
     switch (sortBy) {
       case 'hot':
         return this.sortByHot(sorted)
@@ -152,9 +176,9 @@ class SpaceService {
 
   async getSpacePostCount(spaceName: string): Promise<number> {
     if (!spaceName) return 0
-    
+
     const allPosts = await postService.getAllPosts()
-    return allPosts.filter(post => post.space === spaceName).length
+    return allPosts.filter((post) => post.space === spaceName).length
   }
 }
 
