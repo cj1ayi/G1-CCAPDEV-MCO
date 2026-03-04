@@ -1,20 +1,8 @@
-import {
-  CommentCardProps,
-  Comment,
-  CreateCommentDto,
-  UpdateCommentDto
-} from '../types'
+import { CommentCardProps, Comment, CreateCommentDto, UpdateCommentDto } from '../types'
 import { getCurrentUser as getAuthUser } from '@/features/auth/services'
-import {
-  buildCommentTree,
-  treeToLegacyFormat
-} from '../utils/comment-tree-builder'
+import { buildCommentTree, treeToLegacyFormat } from '../utils/comment-tree-builder'
 import { mockUsers } from '@/lib/mockData'
-import {
-  convertObjectId,
-  API_BASE_URL,
-  fetchWithAuth
-} from '@/lib/apiUtils'
+import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
 
 class CommentService {
   async getCommentsByPostId(postId: string): Promise<CommentCardProps[]> {
@@ -36,7 +24,8 @@ class CommentService {
           updatedAt: new Date(converted.updatedAt),
           editedAt: converted.editedAt ? new Date(converted.editedAt) : null,
           deletedAt: converted.deletedAt ? new Date(converted.deletedAt) : null,
-          deletedBy: converted.deletedBy || null
+          deletedBy: converted.deletedBy || null,
+          author: comment.author
         }
       })
 
@@ -69,26 +58,23 @@ class CommentService {
         updatedAt: new Date(converted.updatedAt),
         editedAt: null,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
+        author: converted.author
       }
 
       const currentUser = await getAuthUser()
       return this.commentToLegacy(comment, currentUser)
     } catch (err) {
-      throw new Error(`Failed to create comment: ${err.message}`)
+      throw new Error(`Failed to create comment: ${(err as Error).message}`)
     }
   }
 
-  async updateComment(
-    postId: string,
-    commentId: string,
-    dto: UpdateCommentDto
-  ): Promise<CommentCardProps> {
+  async updateComment(postId: string, commentId: string, dto: UpdateCommentDto): Promise<CommentCardProps> {
     try {
-      const response = await fetchWithAuth(
-        `${API_BASE_URL}/comments/${commentId}`,
-        { method: 'PATCH', body: JSON.stringify(dto) }
-      )
+      const response = await fetchWithAuth(`${API_BASE_URL}/comments/${commentId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(dto)
+      })
 
       const data = await response.json()
       const converted = convertObjectId(data)
@@ -104,13 +90,14 @@ class CommentService {
         updatedAt: new Date(converted.updatedAt),
         editedAt: converted.editedAt ? new Date(converted.editedAt) : null,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
+        author: converted.author
       }
 
       const currentUser = await getAuthUser()
       return this.commentToLegacy(comment, currentUser)
     } catch (err) {
-      throw new Error(`Failed to update comment: ${err.message}`)
+      throw new Error(`Failed to update comment: ${(err as Error).message}`)
     }
   }
 
@@ -120,19 +107,46 @@ class CommentService {
         method: 'DELETE'
       })
     } catch (err) {
-      throw new Error(`Failed to delete comment: ${err.message}`)
+      throw new Error(`Failed to delete comment: ${(err as Error).message}`)
     }
   }
 
-  private async flatToLegacyFormat(
-    flatComments: Comment[]
-  ): Promise<CommentCardProps[]> {
+  private async flatToLegacyFormat(flatComments: Comment[]): Promise<CommentCardProps[]> {
     const currentUser = await getAuthUser()
 
-    const populated = flatComments.map((c) => {
-      const author = this.resolveAuthor(c)
-      return { ...c, author, voteScore: 0, userVote: null as any }
-    })
+    const populated = flatComments.map(c => {
+      // Check if author object already exists from backend
+      let author
+      if ((c as any).author && typeof (c as any).author === 'object') {
+        const backendAuthor = (c as any).author
+        author = {
+          _id: c.authorId,
+          username: backendAuthor.username,
+          displayName: backendAuthor.username,
+          avatar: backendAuthor.avatar || ''
+        }
+      } else {
+        // Fallback to mockUsers
+        const mockAuthor = mockUsers[c.authorId]
+        if (!mockAuthor) {
+          console.warn(`Author not found for comment ${c._id}: ${c.authorId}`)
+          return null
+        }
+        author = {
+          _id: mockAuthor.id,
+          username: mockAuthor.username,
+          displayName: mockAuthor.name,
+          avatar: mockAuthor.avatar || ''
+        }
+      }
+
+      return {
+        ...c,
+        author,
+        voteScore: 0,
+        userVote: null as any
+      }
+    }).filter(Boolean) as any[]
 
     const tree = buildCommentTree(populated)
     const legacy = treeToLegacyFormat(tree)
@@ -140,74 +154,45 @@ class CommentService {
     return this.deriveOwnership(legacy, currentUser?.id)
   }
 
-  private resolveAuthor(comment: any): any {
+  private commentToLegacy(comment: Comment, currentUser: any): CommentCardProps {
+    // Check if author object exists from backend
+    let author
     if (comment.author && typeof comment.author === 'object') {
-      return {
-        _id: comment.authorId,
+      author = {
+        id: comment.authorId,
+        name: comment.author.username,
         username: comment.author.username,
-        displayName: comment.author.username,
         avatar: comment.author.avatar || ''
       }
-    }
-
-    return this.resolveMockAuthor(comment.authorId)
-  }
-
-  private resolveMockAuthor(authorId: string): any {
-    const mockAuthor = mockUsers[authorId]
-
-    if (!mockAuthor) {
-      console.warn(`Author not found: ${authorId}`)
-      return {
-        _id: authorId,
-        username: 'unknown',
-        displayName: 'Unknown User',
-        avatar: ''
+    } else {
+      const mockAuthor = mockUsers[comment.authorId]
+      author = {
+        id: mockAuthor?.id || comment.authorId,
+        name: mockAuthor?.name || '',
+        username: mockAuthor?.username || '',
+        avatar: mockAuthor?.avatar
       }
     }
-
-    return {
-      _id: mockAuthor.id,
-      username: mockAuthor.username,
-      displayName: mockAuthor.name,
-      avatar: mockAuthor.avatar || ''
-    }
-  }
-
-  private commentToLegacy(comment: Comment, currentUser: any): CommentCardProps {
-    const author = this.resolveMockAuthor(comment.authorId)
 
     return {
       id: comment._id,
       content: comment.deletedAt ? '[deleted]' : comment.content,
-      author: {
-        id: author._id,
-        name: author.displayName,
-        username: author.username,
-        avatar: author.avatar
-      },
+      author,
       upvotes: 0,
       downvotes: 0,
       createdAt: this.formatTimeAgo(comment.createdAt),
-      editedAt: comment.editedAt
-        ? this.formatTimeAgo(comment.editedAt)
-        : undefined,
+      editedAt: comment.editedAt ? this.formatTimeAgo(comment.editedAt) : undefined,
       isOwner: currentUser ? comment.authorId === currentUser.id : false,
       isDeleted: comment.deletedAt !== null,
       replies: []
     }
   }
 
-  private deriveOwnership(
-    comments: any[],
-    currentUserId?: string
-  ): any[] {
-    return comments.map((comment) => ({
+  private deriveOwnership(comments: any[], currentUserId?: string): any[] {
+    return comments.map(comment => ({
       ...comment,
-      isOwner: currentUserId ? comment.author._id === currentUserId : false,
-      replies: comment.replies
-        ? this.deriveOwnership(comment.replies, currentUserId)
-        : []
+      isOwner: currentUserId ? comment.author.id === currentUserId : false,
+      replies: comment.replies ? this.deriveOwnership(comment.replies, currentUserId) : []
     }))
   }
 
