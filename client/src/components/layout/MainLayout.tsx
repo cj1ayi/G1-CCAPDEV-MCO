@@ -4,6 +4,7 @@ import { Header } from './Header'
 import { useDarkMode } from '@/hooks/useDarkMode'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/features/auth/hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 
 interface MainLayoutProps {
   headerVariant?: 'default' | 'landing'
@@ -20,20 +21,20 @@ export const MainLayout = ({
   children,
   maxWidth = "max-w-4xl"
 }: MainLayoutProps) => {
-  const [
-    isMobileMenuOpen, 
-    setIsMobileMenuOpen
-  ] = useState(false)
-  const [
-    isDesktopSidebarCollapsed, 
-    setIsDesktopSidebarCollapsed
-  ] = useState(() => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebar_collapsed')
     return saved === 'true'
   })
   
   const { isDark, toggleDarkMode } = useDarkMode()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/')
+  }
 
   const toggleDesktopSidebar = () => {
     setIsDesktopSidebarCollapsed(prev => {
@@ -50,33 +51,30 @@ export const MainLayout = ({
     )}>
       <Header
         variant={headerVariant}
-        user={ headerVariant === 'landing' ? undefined: user
-        ? { 
-            name: user.name, 
-            id: Number(user.id), 
-            avatarUrl: user.avatar,
-            username: user.username 
-          }
-        : undefined
+        user={headerVariant === 'landing' ? undefined : user
+          ? { 
+              name: user.name, 
+              id: Number(user.id), 
+              avatarUrl: user.avatar,
+              username: user.username 
+            }
+          : undefined
         }
         isDark={isDark}
         onToggleDarkMode={toggleDarkMode}
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        // Pass desktop collapse state
         isDesktopSidebarCollapsed={isDesktopSidebarCollapsed}
         onToggleDesktopSidebar={toggleDesktopSidebar}
+        onLogout={handleLogout}
       />
 
       <div className="flex flex-1 w-full relative">
-        {/* Left Sidebar Slot */}
         {leftSidebar && (
           <>
-            {/* Desktop Sidebar - Fully Closeable */}
             {!isDesktopSidebarCollapsed && (
               <aside className={cn(
                 "hidden xl:block w-64 sticky top-16 h-[calc(100vh-4rem)]",
-                "overflow-y-auto border-r dark:border-gray-800",
-                "pt-4"
+                "overflow-y-auto border-r dark:border-gray-800 pt-4"
               )}>
                 {typeof leftSidebar === 'function' 
                   ? leftSidebar({ isCollapsed: false })
@@ -85,21 +83,16 @@ export const MainLayout = ({
               </aside>
             )}
 
-            {/* Mobile Sidebar - Full drawer */}
             {isMobileMenuOpen && (
               <>
-                {/* Backdrop */}
                 <div
                   className="fixed inset-0 bg-black/50 z-40 xl:hidden"
                   onClick={() => setIsMobileMenuOpen(false)}
                 />
-
-                {/* Sidebar Drawer */}
                 <aside className={cn(
                   "fixed left-0 top-16 bottom-0 w-64 z-50 xl:hidden",
                   "bg-surface-light dark:bg-surface-dark border-r",
-                  "dark:border-gray-800 overflow-y-auto",
-                  "pt-4"
+                  "dark:border-gray-800 overflow-y-auto pt-4"
                 )}>
                   {typeof leftSidebar === 'function' 
                     ? leftSidebar({ isCollapsed: false })
@@ -111,14 +104,12 @@ export const MainLayout = ({
           </>
         )}
 
-        {/* Main Content Slot */}
         <main className="flex-1 p-4 md:p-6 min-w-0">
           <div className={cn("mx-auto", maxWidth)}>
             {children}
           </div>
         </main>
 
-        {/* Right Sidebar Slot */}
         {rightSidebar && (
           <aside className="hidden xl:block w-80 sticky top-16 h-fit p-4">
             {rightSidebar}
@@ -126,7 +117,6 @@ export const MainLayout = ({
         )}
       </div>
 
-      {/* Footer - Only on landing page */}
       {headerVariant === 'landing' && <Footer />}
     </div>
   )
