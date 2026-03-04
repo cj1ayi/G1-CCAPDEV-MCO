@@ -3,6 +3,7 @@ import { Button, Badge } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { SpaceHeaderProps } from '../types'
 import { getCurrentUser } from '@/features/auth/services/authService'
+import { useState, useEffect } from 'react'
 
 export const SpaceHeader = ({ 
   space, 
@@ -10,8 +11,13 @@ export const SpaceHeader = ({
   onToggleJoin, 
   postCount 
 }: SpaceHeaderProps) => {
-  const currentUser = getCurrentUser()
-  const isOwner = currentUser ? currentUser.id === space.ownerId : false
+  const [isOwner, setIsOwner] = useState(false)
+
+  useEffect(() => {
+    getCurrentUser().then(user => {
+      setIsOwner(!!user && user.id === space.owner)
+    })
+  }, [space.owner])
 
   return (
     <div className="mb-6">
