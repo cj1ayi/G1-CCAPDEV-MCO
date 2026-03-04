@@ -14,6 +14,7 @@ export interface Comment {
   editedAt: Date | null
   deletedAt: Date | null
   deletedBy: string | null
+  author?: any
 }
 
 /**
