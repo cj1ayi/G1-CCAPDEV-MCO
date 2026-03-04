@@ -71,6 +71,8 @@ export interface PostDetailContentProps {
   post: Post
   commentCount: number
   score: number
+  upvotes: number    // live value from voting context
+  downvotes: number  // live value from voting context
   isUpvoted: boolean
   isDownvoted: boolean
   onUpvote: () => void
