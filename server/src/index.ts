@@ -13,6 +13,7 @@ import postRoutes from './routes/postRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import spaceRoutes from './routes/spaceRoutes.js';
 import voteRoutes from './routes/voteRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 
@@ -46,12 +47,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/spaces', spaceRoutes);
 app.use('/api/votes', voteRoutes);
+app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 3000;
 
