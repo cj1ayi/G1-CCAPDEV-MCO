@@ -6,10 +6,6 @@ import { Post } from '@/features/posts/types'
 import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
 
 class UserService {
-  /**
-   * Map backend user shape to frontend User type.
-   * Backend: { _id, name, username, avatar, bio, location, joinedAt }
-   */
   private mapUser(data: any): User {
     const converted = convertObjectId(data)
     return {
@@ -24,9 +20,21 @@ class UserService {
     }
   }
 
+  private mapPost(data: any): Post {
+    const converted = convertObjectId(data)
+    return {
+      ...converted,
+      authorId: converted.author?.id || converted.authorId,
+      author: converted.author ? {
+        id: converted.author.id,
+        username: converted.author.username,
+        avatar: converted.author.avatar,
+      } : undefined,
+    }
+  }
+
   async getUserByUsername(username: string): Promise<User | null> {
     if (!username) return null
-
     try {
       const response = await fetch(`${API_BASE_URL}/users/username/${username}`)
       if (!response.ok) return null
@@ -40,7 +48,6 @@ class UserService {
 
   async getUserById(id: string): Promise<User | null> {
     if (!id) return null
-
     try {
       const response = await fetch(`${API_BASE_URL}/users/${id}`)
       if (!response.ok) return null
@@ -55,27 +62,61 @@ class UserService {
   async getCurrentUser(): Promise<User | null> {
     const authUser = await getAuthUser()
     if (!authUser) return null
-
-    // AuthUser and User share the same shape — cast it directly
     return authUser as unknown as User
   }
 
   async getUserPosts(userId: string): Promise<Post[]> {
     if (!userId) return []
-
     try {
-      const { postService } = await import('@/features/posts/services')
-      const allPosts = await postService.getAllPosts()
-      return allPosts.filter(post => post.authorId === userId)
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/posts`)
+      if (!response.ok) return []
+      const data = await response.json()
+      return data.map((p: any) => this.mapPost(p))
     } catch (err) {
       console.error('Failed to get user posts:', err)
       return []
     }
   }
 
+  async getUserComments(userId: string): Promise<any[]> {
+    if (!userId) return []
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/comments`)
+      if (!response.ok) return []
+      return await response.json()
+    } catch (err) {
+      console.error('Failed to get user comments:', err)
+      return []
+    }
+  }
+
+  async getUserSpaces(userId: string): Promise<any[]> {
+    if (!userId) return []
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/spaces`)
+      if (!response.ok) return []
+      return await response.json()
+    } catch (err) {
+      console.error('Failed to get user spaces:', err)
+      return []
+    }
+  }
+
+  async getUserUpvotedPosts(userId: string): Promise<Post[]> {
+    if (!userId) return []
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/upvoted`)
+      if (!response.ok) return []
+      const data = await response.json()
+      return data.map((p: any) => this.mapPost(p))
+    } catch (err) {
+      console.error('Failed to get user upvoted posts:', err)
+      return []
+    }
+  }
+
   async updateUser(id: string, updates: Partial<User>): Promise<User> {
     if (!id) throw new Error('User ID is required')
-
     try {
       const response = await fetchWithAuth(`${API_BASE_URL}/users/${id}`, {
         method: 'PATCH',
