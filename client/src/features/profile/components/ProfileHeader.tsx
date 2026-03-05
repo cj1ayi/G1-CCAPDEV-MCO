@@ -4,6 +4,7 @@ import {
   DropdownItem,
   DropdownSeparator,
   DropdownLabel,
+  Avatar,
 } from '@/components/ui'
 
 import {
@@ -43,8 +44,7 @@ export const ProfileHeader = ({
       </div>
 
       {/* BANNER */}
-      <div className="bg-white dark:bg-surface-dark relative z-0
-        p-6 md:p-10">
+      <div className="bg-white dark:bg-surface-dark relative z-0 p-6 md:p-10">
         <div
           className={cn(
             'max-w-7xl mx-auto h-full flex flex-col md:flex-row',
@@ -59,12 +59,11 @@ export const ProfileHeader = ({
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <img
+              <Avatar
                 src={user.avatar}
-                alt={user.name}
+                name={user.name}
+                size="2xl"
                 className={cn(
-                  'w-28 h-28 md:w-36 md:h-36 bg-gray-200',
-                  'dark:bg-gray-700 object-cover rounded-full',
                   'border-4 border-white dark:border-gray-800',
                   'shadow-lg -mt-14 md:-mt-16'
                 )}
@@ -78,8 +77,7 @@ export const ProfileHeader = ({
               viewport={{ once: true }}
               className="pt-1"
             >
-              <h1 className="text-2xl md:text-3xl font-bold
-                dark:text-white">
+              <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
                 {user.name}
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -92,7 +90,6 @@ export const ProfileHeader = ({
           <div className="flex gap-3 md:mt-0">
             {isOwnProfile ? (
               <>
-                {/* OWN PROFILE: Edit button + Settings menu */}
                 <Button
                   leftIcon={<Edit className="h-4 w-4" />}
                   size="md"
@@ -126,11 +123,7 @@ export const ProfileHeader = ({
               </>
             ) : (
               <>
-                {/* OTHER USER: Follow + Message buttons */}
-                <Button
-                  leftIcon={<UserPlus className="h-4 w-4" />}
-                  size="md"
-                >
+                <Button leftIcon={<UserPlus className="h-4 w-4" />} size="md">
                   Follow
                 </Button>
                 <Button
