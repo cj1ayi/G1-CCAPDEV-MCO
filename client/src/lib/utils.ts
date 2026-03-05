@@ -5,6 +5,9 @@ import SunriseHenry from "@/assets/loginpics/sunerisehenry.jpg";
 import SunriseMig from "@/assets/loginpics/sunrisestmig.jpg";
 import SundownHenry from "@/assets/loginpics/sundownhenry.jpg";
 import HenryChairs from '@/assets/loginpics/henrychairs.jpg';
+import StMigs from '@/assets/loginpics/StMigs.jpg';
+import YuchHall from '@/assets/loginpics/YuchHall.png';
+import DoroteoJose from '@/assets/loginpics/DoroteoJose.png'
 
 
 /*
@@ -305,6 +308,21 @@ export const BACKGROUND_IMAGES = [
     {
       src: HenryChairs,
       alt: "Sundown Henry Chairs",
+      weight: 300,
+    },
+    {
+      src: StMigs,
+      alt: "St Miguel Hallway",
+      weight: 300,
+    },
+    {
+      src: YuchHall,
+      alt: "Yuchengo...",
+      weight: 300,
+    },
+    {
+      src: DoroteoJose,
+      alt: "Doroteo Jose Station",
       weight: 300,
     },
 ];
