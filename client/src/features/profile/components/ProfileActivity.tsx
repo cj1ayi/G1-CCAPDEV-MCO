@@ -74,7 +74,7 @@ export const ProfileActivity = ({
               'p-4 cursor-pointer',
               'hover:border-primary/50 transition-colors'
             )}
-            onClick={() => navigate(`/spaces/${space.name}`)}
+            onClick={() => navigate(`/r/${space.name}`)}
           >
             <p className="font-semibold text-gray-900 dark:text-white">
               r/{space.name}
