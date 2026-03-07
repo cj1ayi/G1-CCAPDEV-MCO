@@ -93,7 +93,7 @@ export const SpaceHeader = ({
                   <Button
                     variant="outline"
                     leftIcon={<Settings className="size-4" />}
-                    onClick={() => navigate(`/spaces/${space.name}/edit`)}
+                    onClick={() => navigate(`/r/${space.name}/edit`)}
                   >
                     Edit
                   </Button>
