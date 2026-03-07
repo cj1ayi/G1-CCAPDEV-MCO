@@ -1,7 +1,8 @@
+// Location: client/src/features/comments/services/commentService.ts
+
 import { CommentCardProps, Comment, CreateCommentDto, UpdateCommentDto } from '../types'
 import { getCurrentUser as getAuthUser } from '@/features/auth/services'
 import { buildCommentTree, treeToLegacyFormat } from '../utils/comment-tree-builder'
-import { mockUsers } from '@/lib/mockData'
 import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
 
 class CommentService {
@@ -12,7 +13,6 @@ class CommentService {
 
       const flatComments: Comment[] = data.map((comment: any) => {
         const converted = convertObjectId(comment)
-
         return {
           _id: converted.id,
           postId: converted.postId,
@@ -25,6 +25,7 @@ class CommentService {
           editedAt: converted.editedAt ? new Date(converted.editedAt) : null,
           deletedAt: converted.deletedAt ? new Date(converted.deletedAt) : null,
           deletedBy: converted.deletedBy || null,
+          // Backend always populates author — no fallback needed
           author: comment.author
         }
       })
@@ -115,29 +116,24 @@ class CommentService {
     const currentUser = await getAuthUser()
 
     const populated = flatComments.map(c => {
-      // Check if author object already exists from backend
-      let author
-      if ((c as any).author && typeof (c as any).author === 'object') {
-        const backendAuthor = (c as any).author
-        author = {
-          _id: c.authorId,
-          username: backendAuthor.username,
-          displayName: backendAuthor.username,
-          avatar: backendAuthor.avatar || ''
+      // Backend always sends author object — use it directly
+      const backendAuthor = (c as any).author
+
+      if (!backendAuthor) {
+        // Deleted comment — no author
+        return {
+          ...c,
+          author: { _id: c.authorId, username: '[deleted]', displayName: '[deleted]', avatar: '' },
+          voteScore: 0,
+          userVote: null as any
         }
-      } else {
-        // Fallback to mockUsers
-        const mockAuthor = mockUsers[c.authorId]
-        if (!mockAuthor) {
-          console.warn(`Author not found for comment ${c._id}: ${c.authorId}`)
-          return null
-        }
-        author = {
-          _id: mockAuthor.id,
-          username: mockAuthor.username,
-          displayName: mockAuthor.name,
-          avatar: mockAuthor.avatar || ''
-        }
+      }
+
+      const author = {
+        _id: c.authorId,
+        username: backendAuthor.username,
+        displayName: backendAuthor.username,
+        avatar: backendAuthor.avatar || ''
       }
 
       return {
@@ -146,33 +142,30 @@ class CommentService {
         voteScore: 0,
         userVote: null as any
       }
-    }).filter(Boolean) as any[]
+    })
 
-    const tree = buildCommentTree(populated)
+    const tree = buildCommentTree(populated as any[])
     const legacy = treeToLegacyFormat(tree)
 
     return this.deriveOwnership(legacy, currentUser?.id)
   }
 
   private commentToLegacy(comment: Comment, currentUser: any): CommentCardProps {
-    // Check if author object exists from backend
-    let author
-    if (comment.author && typeof comment.author === 'object') {
-      author = {
-        id: comment.authorId,
-        name: comment.author.username,
-        username: comment.author.username,
-        avatar: comment.author.avatar || ''
-      }
-    } else {
-      const mockAuthor = mockUsers[comment.authorId]
-      author = {
-        id: mockAuthor?.id || comment.authorId,
-        name: mockAuthor?.name || '',
-        username: mockAuthor?.username || '',
-        avatar: mockAuthor?.avatar
-      }
-    }
+    const backendAuthor = (comment as any).author
+
+    const author = backendAuthor
+      ? {
+          id: comment.authorId,
+          name: backendAuthor.username,
+          username: backendAuthor.username,
+          avatar: backendAuthor.avatar || ''
+        }
+      : {
+          id: comment.authorId,
+          name: '[deleted]',
+          username: '[deleted]',
+          avatar: ''
+        }
 
     return {
       id: comment._id,
@@ -191,7 +184,7 @@ class CommentService {
   private deriveOwnership(comments: any[], currentUserId?: string): any[] {
     return comments.map(comment => ({
       ...comment,
-      isOwner: currentUserId ? comment.author.id === currentUserId : false,
+      isOwner: currentUserId ? comment.author._id === currentUserId || comment.author.id === currentUserId : false,
       replies: comment.replies ? this.deriveOwnership(comment.replies, currentUserId) : []
     }))
   }

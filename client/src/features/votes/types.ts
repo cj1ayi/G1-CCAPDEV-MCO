@@ -2,7 +2,7 @@ export interface Vote {
   _id: string
   userId: string
   targetId: string
-  targetType: 'post' | 'comment'
+  targetType: 'Post' | 'Comment'
   voteType: 1 | -1
   createdAt: Date
   updatedAt: Date
@@ -17,6 +17,6 @@ export interface VoteStats {
 
 export interface VoteDto {
   targetId: string
-  targetType: 'post' | 'comment'
+  targetType: 'Post' | 'Comment'
   voteType: 1 | -1 | null
 }

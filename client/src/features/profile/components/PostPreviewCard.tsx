@@ -18,14 +18,15 @@ export function PostPreviewCard({ post, onUpdate }: {
   const navigate = useNavigate()
   const [commentCount, setCommentCount] = useState<number>(post.commentCount)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [currentPost, setCurrentPost] = useState(post)
+  const [currentPost, setCurrentPost] = useState<typeof post>(post)
+  const [isOwner, setIsOwner] = useState(false)
+  const [isVoting, setIsVoting] = useState(false)
 
-  const { votes, toggleVote, getDisplayVotes } = useVoting()
+  const { votes, toggleVote } = useVoting()
 
   useEffect(() => {
     const loadComments = async () => {
-      if (!post || !post.id) return
-
+      if (!post?.id) return
       try {
         const comments = await commentService.getCommentsByPostId(post.id)
         setCommentCount(getTotalCommentCount(comments))
@@ -34,57 +35,59 @@ export function PostPreviewCard({ post, onUpdate }: {
         setCommentCount(post.commentCount || 0)
       }
     }
-
     loadComments()
   }, [post.id, post.commentCount])
 
+  useEffect(() => {
+    getCurrentUser().then(user => {
+      setIsOwner(!!user && !!currentPost?.author && user.id === currentPost.author.id)
+    })
+  }, [currentPost?.author?.id])
+
   const handleVote = async (voteType: 'up' | 'down') => {
-    if (!post || !post.id) return
-    
-    await toggleVote(post.id, 'post', voteType)
-    
-    const updatedPost = await postService.getPostById(post.id)
-    if (updatedPost) {
-      setCurrentPost(updatedPost)
+    if (!currentPost?.id || isVoting) return
+
+    const previousVote = votes[`post:${currentPost.id}`] ?? null
+
+    setIsVoting(true)
+
+    setCurrentPost((prev: typeof post) => {
+      if (!prev) return prev
+      let { upvotes, downvotes } = prev
+
+      if (voteType === 'up') {
+        if (previousVote === 'up') upvotes = Math.max(0, upvotes - 1)
+        else if (previousVote === 'down') { upvotes += 1; downvotes = Math.max(0, downvotes - 1) }
+        else upvotes += 1
+      } else {
+        if (previousVote === 'down') downvotes = Math.max(0, downvotes - 1)
+        else if (previousVote === 'up') { downvotes += 1; upvotes = Math.max(0, upvotes - 1) }
+        else downvotes += 1
+      }
+
+      return { ...prev, upvotes, downvotes }
+    })
+
+    try {
+      await toggleVote(currentPost.id, 'post', voteType)
+    } finally {
+      setIsVoting(false)
     }
-    
-    if (onUpdate) {
-      onUpdate()
-    }
+
+    if (onUpdate) onUpdate()
   }
 
   const handleDelete = async () => {
-    if (!post || !post.id) return
-
+    if (!post?.id) return
     try {
       await postService.deletePost(post.id)
       setIsDeleteModalOpen(false)
-      
-      if (onUpdate) {
-        onUpdate()
-      }
+      if (onUpdate) onUpdate()
     } catch (error) {
       console.error('Failed to delete post:', error)
       throw error
     }
   }
-
-  const checkOwnership = () => {
-    const currentUser = getCurrentUser()
-    if (!currentUser || !currentPost || !currentPost.author) {
-      return false
-    }
-    return currentUser.id === currentPost.author.id
-  }
-
-  const isOwner = checkOwnership()
-
-  const { upvotes, downvotes } = getDisplayVotes(
-    currentPost.id,
-    'post',
-    currentPost.upvotes,
-    currentPost.downvotes
-  )
 
   const voteKey = `post:${currentPost.id}`
   const voteState = votes[voteKey]
@@ -93,14 +96,14 @@ export function PostPreviewCard({ post, onUpdate }: {
     <>
       <PostCard
         {...currentPost}
-        upvotes={upvotes}
-        downvotes={downvotes}
+        upvotes={currentPost.upvotes}
+        downvotes={currentPost.downvotes}
         commentCount={commentCount}
         isUpvoted={voteState === 'up'}
         isDownvoted={voteState === 'down'}
         onClick={() => navigate(`/post/${currentPost.id}`)}
-        onUpvote={() => handleVote("up")}
-        onDownvote={() => handleVote("down")}
+        onUpvote={() => !isVoting && handleVote("up")}
+        onDownvote={() => !isVoting && handleVote("down")}
         onEdit={isOwner ? () => navigate(`/post/${currentPost.id}/edit`) : undefined}
         onDelete={isOwner ? () => setIsDeleteModalOpen(true) : undefined}
       />

@@ -4,7 +4,8 @@ import {
   createPost, 
   getPosts, 
   getPostById, 
-  deletePost 
+  deletePost,
+  updatePost 
 } from '../controllers/postController.js';
 
 import {
@@ -25,6 +26,7 @@ router.route('/')
 
 router.route('/:id')
   .get(getPostById)
-  .delete(ensureAuth, deletePost);
+  .patch(ensureAuth, updatePost)
+  .delete(ensureAuth, deletePost)
 
 export default router;

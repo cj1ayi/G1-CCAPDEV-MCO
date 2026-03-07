@@ -1,60 +1,32 @@
-import React from "react";
 import AnimoForumsLogoWhite from "@/assets/logo/AnimoForumsLogoWhite.svg";
-
-// React
 import { useState } from "react";
-
-// Libraries
-import { Link, useNavigate } from "react-router-dom";
-
-// Icons
-import { AtSign, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
-
-// UI Components
-import { Input, Button, Checkbox } from "@/components/ui";
-
-// Hooks
+import { Link, useLocation } from "react-router-dom";
+import { Button, Checkbox } from "@/components/ui";
 import { useImageRotation } from "@/hooks/";
-import { useAuth } from "@/features/auth/hooks/";
-
-// Utils
 import { cn, BACKGROUND_IMAGES } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/apiUtils";
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [usernameOrEmail, setUsernameOrEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  const [remember, setRemember] = useState(false)
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const isUnauthorized = params.get('error') === 'unauthorized_domain'
 
   const { currentIndex } = useImageRotation({
     images: BACKGROUND_IMAGES,
     interval: 30000,
     random: true,
-  });
+  })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (!usernameOrEmail || !password) {
-      setError("Please enter your credentials.");
-      return;
-    }
-    const success = login(usernameOrEmail, password, remember);
-    if (success) {
-      navigate("/explore");
-    } else {
-      setError("Invalid username or password.");
-    }
-  };
+  const handleGoogleLogin = () => {
+    // Pass remember preference to backend as query param
+    window.location.href = `${API_BASE_URL}/auth/google?remember=${remember}`
+  }
 
   return (
     <div className="flex h-screen">
       {/* Left Panel */}
       <div className="relative hidden w-1/2 lg:block">
-        {/* Rotating Background Images  */}
         <div className="relative h-full w-full">
           {BACKGROUND_IMAGES.map((image, index) => (
             <img
@@ -65,40 +37,25 @@ const Login = () => {
                 absolute inset-0 h-full w-full object-cover 
                 transition-opacity duration-1000 
                 ${index === currentIndex ? "opacity-100" : "opacity-0"}
-                `}
+              `}
             />
           ))}
         </div>
-
-        {/* Green Overlay */}
         <div className="absolute inset-0 bg-green-900/60" />
-
-        {/* Content */}
         <div className="absolute inset-0 flex flex-col justify-between p-12">
-          {/* Logo */}
           <div className="flex items-center gap-3">
             <Link to="/">
-              <img
-                src={AnimoForumsLogoWhite}
-                alt="AnimoForums"
-                className="h-10 w-10"
-              />
+              <img src={AnimoForumsLogoWhite} alt="AnimoForums" className="h-10 w-10" />
             </Link>
             <span className="text-2xl font-bold text-white">AnimoForums</span>
           </div>
-
-          {/* Testimonial */}
           <div className="space-y-6">
             <blockquote className="text-xl text-white">
               "tips / advice for dating someone from accountancy? lol i want us
               to work but parang he dsnt have time"
             </blockquote>
-
-            {/* Author */}
             <div className="flex items-center gap-3">
-              <div className={cn(
-                "flex h-12 w-12 items-center",
-                "justify-center rounded-full bg-white/20")}>
+              <div className={cn("flex h-12 w-12 items-center justify-center rounded-full bg-white/20")}>
                 <span className="text-lg font-semibold text-white">?</span>
               </div>
               <div>
@@ -114,86 +71,66 @@ const Login = () => {
       <div className={cn(
         "flex w-full flex-col items-center justify-center",
         "bg-white dark:bg-surface-dark px-8 lg:w-1/2")}>
-        <div className="w-full max-w-xl">
-          {/* Heading */}
-          <div className="mb-8 space-y-2">
-            <h1 className={cn(
-              "text-3xl font-extrabold text-gray-900 dark:text-white")}>
+        <div className="w-full max-w-sm space-y-8">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
               Sign In
             </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              AnimoForums is exclusively for DLSU students.
+              Sign in with your DLSU Google account to continue.
+            </p>
           </div>
 
-          {/* Form */}
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <Input
-              type="text"
-              placeholder="Email or username"
-              leftIcon={<AtSign className="h-5 w-5" />}
-              value={usernameOrEmail}
-              onChange={(e) => setUsernameOrEmail(e.target.value)}
-              autoFocus
-            />
-            <Input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              leftIcon={<Lock className="h-5 w-5" />}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              rightIcon={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className={cn(
-                    "flex items-center justify-center",
-                    "text-gray-400 hover:text-gray-600")}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              }
-            />
-            {/* Remember Me */}
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="remember"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-              />
-              <label htmlFor="remember" className="text-sm text-gray-600">
-                Remember me
-              </label>
+          {/* Unauthorized domain error */}
+          {isUnauthorized && (
+            <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
+              <p className="text-sm text-red-700 dark:text-red-400">
+                Only <strong>@dlsu.edu.ph</strong> accounts are allowed.
+                Please sign in with your DLSU email.
+              </p>
             </div>
-            {/* Error Message */}
-            {error && <div className="text-red-500 text-sm">{error}</div>}
-            {/* Confirmation */}
-            <div className="flex items-start gap-2">
-              <Checkbox id="terms" />
-              <label htmlFor="terms" className="text-sm text-gray-600">
-                I agree to the{" "}
-                <Link to="/terms" className="text-green-600 hover:underline">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link to="/privacy" className="text-green-600 hover:underline">
-                  Privacy Policy
-                </Link>
-              </label>
-            </div>
-            <Button
-              type="submit"
-              rightIcon={<ArrowRight className="h-5 w-5" />}
-              fullWidth
-            >
-              Sign In to AnimoForums
-            </Button>
-          </form>
+          )}
+
+          {/* Remember Me */}
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="remember"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+            />
+            <label htmlFor="remember" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+              Remember me for 3 weeks
+            </label>
+          </div>
+
+          {/* Google Sign In */}
+          <Button
+            type="button"
+            fullWidth
+            onClick={handleGoogleLogin}
+            leftIcon={
+              <svg className="h-5 w-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+            }
+          >
+            Continue with Google
+          </Button>
+
+          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+            By signing in, you agree to our{" "}
+            <Link to="/terms" className="text-green-600 hover:underline">Terms of Service</Link>
+            {" "}and{" "}
+            <Link to="/privacy" className="text-green-600 hover:underline">Privacy Policy</Link>.
+          </p>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

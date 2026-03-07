@@ -1,90 +1,65 @@
-// Auth context with user change events for vote reloading
 // Location: client/src/features/auth/AuthContext.tsx
 
-import { 
-  createContext, 
-  useState, 
-  useEffect, 
-  useCallback, 
-  type ReactNode 
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  type ReactNode
 } from "react"
 
 import {
   login as loginService,
-  signup as signupService,
   logout as logoutService,
   getCurrentUser,
 } from "@/features/auth/services"
 
-import { 
-  AuthUser, 
-  AuthContextType 
+import {
+  AuthUser,
+  AuthContextType
 } from "@/features/auth/types"
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-)
+export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const AUTH_CHANGE_EVENT = 'auth-user-changed'
 
-function dispatchAuthChange() {
+export function dispatchAuthChange() {
   window.dispatchEvent(new CustomEvent(AUTH_CHANGE_EVENT))
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const hasFetched = useRef(false)
 
   useEffect(() => {
-    const stored = getCurrentUser()
-    if (stored) {
-      setUser(stored)
-    }
-    setIsLoading(false)
+    // Only fetch once on mount — checks session cookie with backend
+    if (hasFetched.current) return
+    hasFetched.current = true
+
+    getCurrentUser().then((fetchedUser) => {
+      setUser(fetchedUser)
+      setIsLoading(false)
+    })
   }, [])
 
-  const login = useCallback(
-    (
-      usernameOrEmail: string, 
-      password: string, 
-      remember: boolean = false
-    ): boolean => {
-      const result = loginService(usernameOrEmail, password, remember)
-      if (result) {
-        setUser(result)
-        dispatchAuthChange()
-        return true
-      }
-      return false
-    },
-    []
-  )
+  const login = useCallback(() => {
+    // Triggers full-page redirect to Google OAuth
+    loginService()
+  }, [])
 
-  const signup = useCallback(
-    (email: string, username: string, password: string): boolean => {
-      const result = signupService(email, username, password)
-      if (result) {
-        setUser(result)
-        dispatchAuthChange()
-        return true
-      }
-      return false
-    },
-    []
-  )
-
-  const logout = useCallback(() => {
-    logoutService()
+  const logout = useCallback(async () => {
+    await logoutService()
     setUser(null)
     dispatchAuthChange()
   }, [])
 
-  const contextValue = {
+  const contextValue: AuthContextType = {
     user,
     isLoading,
     login,
-    signup,
-    logout
+    logout,
   }
 
   return (

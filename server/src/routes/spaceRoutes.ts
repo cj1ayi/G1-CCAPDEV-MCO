@@ -4,7 +4,8 @@ import {
   createSpace, 
   getSpaces, 
   getSpaceByName, 
-  toggleJoinSpace 
+  toggleJoinSpace,
+  deleteSpace
 } from '../controllers/spaceController.js';
 
 import {
@@ -26,5 +27,6 @@ router.route('/')
 
 router.get('/:name', getSpaceByName);
 router.post('/:id/toggle-join', ensureAuth, toggleJoinSpace);
+router.delete('/:id', ensureAuth, deleteSpace)
 
 export default router;

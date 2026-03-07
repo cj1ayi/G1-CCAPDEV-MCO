@@ -7,8 +7,7 @@ export const createComment = async (req: Request, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
 
-    const { postId } = req.params;
-    const { content, parentId } = req.body;
+    const { postId, content, parentId } = req.body;
 
     const newComment = await Comment.create({
       content,
@@ -60,7 +59,7 @@ export const getCommentsByPostId = async (req: Request, res: Response) => {
 
 export const updateComment = async (req: Request, res: Response) => {
   try {
-    const { commentId } = req.params;
+    const commentId = req.params.id as string  // fixed: was req.params.commentId
     const { content } = req.body;
 
     const comment = await Comment.findById(commentId);
@@ -73,6 +72,7 @@ export const updateComment = async (req: Request, res: Response) => {
     }
 
     comment.content = content;
+    comment.editedAt = new Date()
     await comment.save();
 
     const author = await User.findById(comment.authorId).select('username avatar');
@@ -88,7 +88,6 @@ export const updateComment = async (req: Request, res: Response) => {
   }
 };
 
-// Recursively checks if a comment has any living (non-deleted) descendants
 const hasLivingDescendants = async (commentId: string): Promise<boolean> => {
   const children = await Comment.find({ parentId: commentId });
 
@@ -100,15 +99,12 @@ const hasLivingDescendants = async (commentId: string): Promise<boolean> => {
   return false;
 };
 
-// After a hard delete, walk up the ancestor chain and clean up
-// any soft-deleted ancestors that no longer have living descendants
 const cleanupAncestors = async (parentId: string | null, postId: string): Promise<void> => {
   if (!parentId) return;
 
   const parent = await Comment.findById(parentId);
   if (!parent) return;
 
-  // Only clean up soft-deleted ancestors
   if (!parent.isDeleted) return;
 
   const stillHasLivingDescendants = await hasLivingDescendants(parent._id.toString());
@@ -122,8 +118,8 @@ const cleanupAncestors = async (parentId: string | null, postId: string): Promis
 
 export const deleteComment = async (req: Request, res: Response) => {
   try {
-    const postId = req.params.postId as string;
-    const commentId = req.params.commentId as string;
+    const commentId = req.params.id as string
+    const postId = req.body.postId
 
     const comment = await Comment.findById(commentId);
     if (!comment) return res.status(404).json({ message: 'Comment not found' });
@@ -135,17 +131,13 @@ export const deleteComment = async (req: Request, res: Response) => {
     const livingDescendants = await hasLivingDescendants(commentId);
 
     if (livingDescendants) {
-      // Soft delete — keep as structural placeholder
       comment.content = '[deleted]';
       comment.isDeleted = true;
       await comment.save();
     } else {
-      // Hard delete
       const parentId = comment.parentId ? comment.parentId.toString() : null;
       await comment.deleteOne();
       await Post.findByIdAndUpdate(postId, { $inc: { commentCount: -1 } });
-
-      // Clean up any soft-deleted ancestors that are now childless
       await cleanupAncestors(parentId, postId);
     }
 
@@ -159,8 +151,7 @@ export const voteComment = async (req: Request, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
 
-    const { commentId } = req.params;
-
+    const commentId = req.params.id as string  // fixed: was req.params.commentId
 
     const comment = await Comment.findById(commentId);
     if (!comment) return res.status(404).json({ message: 'Comment not found' });

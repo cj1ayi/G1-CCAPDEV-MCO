@@ -3,7 +3,8 @@ import { Router } from 'express';
 import { 
   createComment, 
   getCommentsByPostId, 
-  deleteComment 
+  deleteComment,
+  updateComment
 } from '../controllers/commentController.js';
 
 import {
@@ -21,7 +22,7 @@ const ensureAuth = (req: any, res: any, next: any) => {
 // Base route: /api/comments
 router.post('/', ensureAuth, commentValidationRules, validate, createComment);
 router.delete('/:id', ensureAuth, deleteComment);
-
+router.patch('/:id', ensureAuth, updateComment)
 // Nested route: /api/comments/post/:postId
 router.get('/post/:postId', getCommentsByPostId);
 

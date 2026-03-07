@@ -85,7 +85,7 @@ const EditProfile = () => {
 
     try {
       await userService.updateUser(user.id, formData)
-      navigate(`/profile/${user.username}`)
+      navigate(`/profile/${formData.username}`)
     } catch (error) {
       console.error('Error updating profile:', error)
       showError('Failed to update profile. Please try again.')
@@ -218,35 +218,6 @@ const EditProfile = () => {
                 value={formData.location}
                 onChange={handleInputChange}
                 placeholder="City, Country"
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Social Links</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Input
-                label="Twitter"
-                name="twitter"
-                value={formData.twitter}
-                onChange={handleInputChange}
-                placeholder="https://twitter.com/username"
-              />
-              <Input
-                label="GitHub"
-                name="github"
-                value={formData.github}
-                onChange={handleInputChange}
-                placeholder="https://github.com/username"
-              />
-              <Input
-                label="LinkedIn"
-                name="linkedin"
-                value={formData.linkedin}
-                onChange={handleInputChange}
-                placeholder="https://linkedin.com/in/username"
               />
             </CardContent>
           </Card>

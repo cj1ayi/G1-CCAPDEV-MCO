@@ -1,4 +1,3 @@
-// Space page hook with refetch after voting
 // Location: client/src/features/spaces/hooks/useSpacePage.ts
 
 import { useState, useEffect } from 'react'
@@ -18,22 +17,18 @@ export const useSpacePage = (spaceName?: string) => {
   const [isJoined, setIsJoined] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingPosts, setIsLoadingPosts] = useState(false)
+  const [votingPosts, setVotingPosts] = useState<Set<string>>(new Set())
   const { startLoading, stopLoading } = useLoadingBar()
 
-  const { votes, toggleVote, getDisplayVotes } = useVoting()
+  const { votes, toggleVote } = useVoting()
 
   const loadPosts = async () => {
     if (!spaceName) {
       setPosts([])
       return
     }
-
     try {
-      const spacePosts = await spaceService.getSpacePosts(
-        spaceName, 
-        sortBy as any
-      )
-      console.log('Found posts for space:', spacePosts)
+      const spacePosts = await spaceService.getSpacePosts(spaceName, sortBy as any)
       setPosts(spacePosts)
     } catch (error) {
       console.error('Error loading posts:', error)
@@ -43,10 +38,7 @@ export const useSpacePage = (spaceName?: string) => {
 
   useEffect(() => {
     const loadSpace = async () => {
-      console.log('useSpacePage - spaceName:', spaceName)
-
       if (!spaceName) {
-        console.log('No spaceName provided')
         setSpace(null)
         setIsLoading(false)
         stopLoading()
@@ -58,13 +50,10 @@ export const useSpacePage = (spaceName?: string) => {
 
       try {
         const foundSpace = await spaceService.getSpaceByName(spaceName)
-        console.log('Found space:', foundSpace)
-
         if (foundSpace) {
           setSpace(foundSpace)
           setIsJoined(foundSpace.isJoined || false)
         } else {
-          console.log('Space not found:', spaceName)
           setSpace(null)
         }
       } catch (error) {
@@ -117,30 +106,45 @@ export const useSpacePage = (spaceName?: string) => {
   }
 
   const handleVote = async (postId: string, voteType: 'up' | 'down') => {
-    if (!postId) return
-    await toggleVote(postId, 'post', voteType)
-    await loadPosts()
+    if (!postId || votingPosts.has(postId)) return
+
+    const previousVote = votes[`post:${postId}`] ?? null
+
+    setVotingPosts(prev => new Set(prev).add(postId))
+
+    setPosts(prev => prev.map(post => {
+      if (post.id !== postId) return post
+      let { upvotes, downvotes } = post
+
+      if (voteType === 'up') {
+        if (previousVote === 'up') upvotes = Math.max(0, upvotes - 1)
+        else if (previousVote === 'down') { upvotes += 1; downvotes = Math.max(0, downvotes - 1) }
+        else upvotes += 1
+      } else {
+        if (previousVote === 'down') downvotes = Math.max(0, downvotes - 1)
+        else if (previousVote === 'up') { downvotes += 1; upvotes = Math.max(0, upvotes - 1) }
+        else downvotes += 1
+      }
+
+      return { ...post, upvotes, downvotes }
+    }))
+
+    try {
+      await toggleVote(postId, 'post', voteType)
+    } finally {
+      setVotingPosts(prev => {
+        const next = new Set(prev)
+        next.delete(postId)
+        return next
+      })
+    }
   }
 
-  const postsWithVotes = posts.map(post => {
-    const { upvotes, downvotes } = getDisplayVotes(
-      post.id,
-      'post',
-      post.upvotes,
-      post.downvotes
-    )
-    
-    const voteKey = `post:${post.id}`
-    const voteState = votes[voteKey]
-
-    return {
-      ...post,
-      upvotes,
-      downvotes,
-      isUpvoted: voteState === 'up',
-      isDownvoted: voteState === 'down'
-    }
-  })
+  const postsWithVotes = posts.map(post => ({
+    ...post,
+    isUpvoted: votes[`post:${post.id}`] === 'up',
+    isDownvoted: votes[`post:${post.id}`] === 'down',
+  }))
 
   return {
     space,
@@ -153,6 +157,7 @@ export const useSpacePage = (spaceName?: string) => {
     toggleJoin,
     handleCreatePost,
     handleVote,
+    votingPosts,
     navigate
   }
 }

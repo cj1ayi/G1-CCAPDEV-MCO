@@ -14,32 +14,28 @@ import {
 } from '@/features/profile/components'
 
 const Profile = () => {
-  const { user, posts, isLoading, activeTab, setActiveTab } = useProfileView()
+  const { 
+    user, 
+    posts,
+    comments,
+    spaces,
+    upvotedPosts,
+    isLoading, 
+    activeTab, 
+    setActiveTab 
+  } = useProfileView()
+
   const [currentUser, setCurrentUser] = useState<any>(null)
 
   useEffect(() => {
     userService.getCurrentUser().then(setCurrentUser)
   }, [])
 
-  // More robust check - compare both id and username
   const isOwnProfile = !!(
     currentUser && 
     user && 
-    (
-      currentUser.id === user.id || 
-      currentUser.username === user.username ||
-      currentUser.name === user.name
-    )
+    (currentUser.id === user.id || currentUser.username === user.username)
   )
-
-  // Debug logging (remove after fixing)
-  useEffect(() => {
-    if (currentUser && user) {
-      console.log('Current User:', { id: currentUser.id, username: currentUser.username, name: currentUser.name })
-      console.log('Profile User:', { id: user.id, username: user.username, name: user.name })
-      console.log('Is Own Profile:', isOwnProfile)
-    }
-  }, [currentUser, user, isOwnProfile])
 
   if (isLoading) {
     return (
@@ -90,10 +86,21 @@ const Profile = () => {
       <div className="h-6 lg:h-8" />
 
       <div className="grid grid-cols-12 gap-6">
-        <ProfileSidebar user={user} />
+        <ProfileSidebar 
+          user={user}
+          postCount={posts.length}
+          commentCount={comments.length}
+          spaces={spaces}
+        />
 
         <main className="col-span-12 lg:col-span-9">
-          <ProfileActivity activeTab={activeTab} posts={posts} />
+          <ProfileActivity 
+            activeTab={activeTab} 
+            posts={posts}
+            comments={comments}
+            spaces={spaces}
+            upvotedPosts={upvotedPosts}
+          />
         </main>
       </div>
     </MainLayout>

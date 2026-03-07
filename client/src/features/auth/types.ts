@@ -1,5 +1,7 @@
+// Location: client/src/features/auth/types.ts
+
 /**
- * Authenticated user data.
+ * Authenticated user data returned from /api/auth/me
  */
 export interface AuthUser {
   id: string
@@ -13,34 +15,12 @@ export interface AuthUser {
 
 /**
  * Authentication context providing user state and auth methods.
+ * login() triggers Google OAuth redirect.
+ * signup() is removed — Google OAuth handles new user creation automatically.
  */
 export interface AuthContextType {
   user: AuthUser | null
   isLoading: boolean
-  login: (
-    usernameOrEmail: string,
-    password: string,
-    remember?: boolean,
-  ) => boolean
-  signup: (
-    email: string,
-    username: string,
-    password: string,
-  ) => boolean
+  login: () => void
   logout: () => void
 }
-
-/**
- * LocalStorage key for persisting user session data.
- */
-export const SESSION_KEY = 'animoforums_session'
-
-/**
- * LocalStorage key for "Remember Me" flag.
- */
-export const REMEMBER_KEY = 'animoforums_remember'
-
-/**
- * LocalStorage key for storing registered signup users.
- */
-export const SIGNUP_USERS_KEY = 'animoforums_signups'

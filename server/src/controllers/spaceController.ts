@@ -67,3 +67,22 @@ export const toggleJoinSpace = async (req: Request, res: Response) => {
     res.status(500).json({ message: (error as Error).message });
   }
 };
+
+export const deleteSpace = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) return res.status(401).json({ message: 'Unauthorized' })
+
+    const space = await Space.findById(req.params.id)
+    if (!space) return res.status(404).json({ message: 'Space not found' })
+
+    if (space.owner.toString() !== (req.user as any)._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized' })
+    }
+
+    await space.deleteOne()
+    res.json({ message: 'Space deleted' })
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message })
+  }
+}
+

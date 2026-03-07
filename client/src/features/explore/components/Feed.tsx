@@ -1,4 +1,3 @@
-// Feed with auto-refetch after voting (Reddit-style)
 // Location: client/src/features/explore/components/Feed.tsx
 
 import { useEffect, useState } from 'react'
@@ -19,19 +18,11 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
   const [posts, setPosts] = useState<Post[]>([])
   const [commentCounts, setCommentCounts] = useState<CommentCountMap>({})
   const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [votingPosts, setVotingPosts] = useState<Set<string>>(new Set())
   const { startLoading, stopLoading } = useLoadingBar()
   const [deleteModalPost, setDeleteModalPost] = useState<Post | null>(null)
 
-  const { votes, toggleVote, getDisplayVotes } = useVoting()
-
-  const loadPosts = async () => {
-    try {
-      const sortedPosts = await postService.getSortedPosts(sortBy)
-      setPosts(sortedPosts)
-    } catch (err) {
-      console.error('Failed to load posts:', err)
-    }
-  }
+  const { votes, toggleVote } = useVoting()
 
   useEffect(() => {
     const initialLoad = async () => {
@@ -39,7 +30,12 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
       setIsInitialLoad(true)
       setPosts([])
 
-      await loadPosts()
+      try {
+        const sortedPosts = await postService.getSortedPosts(sortBy)
+        setPosts(sortedPosts)
+      } catch (err) {
+        console.error('Failed to load posts:', err)
+      }
 
       setIsInitialLoad(false)
       stopLoading()
@@ -53,17 +49,14 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
       if (posts.length === 0) return
 
       const counts: CommentCountMap = {}
-      
       for (const post of posts) {
         try {
           const comments = await commentService.getCommentsByPostId(post.id)
           counts[post.id] = getTotalCommentCount(comments)
         } catch (err) {
-          console.warn(`Failed to load comments for post ${post.id}:`, err)
           counts[post.id] = post.commentCount
         }
       }
-      
       setCommentCounts(counts)
     }
 
@@ -71,8 +64,38 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
   }, [posts])
 
   const handleVote = async (postId: string, voteType: 'up' | 'down') => {
-    await toggleVote(postId, 'post', voteType)
-    await loadPosts()
+    if (!postId || votingPosts.has(postId)) return
+
+    const previousVote = votes[`post:${postId}`] ?? null
+
+    setVotingPosts(prev => new Set(prev).add(postId))
+
+    setPosts(prev => prev.map(post => {
+      if (post.id !== postId) return post
+      let { upvotes, downvotes } = post
+
+      if (voteType === 'up') {
+        if (previousVote === 'up') upvotes = Math.max(0, upvotes - 1)
+        else if (previousVote === 'down') { upvotes += 1; downvotes = Math.max(0, downvotes - 1) }
+        else upvotes += 1
+      } else {
+        if (previousVote === 'down') downvotes = Math.max(0, downvotes - 1)
+        else if (previousVote === 'up') { downvotes += 1; upvotes = Math.max(0, upvotes - 1) }
+        else downvotes += 1
+      }
+
+      return { ...post, upvotes, downvotes }
+    }))
+
+    try {
+      await toggleVote(postId, 'post', voteType)
+    } finally {
+      setVotingPosts(prev => {
+        const next = new Set(prev)
+        next.delete(postId)
+        return next
+      })
+    }
   }
 
   const handleDeletePost = async () => {
@@ -95,13 +118,6 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
     <>
       <div className="space-y-4">
         {posts.map(post => {
-          const { upvotes, downvotes } = getDisplayVotes(
-            post.id,
-            'post',
-            post.upvotes,
-            post.downvotes
-          )
-          
           const voteKey = `post:${post.id}`
           const voteState = votes[voteKey]
           const realCommentCount = commentCounts[post.id] ?? post.commentCount
@@ -110,21 +126,16 @@ export const Feed = ({ sortBy = 'best' }: { sortBy?: string }) => {
             <PostCard
               key={post.id}
               {...post}
-              upvotes={upvotes}
-              downvotes={downvotes}
+              upvotes={post.upvotes}
+              downvotes={post.downvotes}
               commentCount={realCommentCount}
               isUpvoted={voteState === 'up'}
               isDownvoted={voteState === 'down'}
               onClick={() => navigate(`/post/${post.id}`)}
-              onUpvote={() => handleVote(post.id, 'up')}
-              onDownvote={() => handleVote(post.id, 'down')}
-              onEdit={
-                post.isOwner ? () => navigate(`/post/${post.id}/edit`) : 
-                undefined
-              }
-              onDelete={
-                post.isOwner ? () => setDeleteModalPost(post) : undefined
-              }
+              onUpvote={() => !votingPosts.has(post.id) && handleVote(post.id, 'up')}
+              onDownvote={() => !votingPosts.has(post.id) && handleVote(post.id, 'down')}
+              onEdit={post.isOwner ? () => navigate(`/post/${post.id}/edit`) : undefined}
+              onDelete={post.isOwner ? () => setDeleteModalPost(post) : undefined}
             />
           )
         })}
