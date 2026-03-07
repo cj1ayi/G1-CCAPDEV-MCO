@@ -21,6 +21,19 @@ import {
 } from "./pages";
 
 const App = () => {
+<<<<<<< HEAD
+  
+=======
+  const hasSeeded = localStorage.getItem("comments_seeded");
+
+  if (!hasSeeded) {
+    commentService.resetToMockData().then(() => {
+      localStorage.setItem("comments_seeded", "true");
+      console.log("Comments auto-seeded on first load!");
+    });
+  }
+
+>>>>>>> 22f0f04 (feat: add space editing)
   return (
     <BrowserRouter>
       <AuthProvider>
