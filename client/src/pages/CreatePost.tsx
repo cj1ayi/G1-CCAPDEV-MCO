@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, X } from 'lucide-react'
 import { postService } from '@/features/posts/services'
 import { spaceService } from '@/features/spaces/services/spaceService'
@@ -21,7 +21,12 @@ import {
 
 export default function CreatePostPage() {
   const navigate = useNavigate()
-  const { error: showError, warning: showWarning, success: showSuccess} = useToast()
+  const [searchParams] = useSearchParams()
+  const { 
+    error: showError, 
+    warning: showWarning, 
+    success: showSuccess 
+  } = useToast()
 
   const [joinedSpaces, setJoinedSpaces] = useState<Space[]>([])
   const [isLoadingSpaces, setIsLoadingSpaces] = useState(true)
@@ -29,7 +34,7 @@ export default function CreatePostPage() {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    space: '',
+    space: searchParams.get('space') || '',
     imageUrl: '',
     tags: [] as string[],
   })
@@ -80,7 +85,9 @@ export default function CreatePostPage() {
       navigate(`/post/${newPost.id}`)
       showSuccess('Successfuly created Post')
     } catch (error) {
-      showError((error as Error).message || 'Failed to create post. Please try again.')
+      showError(
+        (error as Error).message || 'Failed to create post. Please try again.'
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -89,14 +96,23 @@ export default function CreatePostPage() {
   const handleAddTag = () => {
     const tag = tagInput.trim().toLowerCase()
     if (!tag) return
-    if (formData.tags.length >= 5) { showWarning('Maximum 5 tags allowed'); return }
-    if (formData.tags.includes(tag)) { showWarning('Tag already added'); return }
+    if (formData.tags.length >= 5) { 
+      showWarning('Maximum 5 tags allowed'); 
+      return 
+    }
+    if (formData.tags.includes(tag)) { 
+      showWarning('Tag already added'); 
+      return 
+    }
     setFormData({ ...formData, tags: [...formData.tags, tag] })
     setTagInput('')
   }
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setFormData({ ...formData, tags: formData.tags.filter(tag => tag !== tagToRemove) })
+    setFormData({ 
+      ...formData, 
+      tags: formData.tags.filter(tag => tag !== tagToRemove) 
+    })
   }
 
   return (
@@ -140,7 +156,9 @@ export default function CreatePostPage() {
                 Space <span className="text-red-500">*</span>
               </label>
               {isLoadingSpaces ? (
-                <div className="h-11 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                <div 
+                  className="h-11 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse" 
+                />
               ) : joinedSpaces.length === 0 ? (
                 <div className={cn(
                   "p-4 rounded-lg border border-dashed",
@@ -160,7 +178,10 @@ export default function CreatePostPage() {
               ) : (
                 <Select
                   value={formData.space}
-                  onChange={(e) => setFormData({ ...formData, space: e.target.value })}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    space: e.target.value 
+                  })}
                   options={[
                     { value: '', label: 'Select a space...' },
                     ...joinedSpaces.map(s => ({
@@ -192,7 +213,10 @@ export default function CreatePostPage() {
             <Textarea
               label="Content"
               value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                content: e.target.value 
+              })}
               placeholder="What are your thoughts?"
               rows={10}
               error={errors.content}
@@ -204,7 +228,10 @@ export default function CreatePostPage() {
               label="Image URL (Optional)"
               type="url"
               value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                imageUrl: e.target.value 
+              })}
               placeholder="https://example.com/image.jpg"
             />
 
@@ -237,7 +264,11 @@ export default function CreatePostPage() {
               {formData.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {formData.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    <Badge 
+                      key={tag} 
+                      variant="secondary" 
+                      className="flex items-center gap-1"
+                    >
                       #{tag}
                       <button
                         type="button"

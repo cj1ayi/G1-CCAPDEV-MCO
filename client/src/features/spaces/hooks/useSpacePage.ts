@@ -102,7 +102,7 @@ export const useSpacePage = (spaceName?: string) => {
     const deltaKey = `${voteType}:${previousVote ?? 'null'}`
     const delta = VOTE_DELTAS[deltaKey]
 
-    if (!delta) return
+    if (!delta) return 
 
     setVotingPosts((prev) => new Set(prev).add(postId))
     setPosts((prev) =>
@@ -142,9 +142,11 @@ export const useSpacePage = (spaceName?: string) => {
     setIsDeleteModalOpen,
     toggleJoin,
     handleDeleteSpace,
-    handleCreatePost: () => navigate('/post/create'),
+    handleCreatePost: () => {
+      const url = space ? `/post/create?space=${space.name}` : '/post/create'
+      navigate(url)
+    },
     handleVote,
     navigate,
   }
 }
-

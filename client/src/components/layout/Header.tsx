@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import {
   Search,
@@ -59,6 +59,10 @@ export const Header = ({
 }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const spaceMatch = location.pathname.match(/^\/r\/([^/]+)/)
+  const currentSpaceName = spaceMatch ? spaceMatch[1] : null
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,7 +76,10 @@ export const Header = ({
     if (onCreatePost) {
       onCreatePost()
     } else {
-      navigate('/post/create')
+      const url = currentSpaceName 
+        ? `/post/create?space=${currentSpaceName}` 
+        : '/post/create'
+      navigate(url)
     }
   }
 
