@@ -4,9 +4,10 @@ import type { PostCardProps } from '../../types'
 import { PostCardVoting } from './PostCardVoting'
 import { PostCardHeader } from './PostCardHeader'
 import { PostCardContent } from './PostCardContent'
-import { PostCardActions } from './PostCardActions'
+import { PostActions } from '../PostAction'
 
 const PostCard = ({
+  id,
   title,
   content,
   author,
@@ -72,7 +73,8 @@ const PostCard = ({
           />
 
           {/* Actions */}
-          <PostCardActions
+          <PostActions
+            postId={id}
             commentCount={commentCount}
             onClick={onClick}
           />
