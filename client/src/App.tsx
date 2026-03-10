@@ -3,6 +3,7 @@ import { Navigate, BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { LoadingBar } from "@/components/shared";
 import { VotingProvider } from "./features/votes/VotingContext";
+import { ToastProvider } from "./hooks/ToastContext";
 
 import {
   Home,
@@ -61,7 +62,9 @@ const App = () => {
       <AuthProvider>
         <VotingProvider>
           <LoadingBar />
-          <AppRoutes />
+            <ToastProvider>
+              <AppRoutes />
+            </ToastProvider>
         </VotingProvider>
       </AuthProvider>
     </BrowserRouter>
