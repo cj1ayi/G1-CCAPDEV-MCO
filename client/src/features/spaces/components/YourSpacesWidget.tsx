@@ -11,7 +11,7 @@ export const YourSpacesWidget = () => {
 
   useEffect(() => {
     const loadJoinedSpaces = async () => {
-      const currentUser = getCurrentUser()
+      const currentUser = await getCurrentUser()
       if (!currentUser) {
         setJoinedSpaces([])
         return
@@ -57,7 +57,9 @@ export const YourSpacesWidget = () => {
   return (
     <div className="space-y-4">
       <div className="px-4 flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Your Spaces</h3>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+          Your Spaces
+        </h3>
         <button
           onClick={() => navigate('/spaces')}
           className="text-xs font-bold text-primary hover:underline"
@@ -91,12 +93,15 @@ export const YourSpacesWidget = () => {
               ) : (
                 <div
                   className={cn(
-                    'w-8 h-8 rounded-lg flex items-center justify-center',
-                    'text-xs font-bold bg-gradient-to-br text-white',
-                    space.colorScheme
+                    'w-8 h-8 rounded-lg flex items-center justify-center px-0.5',
+                    'font-bold bg-gradient-to-br text-white overflow-hidden',
+                    space.colorScheme,
+                    space.icon.length <= 2 ? 'text-xs' : 'text-[8px]'
                   )}
                 >
-                  {space.icon}
+                  <span className="text-center leading-none break-all">
+                    {space.icon}
+                  </span>
                 </div>
               )}
 
