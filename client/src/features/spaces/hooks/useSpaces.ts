@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { spaceService } from '../services/spaceService'
 import { Space } from '../types'
 import { useLoadingBar } from '@/hooks'
+import { useToast } from '@/hooks/ToastContext'
 
 export const useSpaces = () => {
   const navigate = useNavigate()
@@ -14,6 +15,7 @@ export const useSpaces = () => {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const { startLoading, stopLoading } = useLoadingBar()
+  const { error: showError } = useToast()
 
   const loadSpaces = useCallback(async (pageNum: number) => {
     const { data, hasMore } = await spaceService.getSpaces(pageNum)
@@ -40,19 +42,19 @@ export const useSpaces = () => {
   const toggleJoin = async (id: string) => {
     const space = spaces.find(s => s.id === id)
     if (!space) return
-    
+
     const newJoinStatus = !space.isJoined
-    
-    setSpaces(prev => 
+    setSpaces(prev =>
       prev.map(s => s.id === id ? { ...s, isJoined: newJoinStatus } : s)
     )
-    
+
     try {
       await spaceService.toggleJoin(id)
     } catch (err) {
-      setSpaces(prev => 
+      setSpaces(prev =>
         prev.map(s => s.id === id ? { ...s, isJoined: space.isJoined } : s)
       )
+      showError('Failed to update membership. Please try again.')
     }
   }
 
@@ -61,20 +63,14 @@ export const useSpaces = () => {
 
   const processedSpaces = useMemo(() => {
     let result = [...spaces]
-    
+
     if (filter !== 'All Spaces') {
       result = result.filter(s => s.category === filter)
     }
 
     result.sort((a, b) => {
-      if (sortBy === 'A-Z') {
-        return a.displayName.localeCompare(b.displayName)
-      }
-      
-      if (sortBy === 'Z-A') {
-        return b.displayName.localeCompare(a.displayName)
-      }
-      
+      if (sortBy === 'A-Z') return a.displayName.localeCompare(b.displayName)
+      if (sortBy === 'Z-A') return b.displayName.localeCompare(a.displayName)
       if (sortBy === 'Members') {
         const parseCount = (s: string) => {
           const num = parseFloat(s)
@@ -82,10 +78,9 @@ export const useSpaces = () => {
         }
         return parseCount(b.memberCount) - parseCount(a.memberCount)
       }
-      
       return 0
     })
-    
+
     return result
   }, [spaces, filter, sortBy])
 
