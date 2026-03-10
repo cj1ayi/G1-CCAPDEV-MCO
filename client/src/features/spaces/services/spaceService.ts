@@ -65,21 +65,22 @@ class SpaceService {
 
   async getSpaceByName(spaceName: string): Promise<Space | null> {
     if (!spaceName) return null
-    try {
-      const response = await fetch(`${API_BASE_URL}/spaces/${spaceName}`)
-      const data = await response.json()
-      const converted = convertObjectId(data)
-      const currentUser = await getCurrentUser()
-      return {
-        ...converted,
-        owner: converted.owner,
-        memberCount: converted.members?.length.toString() || '0',
-        isJoined: this.checkIsJoined(converted, currentUser)
+      try {
+        const response = await fetch(`${API_BASE_URL}/spaces/${spaceName}`)
+        if (!response.ok) return null
+          const data = await response.json()
+        const converted = convertObjectId(data)
+        const currentUser = await getCurrentUser()
+        return {
+          ...converted,
+          owner: converted.owner,
+          memberCount: converted.members?.length.toString() || '0',
+          isJoined: this.checkIsJoined(converted, currentUser)
+        }
+      } catch (err) {
+        console.error('Failed to fetch space:', err)
+        return null
       }
-    } catch (err) {
-      console.error('Failed to fetch space:', err)
-      return null
-    }
   }
 
   async createSpace(dto: CreateSpaceDto): Promise<Space> {
