@@ -31,6 +31,7 @@ export default function Space() {
     space, 
     posts, 
     sortBy, 
+    isOwner,
     setSortBy, 
     isJoined, 
     toggleJoin, 
@@ -121,6 +122,7 @@ export default function Space() {
         isJoined={isJoined} 
         onToggleJoin={toggleJoin} 
         postCount={posts.length} 
+        isOwner={isOwner}
       />
 
       <Button

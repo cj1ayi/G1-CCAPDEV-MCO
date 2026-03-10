@@ -1,32 +1,24 @@
 import React from 'react'
 import { Plus, Check, Users, MessageSquare, Settings, Trash2 } from 'lucide-react'
 import { Button, Badge } from '@/components/ui'
-import { cn } from '@/lib/utils'
+import { cn, formatNumber } from '@/lib/utils'
 import { SpaceHeaderProps } from '../types'
-import { getCurrentUser } from '@/features/auth/services/authService'
 import { spaceService } from '../services/spaceService'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useToast } from '@/hooks/ToastContext'
 
 export const SpaceHeader = ({
   space,
   isJoined,
+  isOwner = false,
   onToggleJoin,
   postCount,
-}: SpaceHeaderProps) => {
-  const [isOwner, setIsOwner] = useState(false)
+}: SpaceHeaderProps & { isOwner?: boolean }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const navigate = useNavigate()
-
-  useEffect(() => {
-    getCurrentUser().then(user => {
-      const ownerId = typeof space.owner === 'object' 
-        ? (space.owner as any).id 
-        : space.owner
-      setIsOwner(!!user && user.id === ownerId)
-    })
-  }, [space.owner])
+  const { error: showError } = useToast()
 
   const handleDelete = async () => {
     setIsDeleting(true)
@@ -34,7 +26,7 @@ export const SpaceHeader = ({
       await spaceService.deleteSpace(space.id)
       navigate('/spaces')
     } catch (error) {
-      console.error('Failed to delete space:', error)
+      showError('Failed to delete space. Please try again.')
     } finally {
       setIsDeleting(false)
       setIsDeleteModalOpen(false)
@@ -43,26 +35,19 @@ export const SpaceHeader = ({
 
   return (
     <div className="mb-6">
-      {/* Banner */}
       {space.bannerUrl && (
         <div className={cn("relative h-32 md:h-48 rounded-lg", "overflow-hidden mb-4")}>
           <img src={space.bannerUrl} alt="" className="w-full h-full object-cover" />
-          <div className={cn(
-            "absolute inset-0 bg-gradient-to-t", 
-            "from-black/60 to-transparent"
-          )} />
+          <div className={cn("absolute inset-0 bg-gradient-to-t", "from-black/60 to-transparent")} />
         </div>
       )}
 
-      {/* Info Row */}
       <div className="flex items-start gap-4">
-        <div
-          className={cn(
-            "size-16 md:size-20 rounded-xl flex",
-            "items-center justify-center text-white shadow-lg",
-            space.iconType === "text" && `bg-gradient-to-br ${space.colorScheme}`,
-          )}
-        >
+        <div className={cn(
+          "size-16 md:size-20 rounded-xl flex",
+          "items-center justify-center text-white shadow-lg",
+          space.iconType === "text" && `bg-gradient-to-br ${space.colorScheme}`,
+        )}>
           {space.iconType === "image" ? (
             <img src={space.icon} className="size-full object-cover rounded-xl" alt="" />
           ) : (
@@ -109,25 +94,18 @@ export const SpaceHeader = ({
             </div>
           </div>
 
-          {/* Stats Bar */}
           <div className={cn("flex items-center gap-6 mt-3", "text-gray-600 dark:text-gray-400")}>
-            <StatItem icon={<Users className="size-4" />} label={`${space.memberCount} members`} />
+            <StatItem icon={<Users className="size-4" />} label={`${formatNumber(Number(space.memberCount))} members`} />
             <StatItem icon={<MessageSquare className="size-4" />} label={`${postCount} posts`} />
             <Badge variant="secondary" size="sm">{space.category}</Badge>
           </div>
         </div>
       </div>
 
-      {/* Delete Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className={cn(
-            "bg-white dark:bg-surface-dark rounded-xl shadow-xl",
-            "p-6 max-w-md w-full mx-4"
-          )}>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              Delete Space
-            </h2>
+          <div className={cn("bg-white dark:bg-surface-dark rounded-xl shadow-xl", "p-6 max-w-md w-full mx-4")}>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Delete Space</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
               Are you sure you want to delete <span className="font-semibold">r/{space.name}</span>? This action cannot be undone.
             </p>
@@ -135,12 +113,7 @@ export const SpaceHeader = ({
               <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)} disabled={isDeleting}>
                 Cancel
               </Button>
-              <Button
-                variant="primary"
-                onClick={handleDelete}
-                isLoading={isDeleting}
-                className="bg-red-500 hover:bg-red-600"
-              >
+              <Button variant="primary" onClick={handleDelete} isLoading={isDeleting} className="bg-red-500 hover:bg-red-600">
                 Delete Space
               </Button>
             </div>

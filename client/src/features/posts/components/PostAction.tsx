@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { MessageSquare, Copy, CopyCheck, Bookmark } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useToast } from '@/hooks/useToast'
+import { useToast } from '@/hooks/ToastContext'
 
 export interface PostActionsProps {
   commentCount: number

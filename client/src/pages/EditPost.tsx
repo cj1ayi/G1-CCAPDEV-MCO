@@ -6,8 +6,7 @@ import { SidebarNav } from '@/features/navigation/components'
 import { postService } from '@/features/posts/services'
 import { LoadingSpinner, ErrorState } from '@/components/shared'
 import { cn } from '@/lib/utils'
-import { useToast } from '@/hooks/useToast'
-import { Toast } from '@/components/ui/Toast'
+import { useToast } from '@/hooks/ToastContext'
 
 import { 
   Card, 
@@ -20,7 +19,7 @@ import {
 export default function EditPostPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { toasts, error: showError, warning: showWarning, removeToast } = useToast()
+  const { error: showError, warning: showWarning, success: showSuccess} = useToast()
   
   const [formData, setFormData] = useState({
     title: '',
@@ -95,6 +94,7 @@ export default function EditPostPage() {
         tags: formData.tags,
       })
       
+      showSuccess('Successfully Update Post')
       navigate(`/post/${id}`)
     } catch (error) {
       showError('Failed to update post. Please try again.')
@@ -303,17 +303,6 @@ export default function EditPostPage() {
           </form>
         </Card>
       </div>
-
-      {/* Toast Notifications */}
-      {toasts.map(toast => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          duration={toast.duration}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
-    </MainLayout>
+   </MainLayout>
   )
 }

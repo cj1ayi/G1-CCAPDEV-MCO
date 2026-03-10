@@ -40,7 +40,7 @@ const TOAST_STYLES = {
 export const Toast = ({
   message,
   type = 'info',
-  duration = 5000,
+  duration = 2000,
   onClose,
 }: ToastProps) => {
   useEffect(() => {
