@@ -38,19 +38,18 @@ export const useSpacePage = (spaceName?: string) => {
   const { votes, toggleVote } = useVoting()
 
   const loadPosts = async () => {
-    if (!spaceName) { setPosts([]); return }
+    if (!spaceName) return
     try {
       const spacePosts = await spaceService.getSpacePosts(spaceName, sortBy)
-      setPosts(spacePosts)
+      setPosts(spacePosts || [])
     } catch (error) {
-      console.error('Error loading posts:', error)
       setPosts([])
     }
   }
 
   useEffect(() => {
     const loadSpace = async () => {
-      if (!spaceName) { setSpace(null); setIsLoading(false); stopLoading(); return }
+      if (!spaceName) { setIsLoading(false); return }
       startLoading()
       setIsLoading(true)
       try {
@@ -58,28 +57,18 @@ export const useSpacePage = (spaceName?: string) => {
         if (foundSpace) {
           setSpace(foundSpace)
           setIsJoined(foundSpace.isJoined || false)
-        } else {
-          setSpace(null)
         }
-      } catch (error) {
-        console.error('Error loading space:', error)
-        setSpace(null)
       } finally {
         setIsLoading(false)
         stopLoading()
       }
     }
     loadSpace()
-  }, [spaceName, startLoading, stopLoading])
+  }, [spaceName])
 
   useEffect(() => {
-    const loadPostsEffect = async () => {
-      if (!isLoading) { startLoading(); setIsLoadingPosts(true); setPosts([]) }
-      await loadPosts()
-      if (!isLoading) { setIsLoadingPosts(false); stopLoading() }
-    }
-    loadPostsEffect()
-  }, [spaceName, sortBy, isLoading])
+    loadPosts()
+  }, [spaceName, sortBy])
 
   const toggleJoin = async () => {
     if (!space) return
@@ -88,7 +77,6 @@ export const useSpacePage = (spaceName?: string) => {
     try {
       await spaceService.toggleJoin(space.id)
     } catch (error) {
-      console.error('Error toggling join:', error)
       setIsJoined(!newJoinStatus)
     }
   }
@@ -98,26 +86,28 @@ export const useSpacePage = (spaceName?: string) => {
     setIsDeleting(true)
     try {
       await spaceService.deleteSpace(space.id)
-      showSuccess(`r/${space.name} has been deleted`)
+      showSuccess(`r/${space.name} deleted`)
       navigate('/spaces')
     } catch (err) {
-      showError('Failed to delete space. Please try again.')
+      showError('Failed to delete space')
     } finally {
       setIsDeleting(false)
       setIsDeleteModalOpen(false)
     }
-  }, [space, navigate, showSuccess, showError])
-
-  const handleCreatePost = () => navigate('/post/create')
+  }, [space, navigate])
 
   const handleVote = async (postId: string, voteType: 'up' | 'down') => {
     if (!postId || votingPosts.has(postId)) return
     const previousVote = votes[`post:${postId}`] ?? null
+    const deltaKey = `${voteType}:${previousVote ?? 'null'}`
+    const delta = VOTE_DELTAS[deltaKey]
+
+    if (!delta) return
+
     setVotingPosts((prev) => new Set(prev).add(postId))
     setPosts((prev) =>
       prev.map((post) => {
         if (post.id !== postId) return post
-        const delta = VOTE_DELTAS[`${voteType}:${previousVote ?? 'null'}`]
         return {
           ...post,
           upvotes: Math.max(0, post.upvotes + delta.up),
@@ -128,21 +118,19 @@ export const useSpacePage = (spaceName?: string) => {
     try {
       await toggleVote(postId, 'post', voteType)
     } finally {
-      setVotingPosts((prev) => { const next = new Set(prev); next.delete(postId); return next })
+      setVotingPosts((prev) => { 
+        const next = new Set(prev)
+        next.delete(postId)
+        return next 
+      })
     }
   }
 
   const isOwner = !!user && !!space && isSpaceOwner(space, user.id)
 
-  const postsWithVotes = posts.map((post) => ({
-    ...post,
-    isUpvoted: votes[`post:${post.id}`] === 'up',
-    isDownvoted: votes[`post:${post.id}`] === 'down',
-  }))
-
   return {
     space,
-    posts: postsWithVotes,
+    posts,
     sortBy,
     setSortBy,
     isJoined,
@@ -154,9 +142,8 @@ export const useSpacePage = (spaceName?: string) => {
     setIsDeleteModalOpen,
     toggleJoin,
     handleDeleteSpace,
-    handleCreatePost,
+    handleCreatePost: () => navigate('/post/create'),
     handleVote,
-    votingPosts,
     navigate,
   }
 }
