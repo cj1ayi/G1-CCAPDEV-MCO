@@ -1,16 +1,16 @@
 import { ChangeEvent } from 'react'
-import { Input, Textarea, Button } from "@/components/ui";
-import { Trash2 } from "lucide-react";
-import { SpaceRule } from "../types";
+import { Input, Textarea, Button } from '@/components/ui'
+import { Trash2 } from 'lucide-react'
+import { SpaceRule } from '../../services'
 
 interface RuleEditorProps {
-  rule: SpaceRule;
-  index: number;
-  titleError?: string;
-  descriptionError?: string;
-  canDelete: boolean;
-  onChange: (index: number, updated: SpaceRule) => void;
-  onDelete: (index: number) => void;
+  rule: SpaceRule
+  index: number
+  titleError?: string
+  descriptionError?: string
+  canDelete: boolean
+  onChange: (index: number, updated: SpaceRule) => void
+  onDelete: (index: number) => void
 }
 
 export const RuleEditor = ({
@@ -26,11 +26,9 @@ export const RuleEditor = ({
     onChange(index, { ...rule, title: e.target.value })
   }
 
-  const handleDescriptionChange = (
-    e: ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    onChange(index, { ...rule, description: e.target.value });
-  };
+  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(index, { ...rule, description: e.target.value })
+  }
 
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
@@ -69,5 +67,5 @@ export const RuleEditor = ({
         error={descriptionError}
       />
     </div>
-  );
-};
+  )
+}

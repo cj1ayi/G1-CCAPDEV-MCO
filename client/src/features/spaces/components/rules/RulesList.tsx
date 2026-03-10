@@ -1,34 +1,30 @@
-import { Button } from "@/components/ui";
-import { Plus } from "lucide-react";
-import { SpaceRule } from "../types";
-import { RuleEditor } from "./RuleEditor";
+import { Button } from '@/components/ui'
+import { Plus } from 'lucide-react'
+import { SpaceRule } from '../../services'
+import { RuleEditor } from './RuleEditor'
 
-const MAX_RULES = 10;
+const MAX_RULES = 10
 
 interface RulesListProps {
-  rules: SpaceRule[];
-  ruleErrors?: { title?: string; description?: string }[];
-  onChange: (rules: SpaceRule[]) => void;
+  rules: SpaceRule[]
+  ruleErrors?: { title?: string; description?: string }[]
+  onChange: (rules: SpaceRule[]) => void
 }
 
-export const RulesList = ({
-  rules,
-  ruleErrors = [],
-  onChange,
-}: RulesListProps) => {
+export const RulesList = ({ rules, ruleErrors = [], onChange }: RulesListProps) => {
   const handleRuleChange = (index: number, updated: SpaceRule) => {
-    const next = rules.map((r, i) => (i === index ? updated : r));
-    onChange(next);
-  };
+    const next = rules.map((r, i) => (i === index ? updated : r))
+    onChange(next)
+  }
 
   const handleRuleDelete = (index: number) => {
-    onChange(rules.filter((_, i) => i !== index));
-  };
+    onChange(rules.filter((_, i) => i !== index))
+  }
 
   const handleAddRule = () => {
-    if (rules.length >= MAX_RULES) return;
-    onChange([...rules, { title: "", description: "" }]);
-  };
+    if (rules.length >= MAX_RULES) return
+    onChange([...rules, { title: '', description: '' }])
+  }
 
   return (
     <div className="space-y-3">
@@ -64,5 +60,5 @@ export const RulesList = ({
         />
       ))}
     </div>
-  );
-};
+  )
+}
