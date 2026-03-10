@@ -108,6 +108,7 @@ export const PostDetailContent = ({
 
           {/* Actions — pass live upvotes/downvotes, not post.upvotes/post.downvotes */}
           <PostDetailActions
+            postId={post.id}
             commentCount={commentCount}
             upvotes={upvotes}
             downvotes={downvotes}

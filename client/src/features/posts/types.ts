@@ -1,6 +1,8 @@
 // Post types with proper separation
 // Location: client/src/features/posts/types.ts
 
+import strict from "node:assert/strict"
+
 // What's stored in DB/localStorage (no author object)
 export interface StoredPost {
   id: string
@@ -33,6 +35,7 @@ export interface Post extends StoredPost {
 
 // Component Props
 export interface PostCardProps {
+  id: string
   title: string
   content?: string
   author: {
@@ -80,6 +83,7 @@ export interface PostDetailContentProps {
 }
 
 export interface PostDetailActionsProps {
+  postId: string
   commentCount: number
   upvotes: number
   downvotes: number
