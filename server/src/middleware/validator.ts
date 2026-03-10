@@ -26,6 +26,14 @@ export const postValidationRules = [
     .notEmpty().withMessage('Space name is required')
 ];
 
+export const postUpdateValidationRules = [
+  body('title')
+    .notEmpty().withMessage('Title is required')
+    .isLength({ min: 5, max: 300 }).withMessage('Title must be between 5 and 300 characters'),
+  body('content')
+    .notEmpty().withMessage('Content is required'),
+]
+
 export const commentValidationRules = [
   body('content')
     .notEmpty().withMessage('Comment cannot be empty')

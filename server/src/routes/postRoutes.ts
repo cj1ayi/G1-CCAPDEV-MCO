@@ -10,6 +10,7 @@ import {
 
 import {
     postValidationRules,
+    postUpdateValidationRules,
     validate 
 } from '../middleware/validator.js';
 
@@ -26,7 +27,7 @@ router.route('/')
 
 router.route('/:id')
   .get(getPostById)
-  .patch(ensureAuth, updatePost)
+  .patch(ensureAuth, postUpdateValidationRules, validate, updatePost)
   .delete(ensureAuth, deletePost)
 
 export default router;

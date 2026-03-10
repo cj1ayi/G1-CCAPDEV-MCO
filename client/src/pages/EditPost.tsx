@@ -56,7 +56,7 @@ export default function EditPostPage() {
           })
         }
       } catch (err) {
-        setError('Failed to load post')
+        setError(err instanceof Error ? err.message : 'Failed to load post')
       } finally {
         setIsLoading(false)
       }
@@ -97,7 +97,7 @@ export default function EditPostPage() {
       showSuccess('Successfully Update Post')
       navigate(`/post/${id}`)
     } catch (error) {
-      showError('Failed to update post. Please try again.')
+      showError(error instanceof Error ? error.message : 'Failed to load post')
     } finally {
       setIsSubmitting(false)
     }
