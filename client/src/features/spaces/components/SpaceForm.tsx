@@ -1,65 +1,102 @@
-import { useState } from 'react'
+import { FormEvent } from 'react'
 import { Card, Input, Textarea, Select, Button } from '@/components/ui'
-import { Users } from 'lucide-react'
-import { CreateSpaceDto } from '../services/spaceService'
-import { CATEGORIES, SpaceRule } from '../types'
-import { RulesList } from './RulesList'
-import { useToast } from '@/hooks/ToastContext'
+import { Users, Save } from 'lucide-react'
+import { Space, CATEGORIES, SpaceRule } from '../services'
+import { RulesList } from './rules'
+import { formatNumber } from '@/lib/utils'
+import type { FieldErrors } from '../utils'
 
-interface SpaceFormProps {
-  onSubmit: (data: CreateSpaceDto & { rules: SpaceRule[] }) => Promise<void>
-  onCancel: () => void
-  isLoading: boolean
+export interface SpaceFormData {
+  name?: string
+  displayName: string
+  description: string
+  category: Space['category']
+  icon: string
+  rules: SpaceRule[]
 }
 
-export const SpaceForm = ({ onSubmit, onCancel, isLoading }: SpaceFormProps) => {
-  const [formData, setFormData] = useState<CreateSpaceDto>({
-    name: '',
-    displayName: '',
-    description: '',
-    category: 'Interest',
-    icon: '',
-  })
-  const [rules, setRules] = useState<SpaceRule[]>([])
-  const { error: showError } = useToast()
+interface SpaceFormProps {
+  mode: 'create' | 'edit'
+  space?: Space
+  formData: SpaceFormData
+  errors: FieldErrors
+  isSubmitting: boolean
+  onChange: (data: any) => void
+  onBlur?: (field: any) => void
+  onRulesChange: (rules: SpaceRule[]) => void
+  onSubmit: (e: FormEvent) => void
+  onCancel: () => void
+}
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+export const SpaceForm = ({
+  mode,
+  space,
+  formData,
+  errors,
+  isSubmitting,
+  onChange,
+  onBlur,
+  onRulesChange,
+  onSubmit,
+  onCancel,
+}: SpaceFormProps) => {
+  const isEdit = mode === 'edit'
 
-    if (rules.length === 0) {
-      showError('At least one rule is required')
-      return 
-    }
-
-    const hasEmptyRule = rules.some(r => !r.title.trim() || !r.description.trim())
-    if (hasEmptyRule) {
-      showError('All rules must have a title and description')
-      return
-    }
-
-    onSubmit({ ...formData, rules })
+  const handleBlur = (field: keyof SpaceFormData) => {
+    onBlur?.(field)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Card className="p-6 space-y-6">
+    <form onSubmit={onSubmit} className="space-y-6" noValidate>
+      {isEdit && space && (
+        <Card className="p-6">
+          <h2 className="text-sm font-bold uppercase text-gray-400 mb-4 tracking-wide">
+            Space Info (read-only)
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="block text-gray-500 mb-1">Space Slug</span>
+              <span className="font-semibold dark:text-white">r/{space.name}</span>
+            </div>
+            <div>
+              <span className="block text-gray-500 mb-1">Created</span>
+              <span className="font-semibold dark:text-white">{space.createdDate}</span>
+            </div>
+            <div>
+              <span className="block text-gray-500 mb-1">Members</span>
+              <span className="font-semibold dark:text-white">
+                {formatNumber(space.memberCount)}
+              </span>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <Card className="p-6 space-y-5">
         <h2 className="text-sm font-bold uppercase text-gray-400 tracking-wide">General</h2>
 
-        <Input
-          label="Space Name"
-          placeholder="e.g. animo-developers"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          helperText="This will be used in the URL as r/name"
-          required
-        />
+        {!isEdit && (
+          <Input
+            label="Space Name"
+            placeholder="e.g. animo-developers"
+            value={formData.name ?? ''}
+            onChange={(e) => onChange({ ...formData, name: e.target.value })}
+            onBlur={() => handleBlur('name')}
+            helperText="This will be used in the URL as r/name"
+            error={errors.name}
+            required
+          />
+        )}
 
         <Input
           label="Display Name"
-          placeholder="e.g. Animo Developers"
+          placeholder={isEdit ? 'e.g. CCS Student Gov' : 'e.g. Animo Developers'}
           value={formData.displayName}
-          onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+          maxLength={50}
           required
+          error={errors.displayName}
+          onChange={(e) => onChange({ ...formData, displayName: e.target.value })}
+          onBlur={() => handleBlur('displayName')}
         />
 
         <Textarea
@@ -67,37 +104,57 @@ export const SpaceForm = ({ onSubmit, onCancel, isLoading }: SpaceFormProps) => 
           placeholder="Describe what this community is for..."
           rows={4}
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          maxLength={500}
           required
+          error={errors.description}
+          onChange={(e) => onChange({ ...formData, description: e.target.value })}
+          onBlur={() => handleBlur('description')}
         />
 
         <Select
           label="Category"
           value={formData.category}
-          onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
           options={CATEGORIES.map((cat) => ({ value: cat, label: cat }))}
+          error={errors.category}
+          onChange={(e) =>
+            onChange({ ...formData, category: e.target.value as SpaceFormData['category'] })
+          }
+          onBlur={() => handleBlur('category')}
         />
 
         <Input
           label="Icon"
-          placeholder="e.g. AD"
+          placeholder={isEdit ? 'e.g. CS' : 'e.g. AD'}
           maxLength={10}
           value={formData.icon}
-          onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+          required
+          error={errors.icon}
           helperText="Up to 10 characters shown as the space icon."
+          onChange={(e) => onChange({ ...formData, icon: e.target.value })}
+          onBlur={() => handleBlur('icon')}
         />
       </Card>
 
       <Card className="p-6">
-        <RulesList rules={rules} onChange={setRules} />
+        <RulesList
+          rules={formData.rules}
+          ruleErrors={errors.ruleErrors}
+          onChange={onRulesChange}
+        />
+        {errors.rules && <p className="mt-2 text-sm text-red-500">{errors.rules}</p>}
       </Card>
 
       <div className="flex justify-end gap-3">
-        <Button variant="secondary" type="button" onClick={onCancel} disabled={isLoading}>
+        <Button variant="secondary" type="button" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button variant="primary" type="submit" isLoading={isLoading} leftIcon={<Users className="size-4" />}>
-          Create Space
+        <Button
+          variant="primary"
+          type="submit"
+          isLoading={isSubmitting}
+          leftIcon={isEdit ? <Save className="size-4" /> : <Users className="size-4" />}
+        >
+          {isEdit ? 'Save Changes' : 'Create Space'}
         </Button>
       </div>
     </form>
