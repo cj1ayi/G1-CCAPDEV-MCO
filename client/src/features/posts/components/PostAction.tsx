@@ -15,7 +15,7 @@ export const PostActions = ({ commentCount, postId, onClick }: PostActionsProps)
 
   const handleCopyLink = (e: React.MouseEvent) => {
     e.stopPropagation()
-    navigator.clipboard.writeText(`${window.location.origin}/posts/${postId}`)
+    navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`)
     showToast('Link copied to clipboard', 'success')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
