@@ -12,6 +12,7 @@ export interface CreateSpaceDto {
   description: string
   category: Space['category']
   icon: string
+  rules?: { title: string; description: string }[]
 }
 
 export interface UpdateSpaceDto {
