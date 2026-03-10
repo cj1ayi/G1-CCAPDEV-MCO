@@ -10,9 +10,8 @@ interface SpaceCardProps {
 }
 
 export const SpaceCard = ({ space, onToggleJoin, onClick }: SpaceCardProps) => {
-  const isMaterialIcon = ['menu_book', 'sports_basketball', 'terminal'].includes(
-    space.icon
-  )
+  const iconText = space?.icon || ''
+  const isMaterialIcon = ['menu_book', 'sports_basketball', 'terminal'].includes(iconText)
 
   const getIconFontSize = (text: string) => {
     if (text.length <= 2) return 'text-2xl'
@@ -34,84 +33,42 @@ export const SpaceCard = ({ space, onToggleJoin, onClick }: SpaceCardProps) => {
               className={cn(
                 'size-14 rounded-xl flex items-center justify-center',
                 'text-white shadow-inner overflow-hidden px-1',
-                space.iconType === 'text' &&
-                  `bg-gradient-to-br ${space.colorScheme}`
+                space.iconType === 'text' && `bg-gradient-to-br ${space.colorScheme || 'from-primary to-primary-dark'}`
               )}
             >
               {space.iconType === 'image' ? (
-                <img
-                  src={space.icon}
-                  className="size-full object-cover"
-                  alt=""
-                />
+                <img src={iconText} className="size-full object-cover" alt="" />
               ) : (
-                <span
-                  className={cn(
-                    'font-black text-center leading-none break-all',
-                    isMaterialIcon ? 'material-symbols-outlined text-3xl' : 
-                    getIconFontSize(space.icon)
-                  )}
-                >
-                  {space.icon}
+                <span className={cn(
+                  'font-black text-center leading-none break-all',
+                  isMaterialIcon ? 'material-symbols-outlined text-3xl' : getIconFontSize(iconText)
+                )}>
+                  {iconText}
                 </span>
               )}
             </div>
-            {space.isActive && (
-              <div
-                className={cn(
-                  'absolute -bottom-1 -right-1 bg-green-500 size-4 border-2',
-                  'border-white dark:border-surface-dark rounded-full'
-                )}
-              />
-            )}
           </div>
           <Button
             variant={space.isJoined ? 'secondary' : 'outline'}
             size="sm"
-            className="font-bold"
-            leftIcon={space.isJoined ? <Check className="size-4" /> : undefined}
-            onClick={(e) => {
-              e.stopPropagation()
-              onToggleJoin(space.id)
-            }}
+            onClick={(e) => { e.stopPropagation(); onToggleJoin(space.id) }}
           >
             {space.isJoined ? 'Joined' : 'Join'}
           </Button>
         </div>
         <div>
-          <h3
-            className="text-lg font-bold group-hover:text-primary 
-              transition-colors"
-          >
+          <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
             {space.displayName}
           </h3>
-          <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
-            {space.description}
-          </p>
+          <p className="text-gray-500 text-sm line-clamp-2">{space.description}</p>
         </div>
       </div>
-      <div
-        className="flex items-center gap-4 pt-4 mt-6 border-t 
-          dark:border-gray-800"
-      >
-        <div
-          className="flex items-center gap-1.5 text-gray-500 text-xs 
-            font-semibold"
-        >
-          <Users className="size-4" /> {formatNumber(space.memberCount)}
-        </div>
-        <div
-          className="flex items-center gap-1.5 text-gray-500 text-xs 
-            font-semibold"
-        >
-          <MessageSquare className="size-4" /> {space.postCount}
+      <div className="flex items-center gap-4 pt-4 mt-6 border-t dark:border-gray-800">
+        <div className="flex items-center gap-1.5 text-gray-500 text-xs font-semibold">
+          <Users className="size-4" /> {formatNumber(Number(space.memberCount) || 0)}
         </div>
         <div className="ml-auto">
-          <Badge
-            variant="secondary"
-            size="sm"
-            className="text-[10px] uppercase tracking-wide"
-          >
+          <Badge variant="secondary" size="sm" className="text-[10px] uppercase">
             {space.category}
           </Badge>
         </div>
