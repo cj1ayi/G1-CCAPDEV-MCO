@@ -8,8 +8,7 @@ import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import { YourSpacesWidget } from '@/features/spaces/components'
 import { cn } from '@/lib/utils'
-import { useToast } from '@/hooks/useToast'
-import { Toast } from '@/components/ui/Toast'
+import { useToast } from '@/hooks/ToastContext'
 
 import { 
   Card, 
@@ -22,7 +21,7 @@ import {
 
 export default function CreatePostPage() {
   const navigate = useNavigate()
-  const { toasts, error: showError, warning: showWarning, removeToast } = useToast()
+  const { error: showError, warning: showWarning, success: showSuccess} = useToast()
 
   const [joinedSpaces, setJoinedSpaces] = useState<Space[]>([])
   const [isLoadingSpaces, setIsLoadingSpaces] = useState(true)
@@ -79,9 +78,9 @@ export default function CreatePostPage() {
         tags: formData.tags,
       })
       navigate(`/post/${newPost.id}`)
+      showSuccess('Successfuly created Post')
     } catch (error) {
-      console.error('Failed to create post:', error)
-      showError('Failed to create post. Please try again.')
+      showError((error as Error).message || 'Failed to create post. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -279,16 +278,6 @@ export default function CreatePostPage() {
           </form>
         </Card>
       </div>
-
-      {toasts.map(toast => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          duration={toast.duration}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
     </MainLayout>
   )
 }
