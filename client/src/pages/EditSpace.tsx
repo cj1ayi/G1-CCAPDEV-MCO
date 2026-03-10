@@ -5,7 +5,7 @@ import { SidebarNav } from '@/features/navigation/components'
 import { LoadingSpinner, ErrorState } from '@/components/shared'
 import { cn } from '@/lib/utils'
 import { useEditSpace } from '@/features/spaces/hooks/useEditSpace'
-import { EditSpaceForm } from '@/features/spaces/components/EditSpaceForm'
+import { SpaceForm } from '@/features/spaces/components'
 
 export default function EditSpace() {
   const { name } = useParams<{ name: string }>()
@@ -62,7 +62,8 @@ export default function EditSpace() {
           </p>
         </div>
 
-        <EditSpaceForm
+        <SpaceForm
+          mode="edit"
           space={space}
           formData={formData}
           errors={errors}
