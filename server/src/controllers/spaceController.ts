@@ -7,7 +7,6 @@ export const createSpace = async (req: Request, res: Response) => {
 
     const { name, displayName, description, category, icon, rules} = req.body;
 
-
     if (!rules || rules.length === 0) {
       return res.status(400).json({ message: 'At least one rule is required' })
     }
@@ -69,6 +68,9 @@ export const updateSpace = async (req: Request, res: Response) => {
     space.rules = rules ?? space.rules
 
     await space.save()
+    // Re-populate after save
+    await space.populate('owner', 'username name avatar');
+    
     res.json(space)
   } catch (error) {
     res.status(500).json({ message: (error as Error).message })
@@ -115,4 +117,3 @@ export const deleteSpace = async (req: Request, res: Response) => {
     res.status(500).json({ message: (error as Error).message })
   }
 }
-
