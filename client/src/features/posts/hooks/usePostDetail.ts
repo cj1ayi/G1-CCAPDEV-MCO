@@ -7,6 +7,7 @@ import { Post } from '../types'
 import { useVoting } from '@/features/votes/VotingContext'
 import { getCurrentUser } from '@/features/auth/services/authService'
 import { useLoadingBar } from '@/hooks'
+import { useToast } from '@/hooks/ToastContext'
 
 interface UsePostDetailOptions {
   postId: string | undefined
@@ -23,6 +24,7 @@ export const usePostDetail = ({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const { startLoading, stopLoading } = useLoadingBar()
   const { votes, toggleVote } = useVoting()
+  const { error: showError, success: showSuccess } = useToast()
 
   useEffect(() => {
     const loadPost = async () => {
@@ -70,9 +72,11 @@ export const usePostDetail = ({
     if (!post) return
     try {
       await postService.deletePost(post.id)
+      showSuccess('Post deleted successfully')
       navigate(backUrl)
     } catch (error) {
       console.error('Failed to delete post:', error)
+      showError('Failed to delete post. Please try again.')
     }
   }
 
