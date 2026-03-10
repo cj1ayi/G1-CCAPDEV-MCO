@@ -108,7 +108,8 @@ export const useEditSpace = (spaceName?: string): UseEditSpaceReturn => {
           return
         }
 
-        if (found.ownerId !== currentUser.id) {
+        const user = await getCurrentUser()
+        if (found.owner !== user?.id) {
           setAuthError('Only the space owner can edit this space')
           setIsLoading(false)
           return
