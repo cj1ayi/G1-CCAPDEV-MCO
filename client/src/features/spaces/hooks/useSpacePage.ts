@@ -1,12 +1,22 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { spaceService } from '../services/spaceService'
-import { SortOption } from '../types'
-import { Space } from '@/features/spaces/types'
+import { spaceService, Space, SortOption } from '../services'
+import { isSpaceOwner } from '../utils'
 import { Post } from '@/features/posts/types'
 import { useLoadingBar } from '@/hooks'
 import { useVoting } from '@/features/votes/VotingContext'
 import { useAuth } from '@/features/auth/hooks'
+
+// ─── Vote Delta Lookup ───────────────────────────────────────
+// Key: `${voteType}:${previousVote ?? 'null'}`
+const VOTE_DELTAS: Record<string, { up: number; down: number }> = {
+  'up:up':     { up: -1, down:  0 },
+  'up:down':   { up:  1, down: -1 },
+  'up:null':   { up:  1, down:  0 },
+  'down:down': { up:  0, down: -1 },
+  'down:up':   { up: -1, down:  1 },
+  'down:null': { up:  0, down:  1 },
+}
 
 export const useSpacePage = (spaceName?: string) => {
   const navigate = useNavigate()
@@ -22,9 +32,13 @@ export const useSpacePage = (spaceName?: string) => {
   const { votes, toggleVote } = useVoting()
 
   const loadPosts = async () => {
-    if (!spaceName) { setPosts([]); return }
+    if (!spaceName) { 
+      setPosts([]); 
+      return 
+    }
+
     try {
-      const spacePosts = await spaceService.getSpacePosts(spaceName, sortBy as any)
+      const spacePosts = await spaceService.getSpacePosts(spaceName, sortBy)
       setPosts(spacePosts)
     } catch (error) {
       console.error('Error loading posts:', error)
@@ -61,10 +75,19 @@ export const useSpacePage = (spaceName?: string) => {
 
   useEffect(() => {
     const loadPostsEffect = async () => {
-      if (!isLoading) { startLoading(); setIsLoadingPosts(true); setPosts([]) }
+      if (!isLoading) { 
+        startLoading(); 
+        setIsLoadingPosts(true); 
+        setPosts([]) 
+      }
+
       await loadPosts()
-      if (!isLoading) { setIsLoadingPosts(false); stopLoading() }
-    }
+
+      if (!isLoading) { 
+        setIsLoadingPosts(false); 
+        stopLoading() }
+      }
+
     loadPostsEffect()
   }, [spaceName, sortBy, isLoading])
 
@@ -86,39 +109,30 @@ export const useSpacePage = (spaceName?: string) => {
     if (!postId || votingPosts.has(postId)) return
 
     const previousVote = votes[`post:${postId}`] ?? null
-    setVotingPosts(prev => new Set(prev).add(postId))
+    setVotingPosts((prev) => new Set(prev).add(postId))
 
-    setPosts(prev => prev.map(post => {
-      if (post.id !== postId) return post
-      let { upvotes, downvotes } = post
-      if (voteType === 'up') {
-        if (previousVote === 'up') upvotes = Math.max(0, upvotes - 1)
-        else if (previousVote === 'down') { upvotes += 1; downvotes = Math.max(0, downvotes - 1) }
-        else upvotes += 1
-      } else {
-        if (previousVote === 'down') downvotes = Math.max(0, downvotes - 1)
-        else if (previousVote === 'up') { downvotes += 1; upvotes = Math.max(0, upvotes - 1) }
-        else downvotes += 1
-      }
-      return { ...post, upvotes, downvotes }
-    }))
+    setPosts((prev) =>
+      prev.map((post) => {
+        if (post.id !== postId) return post
+        const delta = VOTE_DELTAS[`${voteType}:${previousVote ?? 'null'}`]
+        return {
+          ...post,
+          upvotes: Math.max(0, post.upvotes + delta.up),
+          downvotes: Math.max(0, post.downvotes + delta.down),
+        }
+      })
+    )
 
     try {
       await toggleVote(postId, 'post', voteType)
     } finally {
-      setVotingPosts(prev => { const next = new Set(prev); next.delete(postId); return next })
+      setVotingPosts((prev) => { const next = new Set(prev); next.delete(postId); return next })
     }
   }
 
-  // Compute isOwner here using auth context — reliable, no async race
-  const isOwner = !!user && !!space && (() => {
-    const ownerId = typeof space.owner === 'object'
-      ? (space.owner as any).id
-      : space.owner
-    return user.id === ownerId
-  })()
+  const isOwner = !!user && !!space && isSpaceOwner(space, user.id)
 
-  const postsWithVotes = posts.map(post => ({
+  const postsWithVotes = posts.map((post) => ({
     ...post,
     isUpvoted: votes[`post:${post.id}`] === 'up',
     isDownvoted: votes[`post:${post.id}`] === 'down',
@@ -137,6 +151,6 @@ export const useSpacePage = (spaceName?: string) => {
     handleCreatePost,
     handleVote,
     votingPosts,
-    navigate
+    navigate,
   }
 }

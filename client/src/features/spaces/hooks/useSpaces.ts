@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { spaceService } from '../services/spaceService'
-import { Space } from '../types'
+import { spaceService, Space } from '../services'
 import { useLoadingBar } from '@/hooks'
 import { useToast } from '@/hooks/ToastContext'
 
@@ -40,20 +39,16 @@ export const useSpaces = () => {
   }
 
   const toggleJoin = async (id: string) => {
-    const space = spaces.find(s => s.id === id)
+    const space = spaces.find((s) => s.id === id)
     if (!space) return
 
     const newJoinStatus = !space.isJoined
-    setSpaces(prev =>
-      prev.map(s => s.id === id ? { ...s, isJoined: newJoinStatus } : s)
-    )
+    setSpaces((prev) => prev.map((s) => (s.id === id ? { ...s, isJoined: newJoinStatus } : s)))
 
     try {
       await spaceService.toggleJoin(id)
-    } catch (err) {
-      setSpaces(prev =>
-        prev.map(s => s.id === id ? { ...s, isJoined: space.isJoined } : s)
-      )
+    } catch {
+      setSpaces((prev) => prev.map((s) => (s.id === id ? { ...s, isJoined: space.isJoined } : s)))
       showError('Failed to update membership. Please try again.')
     }
   }
@@ -65,19 +60,13 @@ export const useSpaces = () => {
     let result = [...spaces]
 
     if (filter !== 'All Spaces') {
-      result = result.filter(s => s.category === filter)
+      result = result.filter((s) => s.category === filter)
     }
 
     result.sort((a, b) => {
       if (sortBy === 'A-Z') return a.displayName.localeCompare(b.displayName)
       if (sortBy === 'Z-A') return b.displayName.localeCompare(a.displayName)
-      if (sortBy === 'Members') {
-        const parseCount = (s: string) => {
-          const num = parseFloat(s)
-          return s.includes('k') ? num * 1000 : num
-        }
-        return parseCount(b.memberCount) - parseCount(a.memberCount)
-      }
+      if (sortBy === 'Members') return b.memberCount - a.memberCount
       return 0
     })
 
@@ -96,6 +85,6 @@ export const useSpaces = () => {
     toggleJoin,
     loadMore,
     goToSpace,
-    goToCreateSpace
+    goToCreateSpace,
   }
 }

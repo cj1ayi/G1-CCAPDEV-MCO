@@ -2,127 +2,120 @@ import React from 'react'
 import { Plus, Check, Users, MessageSquare, Settings, Trash2 } from 'lucide-react'
 import { Button, Badge } from '@/components/ui'
 import { cn, formatNumber } from '@/lib/utils'
-import { SpaceHeaderProps } from '../types'
-import { spaceService } from '../services/spaceService'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useToast } from '@/hooks/ToastContext'
+import { Space } from '../services'
+import { SpaceDeleteModal } from './SpaceDeleteModal'
+
+interface SpaceHeaderProps {
+  space: Space
+  isJoined: boolean
+  isOwner?: boolean
+  postCount: number
+  onToggleJoin: () => void
+  onEdit?: () => void
+  onDeleteClick?: () => void
+  deleteModal?: {
+    isOpen: boolean
+    isDeleting: boolean
+    onConfirm: () => void
+    onCancel: () => void
+  }
+}
 
 export const SpaceHeader = ({
   space,
   isJoined,
   isOwner = false,
-  onToggleJoin,
   postCount,
-}: SpaceHeaderProps & { isOwner?: boolean }) => {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const navigate = useNavigate()
-  const { error: showError } = useToast()
+  onToggleJoin,
+  onEdit,
+  onDeleteClick,
+  deleteModal,
+}: SpaceHeaderProps) => (
+  <div className="mb-6">
+    {space.bannerUrl && (
+      <div className={cn('relative h-32 md:h-48 rounded-lg', 'overflow-hidden mb-4')}>
+        <img src={space.bannerUrl} alt="" className="w-full h-full object-cover" />
+        <div className={cn('absolute inset-0 bg-gradient-to-t', 'from-black/60 to-transparent')} />
+      </div>
+    )}
 
-  const handleDelete = async () => {
-    setIsDeleting(true)
-    try {
-      await spaceService.deleteSpace(space.id)
-      navigate('/spaces')
-    } catch (error) {
-      showError('Failed to delete space. Please try again.')
-    } finally {
-      setIsDeleting(false)
-      setIsDeleteModalOpen(false)
-    }
-  }
-
-  return (
-    <div className="mb-6">
-      {space.bannerUrl && (
-        <div className={cn("relative h-32 md:h-48 rounded-lg", "overflow-hidden mb-4")}>
-          <img src={space.bannerUrl} alt="" className="w-full h-full object-cover" />
-          <div className={cn("absolute inset-0 bg-gradient-to-t", "from-black/60 to-transparent")} />
-        </div>
-      )}
-
-      <div className="flex items-start gap-4">
-        <div className={cn(
-          "size-16 md:size-20 rounded-xl flex",
-          "items-center justify-center text-white shadow-lg",
-          space.iconType === "text" && `bg-gradient-to-br ${space.colorScheme}`,
-        )}>
-          {space.iconType === "image" ? (
-            <img src={space.icon} className="size-full object-cover rounded-xl" alt="" />
-          ) : (
-            <span className="font-black text-3xl md:text-4xl">{space.icon}</span>
-          )}
-        </div>
-
-        <div className="flex-1">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className={cn("text-2xl md:text-3xl font-black mb-1", "dark:text-white")}>
-                {space.displayName}
-              </h1>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">r/{space.name}</p>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant={isJoined ? "secondary" : "primary"}
-                leftIcon={isJoined ? <Check className="size-4" /> : <Plus className="size-4" />}
-                onClick={onToggleJoin}
-              >
-                {isJoined ? "Joined" : "Join"}
-              </Button>
-
-              {isOwner && (
-                <>
-                  <Button
-                    variant="outline"
-                    leftIcon={<Settings className="size-4" />}
-                    onClick={() => navigate(`/r/${space.name}/edit`)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="danger"
-                    leftIcon={<Trash2 className="size-4" />}
-                    onClick={() => setIsDeleteModalOpen(true)}
-                  >
-                    Delete
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className={cn("flex items-center gap-6 mt-3", "text-gray-600 dark:text-gray-400")}>
-            <StatItem icon={<Users className="size-4" />} label={`${formatNumber(Number(space.memberCount))} members`} />
-            <StatItem icon={<MessageSquare className="size-4" />} label={`${postCount} posts`} />
-            <Badge variant="secondary" size="sm">{space.category}</Badge>
-          </div>
-        </div>
+    <div className="flex items-start gap-4">
+      <div
+        className={cn(
+          'size-16 md:size-20 rounded-xl flex',
+          'items-center justify-center text-white shadow-lg',
+          space.iconType === 'text' && `bg-gradient-to-br ${space.colorScheme}`
+        )}
+      >
+        {space.iconType === 'image' ? (
+          <img src={space.icon} className="size-full object-cover rounded-xl" alt="" />
+        ) : (
+          <span className="font-black text-3xl md:text-4xl">{space.icon}</span>
+        )}
       </div>
 
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className={cn("bg-white dark:bg-surface-dark rounded-xl shadow-xl", "p-6 max-w-md w-full mx-4")}>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Delete Space</h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">
-              Are you sure you want to delete <span className="font-semibold">r/{space.name}</span>? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)} disabled={isDeleting}>
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={handleDelete} isLoading={isDeleting} className="bg-red-500 hover:bg-red-600">
-                Delete Space
-              </Button>
-            </div>
+      <div className="flex-1">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className={cn('text-2xl md:text-3xl font-black mb-1', 'dark:text-white')}>
+              {space.displayName}
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">r/{space.name}</p>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant={isJoined ? 'secondary' : 'primary'}
+              leftIcon={isJoined ? <Check className="size-4" /> : <Plus className="size-4" />}
+              onClick={onToggleJoin}
+            >
+              {isJoined ? 'Joined' : 'Join'}
+            </Button>
+
+            {isOwner && (
+              <>
+                <Button
+                  variant="outline"
+                  leftIcon={<Settings className="size-4" />}
+                  onClick={onEdit}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="danger"
+                  leftIcon={<Trash2 className="size-4" />}
+                  onClick={onDeleteClick}
+                >
+                  Delete
+                </Button>
+              </>
+            )}
           </div>
         </div>
-      )}
+
+        <div className={cn('flex items-center gap-6 mt-3', 'text-gray-600 dark:text-gray-400')}>
+          <StatItem
+            icon={<Users className="size-4" />}
+            label={`${formatNumber(space.memberCount)} members`}
+          />
+          <StatItem icon={<MessageSquare className="size-4" />} label={`${postCount} posts`} />
+          <Badge variant="secondary" size="sm">
+            {space.category}
+          </Badge>
+        </div>
+      </div>
     </div>
-  )
-}
+
+    {deleteModal?.isOpen && (
+      <SpaceDeleteModal
+        spaceName={space.name}
+        isDeleting={deleteModal.isDeleting}
+        onConfirm={deleteModal.onConfirm}
+        onCancel={deleteModal.onCancel}
+      />
+    )}
+  </div>
+)
 
 const StatItem = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
   <div className="flex items-center gap-2">

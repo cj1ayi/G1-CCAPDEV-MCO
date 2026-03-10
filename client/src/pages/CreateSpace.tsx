@@ -6,7 +6,15 @@ import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const CreateSpace = () => {
-  const { handleCreate, isSubmitting, onCancel } = useCreateSpace()
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    onChange,
+    onRulesChange,
+    onSubmit,
+    onCancel,
+  } = useCreateSpace()
 
   return (
     <MainLayout maxWidth="max-w-3xl" leftSidebar={<SidebarNav />}>
@@ -25,9 +33,14 @@ const CreateSpace = () => {
         </div>
 
         <SpaceForm
-          onSubmit={handleCreate}
+          mode="create"
+          formData={formData}
+          errors={errors}
+          isSubmitting={isSubmitting}
+          onChange={onChange}
+          onRulesChange={onRulesChange}
+          onSubmit={onSubmit}
           onCancel={onCancel}
-          isLoading={isSubmitting}
         />
       </div>
     </MainLayout>

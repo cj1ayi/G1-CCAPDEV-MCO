@@ -1,62 +1,29 @@
 import { useState, useEffect, useCallback, FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { spaceService } from '../services/spaceService'
-import { Space, SpaceRule, EditSpaceFormData, EditSpaceFormErrors } from '../types'
 import { getCurrentUser } from '@/features/auth/services/authService'
+import { spaceService, Space, SpaceRule } from '../services'
+import { validateAllRules } from '../utils/spaceValidation'
 import { useToast } from '@/hooks/ToastContext'
+import { useNavigate } from 'react-router-dom'
 
-const DISPLAY_NAME_RE = /^[a-zA-Z0-9 -]+$/
+import { 
+  isSpaceOwner, 
+  validateField, 
+  validateSpaceForm, 
+  hasErrors as checkHasErrors, 
+  type FieldErrors 
+} from '../utils'
 
-interface UseEditSpaceReturn {
-  space: Space | null
-  formData: EditSpaceFormData
-  errors: EditSpaceFormErrors
-  isLoading: boolean
-  isSubmitting: boolean
-  authError: string | null
-  onChange: (data: EditSpaceFormData) => void
-  onBlur: (field: keyof EditSpaceFormData) => void
-  onRulesChange: (rules: SpaceRule[]) => void
-  onSubmit: (e: FormEvent) => Promise<void>
-  onCancel: () => void
+export interface EditSpaceFormData {
+  displayName: string
+  description: string
+  category: Space['category']
+  icon: string
+  rules: SpaceRule[]
 }
 
-const validateField = (field: keyof EditSpaceFormData, formData: EditSpaceFormData): string | undefined => {
-  switch (field) {
-    case 'displayName': {
-      const v = formData.displayName.trim()
-      if (!v) return 'Display name is required'
-      if (v.length < 3 || v.length > 50) return 'Must be 3–50 characters'
-      if (!DISPLAY_NAME_RE.test(v)) return 'Only letters, numbers, spaces and hyphens'
-      return undefined
-    }
-    case 'description': {
-      const v = formData.description.trim()
-      if (!v) return 'Description is required'
-      if (v.length < 10 || v.length > 500) return 'Must be 10–500 characters'
-      return undefined
-    }
-    case 'category':
-      return !formData.category ? 'Category is required' : undefined
-    case 'icon': {
-      const v = formData.icon.trim()
-      if (!v) return 'Icon is required'
-      if (v.length > 10) return 'Must be at most 10 characters'
-      return undefined
-    }
-    default:
-      return undefined
-  }
-}
+const EDIT_FIELDS = ['displayName', 'description', 'category', 'icon']
 
-const validateRules = (rules: SpaceRule[]): EditSpaceFormErrors['ruleErrors'] => {
-  return rules.map(rule => ({
-    title: !rule.title.trim() ? 'Title is required' : undefined,
-    description: !rule.description.trim() ? 'Description is required' : undefined,
-  }))
-}
-
-export const useEditSpace = (spaceName?: string): UseEditSpaceReturn => {
+export const useEditSpace = (spaceName?: string) => {
   const navigate = useNavigate()
   const { error: showError } = useToast()
 
@@ -74,8 +41,9 @@ export const useEditSpace = (spaceName?: string): UseEditSpaceReturn => {
   })
 
   const [touched, setTouched] = useState<Partial<Record<keyof EditSpaceFormData, boolean>>>({})
-  const [errors, setErrors] = useState<EditSpaceFormErrors>({})
+  const [errors, setErrors] = useState<FieldErrors>({})
 
+  // ─── Load space & authorize ────────────────────────────────
   useEffect(() => {
     const load = async () => {
       if (!spaceName) {
@@ -86,7 +54,7 @@ export const useEditSpace = (spaceName?: string): UseEditSpaceReturn => {
 
       try {
         const user = await getCurrentUser()
-        
+
         if (!user) {
           navigate(`/login?redirect=/r/${spaceName}/edit`)
           return
@@ -100,11 +68,8 @@ export const useEditSpace = (spaceName?: string): UseEditSpaceReturn => {
           return
         }
 
-        const ownerId = typeof found.owner === 'object'
-          ? (found.owner as any).id
-          : found.owner
-
-        if (ownerId !== user.id) {
+        // Uses shared helper instead of inline owner extraction
+        if (!isSpaceOwner(found, user.id)) {
           setAuthError('Only the space owner can edit this space')
           setIsLoading(false)
           return
@@ -116,7 +81,7 @@ export const useEditSpace = (spaceName?: string): UseEditSpaceReturn => {
           description: found.description,
           category: found.category,
           icon: found.icon,
-          rules: found.rules.map(r => ({ ...r })),
+          rules: found.rules.map((r) => ({ ...r })),
         })
       } catch {
         setAuthError('Failed to load space')
@@ -128,80 +93,90 @@ export const useEditSpace = (spaceName?: string): UseEditSpaceReturn => {
     load()
   }, [spaceName, navigate])
 
+  // ─── Live validation on touched fields ─────────────────────
   useEffect(() => {
-    const nextErrors: EditSpaceFormErrors = {}
+    const nextErrors: FieldErrors = {}
 
     for (const key of Object.keys(touched) as (keyof EditSpaceFormData)[]) {
-      if (!touched[key]) continue
-      if (key === 'rules') continue
-      const err = validateField(key, formData)
-      if (err) (nextErrors as Record<string, string>)[key] = err
+      if (!touched[key] || key === 'rules') continue
+      const err = validateField(key, formData[key] as string)
+      if (err) (nextErrors as any)[key] = err
     }
 
     if (touched.rules || formData.rules.length > 0) {
-      const ruleErrors = validateRules(formData.rules)
-      const hasRuleError = ruleErrors?.some(e => e.title || e.description)
-      if (hasRuleError) nextErrors.ruleErrors = ruleErrors
-      if (formData.rules.length < 1) nextErrors.rules = 'At least one rule is required'
+      Object.assign(nextErrors, validateAllRules(formData.rules))
     }
 
     setErrors(nextErrors)
   }, [formData, touched])
 
+  // ─── Handlers ──────────────────────────────────────────────
   const onChange = useCallback((data: EditSpaceFormData) => setFormData(data), [])
+
   const onBlur = useCallback((field: keyof EditSpaceFormData) => {
-    setTouched(prev => ({ ...prev, [field]: true }))
+    setTouched((prev) => ({ ...prev, [field]: true }))
   }, [])
+
   const onRulesChange = useCallback((rules: SpaceRule[]) => {
-    setFormData(prev => ({ ...prev, rules }))
-    setTouched(prev => ({ ...prev, rules: true }))
+    setFormData((prev) => ({ ...prev, rules }))
+    setTouched((prev) => ({ ...prev, rules: true }))
   }, [])
 
-  const onSubmit = useCallback(async (e: FormEvent): Promise<void> => {
-    e.preventDefault()
-    if (!space) return
+  const onSubmit = useCallback(
+    async (e: FormEvent): Promise<void> => {
+      e.preventDefault()
+      if (!space) return
 
-    setTouched({ displayName: true, description: true, category: true, icon: true, rules: true })
-
-    const nextErrors: EditSpaceFormErrors = {}
-    const fieldKeys: (keyof EditSpaceFormData)[] = ['displayName', 'description', 'category', 'icon']
-    for (const key of fieldKeys) {
-      const err = validateField(key, formData)
-      if (err) (nextErrors as Record<string, string>)[key] = err
-    }
-
-    const ruleErrors = validateRules(formData.rules)
-    const hasRuleError = ruleErrors?.some(e => e.title || e.description) ?? false
-    if (hasRuleError) nextErrors.ruleErrors = ruleErrors
-    if (formData.rules.length < 1) nextErrors.rules = 'At least one rule is required'
-
-    setErrors(nextErrors)
-
-    const hasErrors =
-      Object.keys(nextErrors).filter(k => k !== 'ruleErrors').length > 0 || hasRuleError
-    if (hasErrors) return
-
-    setIsSubmitting(true)
-    try {
-      await spaceService.updateSpace(space.id, {
-        displayName: formData.displayName,
-        description: formData.description,
-        category: formData.category,
-        icon: formData.icon,
-        rules: formData.rules,
+      // Touch all fields to surface any remaining errors
+      setTouched({ 
+        displayName: true, 
+        description: true, 
+        category: true, 
+        icon: true, 
+        rules: 
+          true 
       })
-      navigate(`/r/${space.name}`)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save changes'
-      showError(message)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [space, formData, navigate, showError])
+
+      const nextErrors = validateSpaceForm(formData, EDIT_FIELDS, formData.rules)
+      setErrors(nextErrors)
+
+      if (checkHasErrors(nextErrors)) return
+
+      setIsSubmitting(true)
+      try {
+        await spaceService.updateSpace(space.id, {
+          displayName: formData.displayName,
+          description: formData.description,
+          category: formData.category,
+          icon: formData.icon,
+          rules: formData.rules,
+        })
+        navigate(`/r/${space.name}`)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to save changes'
+        showError(message)
+      } finally {
+        setIsSubmitting(false)
+      }
+    },
+    [space, formData, navigate, showError]
+  )
 
   const onCancel = useCallback(() => {
     navigate(space ? `/r/${space.name}` : '/spaces')
   }, [space, navigate])
 
-  return { space, formData, errors, isLoading, isSubmitting, authError, onChange, onBlur, onRulesChange, onSubmit, onCancel }
+  return { 
+    space, 
+    formData, 
+    errors, 
+    isLoading, 
+    isSubmitting, 
+    authError, 
+    onChange, 
+    onBlur, 
+    onRulesChange, 
+    onSubmit, 
+    onCancel 
+  }
 }
