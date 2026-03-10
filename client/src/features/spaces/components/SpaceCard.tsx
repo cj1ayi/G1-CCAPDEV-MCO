@@ -1,7 +1,7 @@
-import { Space } from '../types'
+import { Space } from '../services'
 import { Card, Button, Badge } from '@/components/ui'
 import { Users, MessageSquare, Check } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, formatNumber } from '@/lib/utils'
 
 interface SpaceCardProps {
   space: Space
@@ -9,16 +9,8 @@ interface SpaceCardProps {
   onClick: (name: string) => void
 }
 
-export const SpaceCard = ({ 
-  space, 
-  onToggleJoin, 
-  onClick }: SpaceCardProps) => {
-
-  const isMaterialIcon = [
-    'menu_book', 
-    'sports_basketball', 
-    'terminal'
-  ].includes(space.icon)
+export const SpaceCard = ({ space, onToggleJoin, onClick }: SpaceCardProps) => {
+  const isMaterialIcon = ['menu_book', 'sports_basketball', 'terminal'].includes(space.icon)
 
   return (
     <Card
@@ -31,18 +23,14 @@ export const SpaceCard = ({
           <div className="relative">
             <div
               className={cn(
-                'size-14 rounded-xl flex items-center justify-center ' +
-                  'text-white shadow-inner overflow-hidden',
-                space.iconType === 'text' &&
+                'size-14 rounded-xl flex items-center justify-center',
+                'text-white shadow-inner overflow-hidden',
+                space.iconType === 'text' && 
                   `bg-gradient-to-br ${space.colorScheme}`
               )}
             >
               {space.iconType === 'image' ? (
-                <img
-                  src={space.icon}
-                  className="size-full object-cover"
-                  alt=""
-                />
+                <img src={space.icon} className="size-full object-cover" alt="" />
               ) : (
                 <span
                   className={cn(
@@ -59,19 +47,17 @@ export const SpaceCard = ({
               )}
             </div>
             {space.isActive && (
-              <div
-                className="absolute -bottom-1 -right-1 bg-green-500 size-4 
-                  border-2 border-white dark:border-surface-dark rounded-full"
-              />
+              <div className={cn(
+                "absolute -bottom-1 -right-1 bg-green-500 size-4 border-2",
+                "border-white dark:border-surface-dark rounded-full"
+                )}/>
             )}
           </div>
           <Button
             variant={space.isJoined ? 'secondary' : 'outline'}
             size="sm"
             className="font-bold"
-            leftIcon={
-              space.isJoined ? <Check className="size-4" /> : undefined
-            }
+            leftIcon={space.isJoined ? <Check className="size-4" /> : undefined}
             onClick={(e) => {
               e.stopPropagation()
               onToggleJoin(space.id)
@@ -81,10 +67,7 @@ export const SpaceCard = ({
           </Button>
         </div>
         <div>
-          <h3
-            className="text-lg font-bold group-hover:text-primary 
-              transition-colors"
-          >
+          <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
             {space.displayName}
           </h3>
           <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
@@ -92,28 +75,15 @@ export const SpaceCard = ({
           </p>
         </div>
       </div>
-      <div
-        className="flex items-center gap-4 pt-4 mt-6 border-t 
-          dark:border-gray-800"
-      >
-        <div
-          className="flex items-center gap-1.5 text-gray-500 text-xs 
-            font-semibold"
-        >
-          <Users className="size-4" /> {space.memberCount}
+      <div className="flex items-center gap-4 pt-4 mt-6 border-t dark:border-gray-800">
+        <div className="flex items-center gap-1.5 text-gray-500 text-xs font-semibold">
+          <Users className="size-4" /> {formatNumber(space.memberCount)}
         </div>
-        <div
-          className="flex items-center gap-1.5 text-gray-500 text-xs 
-            font-semibold"
-        >
+        <div className="flex items-center gap-1.5 text-gray-500 text-xs font-semibold">
           <MessageSquare className="size-4" /> {space.postCount}
         </div>
         <div className="ml-auto">
-          <Badge
-            variant="secondary"
-            size="sm"
-            className="text-[10px] uppercase tracking-wide"
-          >
+          <Badge variant="secondary" size="sm" className="text-[10px] uppercase tracking-wide">
             {space.category}
           </Badge>
         </div>

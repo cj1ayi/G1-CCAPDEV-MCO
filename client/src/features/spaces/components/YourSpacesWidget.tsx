@@ -1,9 +1,8 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { spaceService } from '../services/spaceService'
+import { spaceService, Space } from '../services'
 import { getCurrentUser } from '@/features/auth/services/authService'
-import { Space } from '../types'
 
 export const YourSpacesWidget = () => {
   const navigate = useNavigate()
@@ -19,7 +18,7 @@ export const YourSpacesWidget = () => {
       }
 
       const { data } = await spaceService.getSpaces(1)
-      const joined = data.filter(space => space.isJoined)
+      const joined = data.filter((space) => space.isJoined)
       setJoinedSpaces(joined)
     }
 
@@ -58,9 +57,7 @@ export const YourSpacesWidget = () => {
   return (
     <div className="space-y-4">
       <div className="px-4 flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">
-          Your Spaces
-        </h3>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Your Spaces</h3>
         <button
           onClick={() => navigate('/spaces')}
           className="text-xs font-bold text-primary hover:underline"
@@ -86,8 +83,8 @@ export const YourSpacesWidget = () => {
               )}
             >
               {space.iconType === 'image' ? (
-                <img 
-                  src={space.icon} 
+                <img
+                  src={space.icon}
                   alt={space.name}
                   className="w-8 h-8 rounded-lg object-cover"
                 />
@@ -106,9 +103,7 @@ export const YourSpacesWidget = () => {
               <span
                 className={cn(
                   'text-sm font-medium truncate group-hover:text-primary',
-                  isActive
-                    ? 'text-primary'
-                    : 'text-gray-700 dark:text-gray-300'
+                  isActive ? 'text-primary' : 'text-gray-700 dark:text-gray-300'
                 )}
               >
                 {space.displayName}
