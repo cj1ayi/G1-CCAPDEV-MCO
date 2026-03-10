@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { spaceService, Space, SortOption } from '../services'
 import { isSpaceOwner } from '../utils'
@@ -6,6 +6,7 @@ import { Post } from '@/features/posts/types'
 import { useLoadingBar } from '@/hooks'
 import { useVoting } from '@/features/votes/VotingContext'
 import { useAuth } from '@/features/auth/hooks'
+import { useToast } from '@/hooks/ToastContext'
 
 // ─── Vote Delta Lookup ───────────────────────────────────────
 // Key: `${voteType}:${previousVote ?? 'null'}`
@@ -21,22 +22,23 @@ const VOTE_DELTAS: Record<string, { up: number; down: number }> = {
 export const useSpacePage = (spaceName?: string) => {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { success: showSuccess, error: showError } = useToast()
+  
   const [space, setSpace] = useState<Space | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [sortBy, setSortBy] = useState<SortOption>('hot')
   const [isJoined, setIsJoined] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingPosts, setIsLoadingPosts] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [votingPosts, setVotingPosts] = useState<Set<string>>(new Set())
+  
   const { startLoading, stopLoading } = useLoadingBar()
   const { votes, toggleVote } = useVoting()
 
   const loadPosts = async () => {
-    if (!spaceName) { 
-      setPosts([]); 
-      return 
-    }
-
+    if (!spaceName) { setPosts([]); return }
     try {
       const spacePosts = await spaceService.getSpacePosts(spaceName, sortBy)
       setPosts(spacePosts)
@@ -49,10 +51,8 @@ export const useSpacePage = (spaceName?: string) => {
   useEffect(() => {
     const loadSpace = async () => {
       if (!spaceName) { setSpace(null); setIsLoading(false); stopLoading(); return }
-
       startLoading()
       setIsLoading(true)
-
       try {
         const foundSpace = await spaceService.getSpaceByName(spaceName)
         if (foundSpace) {
@@ -69,25 +69,15 @@ export const useSpacePage = (spaceName?: string) => {
         stopLoading()
       }
     }
-
     loadSpace()
   }, [spaceName, startLoading, stopLoading])
 
   useEffect(() => {
     const loadPostsEffect = async () => {
-      if (!isLoading) { 
-        startLoading(); 
-        setIsLoadingPosts(true); 
-        setPosts([]) 
-      }
-
+      if (!isLoading) { startLoading(); setIsLoadingPosts(true); setPosts([]) }
       await loadPosts()
-
-      if (!isLoading) { 
-        setIsLoadingPosts(false); 
-        stopLoading() }
-      }
-
+      if (!isLoading) { setIsLoadingPosts(false); stopLoading() }
+    }
     loadPostsEffect()
   }, [spaceName, sortBy, isLoading])
 
@@ -103,14 +93,27 @@ export const useSpacePage = (spaceName?: string) => {
     }
   }
 
+  const handleDeleteSpace = useCallback(async () => {
+    if (!space) return
+    setIsDeleting(true)
+    try {
+      await spaceService.deleteSpace(space.id)
+      showSuccess(`r/${space.name} has been deleted`)
+      navigate('/spaces')
+    } catch (err) {
+      showError('Failed to delete space. Please try again.')
+    } finally {
+      setIsDeleting(false)
+      setIsDeleteModalOpen(false)
+    }
+  }, [space, navigate, showSuccess, showError])
+
   const handleCreatePost = () => navigate('/post/create')
 
   const handleVote = async (postId: string, voteType: 'up' | 'down') => {
     if (!postId || votingPosts.has(postId)) return
-
     const previousVote = votes[`post:${postId}`] ?? null
     setVotingPosts((prev) => new Set(prev).add(postId))
-
     setPosts((prev) =>
       prev.map((post) => {
         if (post.id !== postId) return post
@@ -122,7 +125,6 @@ export const useSpacePage = (spaceName?: string) => {
         }
       })
     )
-
     try {
       await toggleVote(postId, 'post', voteType)
     } finally {
@@ -147,10 +149,15 @@ export const useSpacePage = (spaceName?: string) => {
     isOwner,
     isLoading,
     isLoadingPosts,
+    isDeleting,
+    isDeleteModalOpen,
+    setIsDeleteModalOpen,
     toggleJoin,
+    handleDeleteSpace,
     handleCreatePost,
     handleVote,
     votingPosts,
     navigate,
   }
 }
+
