@@ -44,18 +44,43 @@ export const createPost = async (req: Request, res: Response) => {
 export const getPosts = async (req: Request, res: Response) => {
   try {
     const { space, sort } = req.query;
+
+    // ── ADDED: pagination params ───────────────────────────────────────
+    const limit = Math.min(parseInt(req.query.limit as string) || 15, 100);
+    const offset = Math.max(parseInt(req.query.offset as string) || 0, 0);
+    // ──────────────────────────────────────────────────────────────────
+
     const query = space ? { space: space as string } : {};
 
-    let postsQuery = Post.find(query).populate('author', 'username avatar');
-
+    let sortOption: Record<string, 1 | -1>;
     if (sort === 'new') {
-      postsQuery = postsQuery.sort({ createdAt: -1 });
+      sortOption = { createdAt: -1 };
+    } else if (sort === 'top') {
+      sortOption = { upvotes: -1 };
     } else {
-      postsQuery = postsQuery.sort({ upvotes: -1 });
+      sortOption = { upvotes: -1, downvotes: 1 };
     }
 
-    const results = await postsQuery;
-    res.json(results.map(formatPost));
+    // ── ADDED: count + paginated fetch in parallel ─────────────────────
+    const [total, results] = await Promise.all([
+      Post.countDocuments(query),
+      Post.find(query)
+        .sort(sortOption)
+        .skip(offset)
+        .limit(limit)
+        .populate('author', 'username avatar'),
+    ]);
+
+    res.json({
+      data: results.map(formatPost),
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total,
+      },
+    });
+    // ──────────────────────────────────────────────────────────────────
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }
