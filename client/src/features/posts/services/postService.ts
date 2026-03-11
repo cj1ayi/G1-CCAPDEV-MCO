@@ -19,11 +19,23 @@ export interface UpdatePostDto {
   tags?: string[]
 }
 
+// ADDED: pagination types
+export interface PaginationParams {
+  limit?: number
+  offset?: number
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: {
+    total: number
+    limit: number
+    offset: number
+    hasMore: boolean
+  }
+}
+
 class PostService {
-  /**
-   * Map the backend author object (always populated via .populate())
-   * into the frontend Post shape. No mock fallback needed.
-   */
   private populateAuthor(post: StoredPost): Post {
     const backendAuthor = (post as any).author
 
@@ -39,7 +51,6 @@ class PostService {
       }
     }
 
-    // Author field missing — post may be from a deleted user
     return {
       ...post,
       author: {
@@ -55,7 +66,6 @@ class PostService {
     const currentUser = await getAuthUser()
     if (!currentUser || !post?.author) return { ...post, isOwner: false }
 
-    // Compare against both id formats
     const isOwner =
       currentUser.id === post.author.id ||
       currentUser.id === post.authorId
@@ -79,7 +89,7 @@ class PostService {
     return {
       ...converted,
       authorId: converted.authorId,
-      author: post.author // preserve populated author from backend
+      author: post.author
     }
   }
 
@@ -121,14 +131,27 @@ class PostService {
     }
   }
 
-  async getSortedPosts(sortBy: string): Promise<Post[]> {
+  // ADDED: optional pagination params, returns paginated envelope when provided
+  async getSortedPosts(sortBy: string, params?: PaginationParams): Promise<Post[] | PaginatedResponse<Post>> {
     try {
-      const response = await fetch(`${API_BASE_URL}/posts?sort=${sortBy}`)
+      const qs = new URLSearchParams({ sort: sortBy })
+      if (params?.limit  != null) qs.set('limit',  String(params.limit))
+      if (params?.offset != null) qs.set('offset', String(params.offset))
+
+      const response = await fetch(`${API_BASE_URL}/posts?${qs}`)
       const data = await response.json()
-      return this.applyPopulation(data.map(this.mapPost))
+
+      // Paginated envelope from backend
+      if (data && !Array.isArray(data) && data.data) {
+        const posts = await this.applyPopulation(data.data.map((p: any) => this.mapPost(p)))
+        return { data: posts, pagination: data.pagination }
+      }
+
+      // Fallback: raw array (shouldn't happen with new controller, but safe)
+      return this.applyPopulation(data.map((p: any) => this.mapPost(p)))
     } catch (err) {
       console.error('Failed to fetch sorted posts:', err)
-      return []
+      return params ? { data: [], pagination: { total: 0, limit: params.limit ?? 15, offset: params.offset ?? 0, hasMore: false } } : []
     }
   }
 
