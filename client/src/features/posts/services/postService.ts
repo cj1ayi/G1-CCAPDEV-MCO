@@ -97,7 +97,9 @@ class PostService {
     try {
       const response = await fetch(`${API_BASE_URL}/posts`)
       const data = await response.json()
-      return this.applyPopulation(data.map(this.mapPost))
+      const posts = Array.isArray(data) ? data : data.data ?? []
+
+      return this.applyPopulation(posts.map(this.mapPost))
     } catch (err) {
       console.error('Failed to fetch posts:', err)
       return []
