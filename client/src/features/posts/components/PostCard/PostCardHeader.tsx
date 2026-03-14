@@ -1,6 +1,3 @@
-// PostCardHeader with formatted dates
-// Location: client/src/features/posts/components/PostCardHeader.tsx
-
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react'
 import { Dropdown, DropdownItem, DropdownSeparator } from '@/components/ui'
 import { cn } from '@/lib/utils'
@@ -19,17 +16,20 @@ export const PostCardHeader = ({
   onDelete,
 }: PostCardHeaderProps) => {
   return (
-    <div className={cn("flex items-center justify-between gap-2 mb-2")}>
-      <div className={cn(
-        "flex items-center gap-2 text-xs",
-        "text-gray-500 dark:text-gray-400"
-      )}>
+    <div className="flex items-start justify-between gap-2 mb-2">
+      {/* Metadata row — wraps on mobile, stays single line on wider screens */}
+      <div
+        className={cn(
+          'flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-xs',
+          'text-gray-500 dark:text-gray-400 min-w-0',
+        )}
+      >
         {/* Space */}
-        <div
+        <span
           className={cn(
-            "flex items-center gap-1 font-semibold",
-            "text-gray-900 dark:text-gray-200",
-            "hover:underline cursor-pointer"
+            'font-semibold whitespace-nowrap',
+            'text-gray-900 dark:text-gray-200',
+            'hover:underline cursor-pointer',
           )}
           onClick={(e) => {
             e.stopPropagation()
@@ -38,17 +38,23 @@ export const PostCardHeader = ({
         >
           {spaceIcon && (
             <img
-              className="w-5 h-5 rounded-full object-cover"
+              className="inline w-4 h-4 rounded-full object-cover mr-1 -mt-0.5"
               src={spaceIcon}
               alt={space}
             />
           )}
-          <span>r/{space}</span>
-        </div>
+          r/{space}
+        </span>
+
         <span>•</span>
-        <span>Posted by</span>
+        <span className="whitespace-nowrap">Posted by</span>
+
+        {/* Author */}
         <span
-          className="hover:underline cursor-pointer font-semibold"
+          className={cn(
+            'font-semibold whitespace-nowrap',
+            'hover:underline cursor-pointer',
+          )}
           onClick={(e) => {
             e.stopPropagation()
             window.location.href = `/profile/${author.username}`
@@ -56,16 +62,19 @@ export const PostCardHeader = ({
         >
           u/{author.username}
         </span>
+
         <span>•</span>
-        <span>{formatTimeAgo(createdAt)}</span>
+
+        {/* Time — whitespace-nowrap keeps "1 minute ago" together */}
+        <span className="whitespace-nowrap">{formatTimeAgo(createdAt)}</span>
 
         {/* Flair */}
         {flair && (
           <span
             className={cn(
-              "px-2 py-0.5 rounded-full",
-              "text-[10px] font-bold tracking-wide uppercase",
-              FLAIR_COLORS[flair]
+              'px-2 py-0.5 rounded-full whitespace-nowrap',
+              'text-[10px] font-bold tracking-wide uppercase',
+              FLAIR_COLORS[flair],
             )}
           >
             {flair}
@@ -73,10 +82,10 @@ export const PostCardHeader = ({
         )}
       </div>
 
-      {/* Edit/Delete Menu (only for owner) */}
+      {/* Owner menu */}
       {isOwner && (
         <div
-          className="relative z-20"
+          className="relative z-20 shrink-0"
           onClick={(e) => e.stopPropagation()}
         >
           <Dropdown
@@ -84,9 +93,9 @@ export const PostCardHeader = ({
             trigger={
               <button
                 className={cn(
-                  "p-1.5 rounded-full hover:bg-gray-100",
-                  "dark:hover:bg-gray-800 text-gray-500",
-                  "dark:text-gray-400 transition-colors"
+                  'p-1.5 rounded-full hover:bg-gray-100',
+                  'dark:hover:bg-gray-800 text-gray-500',
+                  'dark:text-gray-400 transition-colors',
                 )}
                 aria-label="Post options"
               >
@@ -103,9 +112,7 @@ export const PostCardHeader = ({
             >
               Edit Post
             </DropdownItem>
-
             <DropdownSeparator />
-
             <DropdownItem
               icon={<Trash2 className="h-4 w-4" />}
               destructive
