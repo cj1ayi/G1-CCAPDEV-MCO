@@ -4,13 +4,14 @@ import { spaceService, Space, SpaceRule } from '../services'
 import { validateAllRules } from '../utils/spaceValidation'
 import { useToast } from '@/hooks/ToastContext'
 import { useNavigate } from 'react-router-dom'
+import { validateIcon } from '../utils'
 
-import { 
-  isSpaceOwner, 
-  validateField, 
-  validateSpaceForm, 
-  hasErrors as checkHasErrors, 
-  type FieldErrors 
+import {
+  isSpaceOwner,
+  validateField,
+  validateSpaceForm,
+  hasErrors as checkHasErrors,
+  type FieldErrors,
 } from '../utils'
 
 export interface EditSpaceFormData {
@@ -18,6 +19,7 @@ export interface EditSpaceFormData {
   description: string
   category: Space['category']
   icon: string
+  iconType: 'text' | 'image'
   rules: SpaceRule[]
 }
 
@@ -37,13 +39,13 @@ export const useEditSpace = (spaceName?: string) => {
     description: '',
     category: 'Interest',
     icon: '',
+    iconType: 'text',
     rules: [],
   })
 
   const [touched, setTouched] = useState<Partial<Record<keyof EditSpaceFormData, boolean>>>({})
   const [errors, setErrors] = useState<FieldErrors>({})
 
-  // ─── Load space & authorize ────────────────────────────────
   useEffect(() => {
     const load = async () => {
       if (!spaceName) {
@@ -68,7 +70,6 @@ export const useEditSpace = (spaceName?: string) => {
           return
         }
 
-        // Uses shared helper instead of inline owner extraction
         if (!isSpaceOwner(found, user.id)) {
           setAuthError('Only the space owner can edit this space')
           setIsLoading(false)
@@ -81,6 +82,8 @@ export const useEditSpace = (spaceName?: string) => {
           description: found.description,
           category: found.category,
           icon: found.icon,
+          // Detect iconType from existing icon value
+          iconType: found.icon?.startsWith('http') ? 'image' : 'text',
           rules: found.rules.map((r) => ({ ...r })),
         })
       } catch {
@@ -93,12 +96,16 @@ export const useEditSpace = (spaceName?: string) => {
     load()
   }, [spaceName, navigate])
 
-  // ─── Live validation on touched fields ─────────────────────
   useEffect(() => {
     const nextErrors: FieldErrors = {}
 
     for (const key of Object.keys(touched) as (keyof EditSpaceFormData)[]) {
-      if (!touched[key] || key === 'rules') continue
+      if (!touched[key] || key === 'rules' || key === 'iconType') continue
+      if (key === 'icon') {
+        const err = validateIcon(formData.icon, formData.iconType)
+        if (err) nextErrors.icon = err
+        continue
+      }
       const err = validateField(key, formData[key] as string)
       if (err) (nextErrors as any)[key] = err
     }
@@ -110,7 +117,6 @@ export const useEditSpace = (spaceName?: string) => {
     setErrors(nextErrors)
   }, [formData, touched])
 
-  // ─── Handlers ──────────────────────────────────────────────
   const onChange = useCallback((data: EditSpaceFormData) => setFormData(data), [])
 
   const onBlur = useCallback((field: keyof EditSpaceFormData) => {
@@ -127,15 +133,7 @@ export const useEditSpace = (spaceName?: string) => {
       e.preventDefault()
       if (!space) return
 
-      // Touch all fields to surface any remaining errors
-      setTouched({ 
-        displayName: true, 
-        description: true, 
-        category: true, 
-        icon: true, 
-        rules: 
-          true 
-      })
+      setTouched({ displayName: true, description: true, category: true, icon: true, rules: true })
 
       const nextErrors = validateSpaceForm(formData, EDIT_FIELDS, formData.rules)
       setErrors(nextErrors)
@@ -166,17 +164,17 @@ export const useEditSpace = (spaceName?: string) => {
     navigate(space ? `/r/${space.name}` : '/spaces')
   }, [space, navigate])
 
-  return { 
-    space, 
-    formData, 
-    errors, 
-    isLoading, 
-    isSubmitting, 
-    authError, 
-    onChange, 
-    onBlur, 
-    onRulesChange, 
-    onSubmit, 
-    onCancel 
+  return {
+    space,
+    formData,
+    errors,
+    isLoading,
+    isSubmitting,
+    authError,
+    onChange,
+    onBlur,
+    onRulesChange,
+    onSubmit,
+    onCancel,
   }
 }
