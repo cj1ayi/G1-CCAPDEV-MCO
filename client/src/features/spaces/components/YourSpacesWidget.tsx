@@ -10,42 +10,64 @@ export const YourSpacesWidget = () => {
   const [joinedSpaces, setJoinedSpaces] = useState<Space[]>([])
 
   useEffect(() => {
+    let cancelled = false
     const load = async () => {
       const user = await getCurrentUser()
-      if (!user) return
+      if (!user || cancelled) return
       const { data } = await spaceService.getSpaces(1)
-      setJoinedSpaces(data.filter(s => s.isJoined) || [])
+      if (!cancelled) setJoinedSpaces(data.filter(s => s.isJoined) || [])
     }
     load()
+    return () => { cancelled = true }
   }, [])
 
   if (joinedSpaces.length === 0) return null
 
   return (
     <div className="space-y-4">
-      <h3 className="px-4 text-xs font-bold uppercase text-gray-500">Your Spaces</h3>
+      <h3 className="px-4 text-xs font-bold uppercase text-gray-500">
+        Your Spaces
+      </h3>
       <div className="space-y-1">
-        {joinedSpaces.map((space) => (
-          <button
-            key={space.id}
-            onClick={() => navigate(`/r/${space.name}`)}
-            className={cn(
-              'w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors group',
-              location.pathname === `/r/${space.name}` ? 'bg-gray-100 dark:bg-surface-darker' : 'hover:bg-gray-100'
-            )}
-          >
-            <div className={cn(
-              'w-8 h-8 rounded-lg flex items-center justify-center px-0.5 font-bold text-white overflow-hidden',
-              space.colorScheme || 'from-primary to-primary-dark',
-              (space.icon || '').length <= 2 ? 'text-xs' : 'text-[8px]'
-            )}>
-              <span className="text-center leading-none break-all">{space.icon || ''}</span>
-            </div>
-            <span className="text-sm font-medium truncate group-hover:text-primary">
-              {space.displayName}
-            </span>
-          </button>
-        ))}
+        {joinedSpaces.map((space) => {
+          const isActive = location.pathname === `/r/${space.name}`
+          return (
+            <button
+              key={space.id}
+              onClick={() => navigate(`/r/${space.name}`)}
+              className={cn(
+                'w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors group',
+                isActive
+                  ? 'bg-primary/10 dark:bg-primary/20'
+                  : 'hover:bg-gray-100 dark:hover:bg-surface-darker',
+              )}
+            >
+              <div
+                className={cn(
+                  'w-8 h-8 rounded-lg flex items-center justify-center px-0.5',
+                  'font-bold text-white overflow-hidden shrink-0',
+                  'bg-gradient-to-br',
+                  space.colorScheme || 'from-primary to-primary-dark',
+                  (space.icon || '').length <= 2 ? 'text-xs' : 'text-[8px]',
+                )}
+              >
+                <span className="text-center leading-none break-all">
+                  {space.icon || ''}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  'text-sm font-medium truncate',
+                  isActive
+                    ? 'text-primary'
+                    : 'group-hover:text-primary',
+                )}
+              >
+                {space.displayName}
+              </span>
+            </button>
+          )
+        })}
       </div>
     </div>
   )
