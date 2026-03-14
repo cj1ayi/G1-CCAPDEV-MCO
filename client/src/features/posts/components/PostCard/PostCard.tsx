@@ -32,9 +32,9 @@ const PostCard = ({
     <Card
       padding="none"
       className={cn(
-        "overflow-hidden",
-        "hover:border-gray-300 dark:hover:border-gray-700",
-        "transition-colors"
+        'overflow-hidden',
+        'hover:border-gray-300 dark:hover:border-gray-700',
+        'transition-colors',
       )}
     >
       <div className="flex">
@@ -48,12 +48,11 @@ const PostCard = ({
           onDownvote={onDownvote}
         />
 
-        {/* Content Column */}
+        {/* Content Column — min-w-0 prevents flex child from overflowing */}
         <div
-          className="flex-1 p-4 cursor-pointer"
+          className="flex-1 min-w-0 p-4 cursor-pointer"
           onClick={onClick}
         >
-          {/* Header */}
           <PostCardHeader
             space={space}
             spaceIcon={spaceIcon}
@@ -64,15 +63,11 @@ const PostCard = ({
             onEdit={onEdit}
             onDelete={onDelete}
           />
-
-          {/* Content */}
           <PostCardContent
             title={title}
             content={content}
             imageUrl={imageUrl}
           />
-
-          {/* Actions */}
           <PostActions
             postId={id}
             commentCount={commentCount}
