@@ -297,52 +297,6 @@ export const Header = ({
               </>
             )}
 
-            {/* Notifications */}
-            {variant !== 'landing' && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative !px-2"
-                aria-label={`Notifications${notifCount > 0 ? ` (${notifCount})` : ''}`}
-              >
-                <Bell className="h-5 w-5" />
-                {notifCount > 0 && (
-                  <span
-                    className={cn(
-                      'absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]',
-                      'px-1 flex items-center justify-center bg-red-500',
-                      'text-white text-xs font-bold rounded-full',
-                    )}
-                  >
-                    {notifCount > 99 ? '99+' : notifCount}
-                  </span>
-                )}
-              </Button>
-            )}
-
-            {/* Messages — hidden on smallest screens to reduce clutter */}
-            {variant !== 'landing' && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative !px-2 hidden xs:inline-flex"
-                aria-label={`Messages${messageCount > 0 ? ` (${messageCount})` : ''}`}
-              >
-                <MessageSquare className="h-5 w-5" />
-                {messageCount > 0 && (
-                  <span
-                    className={cn(
-                      'absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]',
-                      'px-1 flex items-center justify-center bg-red-500',
-                      'text-white text-xs font-bold rounded-full',
-                    )}
-                  >
-                    {messageCount > 99 ? '99+' : messageCount}
-                  </span>
-                )}
-              </Button>
-            )}
-
             {/* User Avatar with Dropdown */}
             {variant !== 'landing' && (
               <div className="ml-1">
