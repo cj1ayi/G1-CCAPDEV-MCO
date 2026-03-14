@@ -14,6 +14,7 @@ import commentRoutes from './routes/commentRoutes.js';
 import spaceRoutes from './routes/spaceRoutes.js';
 import voteRoutes from './routes/voteRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import statsRoutes from './routes/statsRoutes.js';
 
 dotenv.config();
 
@@ -55,6 +56,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/spaces', spaceRoutes);
 app.use('/api/votes', voteRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/stats', statsRoutes);
 
 const PORT = process.env.PORT || 3000;
 
