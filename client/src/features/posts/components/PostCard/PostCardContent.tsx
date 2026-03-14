@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import type { PostCardContentProps } from './types'
+import  { PostImage } from '../PostImage'
 
 export const PostCardContent = ({
   title,
@@ -30,21 +31,13 @@ export const PostCardContent = ({
         </div>
       )}
 
-      {imageUrl && (
-        <div
-          className={cn(
-            'w-full rounded-lg overflow-hidden',
-            'bg-gray-100 dark:bg-black mb-3',
-            'border border-gray-200 dark:border-gray-800',
-          )}
-        >
-          <img
-            src={imageUrl}
-            alt={title}
-            className="w-full h-auto object-cover max-h-96"
-          />
-        </div>
-      )}
+      {imageUrl && 
+        <PostImage 
+          src={imageUrl} 
+          alt={title} 
+          maxHeight="max-h-96" 
+        />
+      }
     </>
   )
 }
