@@ -22,11 +22,14 @@ export const mapApiSpace = (
 ): Space => {
   const converted = convertObjectId(raw)
   const members: any[] = converted.members ?? []
+  const icon = converted.icon ?? ''
 
   return {
     ...converted,
     owner: converted.owner,
     memberCount: members.length,
+    icon,
+    iconType: icon.startsWith('http') ? 'image' : 'text',
     isJoined: currentUser
       ? members.some((m: any) => resolveId(m) === currentUser.id)
       : false,

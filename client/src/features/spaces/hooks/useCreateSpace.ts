@@ -14,6 +14,7 @@ export interface CreateSpaceFormData {
   description: string
   category: CreateSpaceDto['category']
   icon: string
+  iconType: 'text' | 'image'
   rules: SpaceRule[]
 }
 
@@ -23,6 +24,7 @@ const INITIAL_DATA: CreateSpaceFormData = {
   description: '',
   category: 'Interest',
   icon: '',
+  iconType: 'text',
   rules: [],
 }
 
@@ -56,7 +58,7 @@ export const useCreateSpace = () => {
 
       setIsSubmitting(true)
       try {
-        const { rules, ...dto } = formData
+        const { rules, iconType, ...dto } = formData
         const newSpace = await spaceService.createSpace({ ...dto, rules })
         navigate(`/r/${newSpace.name}`)
       } catch (error) {

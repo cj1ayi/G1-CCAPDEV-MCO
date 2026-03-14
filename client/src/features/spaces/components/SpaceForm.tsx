@@ -12,6 +12,7 @@ export interface SpaceFormData {
   description: string
   category: Space['category']
   icon: string
+  iconType: 'text' | 'image'
   rules: SpaceRule[]
 }
 
@@ -21,8 +22,8 @@ interface SpaceFormProps {
   formData: SpaceFormData
   errors: FieldErrors
   isSubmitting: boolean
-  onChange: (data: any) => void
-  onBlur?: (field: any) => void
+  onChange: (data: SpaceFormData) => void
+  onBlur?: (field: keyof SpaceFormData) => void
   onRulesChange: (rules: SpaceRule[]) => void
   onSubmit: (e: FormEvent) => void
   onCancel: () => void
@@ -41,10 +42,7 @@ export const SpaceForm = ({
   onCancel,
 }: SpaceFormProps) => {
   const isEdit = mode === 'edit'
-
-  const handleBlur = (field: keyof SpaceFormData) => {
-    onBlur?.(field)
-  }
+  const handleBlur = (field: keyof SpaceFormData) => onBlur?.(field)
 
   return (
     <form onSubmit={onSubmit} className="space-y-6" noValidate>
@@ -64,9 +62,7 @@ export const SpaceForm = ({
             </div>
             <div>
               <span className="block text-gray-500 mb-1">Members</span>
-              <span className="font-semibold dark:text-white">
-                {formatNumber(space.memberCount)}
-              </span>
+              <span className="font-semibold dark:text-white">{formatNumber(space.memberCount)}</span>
             </div>
           </div>
         </Card>
@@ -122,17 +118,61 @@ export const SpaceForm = ({
           onBlur={() => handleBlur('category')}
         />
 
-        <Input
-          label="Icon"
-          placeholder={isEdit ? 'e.g. CS' : 'e.g. AD'}
-          maxLength={10}
-          value={formData.icon}
-          required
-          error={errors.icon}
-          helperText="Up to 10 characters shown as the space icon."
-          onChange={(e) => onChange({ ...formData, icon: e.target.value })}
-          onBlur={() => handleBlur('icon')}
-        />
+        {/* Icon field with text/image toggle */}
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Icon <span className="text-red-500">*</span>
+          </label>
+
+          <div className="flex gap-2 mb-3">
+            <Button
+              type="button"
+              variant={formData.iconType !== 'image' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => onChange({ ...formData, iconType: 'text', icon: '' })}
+            >
+              Text
+            </Button>
+            <Button
+              type="button"
+              variant={formData.iconType === 'image' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => onChange({ ...formData, iconType: 'image', icon: '' })}
+            >
+              Image URL
+            </Button>
+          </div>
+
+          {formData.iconType === 'image' ? (
+            <div className="space-y-2">
+              <Input
+                placeholder="https://example.com/icon.png"
+                value={formData.icon}
+                error={errors.icon}
+                onChange={(e) => onChange({ ...formData, icon: e.target.value })}
+                onBlur={() => handleBlur('icon')}
+              />
+              {formData.icon && (
+                <img
+                  src={formData.icon}
+                  alt="Icon preview"
+                  className="size-16 rounded-xl object-cover border border-gray-200 dark:border-gray-700"
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                />
+              )}
+            </div>
+          ) : (
+            <Input
+              placeholder={isEdit ? 'e.g. CS' : 'e.g. AD'}
+              maxLength={10}
+              value={formData.icon}
+              error={errors.icon}
+              helperText="Up to 10 characters shown as the space icon."
+              onChange={(e) => onChange({ ...formData, icon: e.target.value })}
+              onBlur={() => handleBlur('icon')}
+            />
+          )}
+        </div>
       </Card>
 
       <Card className="p-6">
