@@ -44,16 +44,25 @@ export const YourSpacesWidget = () => {
             >
               <div
                 className={cn(
-                  'w-8 h-8 rounded-lg flex items-center justify-center px-0.5',
+                  'w-8 h-8 rounded-lg flex items-center justify-center',
                   'font-bold text-white overflow-hidden shrink-0',
-                  'bg-gradient-to-br',
-                  space.colorScheme || 'from-primary to-primary-dark',
-                  (space.icon || '').length <= 2 ? 'text-xs' : 'text-[8px]',
+                  space.iconType !== 'image' && cn('bg-gradient-to-br', space.colorScheme || 'from-primary to-primary-dark'),
                 )}
               >
-                <span className="text-center leading-none break-all">
-                  {space.icon || ''}
-                </span>
+                {space.iconType === 'image' ? (
+                  <img
+                    src={space.icon}
+                    alt={space.displayName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className={cn(
+                    'text-center leading-none break-all px-0.5',
+                    (space.icon || '').length <= 2 ? 'text-xs' : 'text-[8px]',
+                  )}>
+                    {space.icon || ''}
+                  </span>
+                )}
               </div>
               <span
                 className={cn(
