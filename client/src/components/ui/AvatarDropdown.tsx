@@ -92,15 +92,6 @@ export const AvatarDropdown = ({
       >
         Log Out
       </DropdownItem>
-
-      <DropdownSeparator />
-
-      <DropdownItem
-        icon={<Settings className="h-4 w-4" />}
-        onClick={() => navigate('/settings')}
-      >
-        Settings
-      </DropdownItem>
     </Dropdown>
   )
 }
