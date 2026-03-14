@@ -16,8 +16,8 @@ export const Stats = () => {
         {/* Card Box */}
         <motion.div 
           className={cn(
-            "bg-white dark:bg-[#1a1a1a] rounded-xl shadow-lg border",
-            "border-gray-100 dark:border-white/5 p-6 md:p-8")}
+            "bg-white dark:bg-surface-dark rounded-xl shadow-lg border",
+            "border-gray-100 dark:border-border-dark p-6 md:p-8")}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
