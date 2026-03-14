@@ -17,7 +17,6 @@ import {
 } from 'lucide-react'
 
 import { useNavigate } from 'react-router-dom'
-import { cn } from '@/lib/utils'
 
 export const ProfileHeader = ({
   user,
@@ -34,24 +33,27 @@ export const ProfileHeader = ({
     <section>
       <div className="border-b border-gray-200 dark:border-gray-800 px-4 md:px-8 py-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            {/* Left: Avatar + name */}
+            <div className="flex items-center gap-3 min-w-0">
               <Avatar
                 src={user.avatar}
                 name={user.name}
                 size="2xl"
+                className="shrink-0"
               />
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              <div className="min-w-0">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white truncate">
                   {user.name}
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                   u/{user.username}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            {/* Right: Action buttons */}
+            <div className="flex items-center gap-2 shrink-0">
               {isOwnProfile ? (
                 <>
                   <Button

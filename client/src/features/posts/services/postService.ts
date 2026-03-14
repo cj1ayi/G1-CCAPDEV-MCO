@@ -1,5 +1,3 @@
-// Location: client/src/features/posts/services/postService.ts
-
 import { Post, StoredPost } from '@/features/posts/types'
 import { getCurrentUser as getAuthUser } from "@/features/auth/services/authService"
 import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
@@ -19,7 +17,6 @@ export interface UpdatePostDto {
   tags?: string[]
 }
 
-// ADDED: pagination types
 export interface PaginationParams {
   limit?: number
   offset?: number
@@ -122,18 +119,17 @@ class PostService {
 
   async getPostsBySpace(space: string): Promise<Post[]> {
     if (!space) return []
-
     try {
-      const response = await fetch(`${API_BASE_URL}/posts?space=${space}`)
+      const response = await fetch(`${API_BASE_URL}/posts?space=${space}&limit=100`)
       const data = await response.json()
-      return this.applyPopulation(data.map(this.mapPost))
+      const posts = Array.isArray(data) ? data : data.data ?? []
+      return this.applyPopulation(posts.map(this.mapPost))
     } catch (err) {
       console.error('Failed to fetch space posts:', err)
       return []
     }
   }
 
-  // ADDED: optional pagination params, returns paginated envelope when provided
   async getSortedPosts(sortBy: string, params?: PaginationParams): Promise<Post[] | PaginatedResponse<Post>> {
     try {
       const qs = new URLSearchParams({ sort: sortBy })
