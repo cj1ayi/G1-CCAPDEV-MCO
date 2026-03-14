@@ -35,14 +35,17 @@ export const validateDescription = (value: string): string | undefined => {
 export const validateCategory = (value: string): string | undefined =>
   !value ? 'Category is required' : undefined
 
-export const validateIcon = (value: string): string | undefined => {
+export const validateIcon = (value: string, iconType: 'text' | 'image' = 'text'): string | undefined => {
   const v = value.trim()
 
-  if (!v) 
-    return 'Icon is required'
+  if (!v) return 'Icon is required'
 
-  if (v.length > 10) 
-    return 'Must be at most 10 characters'
+  if (iconType === 'image') {
+    if (!v.startsWith('http')) return 'Must be a valid URL'
+    return undefined
+  }
+
+  if (v.length > 10) return 'Must be at most 10 characters'
 
   return undefined
 }
@@ -117,6 +120,11 @@ export const validateSpaceForm = (
   const errors: FieldErrors = {}
 
   for (const field of fields) {
+    if (field === 'icon') {
+      const err = validateIcon(data.icon ?? '', data.iconType ?? 'text')
+      if (err) errors.icon = err
+      continue
+    }
     const err = validateField(field, data[field] ?? '')
     if (err) (errors as any)[field] = err
   }
@@ -126,6 +134,7 @@ export const validateSpaceForm = (
 
   return errors
 }
+
 
 export const hasErrors = (errors: FieldErrors): boolean =>
   Object.keys(errors).filter((k) => k !== 'ruleErrors').length > 0 ||
