@@ -40,15 +40,6 @@ export const PostActions = ({ commentCount, postId, onClick }: PostActionsProps)
         {copied ? <CopyCheck className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
         <span>{copied ? 'Copied!' : 'Copy Link'}</span>
       </button>
-
-      <button
-        className={cn("flex items-center gap-2 px-2 py-2 rounded", "hover:bg-gray-100 dark:hover:bg-gray-800", "transition-colors")}
-        onClick={(e) => e.stopPropagation()}
-        aria-label="Save post"
-      >
-        <Bookmark className="h-4 w-4" />
-        <span>Save</span>
-      </button>
     </div>
   )
 }
