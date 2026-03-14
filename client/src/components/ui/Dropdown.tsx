@@ -6,11 +6,6 @@ export interface DropdownProps {
   children: ReactNode
   align?: 'left' | 'right'
   className?: string
-  /**
-   * When true, the wrapper becomes block-level and the dropdown panel
-   * stretches to match the trigger width. Use this for form selectors.
-   * Default: false (inline-block, for nav/avatar menus).
-   */
   fullWidth?: boolean
 }
 
@@ -62,8 +57,6 @@ export const Dropdown = ({
             'rounded-lg bg-white dark:bg-surface-dark shadow-lg',
             'ring-1 ring-black/5 dark:ring-white/10',
             'animate-in fade-in slide-in-from-top-2 duration-200',
-            // fullWidth: match trigger width exactly (no overflow possible)
-            // default: w-max with mobile-safe cap
             fullWidth
               ? 'w-full'
               : 'w-max min-w-[12rem] max-w-[calc(100vw-2rem)]',
