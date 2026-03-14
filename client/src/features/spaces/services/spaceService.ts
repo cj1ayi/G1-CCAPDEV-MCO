@@ -155,15 +155,14 @@ class SpaceService {
 
   async getSpacePosts(spaceName: string, sortBy: SortOption = 'hot'): Promise<Post[]> {
     if (!spaceName) return []
-    const allPosts = await postService.getAllPosts()
-    const spacePosts = allPosts.filter((post) => post.space === spaceName)
-    return this.sortPosts(spacePosts, sortBy)
+    const posts  = await postService.getPostsBySpace(spaceName)
+    return this.sortPosts(posts, sortBy)
   }
 
   async getSpacePostCount(spaceName: string): Promise<number> {
     if (!spaceName) return 0
-    const allPosts = await postService.getAllPosts()
-    return allPosts.filter((post) => post.space === spaceName).length
+    const posts = await postService.getPostsBySpace(spaceName)
+    return posts.length
   }
 
   private sortPosts(posts: Post[], sortBy: SortOption): Post[] {
