@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
   { icon: 'home', label: 'Home', href: '/' },
-  { icon: 'trending_up', label: 'Popular', href: '/explore' },
+  { icon: 'explore', label: 'Explore', href: '/explore' },
   { icon: 'grid_view', label: 'All Spaces', href: '/spaces' },
 ]
 
