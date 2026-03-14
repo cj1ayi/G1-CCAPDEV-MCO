@@ -11,9 +11,10 @@ import {
   Sun,
   PanelLeftClose,
   PanelLeft,
+  ArrowLeft,
 } from 'lucide-react'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui'
 import { AvatarDropdown } from '@/components/ui/AvatarDropdown'
 import { cn } from '@/lib/utils'
@@ -58,17 +59,27 @@ export const Header = ({
   onToggleDarkMode,
 }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = useState('')
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
   const location = useLocation()
 
   const spaceMatch = location.pathname.match(/^\/r\/([^/]+)/)
   const currentSpaceName = spaceMatch ? spaceMatch[1] : null
 
+  // Focus the input when mobile search opens
+  useEffect(() => {
+    if (isMobileSearchOpen) {
+      setTimeout(() => mobileSearchInputRef.current?.focus(), 50)
+    }
+  }, [isMobileSearchOpen])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       onSearch?.(searchQuery)
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`)
+      setIsMobileSearchOpen(false)
     }
   }
 
@@ -76,24 +87,69 @@ export const Header = ({
     if (onCreatePost) {
       onCreatePost()
     } else {
-      const url = currentSpaceName 
-        ? `/post/create?space=${currentSpaceName}` 
+      const url = currentSpaceName
+        ? `/post/create?space=${currentSpaceName}`
         : '/post/create'
       navigate(url)
     }
+  }
+
+  const closeMobileSearch = () => {
+    setIsMobileSearchOpen(false)
+    setSearchQuery('')
   }
 
   return (
     <header
       className={cn(
         'sticky top-0 z-50 h-16 px-4 lg:px-6',
-        'flex items-center justify-between gap-4',
+        'flex items-center justify-between gap-2 sm:gap-4',
         'bg-surface-light dark:bg-surface-dark',
         'border-b border-border-light dark:border-border-dark',
       )}
     >
-      {/* Left: Hamburger + Desktop Toggle + Logo */}
-      <div className="flex items-center gap-3">
+      {/* ── Mobile Search Overlay ── */}
+      {isMobileSearchOpen && variant !== 'landing' && (
+        <div className={cn(
+          "absolute inset-0 z-10 flex items-center gap-2 px-3",
+          "bg-surface-light dark:bg-surface-dark sm:hidden"
+          )}
+        >
+          <button
+            onClick={closeMobileSearch}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-darker shrink-0"
+            aria-label="Close search"
+          >
+            <ArrowLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+          </button>
+
+          <form onSubmit={handleSearch} className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                ref={mobileSearchInputRef}
+                type="text"
+                placeholder="Search AnimoForums..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={cn(
+                  'w-full h-10 pl-10 pr-4 rounded-full',
+                  'bg-gray-100 dark:bg-surface-input',
+                  'border border-border-light dark:border-border-dark',
+                  'focus:border-primary focus:bg-white dark:focus:bg-surface-dark',
+                  'outline-none focus:ring-2 focus:ring-primary/20',
+                  'text-sm text-gray-900 dark:text-white',
+                  'placeholder:text-gray-500 dark:placeholder:text-gray-400',
+                  'transition-all',
+                )}
+              />
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ── Left: Hamburger + Desktop Toggle + Logo ── */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Mobile Menu Toggle */}
         {variant !== 'landing' && onToggleMobileMenu && (
           <button
@@ -103,9 +159,7 @@ export const Header = ({
               'hover:bg-gray-100 dark:hover:bg-surface-darker',
               'transition-colors',
             )}
-            aria-label={
-              isMobileMenuOpen ? 'Close menu' : 'Open menu'
-            }
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6 text-gray-700 dark:text-gray-300" />
@@ -136,11 +190,9 @@ export const Header = ({
             }
           >
             {isDesktopSidebarCollapsed ? (
-              <PanelLeft 
-                className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              <PanelLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
             ) : (
-              <PanelLeftClose 
-                className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              <PanelLeftClose className="h-5 w-5 text-gray-700 dark:text-gray-300" />
             )}
           </button>
         )}
@@ -151,22 +203,20 @@ export const Header = ({
             alt="AnimoForums"
             className="h-9 w-9"
           />
+          {/* Hide wordmark on very small screens to save space */}
           <span className="hidden sm:block text-xl font-black text-primary">
             AnimoForums
           </span>
         </Link>
       </div>
 
-      {/* Center: Search */}
+      {/* ── Center: Search (desktop/tablet only) ── */}
       {variant !== 'landing' && (
         <form
           onSubmit={handleSearch}
-          className="relative flex-1 max-w-xl"
+          className="relative flex-1 max-w-xl hidden sm:block"
         >
-          <Search className={cn(
-            "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
-            )}
-          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
             placeholder="Search AnimoForums..."
@@ -176,8 +226,7 @@ export const Header = ({
               'w-full h-10 pl-10 pr-4 rounded-full',
               'bg-gray-100 dark:bg-surface-input',
               'border border-border-light dark:border-border-dark',
-              'focus:border-primary focus:bg-white',
-              'dark:focus:bg-surface-dark',
+              'focus:border-primary focus:bg-white dark:focus:bg-surface-dark',
               'outline-none focus:ring-2 focus:ring-primary/20',
               'text-sm text-gray-900 dark:text-white',
               'placeholder:text-gray-500 dark:placeholder:text-gray-400',
@@ -187,8 +236,23 @@ export const Header = ({
         </form>
       )}
 
-      {/* Right: Actions */}
-      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+      {/* ── Right: Actions ── */}
+      <div className="flex items-center gap-1 shrink-0">
+        {/* Mobile Search Icon (shown only on mobile, non-landing) */}
+        {variant !== 'landing' && (
+          <button
+            onClick={() => setIsMobileSearchOpen(true)}
+            className={cn(
+              'sm:hidden p-2 rounded-lg',
+              'hover:bg-gray-100 dark:hover:bg-surface-darker',
+              'transition-colors',
+            )}
+            aria-label="Open search"
+          >
+            <Search className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+          </button>
+        )}
+
         {/* Dark Mode Toggle */}
         {onToggleDarkMode && (
           <Button
@@ -196,9 +260,7 @@ export const Header = ({
             size="sm"
             onClick={onToggleDarkMode}
             className="!px-2"
-            aria-label={
-              isDark ? 'Switch to light mode' : 'Switch to dark mode'
-            }
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {isDark ? (
               <Sun className="h-5 w-5" />
@@ -222,11 +284,13 @@ export const Header = ({
                 >
                   Create
                 </Button>
+                {/* Icon-only on mobile */}
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={handleCreatePost}
                   className="sm:hidden !px-2"
+                  aria-label="Create post"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -239,32 +303,40 @@ export const Header = ({
                 variant="ghost"
                 size="sm"
                 className="relative !px-2"
+                aria-label={`Notifications${notifCount > 0 ? ` (${notifCount})` : ''}`}
               >
                 <Bell className="h-5 w-5" />
                 {notifCount > 0 && (
-                  <span className={cn(
-                    "absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]",
-                    "px-1 flex items-center justify-center bg-red-500",
-                    "text-white text-xs font-bold rounded-full")}>
+                  <span
+                    className={cn(
+                      'absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]',
+                      'px-1 flex items-center justify-center bg-red-500',
+                      'text-white text-xs font-bold rounded-full',
+                    )}
+                  >
                     {notifCount > 99 ? '99+' : notifCount}
                   </span>
                 )}
               </Button>
             )}
 
-            {/* Messages */}
+            {/* Messages — hidden on smallest screens to reduce clutter */}
             {variant !== 'landing' && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="relative !px-2"
+                className="relative !px-2 hidden xs:inline-flex"
+                aria-label={`Messages${messageCount > 0 ? ` (${messageCount})` : ''}`}
               >
                 <MessageSquare className="h-5 w-5" />
                 {messageCount > 0 && (
-                  <span className={cn(
-                    "absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]",
-                    "px-1 flex items-center justify-center bg-red-500",
-                    "text-white text-xs font-bold rounded-full")}>
+                  <span
+                    className={cn(
+                      'absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]',
+                      'px-1 flex items-center justify-center bg-red-500',
+                      'text-white text-xs font-bold rounded-full',
+                    )}
+                  >
                     {messageCount > 99 ? '99+' : messageCount}
                   </span>
                 )}
@@ -287,20 +359,41 @@ export const Header = ({
           </>
         ) : (
           <>
-            {/* Login/Signup */}
+            {/* Auth buttons — compact on mobile */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate('/login')}
+              className="hidden xs:inline-flex"
             >
               Sign In
             </Button>
+            {/* Minimal label on very small screens */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/login')}
+              className="xs:hidden !px-2 text-xs"
+            >
+              Login
+            </Button>
+
             <Button
               variant="primary"
               size="sm"
               onClick={() => navigate('/signup')}
+              className="hidden sm:inline-flex"
             >
               Join Community
+            </Button>
+            {/* Icon + short label on mobile */}
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate('/signup')}
+              className="sm:hidden text-xs !px-2.5"
+            >
+              Join
             </Button>
           </>
         )}
