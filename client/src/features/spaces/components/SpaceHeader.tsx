@@ -48,7 +48,7 @@ export const SpaceHeader = ({
           className={cn(
             'shrink-0 size-14 md:size-20 rounded-xl flex items-center justify-center',
             'text-white shadow-lg overflow-hidden',
-            space.iconType === 'text' &&
+            space.iconType !== 'image' &&
               `bg-gradient-to-br ${space.colorScheme || 'from-primary to-primary-dark'}`,
           )}
         >
