@@ -38,6 +38,6 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
-
-
+# Prevention
+.claude/*
 
