@@ -18,12 +18,12 @@ export default {
         'surface-light': '#ffffff',
         'border-light': '#dae7e0',
 
-        // Dark mode - better hierarchy
-        'background-dark': '#0a0e11', 
-        'surface-dark': '#1a1a1b',         
-        'surface-darker': '#272729',       
-        'surface-input': '#3a3a3c',        
-        'border-dark': '#404040',          
+        // Dark mode
+        'background-dark': '#111111',
+        'surface-dark': '#1c1c1c',
+        'surface-darker': '#242424',
+        'surface-input': '#2d2d2d',
+        'border-dark': '#1f1f1f',
         'dlsu-gold': '#C1A624',
       },
       fontFamily: {
