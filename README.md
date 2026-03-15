@@ -60,6 +60,10 @@ AnimoForums addresses the fragmentation of student communication across multiple
 | TailwindCSS | Utility-first styling |
 | React Router | Client-side routing |
 
+### Backend
+
+For the full backend setup, tech stack, and login instructions, see the [server README](server/README.md).
+
 ## Getting Started
 
 ### Prerequisites
@@ -68,6 +72,7 @@ Ensure the following are installed on your system:
 
 - **Node.js** v18.x or higher ([Download](https://nodejs.org/))
 - **npm** v9.x or higher (included with Node.js)
+- **MongoDB** (Local instance) ([Download](https://www.mongodb.com/try/download/community))
 - **Git** ([Download](https://git-scm.com/))
 
 Verify installations:
@@ -94,12 +99,7 @@ cd client
 npm install
 ```
 
-3. Install backend dependencies:
-
-```bash
-cd ../server
-npm install
-```
+3. For backend setup and database seeding, follow the steps in the [server README](server/README.md).
 
 ### Running the Application
 
@@ -121,27 +121,7 @@ The application will be available at:
 - **Frontend:** http://localhost:5173
 - **Backend API:** http://localhost:3000
 
-## Logging In
-
-> Our mock data are all based on real life conversations and events our team has
-experienced. The data will range from inside jokes, reference to some events, and 
-interactions with people in our academic lives. The mock users are real people
-we have interacted with and have given us permission to feature them here whether
-by an alias or their real name.
-
-**For the purpose of simplifying the debugging process we opted that our mock users'
-passcode be their own username. The team plans to address this security 
-vulnerability in MCO2 when we have a real backend.**
-
-### Users
-| Name | Username |
-|------|--------|
-|  Thomas James C. Tiam-Lee | tiamlee |
-|  Teehee | iloveapex |
-|  Sussus Amogus | pieisspy |
-|  Floranaras | callo |
-|  Pringles | whotftakesthenamezex | 
-|  Enzo | taroramen |
+> For login instructions and test credentials, see the [server README](server/README.md).
 
 ## Project Structure
 
@@ -352,9 +332,38 @@ G1-CCAPDEV-MCO
 │   └── vite.config.ts
 ├── server
 │   ├── src
-│   │   └── server.ts
+│   │   ├── config
+│   │   │   ├── db.ts
+│   │   │   └── passport.ts
+│   │   ├── controllers
+│   │   │   ├── commentController.ts
+│   │   │   ├── postController.ts
+│   │   │   ├── spaceController.ts
+│   │   │   ├── statsController.ts
+│   │   │   ├── userController.ts
+│   │   │   └── voteController.ts
+│   │   ├── middleware
+│   │   │   └── validator.ts
+│   │   ├── models
+│   │   │   ├── Comment.ts
+│   │   │   ├── Post.ts
+│   │   │   ├── Space.ts
+│   │   │   ├── User.ts
+│   │   │   └── Vote.ts
+│   │   ├── routes
+│   │   │   ├── authRoutes.ts
+│   │   │   ├── commentRoutes.ts
+│   │   │   ├── postRoutes.ts
+│   │   │   ├── spaceRoutes.ts
+│   │   │   ├── statsRoutes.ts
+│   │   │   ├── userRoutes.ts
+│   │   │   └── voteRoutes.ts
+│   │   ├── app.ts
+│   │   ├── index.ts
+│   │   └── seed.ts
 │   ├── package-lock.json
 │   ├── package.json
+│   ├── README.md
 │   └── tsconfig.json
 ├── package-lock.json
 ├── package.json
@@ -383,16 +392,9 @@ git push origin feature/feature-name
 
 4. Open a Pull Request on GitHub
 
-## Contributing
+### Coding Standards
 
-Contributions are welcome. Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'feat: add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-
-### Conventional Commit Types
+#### Conventional Commit Types
 
 | **Type**       | **Purpose** |
 |----------------|-------------|
@@ -407,6 +409,15 @@ Contributions are welcome. Please follow these steps:
 | **`chore`**    | Non-code maintenance (renaming files, updating `.gitignore`) |
 
 > [See conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
+
+## Contributing
+
+Contributions are welcome. Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'feat: add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 
 ## License
 
