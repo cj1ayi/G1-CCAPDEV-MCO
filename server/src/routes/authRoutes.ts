@@ -1,9 +1,28 @@
 import { Router } from 'express';
 import passport from 'passport';
+import User from '../models/User.js';
 
 const router = Router();
 const THREE_WEEKS = 1000 * 60 * 60 * 24 * 21;
 const DEFAULT_SESSION = 1000 * 60 * 60 * 24; // 1 day
+
+// @desc    Bypass login for grading purposes
+// @route   GET /api/auth/grading-login
+router.get('/grading-login', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: 'tiamlee' });
+    if (!user) {
+      return res.status(404).json({ message: 'Seeded user not found' });
+    }
+
+    req.login(user, (err) => {
+      if (err) return res.status(500).json(err);
+      res.redirect('http://localhost:5173/explore');
+    });
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+});
 
 // @desc    Auth with Google (remember=true|false passed as query param)
 // @route   GET /api/auth/google
@@ -20,7 +39,11 @@ router.get('/google', (req, res, next) => {
     signed: true
   });
 
-  passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+  passport.authenticate('google', { scope: ['profile', 'email'] })(
+    req,
+    res,
+    next
+  );
 });
 
 // @desc    Google auth callback
@@ -60,7 +83,10 @@ router.get('/me', (req, res) => {
   }
 
   // If they have a long-lived cookie, re-extend it on every visit (rolling)
-  if (req.session.cookie.maxAge && req.session.cookie.maxAge > DEFAULT_SESSION) {
+  if (
+    req.session.cookie.maxAge &&
+    req.session.cookie.maxAge > DEFAULT_SESSION
+  ) {
     req.session.cookie.maxAge = THREE_WEEKS;
     req.session.save();
   }
