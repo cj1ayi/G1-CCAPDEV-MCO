@@ -128,6 +128,7 @@ const EditProfile = () => {
                   onChange={(val) => setFormData(prev => ({ ...prev, bio: val }))}
                   placeholder="Tell us about yourself..."
                   minHeight="min-h-[150px]"
+                  hideHeaders={true}
                 />
               </div>
 
