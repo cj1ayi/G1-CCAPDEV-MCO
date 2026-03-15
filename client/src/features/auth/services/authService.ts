@@ -1,203 +1,84 @@
-import { 
-  mockUsers, 
-  type User as MockUser 
-} from "@/lib/mockData";
+// Location: client/src/features/auth/services/authService.ts
 
-import { 
-  AuthUser,
-  SESSION_KEY,
-  REMEMBER_KEY,
-  SIGNUP_USERS_KEY,
-} from "../types"
+import { AuthUser } from '../types'
+import { API_BASE_URL } from '@/lib/apiUtils'
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Get the right storage based on whether "Remember Me" was checked */
-function getSessionStorage(): Storage {
-  return localStorage.getItem(REMEMBER_KEY) === "true"
-    ? localStorage
-    : sessionStorage;
-}
-
-/** Get users registered through signup (stored in localStorage) */
-function getSignupUsers(): (MockUser & { email: string; password: string })[] {
-  try {
-    return JSON.parse(localStorage.getItem(SIGNUP_USERS_KEY) || "[]");
-  } catch {
-    return [];
+class AuthService {
+  /**
+   * Redirect browser to Google OAuth login.
+   * This is NOT a fetch call — it's a full page redirect.
+   */
+  login(): void {
+    window.location.href = `${API_BASE_URL}/auth/google`
   }
-}
 
-function saveSignupUsers(users: (MockUser & { email: string; password: string })[]): void {
-  localStorage.setItem(SIGNUP_USERS_KEY, JSON.stringify(users));
-}
+  /**
+   * Fetch the currently authenticated user from the backend session.
+   * Returns null if not logged in.
+   */
+  async getCurrentUser(): Promise<AuthUser | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        credentials: 'include'
+      })
 
-function saveSession(user: AuthUser): void {
-  getSessionStorage().setItem(SESSION_KEY, JSON.stringify(user));
-}
+      if (!response.ok) return null
 
-function clearSession(): void {
-  sessionStorage.removeItem(SESSION_KEY);
-  localStorage.removeItem(SESSION_KEY);
-  localStorage.removeItem(REMEMBER_KEY);
-}
-
-function toAuthUser(user: MockUser): AuthUser {
-  return {
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    avatar: user.avatar,
-    bio: user.bio,
-    location: user.location,
-    joinedAt: user.joinedAt,
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
-/**
- * Login with username + password.
- *
- * For mock users: password is their username (e.g. "tiamlee" / "tiamlee").
- * For signup users: password is whatever they registered with.
- *
- * TODO (Phase 2): Replace with POST /api/auth/login
- */
-export function login(
-  usernameOrEmail: string,
-  password: string,
-  remember: boolean = false
-): AuthUser | null {
-  const input = usernameOrEmail.toLowerCase().trim();
-
-  // 1. Check mock users — password is their username, allow login by username or email
-  const mockUser = Object.values(mockUsers).find(
-    (u) =>
-      (u.username.toLowerCase() === input ||
-        (u.email && u.email.toLowerCase() === input)) &&
-      password === u.username // password for mock users is always their username
-  );
-
-  if (mockUser) {
-    if (remember) {
-      localStorage.setItem(REMEMBER_KEY, "true");
-    } else {
-      localStorage.removeItem(REMEMBER_KEY);
+      const data = await response.json()
+      return this.toAuthUser(data)
+    } catch {
+      return null
     }
-    const authUser = toAuthUser(mockUser);
-    saveSession(authUser);
-    return authUser;
   }
 
-  // 2. Check signup users (registered through the signup form)
-  const signupUsers = getSignupUsers();
-  const signupUser = signupUsers.find(
-    (u) =>
-      (u.username.toLowerCase() === input ||
-        (u.email && u.email.toLowerCase() === input)) &&
-      u.password === password
-  );
-
-  if (signupUser) {
-    if (remember) {
-      localStorage.setItem(REMEMBER_KEY, "true");
-    } else {
-      localStorage.removeItem(REMEMBER_KEY);
+  /**
+   * Log out the current user via the backend.
+   */
+  async logout(): Promise<void> {
+    try {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
+        credentials: 'include'
+      })
+    } catch (err) {
+      console.error('Logout failed:', err)
     }
-    const authUser = toAuthUser(signupUser);
-    saveSession(authUser);
-    return authUser;
   }
 
-  return null;
-}
+  /**
+   * Check if a user is currently authenticated.
+   */
+  async isAuthenticated(): Promise<boolean> {
+    const user = await this.getCurrentUser()
+    return user !== null
+  }
 
-/**
- * Register a new account.
- * @returns AuthUser on success, null if username/email taken.
- *
- * TODO (Phase 2): Replace with POST /api/auth/register
- */
-export function signup(
-  email: string,
-  username: string,
-  password: string
-): AuthUser | null {
-  // Check against mock users
-  const mockTaken = Object.values(mockUsers).some(
-    (u) => u.username.toLowerCase() === username.toLowerCase()
-  );
-  if (mockTaken) return null;
-
-  // Check against existing signups
-  const signupUsers = getSignupUsers();
-  const signupTaken = signupUsers.some(
-    (u) =>
-      u.username.toLowerCase() === username.toLowerCase() ||
-      (u.email && u.email.toLowerCase() === email.toLowerCase())
-  );
-  if (signupTaken) return null;
-
-  const newUser = {
-    id: `user_${Date.now()}`,
-    name: username,
-    username,
-    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
-    bio: "",
-    location: "",
-    joinedAt: new Date().toISOString().split("T")[0],
-    email,
-    password,
-  };
-
-  saveSignupUsers([...signupUsers, newUser]);
-
-  // Auto-login after signup (session only, no remember)
-  const authUser = toAuthUser(newUser);
-  saveSession(authUser);
-  return authUser;
-}
-
-/**
- * Get the currently logged-in user, if any.
- * Checks sessionStorage first, then localStorage (for remembered sessions).
- *
- * TODO (Phase 2): Replace with GET /api/auth/me
- */
-export function getCurrentUser(): AuthUser | null {
-  try {
-    // If Remember Me is set, prefer localStorage, else sessionStorage
-    const remember = localStorage.getItem(REMEMBER_KEY) === "true";
-    let session: string | null = null;
-    if (remember) {
-      session = localStorage.getItem(SESSION_KEY);
-    } else {
-      session = sessionStorage.getItem(SESSION_KEY);
+  /**
+   * Map the backend user object to the frontend AuthUser shape.
+   * Backend uses `name`, `_id` → frontend uses `name`, `id`.
+   */
+  private toAuthUser(data: any): AuthUser {
+    return {
+      id: data._id || data.id,
+      name: data.name,
+      username: data.username,
+      avatar: data.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.username}`,
+      bio: data.bio || '',
+      location: data.location || '',
+      joinedAt: data.joinedAt,
     }
-    if (!session) return null;
-    return JSON.parse(session) as AuthUser;
-  } catch {
-    return null;
   }
 }
 
-/**
- * Log out the current user.
- *
- * TODO (Phase 2): Replace with POST /api/auth/logout
- */
-export function logout(): void {
-  clearSession();
-}
+export const authService = new AuthService()
 
-/**
- * Check if someone is currently authenticated.
- */
-export function isAuthenticated(): boolean {
-  return getCurrentUser() !== null;
+// Named exports for backwards compatibility with existing imports
+export const login = () => authService.login()
+export const logout = () => authService.logout()
+export const getCurrentUser = () => authService.getCurrentUser()
+export const isAuthenticated = () => authService.isAuthenticated()
+
+// signup is no longer needed — Google OAuth handles registration automatically
+export const signup = (): null => {
+  console.warn('signup() is not used — authentication is handled via Google OAuth')
+  return null
 }

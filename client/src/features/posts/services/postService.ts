@@ -1,7 +1,6 @@
-import { Post } from '@/features/posts/types'
-import { 
-  getCurrentUser as getAuthUser 
-} from "@/features/auth/services/authService";
+import { Post, StoredPost } from '@/features/posts/types'
+import { getCurrentUser as getAuthUser } from "@/features/auth/services/authService"
+import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
 
 export interface CreatePostDto {
   title: string
@@ -18,347 +17,207 @@ export interface UpdatePostDto {
   tags?: string[]
 }
 
-// Local storage implementation (swap this whole file for API later)
+export interface PaginationParams {
+  limit?: number
+  offset?: number
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: {
+    total: number
+    limit: number
+    offset: number
+    hasMore: boolean
+  }
+}
+
 class PostService {
-  private storageKey = 'animoforums_posts'
-  private seeded = false
+  private populateAuthor(post: StoredPost): Post {
+    const backendAuthor = (post as any).author
 
-  private getStore(): Post[] {
-    const data = localStorage.getItem(this.storageKey)
-    return data ? JSON.parse(data) : []
-  }
-
-  private setStore(posts: Post[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(posts))
-  }
-
-  private async seedIfNeeded(): Promise<void> {
-    if (this.seeded) return
-    this.seeded = true
-
-    const posts = this.getStore()
-    if (posts.length > 0) return
-
-    try {
-      const { getAllPosts } = await import('@/lib/mockData')
-      const mockPosts = getAllPosts()
-
-      if (mockPosts && mockPosts.length > 0) {
-        console.log(`Seeding ${mockPosts.length} mock posts`)
-        this.setStore(mockPosts)
+    if (backendAuthor && typeof backendAuthor === 'object') {
+      return {
+        ...post,
+        author: {
+          id: post.authorId,
+          name: backendAuthor.username,
+          username: backendAuthor.username,
+          avatar: backendAuthor.avatar || ''
+        }
       }
-    } catch (err) {
-      console.log('No mock posts found')
+    }
+
+    return {
+      ...post,
+      author: {
+        id: post.authorId,
+        name: 'Deleted User',
+        username: 'deleted',
+        avatar: ''
+      }
+    }
+  }
+
+  private async calculateOwnership(post: Post): Promise<Post> {
+    const currentUser = await getAuthUser()
+    if (!currentUser || !post?.author) return { ...post, isOwner: false }
+
+    const isOwner =
+      currentUser.id === post.author.id ||
+      currentUser.id === post.authorId
+    return { ...post, isOwner }
+  }
+
+  private async applyPopulation(posts: StoredPost[]): Promise<Post[]> {
+    if (!posts?.length) return []
+
+    const populated: Post[] = []
+    for (const post of posts) {
+      if (!post?.id) continue
+      const withAuthor = this.populateAuthor(post)
+      populated.push(await this.calculateOwnership(withAuthor))
+    }
+    return populated
+  }
+
+  private mapPost(post: any): StoredPost {
+    const converted = convertObjectId(post)
+    return {
+      ...converted,
+      authorId: converted.authorId,
+      author: post.author
     }
   }
 
   async getAllPosts(): Promise<Post[]> {
-    await this.seedIfNeeded()
-    await this.delay(100)
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts`)
+      const data = await response.json()
+      const posts = Array.isArray(data) ? data : data.data ?? []
 
-    return this.getStore()
+      return this.applyPopulation(posts.map(this.mapPost))
+    } catch (err) {
+      console.error('Failed to fetch posts:', err)
+      return []
+    }
   }
 
   async getPostById(id: string): Promise<Post | null> {
-    await this.seedIfNeeded()
-    await this.delay(50)
+    if (!id) return null
 
-    const posts = this.getStore()
-    return posts.find(post => post.id === id) || null
-  }
-
-  async getPostForEdit(id: string): Promise<{
-    post: Post | null
-    error: string | null
-  }> {
-    await this.seedIfNeeded()
-    await this.delay(50)
-
-    if (!id) {
-      return { post: null, error: 'Post ID is required' }
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts/${id}`)
+      const data = await response.json()
+      const posts = await this.applyPopulation([this.mapPost(data)])
+      return posts[0] || null
+    } catch (err) {
+      console.error('Failed to fetch post:', err)
+      return null
     }
-
-    const { getCurrentUser } = await import('@/features/auth/services/authService')
-    const currentUser = getCurrentUser()
-
-    const posts = this.getStore()
-    const post = posts.find(p => p.id === id)
-
-    if (!post) {
-      try {
-        const { getPostById: getMockPost } = await import('@/lib/mockData')
-        const mockPost = getMockPost(id)
-
-        if (mockPost) {
-          const isOwner = currentUser ? mockPost.author.id === currentUser.id : false
-          if (!isOwner) {
-            return { post: null, error: 'You do not have permission to edit this post' }
-          }
-          return { post: { ...mockPost, isOwner: true }, error: null }
-        }
-      } catch (err) {
-        console.log('Post not found in mock data')
-      }
-
-      return { post: null, error: 'Post not found' }
-    }
-
-    const isOwner = currentUser ? post.author.id === currentUser.id : false
-    if (!isOwner) {
-      return { post: null, error: 'You do not have permission to edit this post' }
-    }
-
-    return { post: { ...post, isOwner: true }, error: null }
   }
 
   async getPostsBySpace(space: string): Promise<Post[]> {
-    await this.seedIfNeeded()
-    await this.delay(100)
-
-    const posts = this.getStore()
-    return posts.filter(post => post.space === space)
+    if (!space) return []
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts?space=${space}&limit=100`)
+      const data = await response.json()
+      const posts = Array.isArray(data) ? data : data.data ?? []
+      return this.applyPopulation(posts.map(this.mapPost))
+    } catch (err) {
+      console.error('Failed to fetch space posts:', err)
+      return []
+    }
   }
 
-  validatePostForm(data: {
-    title: string
-    content: string
-    space?: string
-  }, isEdit: boolean = false): Record<string, string> {
+  async getSortedPosts(sortBy: string, params?: PaginationParams): Promise<Post[] | PaginatedResponse<Post>> {
+    try {
+      const qs = new URLSearchParams({ sort: sortBy })
+      if (params?.limit  != null) qs.set('limit',  String(params.limit))
+      if (params?.offset != null) qs.set('offset', String(params.offset))
+
+      const response = await fetch(`${API_BASE_URL}/posts?${qs}`)
+      const data = await response.json()
+
+      // Paginated envelope from backend
+      if (data && !Array.isArray(data) && data.data) {
+        const posts = await this.applyPopulation(data.data.map((p: any) => this.mapPost(p)))
+        return { data: posts, pagination: data.pagination }
+      }
+
+      // Fallback: raw array (shouldn't happen with new controller, but safe)
+      return this.applyPopulation(data.map((p: any) => this.mapPost(p)))
+    } catch (err) {
+      console.error('Failed to fetch sorted posts:', err)
+      return params ? { data: [], pagination: { total: 0, limit: params.limit ?? 15, offset: params.offset ?? 0, hasMore: false } } : []
+    }
+  }
+
+  async createPost(dto: CreatePostDto): Promise<Post> {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/posts`, {
+        method: 'POST',
+        body: JSON.stringify(dto)
+      })
+      const data = await response.json()
+      const posts = await this.applyPopulation([this.mapPost(data)])
+      return posts[0]
+    } catch (err) {
+      throw new Error(`Failed to create post: ${(err as Error).message}`)
+    }
+  }
+
+  async updatePost(id: string, dto: UpdatePostDto): Promise<Post> {
+    if (!id) throw new Error('Post ID is required')
+
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/posts/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(dto)
+      })
+      const data = await response.json()
+      const posts = await this.applyPopulation([this.mapPost(data)])
+      return posts[0]
+    } catch (err) {
+      throw new Error(`Failed to update post: ${(err as Error).message}`)
+    }
+  }
+
+  async deletePost(id: string): Promise<void> {
+    if (!id) throw new Error('Post ID is required')
+
+    try {
+      await fetchWithAuth(`${API_BASE_URL}/posts/${id}`, {
+        method: 'DELETE'
+      })
+    } catch (err) {
+      throw new Error(`Failed to delete post: ${(err as Error).message}`)
+    }
+  }
+
+  validatePostForm(
+    data: { title: string; content: string; space?: string },
+    isEdit: boolean = false
+  ): Record<string, string> {
     const errors: Record<string, string> = {}
 
-    if (!data.title.trim()) {
-      errors.title = 'Title is required'
-    }
-
-    if (!data.content.trim()) {
-      errors.content = 'Content is required'
-    }
-
-    if (!isEdit && !data.space) {
-      errors.space = 'Please select a space'
-    }
+    if (!data.title?.trim()) errors.title = 'Title is required'
+    if (!data.content?.trim()) errors.content = 'Content is required'
+    if (!isEdit && !data.space) errors.space = 'Please select a space'
 
     return errors
   }
 
-  validateTag(
-    tag: string,
-    currentTags: string[]
-  ): { valid: boolean; error?: string } {
+  validateTag(tag: string, currentTags: string[]): { valid: boolean; error?: string } {
+    if (!tag) return { valid: false, error: 'Tag cannot be empty' }
+
     const trimmedTag = tag.trim().toLowerCase()
-
-    if (!trimmedTag) {
-      return { valid: false, error: 'Tag cannot be empty' }
-    }
-
-    if (currentTags.length >= 5) {
-      return { valid: false, error: 'Maximum 5 tags allowed' }
-    }
-
-    if (currentTags.includes(trimmedTag)) {
-      return { valid: false, error: 'Tag already added' }
-    }
+    if (!trimmedTag) return { valid: false, error: 'Tag cannot be empty' }
+    if (currentTags.length >= 5) return { valid: false, error: 'Maximum 5 tags allowed' }
+    if (currentTags.includes(trimmedTag)) return { valid: false, error: 'Tag already added' }
 
     return { valid: true }
-  }
-
-  async createPost(dto: CreatePostDto): Promise<Post> {
-    await this.seedIfNeeded()
-    await this.delay(300)
-
-    const currentUser = getAuthUser()
-    if (!currentUser) throw new Error('Not authenticated')
-
-    const newPost: Post = {
-      id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      title: dto.title,
-      content: dto.content,
-      space: dto.space,
-      author: {
-        id: currentUser.id,
-        name: currentUser.name,
-        username: currentUser.username,
-        avatar: currentUser.avatar,
-      },
-      upvotes: 0,
-      downvotes: 0,
-      commentCount: 0,
-      createdAt: 'Just now',
-      imageUrl: dto.imageUrl,
-      tags: dto.tags || [],
-      isOwner: true,
-    }
-
-    const posts = this.getStore()
-    const updatedPosts = [newPost, ...posts]
-    this.setStore(updatedPosts)
-
-    return newPost
-  }
-
-  async updatePost(id: string, dto: UpdatePostDto): Promise<Post> {
-    await this.seedIfNeeded()
-    await this.delay(200)
-
-    const posts = this.getStore()
-    const postIndex = posts.findIndex(p => p.id === id)
-
-    if (postIndex === -1) throw new Error('Post not found')
-
-    const updatedPost: Post = {
-      ...posts[postIndex],
-      ...dto,
-      editedAt: new Date().toLocaleString(),
-    }
-
-    posts[postIndex] = updatedPost
-    this.setStore(posts)
-
-    return updatedPost
-  }
-
-  async deletePost(id: string): Promise<void> {
-    await this.seedIfNeeded()
-    await this.delay(200)
-
-    const posts = this.getStore()
-    const filteredPosts = posts.filter(p => p.id !== id)
-
-    if (filteredPosts.length === posts.length) throw new Error('Post not found')
-
-    this.setStore(filteredPosts)
-  }
-
-  async votePost(
-    id: string,
-    voteType: 'up' | 'down' | null
-  ): Promise<Post> {
-    await this.delay(100)
-
-    const posts = this.getStore()
-    const post = posts.find(p => p.id === id)
-
-    if (!post) throw new Error('Post not found')
-
-    return post
-  }
-
-  async incrementCommentCount(id: string): Promise<void> {
-    const posts = this.getStore()
-    const postIndex = posts.findIndex(p => p.id === id)
-
-    if (postIndex !== -1) {
-      posts[postIndex] = {
-        ...posts[postIndex],
-        commentCount: (posts[postIndex].commentCount || 0) + 1,
-      }
-      this.setStore(posts)
-    }
-  }
-
-  async decrementCommentCount(id: string): Promise<void> {
-    const posts = this.getStore()
-    const postIndex = posts.findIndex(p => p.id === id)
-
-    if (postIndex !== -1 && posts[postIndex].commentCount > 0) {
-      posts[postIndex] = {
-        ...posts[postIndex],
-        commentCount: posts[postIndex].commentCount - 1,
-      }
-      this.setStore(posts)
-    }
-  }
-
-  async resetToMockData(): Promise<void> {
-    console.log('Resetting all posts to mock data...')
-    localStorage.removeItem(this.storageKey)
-    this.seeded = false
-    await this.seedIfNeeded()
-    console.log('Reset complete!')
-  }
-
-  getStats(): void {
-    const posts = this.getStore()
-
-    if (posts.length === 0) {
-      console.log('No posts in storage yet')
-      return
-    }
-
-    const totalComments = posts.reduce((sum, post) => sum + (post.commentCount || 0), 0)
-    const spaces = [...new Set(posts.map(p => p.space))]
-
-    console.log(`  Total posts: ${posts.length}`)
-    console.log(`  Total comments: ${totalComments}`)
-    console.log(`  Spaces: ${spaces.length}`)
-
-    spaces.forEach(space => {
-      const count = posts.filter(p => p.space === space).length
-      console.log(`    ${space}: ${count} posts`)
-    })
-  }
-
-  clearAll(): void {
-    localStorage.removeItem(this.storageKey)
-    this.seeded = false
-    console.log('All posts cleared')
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }
-
-  private parseTimeAgo(timeStr: string): number {
-    const lowerStr = timeStr.toLowerCase()
-    if (lowerStr === 'just now') return 0
-    if (lowerStr === 'yesterday') return 1440
-
-    const match = lowerStr.match(/(\d+)/)
-    if (!match) return 999999
-    
-    const num = parseInt(match[1])
-    
-    if (lowerStr.includes('minute')) return num
-    if (lowerStr.includes('hour')) return num * 60
-    if (lowerStr.includes('day')) return num * 1440
-    if (lowerStr.includes('week')) return num * 10080
-    if (lowerStr.includes('month')) return num * 43200
-    if (lowerStr.includes('year')) return num * 525600
-    
-    return 999999
-  }
-
-  async getSortedPosts(sortBy: string): Promise<Post[]> {
-    const posts = await this.getAllPosts()
-    const sorted = [...posts]
-
-    switch (sortBy) {
-      case 'new':
-        return sorted.sort((a, b) => this.parseTimeAgo(a.createdAt) - this.parseTimeAgo(b.createdAt))
-      case 'top':
-        return sorted.sort((a, b) => b.upvotes - a.upvotes)
-      case 'hot':
-      case 'best':
-      default:
-        return sorted.sort((a, b) => {
-          const scoreA = a.upvotes - a.downvotes
-          const scoreB = b.upvotes - b.downvotes
-          return scoreB - scoreA
-        })
-    }
   }
 }
 
 export const postService = new PostService()
-
-if (typeof window !== 'undefined') {
-  (window as any).postService = {
-    reset: () => postService.resetToMockData(),
-    stats: () => postService.getStats(),
-    clear: () => postService.clearAll(),
-  }
-
-  console.log('  postService.stats()  - View post stats')
-  console.log('  postService.reset()  - Reset to mock data')
-  console.log('  postService.clear()  - Clear all posts')
-}

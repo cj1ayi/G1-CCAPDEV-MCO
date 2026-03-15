@@ -1,69 +1,75 @@
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { getAllSpaces } from '@/lib/mockData'
+import { spaceService, Space } from '../services'
+import { getCurrentUser } from '@/features/auth/services/authService'
 
 export const YourSpacesWidget = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const spaces = getAllSpaces()
+  const [joinedSpaces, setJoinedSpaces] = useState<Space[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      const user = await getCurrentUser()
+      if (!user || cancelled) return
+      const { data } = await spaceService.getSpaces(1)
+      if (!cancelled) setJoinedSpaces(data.filter(s => s.isJoined) || [])
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
+
+  if (joinedSpaces.length === 0) return null
 
   return (
     <div className="space-y-4">
-      <div className="px-4 flex items-center justify-between">
-        <h3 
-          className="text-xs font-bold uppercase tracking-wider text-gray-500">
-          Your Spaces
-        </h3>
-        <button
-          onClick={() => navigate('/spaces')}
-          className="text-xs font-bold text-primary hover:underline"
-        >
-          See All
-        </button>
-      </div>
+      <h3 className="px-4 text-xs font-bold uppercase text-gray-500">
+        Your Spaces
+      </h3>
       <div className="space-y-1">
-        {spaces.map((space) => {
-          const spaceHref = `/space/${space.name}`
-          const isActive = location.pathname === spaceHref
-
+        {joinedSpaces.map((space) => {
+          const isActive = location.pathname === `/r/${space.name}`
           return (
             <button
               key={space.id}
-              onClick={() => navigate(spaceHref)}
+              onClick={() => navigate(`/r/${space.name}`)}
               className={cn(
-                'w-full flex items-center gap-3 px-4 py-2 rounded-lg ' +
-                'transition-colors group',
+                'w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors group',
                 isActive
-                  ? 'bg-gray-100 dark:bg-surface-darker'
-                  : 'hover:bg-gray-100 dark:hover:bg-surface-darker'
+                  ? 'bg-primary/10 dark:bg-primary/20'
+                  : 'hover:bg-gray-100 dark:hover:bg-surface-darker',
               )}
             >
-              {/* Space Icon */}
-              {space.iconType === 'image' ? (
-                <img 
-                  src={space.icon} 
-                  alt={space.name}
-                  className="w-8 h-8 rounded-lg object-cover"
-                />
-              ) : (
-                <div
-                  className={cn(
-                    'w-8 h-8 rounded-lg flex items-center justify-center',
-                    'text-xs font-bold bg-gradient-to-br text-white',
-                    space.colorScheme
-                  )}
-                >
-                  {space.icon}
-                </div>
-              )}
-
-              {/* Space Name */}
+              <div
+                className={cn(
+                  'w-8 h-8 rounded-lg flex items-center justify-center',
+                  'font-bold text-white overflow-hidden shrink-0',
+                  space.iconType !== 'image' && cn('bg-gradient-to-br', space.colorScheme || 'from-primary to-primary-dark'),
+                )}
+              >
+                {space.iconType === 'image' ? (
+                  <img
+                    src={space.icon}
+                    alt={space.displayName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className={cn(
+                    'text-center leading-none break-all px-0.5',
+                    (space.icon || '').length <= 2 ? 'text-xs' : 'text-[8px]',
+                  )}>
+                    {space.icon || ''}
+                  </span>
+                )}
+              </div>
               <span
                 className={cn(
-                  'text-sm font-medium truncate group-hover:text-primary',
+                  'text-sm font-medium truncate',
                   isActive
                     ? 'text-primary'
-                    : 'text-gray-700 dark:text-gray-300'
+                    : 'group-hover:text-primary',
                 )}
               >
                 {space.displayName}

@@ -1,5 +1,14 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import LegendsYuch from "@/assets/loginpics/legendsyuch.jpg";
+import SunriseHenry from "@/assets/loginpics/sunerisehenry.jpg";
+import SunriseMig from "@/assets/loginpics/sunrisestmig.jpg";
+import SundownHenry from "@/assets/loginpics/sundownhenry.jpg";
+import HenryChairs from '@/assets/loginpics/henrychairs.jpg';
+import StMigs from '@/assets/loginpics/StMigs.jpg';
+import YuchHall from '@/assets/loginpics/YuchHall.png';
+import DoroteoJose from '@/assets/loginpics/DoroteoJose.png'
+
 
 /*
  * Merges Tailwind CSS classes with clsx and handles conflicts via 
@@ -274,4 +283,48 @@ export const retry = async <T>(
 export const isValidDLSUEmail = (email: string): boolean => {
     return /^[\w.-]+@dlsu\.edu\.ph$/.test(email);
 }
+
+export const BACKGROUND_IMAGES = [
+   {
+      src: SunriseHenry,
+      alt: "Sunrise Henry",
+      weight: 300,
+    },
+    {
+      src: SunriseMig,
+      alt: "Sunrise St. Miguel",
+      weight: 300,
+    },
+    {
+      src: SundownHenry,
+      alt: "Sundown Henry",
+      weight: 300,
+    },
+    {
+      src: LegendsYuch,
+      alt: "Legends Yuch",
+      weight: 1,
+    },
+    {
+      src: HenryChairs,
+      alt: "Sundown Henry Chairs",
+      weight: 300,
+    },
+    {
+      src: StMigs,
+      alt: "St Miguel Hallway",
+      weight: 300,
+    },
+    {
+      src: YuchHall,
+      alt: "Yuchengo...",
+      weight: 300,
+    },
+    {
+      src: DoroteoJose,
+      alt: "Doroteo Jose Station",
+      weight: 300,
+    },
+];
+
 

@@ -1,16 +1,16 @@
-// Post Types
-export interface Post {
+// Post types with proper separation
+// Location: client/src/features/posts/types.ts
+
+import strict from "node:assert/strict"
+
+// What's stored in DB/localStorage (no author object)
+export interface StoredPost {
   id: string
   title: string
   content: string
   space: string
   spaceIcon?: string
-  author: {
-    id: string
-    name: string
-    username: string
-    avatar?: string
-  }
+  authorId: string
   flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
   upvotes: number
   downvotes: number
@@ -19,11 +19,23 @@ export interface Post {
   editedAt?: string
   imageUrl?: string
   tags: string[]
+  isEdited?: boolean
+}
+
+// What the UI receives (populated with author object)
+export interface Post extends StoredPost {
+  author: {
+    id: string
+    name: string
+    username: string
+    avatar?: string
+  }
   isOwner?: boolean
 }
 
 // Component Props
 export interface PostCardProps {
+  id: string
   title: string
   content?: string
   author: {
@@ -50,14 +62,6 @@ export interface PostCardProps {
   onClick?: () => void
 }
 
-export interface PostDetailHeaderProps {
-  isDark: boolean
-  onToggleDarkMode: () => void
-  backUrl?: string
-  homeUrl?: string
-  siteName?: string
-}
-
 export interface PostDetailBreadcrumbsProps {
   space: string
   title: string
@@ -70,6 +74,8 @@ export interface PostDetailContentProps {
   post: Post
   commentCount: number
   score: number
+  upvotes: number    // live value from voting context
+  downvotes: number  // live value from voting context
   isUpvoted: boolean
   isDownvoted: boolean
   onUpvote: () => void
@@ -77,6 +83,7 @@ export interface PostDetailContentProps {
 }
 
 export interface PostDetailActionsProps {
+  postId: string
   commentCount: number
   upvotes: number
   downvotes: number
@@ -94,7 +101,6 @@ export interface PostDetailVoteColumnProps {
   onDownvote: () => void
 }
 
-// Form Types
 export interface PostFormErrors {
   title?: string
   content?: string
@@ -124,6 +130,7 @@ export interface PostFormData {
   space: string
   imageUrl: string
   tags: string[]
+  flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
 }
 
 export interface ValidationErrors {
@@ -140,8 +147,8 @@ export interface DeletePostModalProps {
 }
 
 export interface PostDetailHeaderProps {
-  post: any; 
-  onEdit: () => void;
-  onDelete: () => void;
-  onSpaceClick: () => void;
+  post: Post
+  onEdit: () => void | Promise<void>
+  onDelete: () => void
+  onSpaceClick: () => void
 }

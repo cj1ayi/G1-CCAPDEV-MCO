@@ -5,14 +5,59 @@ interface UseDarkModeReturn {
   toggleDarkMode: () => void
 }
 
+/**
+ * Hook to manage dark mode state and synchronize with DOM and
+ * localStorage.
+ *
+ * Features:
+ * - Persists dark mode preference to localStorage
+ * - Respects system color scheme preference on first load
+ * - Syncs state when document class changes externally
+ * - Updates document.documentElement class on state change
+ *
+ * @returns {UseDarkModeReturn} Object containing isDark state and
+ *   toggleDarkMode function
+ *
+ * @example
+ * const { isDark, toggleDarkMode } = useDarkMode()
+ *
+ * return (
+ *   <button onClick={toggleDarkMode}>
+ *     {isDark ? 'Light Mode' : 'Dark Mode'}
+ *   </button>
+ * )
+ */
 export const useDarkMode = (): UseDarkModeReturn => {
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains('dark')
-  )
+  const [isDark, setIsDark] = useState(() => {
+    const stored = localStorage.getItem('darkMode')
+    if (stored !== null) {
+      return stored === 'true'
+    }
 
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  })
+
+  // Apply dark mode class to document and persist to localStorage
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('darkMode', 'true')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('darkMode', 'false')
+    }
+  }, [isDark])
+
+  // Watch for external changes to dark mode class
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains('dark'))
+      const hasClass = document
+        .documentElement
+        .classList
+        .contains('dark')
+      if (hasClass !== isDark) {
+        setIsDark(hasClass)
+      }
     })
 
     observer.observe(document.documentElement, {
@@ -21,15 +66,11 @@ export const useDarkMode = (): UseDarkModeReturn => {
     })
 
     return () => observer.disconnect()
-  }, [])
+  }, [isDark])
 
   const toggleDarkMode = useCallback(() => {
-    if (isDark) {
-      document.documentElement.classList.remove('dark')
-    } else {
-      document.documentElement.classList.add('dark')
-    }
-  }, [isDark])
+    setIsDark((prev) => !prev)
+  }, [])
 
   return { isDark, toggleDarkMode }
 }

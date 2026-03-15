@@ -1,23 +1,26 @@
-import { 
-  BowArrow, 
-  MessagesSquare, 
-  Rocket 
+import {
+  BowArrow,
+  MessagesSquare,
+  Rocket
 } from 'lucide-react'
 
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 import { cn } from '@/lib/utils'
+import { useStats } from '../hooks/useStats'
 
 export const Stats = () => {
+  const stats = useStats()
+
   return (
     /* STATS SECTION */
     <section className="py-14 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Card Box */}
-        <motion.div 
+        <motion.div
           className={cn(
-            "bg-white dark:bg-[#1a1a1a] rounded-xl shadow-lg border",
-            "border-gray-100 dark:border-white/5 p-6 md:p-8")}
+            "bg-white dark:bg-surface-dark rounded-xl shadow-lg border",
+            "border-gray-100 dark:border-border-dark p-6 md:p-8")}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -25,7 +28,7 @@ export const Stats = () => {
         >
           {/* Grid */}
           <div className="grid grid-cols-3 gap-8 text-center">
-            
+
             {/* Stat 1 */}
             <div>
               <span className="flex flex-col items-center gap-3 py-2 px-2">
@@ -33,7 +36,9 @@ export const Stats = () => {
               <p className={cn(
                 "text-3xl md:text-4xl font-extrabold",
                 "text-gray-900 dark:text-white")}>
-                <CountUp end={6700} duration={2} separator="," suffix="+" />
+                {stats
+                  ? <CountUp end={stats.userCount} duration={2} separator="," suffix="+" />
+                  : <span className="opacity-40">—</span>}
               </p>
               <p className="text-sm text-gray-500 uppercase tracking-wide">
                 Lasallians
@@ -41,7 +46,7 @@ export const Stats = () => {
               </span>
 
             </div>
-            
+
             {/* Stat 2 */}
             <div>
               <span className="flex flex-col items-center gap-3 py-2 px-2">
@@ -49,14 +54,16 @@ export const Stats = () => {
               <p className={cn(
                 "text-3xl md:text-4xl font-extrabold",
                 "text-gray-900 dark:text-white")}>
-                <CountUp end={67000} duration={2} separator="," suffix="+" />
+                {stats
+                  ? <CountUp end={stats.postCount} duration={2} separator="," suffix="+" />
+                  : <span className="opacity-40">—</span>}
               </p>
               <p className="text-sm text-gray-500 uppercase tracking-wide">
                 Discussions
               </p>
               </span>
             </div>
-            
+
             {/* Stat 3 */}
             <div>
               <span className="flex flex-col items-center gap-3 py-2 px-2">
@@ -64,7 +71,9 @@ export const Stats = () => {
               <p className={cn(
                 "text-3xl md:text-4xl font-extrabold text-gray-900",
                 "dark:text-white")}>
-                <CountUp end={67} duration={2} separator="," suffix="+" />
+                {stats
+                  ? <CountUp end={stats.spaceCount} duration={2} separator="," suffix="+" />
+                  : <span className="opacity-40">—</span>}
               </p>
               <p className="text-sm text-gray-500 uppercase tracking-wide">
                 Active Spaces

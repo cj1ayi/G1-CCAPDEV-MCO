@@ -9,21 +9,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#007036',
-        'primary-dark': '#005c2d',
+        primary: '#00944a',
+        'primary-dark': '#00944a',
         'primary-light': '#00944a',
-        
+
         // Light mode
         'background-light': '#f2f4f3',
         'surface-light': '#ffffff',
         'border-light': '#dae7e0',
-        
-        'background-dark': '#030303',
-        'surface-dark': '#1a1a1b',
-        'surface-darker': '#0d0d0e',
-        'surface-input': '#272729',
-        'border-dark': '#343536',         
-        
+
+        // Dark mode
+        'background-dark': '#111111',
+        'surface-dark': '#1c1c1c',
+        'surface-darker': '#242424',
+        'surface-input': '#2d2d2d',
+        'border-dark': '#1f1f1f',
         'dlsu-gold': '#C1A624',
       },
       fontFamily: {
@@ -31,7 +31,18 @@ export default {
         sans: ['Inter', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-1000px 0' },
+          '100%': { backgroundPosition: '1000px 0' },
+        },
+      },
+      animation: {
+        shimmer: 'shimmer 2s infinite linear',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography')
+  ],
 } satisfies Config

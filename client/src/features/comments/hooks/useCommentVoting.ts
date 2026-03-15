@@ -1,32 +1,35 @@
-import { 
-  useState, 
-  useCallback 
-} from 'react'
-
-import { 
-  CommentCardProps,
-  VoteType,
-  UseCommentVotingReturn
-} from '../types'
+import { useCallback } from 'react'
+import { CommentCardProps, VoteType, UseCommentVotingReturn } from '../types'
+import { useVoting } from '@/features/votes/VotingContext'
 
 export function useCommentVoting(): UseCommentVotingReturn {
-  const [votes, setVotes] = useState<Record<string, VoteType>>({})
+  const { votes, toggleVote } = useVoting()
 
-  const toggleVote = useCallback((
-    commentId: string, voteType: 'up' | 'down') => {
-    setVotes((prev) => ({
-      ...prev,
-      [commentId]: prev[commentId] === voteType ? null : voteType,
-    }))
-  }, [])
+  const handleToggleVote = useCallback((
+    commentId: string, 
+    voteType: VoteType
+  ) => {
+    if (!commentId) {
+      console.warn('toggleVote called with empty commentId')
+      return
+    }
+    
+    toggleVote(commentId, 'comment', voteType)
+  }, [toggleVote])
 
   const getCommentScore = useCallback(
     (comment: CommentCardProps) => {
-      const voteState = votes[comment.id]
+      if (!comment) return 0
+      
+      const key = `comment:${comment.id}`
+      const voteState = votes[key]
       let score = comment.upvotes - comment.downvotes
 
-      if (voteState === 'up') score += 1
-      if (voteState === 'down') score -= 1
+      if (voteState === 'up') {
+        score += 1
+      } else if (voteState === 'down') {
+        score -= 1
+      }
 
       return score
     },
@@ -36,11 +39,20 @@ export function useCommentVoting(): UseCommentVotingReturn {
   const addVoteHandlers = useCallback(
     (
       comment: CommentCardProps,
-      onEdit?: (commentId: string, newContent: string) => void | Promise<void>,
+      onEdit?: (
+        commentId: string, 
+        newContent: string
+      ) => void | Promise<void>,
       onDelete?: (commentId: string) => void | Promise<void>,
-      onReply?: (content: string, parentId?: string) => void | Promise<void>
+      onReply?: (
+        content: string, 
+        parentId?: string
+      ) => void | Promise<void>
     ): CommentCardProps => {
-      const voteState = votes[comment.id] || null
+      if (!comment) return comment
+
+      const key = `comment:${comment.id}`
+      const voteState = votes[key] || null
 
       let displayUpvotes = comment.upvotes
       let displayDownvotes = comment.downvotes
@@ -51,32 +63,50 @@ export function useCommentVoting(): UseCommentVotingReturn {
         displayDownvotes += 1
       }
 
+      const handleUpvote = () => {
+        handleToggleVote(comment.id, 'up')
+      }
+
+      const handleDownvote = () => {
+        handleToggleVote(comment.id, 'down')
+      }
+
+      const handleEdit = onEdit 
+        ? (newContent: string) => onEdit(comment.id, newContent)
+        : undefined
+
+      const handleDelete = onDelete 
+        ? () => onDelete(comment.id)
+        : undefined
+
+      const handleReply = onReply 
+        ? (content: string) => onReply(content, comment.id)
+        : undefined
+
+      const processedReplies = comment.replies?.map(reply =>
+        addVoteHandlers(reply, onEdit, onDelete, onReply)
+      )
+
       return {
         ...comment,
         upvotes: displayUpvotes,
         downvotes: displayDownvotes,
         isUpvoted: voteState === 'up',
         isDownvoted: voteState === 'down',
-        onUpvote: () => toggleVote(comment.id, 'up'),
-        onDownvote: () => toggleVote(comment.id, 'down'),
-        onEdit: onEdit ? (newContent: string) => onEdit(
-          comment.id, newContent) : undefined,
-        onDelete: onDelete ? () => onDelete(comment.id) : undefined,
-        onReply: onReply ? (content: string) => {
-          // Pass the content and this comment's ID as the parent
-          return onReply(content, comment.id)
-        } : undefined,
-        replies: comment.replies?.map(reply =>
-          addVoteHandlers(reply, onEdit, onDelete, onReply)
-        ),
+        onUpvote: handleUpvote,
+        onDownvote: handleDownvote,
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+        onReply: handleReply,
+        replies: processedReplies,
       }
     },
-    [votes, toggleVote]
+    [votes, handleToggleVote]
   )
 
   return { 
     votes,
-    toggleVote, 
+    toggleVote: handleToggleVote, 
     getCommentScore, 
     addVoteHandlers 
   }

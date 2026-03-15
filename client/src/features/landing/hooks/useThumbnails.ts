@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Post } from '@/lib/mockData'
+import { Post } from '@/features/posts/types'
 import { getPostThumbnail } from '../utils/imageUtils'
 
 export const useThumbnails = (posts: Post[] = []) => {

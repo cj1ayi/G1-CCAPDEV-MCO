@@ -1,18 +1,71 @@
+import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { PostDetailVoteColumn } from './PostDetailVoteColumn'
 import { PostDetailActions } from './PostDetailActions'
 import { Avatar } from '@/components/ui'
 import type { PostDetailContentProps } from '../types'
+import type { PostDetailVoteColumnProps } from './PostDetailVoteColumn'
+import { formatTimeAgo } from '@/lib/dateUtils'
+import { PostImage } from './PostImage'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
+
+const FLAIR_STYLES: Record<string, string> = {
+  Question:
+    'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+  News:
+    'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+  Marketplace:
+    'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
+  Discussion:
+    'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+}
 
 export const PostDetailContent = ({
   post,
   commentCount,
   score,
+  upvotes,
+  downvotes,
   isUpvoted,
   isDownvoted,
   onUpvote,
   onDownvote,
 }: PostDetailContentProps) => {
+  const navigate = useNavigate()
+
+  const goToSpace = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      navigate(`/r/${post.space}`)
+    },
+    [navigate, post.space]
+  )
+
+  const goToAuthor = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      navigate(`/profile/${post.author.username}`)
+    },
+    [navigate, post.author.username]
+  )
+
+  const voteProps: PostDetailVoteColumnProps = {
+    score,
+    upvotes,
+    downvotes,
+    isUpvoted,
+    isDownvoted,
+    onUpvote,
+    onDownvote,
+  }
+
+  const flairStyle = post.flair
+    ? (FLAIR_STYLES[post.flair] ?? 'bg-gray-100 text-gray-700')
+    : null
+
   return (
     <article
       className={cn(
@@ -23,68 +76,43 @@ export const PostDetailContent = ({
       )}
     >
       <div className="flex">
-        {/* Vote Column (Desktop) */}
-        <PostDetailVoteColumn
-          score={score}
-          isUpvoted={isUpvoted}
-          isDownvoted={isDownvoted}
-          onUpvote={onUpvote}
-          onDownvote={onDownvote}
-        />
+        <PostDetailVoteColumn {...voteProps} />
 
-        {/* Main Content */}
         <div className="flex-1 p-6 sm:p-8">
-          {/* Post Meta */}
           <div
             className={cn(
               'flex items-center gap-3 mb-4',
               'text-sm text-gray-500 dark:text-gray-400'
             )}
           >
-            {/* Space */}
             <div
               className={cn(
                 'flex items-center gap-2 font-semibold',
                 'text-gray-900 dark:text-gray-200',
                 'hover:underline cursor-pointer'
               )}
-              onClick={(e) => {
-                  e.stopPropagation()
-                  window.location.href = `/space/${post.space}`
-                }}
+              onClick={goToSpace}
             >
               {post.spaceIcon && (
                 <img
                   className="w-6 h-6 rounded-full object-cover"
                   src={post.spaceIcon}
                   alt={post.space}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display =
+                      'none'
+                  }}
                 />
               )}
               <span>r/{post.space}</span>
             </div>
 
-            {/* Flair */}
-            {post.flair && (
+            {flairStyle && (
               <span
                 className={cn(
-                  'px-2 py-1 rounded-full',
-                  'text-[10px] font-bold tracking-wide uppercase',
-                  post.flair === 'Question' && [
-                    'bg-blue-100 text-blue-700',
-                    'dark:bg-blue-900 dark:text-blue-300',
-                  ],
-                  post.flair === 'News' && [
-                    'bg-green-100 text-green-700',
-                    'dark:bg-green-900 dark:text-green-300',
-                  ],
-                  post.flair === 'Marketplace' && [
-                    'bg-yellow-100 text-yellow-700',
-                    'dark:bg-yellow-900 dark:text-yellow-300',
-                  ],
-                  post.flair === 'Discussion' && [
-                    'bg-purple-100 text-purple-700',
-                    'dark:bg-purple-900 dark:text-purple-300',
-                  ]
+                  'px-2 py-1 rounded-full text-[10px] font-bold',
+                  'tracking-wide uppercase',
+                  flairStyle
                 )}
               >
                 {post.flair}
@@ -92,37 +120,37 @@ export const PostDetailContent = ({
             )}
           </div>
 
-          {/* Author Info */}
           <div className="flex items-center gap-3 mb-4">
-            <Avatar 
-              size="md" 
-              name={post.author.name} 
-              src={post.author.avatar} 
+            <Avatar
+              size="md"
+              name={post.author.name}
+              src={post.author.avatar}
             />
             <div>
               <p
                 className={cn(
                   'text-sm font-semibold',
-                  'text-gray-900 dark:text-white',
-                  'hover:underline cursor-pointer'
+                  'text-gray-900 dark:text-white'
                 )}
               >
-                <span className="hover:underline cursor-pointer font-semibold"
-                  onClick={(e) => {
-                  e.stopPropagation()
-                  window.location.href = `/profile/${post.author.id}`
-                  }}
+                <span
+                  className="hover:underline cursor-pointer font-semibold"
+                  onClick={goToAuthor}
                 >
                   u/{post.author.username}
                 </span>
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {post.createdAt}
+                {formatTimeAgo(post.createdAt)}
               </p>
+              {post.isEdited && (
+                <span className="text-xs text-gray-400 italic">
+                  (edited)
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Title */}
           <h1
             className={cn(
               'text-3xl font-bold text-slate-900 dark:text-white',
@@ -132,54 +160,63 @@ export const PostDetailContent = ({
             {post.title}
           </h1>
 
-          {/* Content */}
           <div
             className={cn(
               'text-slate-700 dark:text-slate-300',
-              'text-base leading-relaxed mb-4'
+              'text-base leading-relaxed mb-4',
+              'prose dark:prose-invert max-w-none'
             )}
           >
-            {post.content}
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]} 
+              rehypePlugins={[rehypeRaw]}
+              components={{
+                a: ({ node, ...props }) => (
+                  <a 
+                    {...props} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-primary hover:underline"
+                    onClick={(e) => e.stopPropagation()} 
+                  />
+                )
+              }}
+            >
+              {post.content}
+            </ReactMarkdown>
           </div>
 
-          {/* Image */}
           {post.imageUrl && (
-            <div className="mb-4">
-              <img
-                src={post.imageUrl}
-                alt={post.title}
-                className="w-full rounded-lg object-cover max-h-[500px]"
-              />
+            <PostImage
+              src={post.imageUrl}
+              alt={post.title}
+              maxHeight="max-h-[500px]"
+            />
+          )}
+
+          {(post.tags?.length ?? 0) > 0 && (
+            <div className="flex flex-wrap gap-2 mt-6">
+              {post.tags.map((tag: string) => (
+                <span
+                  key={tag}
+                  className={cn(
+                    'px-3 py-1 rounded-full',
+                    'bg-gray-100 dark:bg-gray-800',
+                    'text-xs font-medium text-gray-600',
+                    'dark:text-gray-300 border',
+                    'border-gray-200 dark:border-gray-700'
+                  )}
+                >
+                  #{tag}
+                </span>
+              ))}
             </div>
           )}
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mt-6">
-            {post.tags.map((tag: string) => (
-              <span
-                key={tag}
-                className={cn(
-                  'px-3 py-1 rounded-full',
-                  'bg-gray-100 dark:bg-gray-800',
-                  'text-xs font-medium text-gray-600',
-                  'dark:text-gray-300 border',
-                  'border-gray-200 dark:border-gray-700'
-                )}
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-
-          {/* Actions */}
           <PostDetailActions
+            postId={post.id}
             commentCount={commentCount}
-            upvotes={post.upvotes}
-            downvotes={post.downvotes}
-            isUpvoted={isUpvoted}
-            isDownvoted={isDownvoted}
-            onUpvote={onUpvote}
-            onDownvote={onDownvote}
+            {...voteProps}
           />
         </div>
       </div>

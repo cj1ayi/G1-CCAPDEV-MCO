@@ -1,6 +1,9 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useAuth } from "./features/auth/hooks";
+import { Navigate, BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/AuthContext";
-import { commentService } from "@/features/comments/services";
+import { LoadingBar } from "@/components/shared";
+import { VotingProvider } from "./features/votes/VotingContext";
+import { ToastProvider } from "./hooks/ToastContext";
 
 import {
   Home,
@@ -11,6 +14,7 @@ import {
   Space,
   SpacesDirectory,
   CreateSpace,
+  EditSpace,
   Login,
   Signup,
   Search,
@@ -18,49 +22,53 @@ import {
   EditPost,
 } from "./pages";
 
+const AppRoutes = () => {
+  const { user } = useAuth()
+
+  return (
+    <Routes>
+      {/* Home */}
+      <Route path="/" element={user ? <Navigate to="/explore" replace /> : <Home />} />
+
+      {/* Feed Routes */}
+      <Route path="/explore" element={<Explore />} />
+
+      {/* Post Routes */}
+      <Route path="/post/:id" element={<PostDetail />} />
+      <Route path="/post/create" element={<CreatePost />} />
+      <Route path="/post/:id/edit" element={<EditPost />} />
+
+      {/* User & Space Routes */}
+      <Route path="/profile/:username" element={<Profile />} />
+      <Route path="/profile/edit" element={<EditProfile />} />
+      <Route path="/r/:name" element={<Space />} />
+      <Route path="/r/:name/edit" element={<EditSpace />} />
+      <Route path="/spaces" element={<SpacesDirectory />} />
+      <Route path="/spaces/create" element={<CreateSpace />} />
+
+      {/* Auth Routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      {/* Search */}
+      <Route path="/search" element={<Search />} />
+    </Routes>
+  )
+}
 
 const App = () => {
-  const hasSeeded = localStorage.getItem("comments_seeded");
-  if (!hasSeeded) {
-    commentService.resetToMockData().then(() => {
-      localStorage.setItem("comments_seeded", "true");
-      console.log("Comments auto-seeded on first load!");
-    });
-  }
-
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* Home */}
-          <Route path="/" element={<Home/>} />
-        
-          {/* Feed Routes */}
-          <Route path="/explore" element={<Explore/>} />
-          
-          {/* Post Routes */}
-          <Route path="/post/:id" element={<PostDetail/>} />
-          <Route path="/post/create" element={<CreatePost/>} />
-          <Route path="/post/:id/edit" element={<EditPost/>} />
-          
-          {/* User & Space Routes */}
-          <Route path="/profile/:id" element={<Profile/>} />
-          <Route path="/profile/edit" element={<EditProfile/>} />
-          <Route path="/space/:name" element={<Space/>} />
-          <Route path="/spaces" element={<SpacesDirectory />} />
-          <Route path="/spaces/create" element={<CreateSpace />} />
- 
-          
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login/>} />
-          <Route path="/signup" element={<Signup/>} />
-          
-          {/* Search */}
-          <Route path="/search" element={<Search/>} />
-     </Routes>
-    </AuthProvider>
-  </BrowserRouter>
-  );
-};
+        <VotingProvider>
+          <LoadingBar />
+            <ToastProvider>
+              <AppRoutes />
+            </ToastProvider>
+        </VotingProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}
 
 export default App;

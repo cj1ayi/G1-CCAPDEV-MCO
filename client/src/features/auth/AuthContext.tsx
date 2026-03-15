@@ -1,74 +1,79 @@
-import { 
-  createContext, 
-  useState, 
-  useEffect, 
-  useCallback, 
-  type ReactNode 
-} from "react";
+// Location: client/src/features/auth/AuthContext.tsx
+
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  type ReactNode
+} from "react"
 
 import {
   login as loginService,
-  signup as signupService,
   logout as logoutService,
   getCurrentUser,
-} from "@/features/auth/services";
+} from "@/features/auth/services"
 
-import { 
-  AuthUser, 
-  AuthContextType 
-} from "@/features/auth/types";
+import {
+  AuthUser,
+  AuthContextType
+} from "@/features/auth/types"
 
+export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const AuthContext = createContext<
-AuthContextType | undefined>(undefined);
+const AUTH_CHANGE_EVENT = 'auth-user-changed'
 
-// ---------------------------------------------------------------------------
-// Provider
-// ---------------------------------------------------------------------------
+export function dispatchAuthChange() {
+  window.dispatchEvent(new CustomEvent(AUTH_CHANGE_EVENT))
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const hasFetched = useRef(false)
 
-  // Rehydrate session on mount (handles "Remember Me" persistence)
   useEffect(() => {
-    const stored = getCurrentUser();
-    if (stored) setUser(stored);
-    setIsLoading(false);
-  }, []);
+    // Only fetch once on mount — checks session cookie with backend
+    if (hasFetched.current) return
+    hasFetched.current = true
 
-  const login = useCallback(
-    (usernameOrEmail: string, 
-     password: string, remember: boolean = false): boolean => {
-      const result = loginService(usernameOrEmail, password, remember);
-      if (result) {
-        setUser(result);
-        return true;
-      }
-      return false;
-    },
-    []
-  );
+    getCurrentUser().then((fetchedUser) => {
+      setUser(fetchedUser)
+      setIsLoading(false)
+    })
+  }, [])
 
-  const signup = useCallback(
-    (email: string, username: string, password: string): boolean => {
-      const result = signupService(email, username, password);
-      if (result) {
-        setUser(result);
-        return true;
-      }
-      return false;
-    },
-    []
-  );
+  const login = useCallback(() => {
+    // Triggers full-page redirect to Google OAuth
+    loginService()
+  }, [])
 
-  const logout = useCallback(() => {
-    logoutService();
-    setUser(null);
-  }, []);
+  const logout = useCallback(async () => {
+    await logoutService()
+    setUser(null)
+    dispatchAuthChange()
+  }, [])
+
+  const contextValue: AuthContextType = {
+    user,
+    isLoading,
+    login,
+    logout,
+  }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}
+
+export function useAuthChangeListener(callback: () => void) {
+  useEffect(() => {
+    window.addEventListener(AUTH_CHANGE_EVENT, callback)
+    return () => {
+      window.removeEventListener(AUTH_CHANGE_EVENT, callback)
+    }
+  }, [callback])
+}

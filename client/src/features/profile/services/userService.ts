@@ -1,85 +1,133 @@
+// Location: client/src/features/profile/services/userService.ts
+
 import { User } from '../types'
-import { 
-  getCurrentUser as getAuthUser 
-} from "@/features/auth/services/authService";
+import { getCurrentUser as getAuthUser } from "@/features/auth/services/authService"
+import { Post } from '@/features/posts/types'
+import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
 
 class UserService {
-  private storageKey = 'animoforums_users'
-
-  private getStore(): User[] {
-    const data = localStorage.getItem(this.storageKey)
-    return data ? JSON.parse(data) : []
-  }
-
-  private setStore(users: User[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(users))
-  }
-
-  private async seedIfNeeded(): Promise<void> {
-    const users = this.getStore()
-    if (users.length > 0) return
-
-    try {
-      const { getAllUsers } = await import('@/lib/mockData')
-      const mockUsers = getAllUsers()
-
-      if (mockUsers && mockUsers.length > 0) {
-        this.setStore(mockUsers)
-        console.log("so much users bae")
-        console.log(`${mockUsers.length}`) 
-      }
-    } catch (err) {
-      console.log('No mock users found')
+  private mapUser(data: any): User {
+    const converted = convertObjectId(data)
+    return {
+      id: converted.id,
+      name: converted.name,
+      username: converted.username,
+      avatar: converted.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${converted.username}`,
+      bio: converted.bio || '',
+      location: converted.location || '',
+      joinedAt: converted.joinedAt,
+      email: converted.email,
     }
   }
 
-  async getAllUsers(): Promise<User[]> {
-    await this.seedIfNeeded()
-    return this.getStore()
+  private mapPost(data: any): Post {
+    const converted = convertObjectId(data)
+    return {
+      ...converted,
+      authorId: converted.author?.id || converted.authorId,
+      author: converted.author ? {
+        id: converted.author.id,
+        username: converted.author.username,
+        avatar: converted.author.avatar,
+      } : undefined,
+    }
+  }
+
+  async getUserByUsername(username: string): Promise<User | null> {
+    if (!username) return null
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/username/${username}`)
+      if (!response.ok) return null
+      const data = await response.json()
+      return this.mapUser(data)
+    } catch (err) {
+      console.error('Failed to fetch user by username:', err)
+      return null
+    }
   }
 
   async getUserById(id: string): Promise<User | null> {
-    await this.seedIfNeeded()
-    const users = this.getStore()
-    return users.find(user => user.id === id) || null
+    if (!id) return null
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${id}`)
+      if (!response.ok) return null
+      const data = await response.json()
+      return this.mapUser(data)
+    } catch (err) {
+      console.error('Failed to fetch user by id:', err)
+      return null
+    }
   }
 
   async getCurrentUser(): Promise<User | null> {
-    await this.seedIfNeeded()
-    return getAuthUser() 
+    const authUser = await getAuthUser()
+    if (!authUser) return null
+    return authUser as unknown as User
+  }
+
+  async getUserPosts(userId: string): Promise<Post[]> {
+    if (!userId) return []
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/posts`)
+      if (!response.ok) return []
+      const data = await response.json()
+      return data.map((p: any) => this.mapPost(p))
+    } catch (err) {
+      console.error('Failed to get user posts:', err)
+      return []
+    }
+  }
+
+  async getUserComments(userId: string): Promise<any[]> {
+    if (!userId) return []
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/comments`)
+      if (!response.ok) return []
+      return await response.json()
+    } catch (err) {
+      console.error('Failed to get user comments:', err)
+      return []
+    }
+  }
+
+  async getUserSpaces(userId: string): Promise<any[]> {
+    if (!userId) return []
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/spaces`)
+      if (!response.ok) return []
+      return await response.json()
+    } catch (err) {
+      console.error('Failed to get user spaces:', err)
+      return []
+    }
+  }
+
+  async getUserUpvotedPosts(userId: string): Promise<Post[]> {
+    if (!userId) return []
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/upvoted`)
+      if (!response.ok) return []
+      const data = await response.json()
+      return data.map((p: any) => this.mapPost(p))
+    } catch (err) {
+      console.error('Failed to get user upvoted posts:', err)
+      return []
+    }
   }
 
   async updateUser(id: string, updates: Partial<User>): Promise<User> {
-    await this.seedIfNeeded()
-
-    const users = this.getStore()
-    const index = users.findIndex(u => u.id === id)
-
-    if (index === -1) {
-      throw new Error('User not found')
+    if (!id) throw new Error('User ID is required')
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/users/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates)
+      })
+      const data = await response.json()
+      return this.mapUser(data)
+    } catch (err) {
+      throw new Error(`Failed to update user: ${(err as Error).message}`)
     }
-
-    const updatedUser = {
-      ...users[index],
-      ...updates,
-    }
-
-    users[index] = updatedUser
-    this.setStore(users)
-
-    return updatedUser
-  }
-
-  async resetToMockData(): Promise<void> {
-    localStorage.removeItem(this.storageKey)
-    await this.seedIfNeeded()
   }
 }
 
 export const userService = new UserService()
-
-if (typeof window !== 'undefined') {
-  (window as any).userService = {
-    reset: () => userService.resetToMockData(),
-  }
-}

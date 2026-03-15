@@ -1,30 +1,26 @@
+// Location: client/src/features/auth/types.ts
+
+/**
+ * Authenticated user data returned from /api/auth/me
+ */
 export interface AuthUser {
-  id: string;
-  name: string;
-  username: string;
-  avatar: any;
-  bio?: string;
-  location?: string;
-  joinedAt?: string;
+  id: string
+  name: string
+  username: string
+  avatar: string
+  bio?: string
+  location?: string
+  joinedAt?: string
 }
 
+/**
+ * Authentication context providing user state and auth methods.
+ * login() triggers Google OAuth redirect.
+ * signup() is removed — Google OAuth handles new user creation automatically.
+ */
 export interface AuthContextType {
-  user: AuthUser | null;
-  isLoading: boolean;
-  login: (
-    usernameOrEmail: string, 
-    password: string, 
-    remember?: boolean
-  ) => boolean;
-  signup: (
-    email: string, 
-    username: string, 
-    password: string) => boolean;
-  logout: () => void;
+  user: AuthUser | null
+  isLoading: boolean
+  login: () => void
+  logout: () => void
 }
-
-export const SESSION_KEY = "animoforums_session";
-export const REMEMBER_KEY = "animoforums_remember";
-export const SIGNUP_USERS_KEY = "animoforums_signups"; 
-
-

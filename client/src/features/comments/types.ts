@@ -1,3 +1,44 @@
+
+/**
+ * Base Comment - Flat storage structure
+ */
+export interface Comment {
+  _id: string
+  postId: string
+  authorId: string
+  parentId: string | null
+  content: string
+  depth: number
+  createdAt: Date
+  updatedAt: Date
+  editedAt: Date | null
+  deletedAt: Date | null
+  deletedBy: string | null
+  author?: any
+}
+
+/**
+ * Comment with populated author
+ */
+export interface CommentWithAuthor extends Comment {
+  author: {
+    _id: string
+    username: string
+    displayName: string
+    avatar: string
+  }
+  voteScore: number
+  userVote: 'up' | 'down' | null
+}
+
+/**
+ * Comment tree node for rendering
+ */
+export interface CommentTreeNode extends CommentWithAuthor {
+  replies: CommentTreeNode[]
+  replyCount: number
+}
+
 export interface CommentCardProps {
   id: string
   content: string

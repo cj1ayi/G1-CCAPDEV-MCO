@@ -1,95 +1,257 @@
-import { CommentCardProps } from '../types'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import type { CommentCardProps } from '../types'
+import { commentService } from '../services/'
 
 import { 
-  getCommentsByPostId, 
-  getAllPosts 
-} from '@/lib/mockData'
+  getCurrentUser as getAuthUser 
+} from '@/features/auth/services/'
 
-const STORAGE_KEY = 'animoforums_comments'
+import {
+  UseCommentsOptions,
+  UseCommentsReturn
+} from '../types'
 
 /**
- * Seeds localStorage with comments from mockData
- * Run this once to initialize your data
+ * Calculate comment score with vote adjustments
  */
-export function seedCommentsToLocalStorage(): void {
-  console.log('Starting comment seeding...')
-
-  // Get all post IDs
-  const posts = getAllPosts()
-  const store: Record<string, CommentCardProps[]> = {}
-
-  // Load comments for each post
-  posts.forEach(post => {
-    try {
-      const comments = getCommentsByPostId(post.id)
-      if (comments && comments.length > 0) {
-        store[post.id] = comments
-        console.log(
-          `Loaded ${comments.length} comments for post "${post.title}"`
-        )
-      }
-    } catch (err) {
-      console.warn(`Could not load comments for post ${post.id}`)
-    }
-  })
-
-  // Save to localStorage
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
+function getCommentScore(
+  comment: CommentCardProps, 
+  voteState?: Record<string, 'up' | 'down' | null>
+): number {
+  let score = comment.upvotes - comment.downvotes
   
-  const totalComments = Object.values(store)
-    .reduce((sum, comments) => sum + comments.length, 0)
-  console.log(
-    `Seeding complete! ${totalComments} comments across ${Object.keys(store).length} posts`
-  )
-}
-
-/**
- * Clears all comments from localStorage
- */
-export function clearComments(): void {
-  localStorage.removeItem(STORAGE_KEY)
-  console.log('All comments cleared')
-}
-
-/**
- * Resets comments back to mock data
- */
-export function resetToMockData(): void {
-  clearComments()
-  seedCommentsToLocalStorage()
-  console.log('Comments reset to mock data')
-}
-
-/**
- * Gets current comment stats
- */
-export function getCommentStats(): void {
-  const data = localStorage.getItem(STORAGE_KEY)
-  if (!data) {
-    console.log('No comments in localStorage')
-    return
+  if (voteState && voteState[comment.id]) {
+    if (voteState[comment.id] === 'up') score += 1
+    if (voteState[comment.id] === 'down') score -= 1
   }
+  
+  return score
+}
 
-  const store = JSON.parse(data)
-  const postCount = Object.keys(store).length
-  const totalComments = Object.values(store).reduce(
-    (sum: number, comments: any) => sum + comments.length,
-    0
+/**
+ * Sort comments by score (highest first) with vote state
+ */
+function sortCommentsByBest(
+  comments: CommentCardProps[],
+  voteState?: Record<string, 'up' | 'down' | null>
+): CommentCardProps[] {
+  const sorted = [...comments].sort((a, b) => {
+    const scoreA = getCommentScore(a, voteState)
+    const scoreB = getCommentScore(b, voteState)
+    return scoreB - scoreA
+  })
+
+  return sorted.map(comment => ({
+    ...comment,
+    replies: comment.replies && comment.replies.length > 0
+      ? sortCommentsByBest(comment.replies, voteState)
+      : comment.replies
+  }))
+}
+
+export function useComments({
+  postId,
+  voteState
+}: UseCommentsOptions): UseCommentsReturn {
+  const [rawComments, setRawComments] = useState<CommentCardProps[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+
+  // Memoized sorted comments that update when votes change
+  const comments = useMemo(() => {
+    return sortCommentsByBest(rawComments, voteState)
+  }, [rawComments, voteState])
+
+  // Load comments on mount
+  const loadComments = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const data = await commentService.getCommentsByPostId(postId)
+      setRawComments(data)
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(
+        'Failed to load comments'))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [postId])
+
+  // Initial load
+  useEffect(() => {
+    loadComments()
+  }, [loadComments])
+
+  // Add a new comment (root or reply)
+  const addComment = useCallback(
+    async (content: string, parentId?: string) => {
+      try {
+        setError(null)
+
+        // Optimistic update with real current user
+        const currentUser = await getAuthUser()
+        const tempComment: CommentCardProps = {
+          id: `temp-${Date.now()}`,
+          content,
+          author: {
+            id: currentUser?.id || '',
+            name: currentUser?.name || '',
+            username: currentUser?.username || '',
+            avatar: currentUser?.avatar || '',
+          },
+          upvotes: 0,
+          downvotes: 0,
+          createdAt: 'Posting...',
+          isOwner: true,
+          replies: [],
+        }
+
+        if (!parentId) {
+          setRawComments(prev => [tempComment, ...prev])
+        } else {
+          setRawComments(prev => 
+            addReplyToCommentOptimistic(prev, parentId, tempComment)
+          )
+        }
+        console.log('createComment dto:', { postId, content, parentId })
+        // Call service
+        await commentService.createComment({ postId, content, parentId })
+
+        // Refresh to get real data
+        await loadComments()
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(
+          'Failed to add comment'))
+        // Rollback optimistic update
+        await loadComments()
+      }
+    },
+    [postId, loadComments]
   )
 
-  console.log('  Comment Stats:')
-  console.log(`  Posts with comments: ${postCount}`)
-  console.log(`  Total comments: ${totalComments}`)
-  
-  Object.entries(store).forEach(([postId, comments]: [string, any]) => {
-    console.log(`  Post ${postId}: ${comments.length} comments`)
+  // Edit an existing comment
+  const editComment = useCallback(
+    async (commentId: string, newContent: string) => {
+      try {
+        setError(null)
+
+        // Optimistic update
+        setRawComments(prev =>
+          updateCommentContentOptimistic(prev, commentId, newContent)
+        )
+
+        // Call service
+        await commentService.updateComment(
+          postId,
+          commentId,
+          { content: newContent })
+
+        // Refresh to get real data
+        await loadComments()
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(
+          'Failed to edit comment'))
+        // Rollback
+        await loadComments()
+      }
+    },
+    [postId, loadComments]
+  )
+
+  // Delete a comment
+  const deleteComment = useCallback(
+    async (commentId: string) => {
+      try {
+        setError(null)
+
+        // Optimistic update
+        setRawComments(prev =>
+          removeCommentOptimistic(prev, commentId)
+        )
+
+        // Call service
+        await commentService.deleteComment(postId, commentId)
+
+        // Refresh to get real data
+        await loadComments()
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(
+          'Failed to delete comment'))
+        // Rollback
+        await loadComments()
+      }
+    },
+    [postId, loadComments]
+  )
+
+  return {
+    comments,
+    isLoading,
+    error,
+    addComment,
+    editComment,
+    deleteComment,
+    refresh: loadComments,
+  }
+}
+
+// Optimistic update helpers
+function addReplyToCommentOptimistic(
+  comments: CommentCardProps[],
+  parentId: string,
+  newReply: CommentCardProps
+): CommentCardProps[] {
+  return comments.map(comment => {
+    if (comment.id === parentId) {
+      return {
+        ...comment,
+        replies: [newReply, ...(comment.replies || [])],
+      }
+    }
+    if (comment.replies && comment.replies.length > 0) {
+      return {
+        ...comment,
+        replies: addReplyToCommentOptimistic(
+          comment.replies, parentId, newReply),
+      }
+    }
+    return comment
   })
 }
 
-// Expose functions to window for dev console access
-if (typeof window !== 'undefined') {
-  (window as any).seedComments = seedCommentsToLocalStorage;
-  (window as any).clearComments = clearComments;
-  (window as any).resetComments = resetToMockData;
-  (window as any).commentStats = getCommentStats
+function updateCommentContentOptimistic(
+  comments: CommentCardProps[],
+  commentId: string,
+  newContent: string
+): CommentCardProps[] {
+  return comments.map(comment => {
+    if (comment.id === commentId) {
+      return { ...comment, content: newContent }
+    }
+    if (comment.replies && comment.replies.length > 0) {
+      return {
+        ...comment,
+        replies: updateCommentContentOptimistic(
+          comment.replies, commentId, newContent),
+      }
+    }
+    return comment
+  })
+}
+
+function removeCommentOptimistic(
+  comments: CommentCardProps[],
+  commentId: string
+): CommentCardProps[] {
+  return comments
+    .filter(comment => comment.id !== commentId)
+    .map(comment => {
+      if (comment.replies && comment.replies.length > 0) {
+        return {
+          ...comment,
+          replies: removeCommentOptimistic(comment.replies, commentId),
+        }
+      }
+      return comment
+    })
 }

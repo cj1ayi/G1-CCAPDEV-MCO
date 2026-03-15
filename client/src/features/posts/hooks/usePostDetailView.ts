@@ -1,16 +1,30 @@
-import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { usePostDetail } from './usePostDetail';
-import { useComments  } from '@/features/comments/hooks/useComments';
-import { useCommentVoting  } from '@/features/comments/hooks/useCommentVoting';
-import { getTotalCommentCount } from '@/features/comments/utils/comment-utils';
+import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { usePostDetail } from './usePostDetail'
+import { useComments } from '@/features/comments/hooks/useComments'
+import { useCommentVoting } from '@/features/comments/hooks/useCommentVoting'
+import { getTotalCommentCount } from '@/features/comments/utils/comment-utils'
+import { CommentCardProps } from '@/features/comments/types'
+
+function sortCommentsByScore(comments: CommentCardProps[]): CommentCardProps[] {
+  const sorted = [...comments].sort((a, b) => {
+    const scoreA = a.upvotes - a.downvotes
+    const scoreB = b.upvotes - b.downvotes
+    return scoreB - scoreA
+  })
+
+  return sorted.map(comment => ({
+    ...comment,
+    replies: comment.replies && comment.replies.length > 0
+      ? sortCommentsByScore(comment.replies)
+      : comment.replies
+  }))
+}
 
 export function usePostDetailView(postId?: string) {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const postDetail = usePostDetail({ postId });
-
-  const { votes: commentVotes, addVoteHandlers } = useCommentVoting();
+  const postDetail = usePostDetail({ postId })
 
   const {
     comments: rawComments,
@@ -21,19 +35,24 @@ export function usePostDetailView(postId?: string) {
     deleteComment,
   } = useComments({
     postId: postId || '',
-    voteState: commentVotes,
-  });
+  })
+
+  const { addVoteHandlers } = useCommentVoting()
 
   const commentsWithHandlers = useMemo(() => {
-    return rawComments.map((comment) =>
+    return rawComments.map(comment =>
       addVoteHandlers(comment, editComment, deleteComment, addComment)
-    );
-  }, [rawComments, addVoteHandlers, editComment, deleteComment, addComment]);
+    )
+  }, [rawComments, addVoteHandlers, editComment, deleteComment, addComment])
+
+  const sortedComments = useMemo(() => {
+    return sortCommentsByScore(commentsWithHandlers)
+  }, [commentsWithHandlers])
 
   const totalCommentCount = useMemo(() => 
-    getTotalCommentCount(commentsWithHandlers), 
-    [commentsWithHandlers]
-  );
+    getTotalCommentCount(sortedComments), 
+    [sortedComments]
+  )
 
   return {
     post: postDetail.post,
@@ -41,6 +60,8 @@ export function usePostDetailView(postId?: string) {
     
     postActions: {
       score: postDetail.score,
+      upvotes: postDetail.upvotes,
+      downvotes: postDetail.downvotes,
       isUpvoted: postDetail.isUpvoted,
       isDownvoted: postDetail.isDownvoted,
       onUpvote: postDetail.onUpvote,
@@ -54,7 +75,7 @@ export function usePostDetailView(postId?: string) {
     },
 
     comments: {
-      data: commentsWithHandlers,
+      data: sortedComments,
       count: totalCommentCount,
       isLoading: isLoadingComments,
       error: commentError,
@@ -62,5 +83,5 @@ export function usePostDetailView(postId?: string) {
     },
 
     navigate,
-  };
+  }
 }

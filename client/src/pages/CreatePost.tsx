@@ -1,111 +1,33 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, X } from 'lucide-react'
-import { postService } from '@/features/posts/services'
+import { ArrowLeft } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
-import { mockSpaces as SPACES }  from '@/lib/mockData'
 import { YourSpacesWidget } from '@/features/spaces/components'
+import { Card } from '@/components/ui'
 import { cn } from '@/lib/utils'
-
-import { 
-  Card, 
-  Button, 
-  Input, 
-  Textarea, 
-  Select, 
-  Badge 
-} from '@/components/ui'
-
+import { useCreatePost } from '@/features/posts/hooks/useCreatePost'
+import { CreatePostForm } from '@/features/posts/components/CreatePostForm'
 
 export default function CreatePostPage() {
   const navigate = useNavigate()
-
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    space: '',
-    imageUrl: '',
-    tags: [] as string[],
-  })
-
-  const [tagInput, setTagInput] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<any>({})
-
-  const validateForm = () => {
-    const newErrors: any = {}
-
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required'
-    }
-
-    if (!formData.content.trim()) {
-      newErrors.content = 'Content is required'
-    }
-
-    if (!formData.space.trim()) {
-      newErrors.space = 'Space name is required'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      const newPost = await postService.createPost({
-        title: formData.title,
-        content: formData.content,
-        space: formData.space,
-        imageUrl: formData.imageUrl || undefined,
-        tags: formData.tags,
-      })
-
-      navigate(`/post/${newPost.id}`)
-    } catch (error) {
-      console.error('Failed to create post:', error)
-      alert('Failed to create post. Please try again.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleAddTag = () => {
-    const tag = tagInput.trim().toLowerCase()
-
-    if (!tag) return
-    if (formData.tags.length >= 5) {
-      alert('Maximum 5 tags allowed')
-      return
-    }
-    if (formData.tags.includes(tag)) {
-      alert('Tag already added')
-      return
-    }
-
-    setFormData({ ...formData, tags: [...formData.tags, tag] })
-    setTagInput('')
-  }
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setFormData({
-      ...formData,
-      tags: formData.tags.filter(tag => tag !== tagToRemove),
-    })
-  }
+  const {
+    formData,
+    tagInput,
+    errors,
+    joinedSpaces,
+    isLoadingSpaces,
+    isSubmitting,
+    selectedSpace,
+    setField,
+    setTagInput,
+    addTag,
+    removeTag,
+    handleSubmit,
+  } = useCreatePost()
 
   return (
     <MainLayout
-      maxWidth="max-w-6xl"
+      maxWidth="max-w-3xl"
       leftSidebar={
         <div className="space-y-6">
           <SidebarNav />
@@ -113,170 +35,44 @@ export default function CreatePostPage() {
           <YourSpacesWidget />
         </div>
       }
- 
     >
-      <div className="w-full">
-        {/* Header Card */}
-        <Card className="mb-6">
-          <button
-            onClick={() => navigate(-1)}
-            className={cn(
-              "flex items-center gap-2 mb-4 text-gray-600",
-              "dark:text-gray-400 hover:text-primary transition-colors")}
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-medium">Back</span>
-          </button>
+      {/* ── Page header ─────────────────────────────────────────────────── */}
+      <Card className="mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className={cn(
+            'flex items-center gap-2 mb-4 text-gray-600',
+            'dark:text-gray-400 hover:text-primary transition-colors'
+          )}
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="font-medium">Back</span>
+        </button>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+          Create a Post
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Share your thoughts with the community
+        </p>
+      </Card>
 
-          <h1 
-            className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Create a Post
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Share your thoughts with the community
-          </p>
-        </Card>
-
-        {/* Form Card */}
-        <Card>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Space Input */}
-            <Input
-              label="Space Name"
-              value={formData.space}
-              onChange={(e) => setFormData({ 
-                ...formData, 
-                space: e.target.value 
-              })}
-              placeholder="e.g., technology, gaming, cooking"
-              error={errors.space}
-              helperText="Enter the name of the space (without 'r/')"
-              required
-            />
-
-            {/* Title */}
-            <Input
-              label="Title"
-              value={formData.title}
-              onChange={(e) => setFormData({ 
-                ...formData, 
-                title: e.target.value 
-              })}
-              placeholder="What's your post about?"
-              maxLength={300}
-              error={errors.title}
-              helperText={`${formData.title.length}/300 characters`}
-              required
-            />
-
-            {/* Content */}
-            <Textarea
-              label="Content"
-              value={formData.content}
-              onChange={(e) => setFormData({ 
-                ...formData, 
-                content: e.target.value 
-              })}
-              placeholder="What are your thoughts?"
-              rows={10}
-              error={errors.content}
-              required
-            />
-
-            {/* Image URL */}
-            <Input
-              label="Image URL (Optional)"
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ 
-                ...formData, 
-                imageUrl: e.target.value 
-              })}
-              placeholder="https://example.com/image.jpg"
-            />
-
-            {/* Tags */}
-            <div>
-              <label className={cn(
-                "block text-sm font-semibold mb-2",
-                "text-gray-700 dark:text-gray-200")}>
-                Tags (Optional)
-              </label>
-
-              <div className="flex gap-2">
-                <Input
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      handleAddTag()
-                    }
-                  }}
-                  placeholder="Add a tag..."
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleAddTag}
-                  disabled={!tagInput.trim() || formData.tags.length >= 5}
-                >
-                  Add
-                </Button>
-              </div>
-
-              {/* Tag List */}
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {formData.tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      #{tag}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTag(tag)}
-                        className="ml-1 hover:text-red-500 transition-colors"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                {formData.tags.length}/5 tags
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 justify-end pt-4">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => navigate(-1)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={isSubmitting}
-                isLoading={isSubmitting}
-                className="min-w-[120px]"
-              >
-                {isSubmitting ? 'Posting...' : 'Post'}
-              </Button>
-            </div>
-          </form>
-        </Card>
-      </div>
+      {/* ── Form ────────────────────────────────────────────────────────── */}
+      <Card>
+        <CreatePostForm
+          formData={formData}
+          tagInput={tagInput}
+          errors={errors}
+          joinedSpaces={joinedSpaces}
+          isLoadingSpaces={isLoadingSpaces}
+          isSubmitting={isSubmitting}
+          selectedSpace={selectedSpace}
+          onFieldChange={setField}
+          onTagInputChange={setTagInput}
+          onAddTag={addTag}
+          onRemoveTag={removeTag}
+          onSubmit={handleSubmit}
+        />
+      </Card>
     </MainLayout>
   )
 }

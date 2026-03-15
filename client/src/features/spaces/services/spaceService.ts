@@ -1,179 +1,185 @@
-import { getAllSpaces, Space } from '@/lib/mockData'
 import { Post } from '@/features/posts/types'
 import { postService } from '@/features/posts/services/postService'
+import { getCurrentUser } from '@/features/auth/services/authService'
+import { API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
+import { mapApiSpace, sanitizeInput } from '../utils'
 
-export type SortOption = 'hot' | 'new' | 'week' | 'month' | 'year'
+export const CATEGORIES = [
+  'Official',
+  'Batch',
+  'Lifestyle',
+  'Academic',
+  'Interest',
+] as const
+
+export type Category = (typeof CATEGORIES)[number]
+
+export interface SpaceRule {
+  title: string
+  description: string
+}
+
+export interface Space {
+  id: string
+  name: string
+  displayName: string
+  description: string
+  memberCount: number
+  postCount: string
+  icon: string
+  iconType: 'text' | 'image' | 'emoji'
+  category: Category
+  colorScheme: string
+  isActive?: boolean
+  bannerUrl?: string
+  rules: SpaceRule[]
+  createdDate: string
+  owner: string
+  isJoined?: boolean
+  updatedAt?: string
+}
+
+export type SortOption = 'hot' | 'new' | 'top' | 'week' | 'month' | 'year'
+
+// ─── DTOs ────────────────────────────────────────────────────
 
 export interface CreateSpaceDto {
   name: string
   displayName: string
   description: string
-  category: Space['category']
+  category: Category
   icon: string
+  rules?: SpaceRule[]
 }
 
+export interface UpdateSpaceDto {
+  displayName: string
+  description: string
+  category: Category
+  icon: string
+  rules: SpaceRule[]
+}
+
+// ─── Service ─────────────────────────────────────────────────
+
 class SpaceService {
-  private storageKey = 'animoforums_spaces'
+  async getSpaces(page: number = 1): Promise<{ data: Space[]; hasMore: boolean }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/spaces?page=${page}`)
+      const raw = await response.json()
+      const currentUser = await getCurrentUser()
 
-  private getStore(): Space[] {
-    const data = localStorage.getItem(this.storageKey)
-    return data ? JSON.parse(data) : []
-  }
+      const data = (raw as any[]).map((item) => mapApiSpace(item, currentUser))
 
-  private setStore(spaces: Space[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(spaces))
-  }
-
-  private async seedIfNeeded(): Promise<void> {
-    if (this.getStore().length === 0) {
-      console.log('Seeding spaces from mock data...')
-      this.setStore(getAllSpaces())
-    }
-  }
-
-  async getSpaces(page: number = 1, limit: number = 20): 
-    Promise<{ data: Space[], hasMore: boolean }> {
-    await this.seedIfNeeded()
-    await this.delay(400)
-    
-    const allSpaces = this.getStore()
-    const end = page * limit
-    return {
-      data: allSpaces.slice(0, end),
-      hasMore: end < allSpaces.length
+      return { data, hasMore: data.length === 20 }
+    } catch (err) {
+      console.error('Failed to fetch spaces:', err)
+      return { data: [], hasMore: false }
     }
   }
 
   async getSpaceByName(spaceName: string): Promise<Space | null> {
-    await this.seedIfNeeded()
-    
-    const spaces = this.getStore()
-    
-    // Debug logging
-    console.log('getSpaceByName - Looking for:', spaceName)
-    console.log('getSpaceByName - Available spaces:', spaces.map(s => s.name))
-    
-    // Try exact match first
-    let space = spaces.find(s => s.name === spaceName)
-    
-    // If not found, try case-insensitive match
-    if (!space) {
-      space = spaces.find(s => s.name.toLowerCase() === spaceName.toLowerCase())
+    if (!spaceName) return null
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/spaces/${spaceName}`)
+      if (!response.ok) return null
+
+      const raw = await response.json()
+      const currentUser = await getCurrentUser()
+
+      return mapApiSpace(raw, currentUser)
+    } catch (err) {
+      console.error('Failed to fetch space:', err)
+      return null
     }
-    
-    // If still not found, try displayName
-    if (!space) {
-      space = spaces.find(s => s.displayName.toLowerCase() === spaceName.toLowerCase())
-    }
-    
-    console.log('getSpaceByName - Found:', space ? space.name : 'null')
-    
-    await this.delay(200)
-    return space || null
   }
 
   async createSpace(dto: CreateSpaceDto): Promise<Space> {
-    await this.delay(500)
-    const spaces = this.getStore()
+    const clean = sanitizeInput(dto)
 
-    // Normalize the name properly
-    const normalizedName = dto.name.toLowerCase().replace(/\s+/g, '-')
+    const response = await fetchWithAuth(`${API_BASE_URL}/spaces`, {
+      method: 'POST',
+      body: JSON.stringify(clean),
+    })
 
-    const newSpace: Space = {
-      id: `space-${Date.now()}`,
-      name: normalizedName,
-      displayName: dto.displayName,
-      description: dto.description,
-      category: dto.category,
-      icon: dto.icon || dto.displayName.charAt(0).toUpperCase(),
-      iconType: 'text',
-      colorScheme: 'from-primary to-primary-light',
-      memberCount: '1',
-      postCount: '0',
-      isActive: true,
-      isJoined: true,
-      createdDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      rules: [
-        { title: 'Be Respectful', description: 'Follow community guidelines.' }
-      ]
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}))
+      throw new Error(body.message ?? 'Failed to create space')
     }
 
-    console.log('Creating space with name:', newSpace.name)
-    this.setStore([newSpace, ...spaces])
-    
-    return newSpace
+    const raw = await response.json()
+    const currentUser = await getCurrentUser()
+
+    return mapApiSpace(raw, currentUser)
   }
 
-  async toggleJoin(_id: string, currentStatus: boolean): Promise<boolean> {
-    await this.delay(200)
-    return !currentStatus
+  async updateSpace(spaceId: string, dto: UpdateSpaceDto): Promise<Space> {
+    const clean = sanitizeInput(dto)
+
+    const response = await fetchWithAuth(`${API_BASE_URL}/spaces/${spaceId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(clean),
+    })
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}))
+      throw new Error(body.message ?? 'Failed to update space')
+    }
+
+    const raw = await response.json()
+    const currentUser = await getCurrentUser()
+
+    return mapApiSpace(raw, currentUser)
+  }
+
+  async toggleJoin(spaceId: string): Promise<boolean> {
+    const response = await fetchWithAuth(
+      `${API_BASE_URL}/spaces/${spaceId}/toggle-join`,
+      { method: 'POST' }
+    )
+
+    if (!response.ok) throw new Error('Failed to toggle space membership')
+
+    const data = await response.json()
+    return data.isJoined
+  }
+
+  async deleteSpace(spaceId: string): Promise<void> {
+    const response = await fetchWithAuth(`${API_BASE_URL}/spaces/${spaceId}`, {
+      method: 'DELETE',
+    })
+
+    if (!response.ok) throw new Error('Failed to delete space')
   }
 
   async getSpacePosts(spaceName: string, sortBy: SortOption = 'hot'): Promise<Post[]> {
-    const allPosts = await postService.getAllPosts()
-    
-    const spacePosts = allPosts.filter(post => post.space === spaceName)
-    
-    return this.sortPosts(spacePosts, sortBy)
+    if (!spaceName) return []
+    const posts  = await postService.getPostsBySpace(spaceName)
+    return this.sortPosts(posts, sortBy)
+  }
+
+  async getSpacePostCount(spaceName: string): Promise<number> {
+    if (!spaceName) return 0
+    const posts = await postService.getPostsBySpace(spaceName)
+    return posts.length
   }
 
   private sortPosts(posts: Post[], sortBy: SortOption): Post[] {
     const sorted = [...posts]
-    
+    const byScore = (a: Post, b: Post) =>
+      (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)
+    const byDate = (a: Post, b: Post) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+
     switch (sortBy) {
+      case 'new': return sorted.sort(byDate)
       case 'hot':
-        return sorted.sort((a, b) => {
-          const scoreA = a.upvotes - a.downvotes
-          const scoreB = b.upvotes - b.downvotes
-          return scoreB - scoreA
-        })
-        
-      case 'new':
-        return sorted.sort((a, b) => {
-          const timeA = this.parseTimeAgo(a.createdAt)
-          const timeB = this.parseTimeAgo(b.createdAt)
-          return timeA - timeB 
-        })
-        
       case 'week':
       case 'month':
       case 'year':
-        return sorted.sort((a, b) => {
-          const scoreA = a.upvotes - a.downvotes
-          const scoreB = b.upvotes - b.downvotes
-          return scoreB - scoreA
-        })
-        
-      default:
-        return sorted
+      default: return sorted.sort(byScore)
     }
-  }
-
-  private parseTimeAgo(timeStr: string): number {
-    const lowerStr = timeStr.toLowerCase()
-    
-    const match = lowerStr.match(/(\d+)/)
-    if (!match) return 999999 
-    
-    const num = parseInt(match[1])
-    
-    if (lowerStr.includes('minute')) return num
-    if (lowerStr.includes('hour')) return num * 60
-    if (lowerStr.includes('day')) return num * 60 * 24
-    if (lowerStr.includes('week')) return num * 60 * 24 * 7
-    if (lowerStr.includes('month')) return num * 60 * 24 * 30
-    if (lowerStr.includes('year')) return num * 60 * 24 * 365
-    
-    return 999999 
-  }
-
-  async getSpacePostCount(spaceName: string): Promise<number> {
-    const allPosts = await postService.getAllPosts()
-    return allPosts.filter(post => post.space === spaceName).length
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
   }
 }
 

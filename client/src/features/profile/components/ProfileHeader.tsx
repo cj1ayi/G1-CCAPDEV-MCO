@@ -1,173 +1,109 @@
-import { 
+import {
   Button,
-  Dropdown, 
-  DropdownItem, 
-  DropdownSeparator, 
-  DropdownLabel
+  Dropdown,
+  DropdownItem,
+  DropdownSeparator,
+  DropdownLabel,
+  Avatar,
 } from '@/components/ui'
-import { 
-  Camera, 
-  UserPlus, 
-  Mail, 
-  MoreHorizontal, 
-  User, 
-  Settings, 
-  LogOut, 
-  Edit 
+
+import {
+  UserPlus,
+  Mail,
+  MoreHorizontal,
+  Settings,
+  LogOut,
+  Edit,
 } from 'lucide-react'
 
-import { motion } from "framer-motion"
 import { useNavigate } from 'react-router-dom'
-import { cn } from '@/lib/utils'
 
-export const ProfileHeader = ({ 
-  user, 
-  isOwnProfile = false }: { 
-    user: any; 
-    isOwnProfile?: boolean 
-  }) => {
-
+export const ProfileHeader = ({
+  user,
+  isOwnProfile = false,
+  onLogout,
+}: {
+  user: any
+  isOwnProfile?: boolean
+  onLogout?: () => void
+}) => {
   const navigate = useNavigate()
 
   return (
     <section>
-      {/* COVER IMAGE BG */}
-      <div className={cn(
-        "relative bg-gray-200 dark:bg-gray-700 h-60 flex",
-        "items-center justify-center -mt-4 md:-mt-6"
-        )}
-      >
-        <span className="text-gray-500">Add a profile cover</span>
-        <button
-          className={cn(
-            'absolute bottom-4 right-4 px-3 py-1.5',
-            'text-xs font-semibold rounded-full',
-            'bg-black/60 text-white backdrop-blur',
-            'hover:bg-black/80 transition',
-            'flex items-center gap-2'
-          )}
-        >
-          <Camera className="w-4 h-4" />
-          Edit Cover
-        </button>
-      </div>
-
-      {/* BANNER */}
-      <div className="bg-white dark:bg-gray-700 relative z-0 p-6 md:p-10">
-        <div className={cn(
-          "max-w-7xl mx-auto h-full flex flex-col md:flex-row",
-          "items-start md:items-center justify-between gap-4"
-          )}
-        >
-          {/* LEFT: IMAGE + TEXT */}
-          <div className="flex items-center gap-6 shrink-0">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <img
+      <div className="border-b border-gray-200 dark:border-gray-800 px-4 md:px-8 py-4">
+        <div className="max-w-7xl mx-auto">
+         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            {/* Left: Avatar + name */}
+            <div className="flex items-center gap-3 min-w-0">
+              <Avatar
                 src={user.avatar}
-                alt={user.name}
-                className={cn(
-                  "w-28 h-28 md:w-36 md:h-36 bg-gray-200 object-cover",
-                  "rounded-full border-4 border-white shadow-lg",
-                  "-mt-14 md:-mt-16"
-                )}
+                name={user.name}
+                size="2xl"
+                className="shrink-0"
               />
-            </motion.div>
+              <div className="min-w-0">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white truncate">
+                  {user.name}
+                </h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                  u/{user.username}
+                </p>
+              </div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: -30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="pt-1"
-            >
-              <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
-                {user.name}
-              </h1>
-              <p className="text-[#5e8d75] mt-1">@{user.username}</p>
-            </motion.div>
-          </div>
-
-          {/* RIGHT: BUTTONS */}
-          <div className="flex gap-3 md:mt-0">
-            {isOwnProfile ? (
-              <>
-                <Button 
-                  leftIcon={<Edit className="h-4 w-4" />} 
-                  size="md"
-                  onClick={() => navigate('/profile/edit')}
-                >
-                  Edit Profile
-                </Button>
-                <Dropdown
-                  align="right"
-                  trigger={
-                    <Button size="md" variant="ghost">
-                      <MoreHorizontal className="h-5 w-5" />
-                    </Button>
-                  }
-                >
-                  <DropdownLabel>Account</DropdownLabel>
-                  <DropdownItem 
-                    icon={<Settings className="h-4 w-4" />}
+            {/* Right: Action buttons */}
+            <div className="flex items-center gap-2 shrink-0">
+              {isOwnProfile ? (
+                <>
+                  <Button
+                    leftIcon={<Edit className="h-4 w-4" />}
+                    size="sm"
+                    variant="secondary"
                     onClick={() => navigate('/profile/edit')}
                   >
-                    Settings
-                  </DropdownItem>
-                  <DropdownSeparator />
-                  <DropdownItem 
-                    icon={<LogOut className="h-4 w-4" />} 
-                    destructive
+                    Edit Profile
+                  </Button>
+                  <Dropdown
+                    align="right"
+                    trigger={
+                      <Button size="sm" variant="ghost" className="!px-2">
+                        <MoreHorizontal className="h-5 w-5" />
+                      </Button>
+                    }
                   >
-                    Log Out
-                  </DropdownItem>
-                </Dropdown>
-              </>
-            ) : (
-              <>
-                <Button leftIcon={<UserPlus className="h-4 w-4" />} size="md">
-                  Follow
-                </Button>
-                <Button 
-                  leftIcon={<Mail className="h-4 w-4" />} 
-                  size="md" 
-                  variant="secondary"
-                >
-                  Message
-                </Button>
-                <Dropdown
-                  align="right"
-                  trigger={
-                    <Button size="md" variant="ghost">
-                      <MoreHorizontal className="h-5 w-5" />
-                    </Button>
-                  }
-                >
-                  <DropdownLabel>Account</DropdownLabel>
-                  <DropdownItem 
-                    icon={<User className="h-4 w-4" />}
+                    <DropdownLabel>Account</DropdownLabel>
+                    <DropdownItem
+                      icon={<Settings className="h-4 w-4" />}
+                      onClick={() => navigate('/profile/edit')}
+                    >
+                      Settings
+                    </DropdownItem>
+                    <DropdownSeparator />
+                    <DropdownItem
+                      icon={<LogOut className="h-4 w-4" />}
+                      destructive
+                      onClick={onLogout}
+                    >
+                      Log Out
+                    </DropdownItem>
+                  </Dropdown>
+                </>
+              ) : (
+                <>
+                  <Button leftIcon={<UserPlus className="h-4 w-4" />} size="sm">
+                    Follow
+                  </Button>
+                  <Button
+                    leftIcon={<Mail className="h-4 w-4" />}
+                    size="sm"
+                    variant="secondary"
                   >
-                    Profile
-                  </DropdownItem>
-                  <DropdownItem 
-                    icon={<Settings className="h-4 w-4" />}
-                  >
-                    Settings
-                  </DropdownItem>
-                  <DropdownSeparator />
-                  <DropdownItem 
-                    icon={<LogOut className="h-4 w-4" />} 
-                    destructive
-                  >
-                    Report
-                  </DropdownItem>
-                </Dropdown>
-              </>
-            )}
+                    Message
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

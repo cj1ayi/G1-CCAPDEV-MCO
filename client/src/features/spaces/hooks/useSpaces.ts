@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { spaceService } from '../services/spaceService'
-import { Space } from '../types'
+import { spaceService, Space } from '../services'
+import { useLoadingBar } from '@/hooks'
+import { useToast } from '@/hooks/ToastContext'
 
 export const useSpaces = () => {
   const navigate = useNavigate()
@@ -12,6 +13,8 @@ export const useSpaces = () => {
   const [sortBy, setSortBy] = useState('A-Z')
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const { startLoading, stopLoading } = useLoadingBar()
+  const { error: showError } = useToast()
 
   const loadSpaces = useCallback(async (pageNum: number) => {
     const { data, hasMore } = await spaceService.getSpaces(pageNum)
@@ -20,8 +23,12 @@ export const useSpaces = () => {
   }, [])
 
   useEffect(() => {
-    loadSpaces(1).then(() => setIsLoading(false))
-  }, [loadSpaces])
+    startLoading()
+    loadSpaces(1).then(() => {
+      setIsLoading(false)
+      stopLoading()
+    })
+  }, [loadSpaces, startLoading, stopLoading])
 
   const loadMore = async () => {
     setIsLoadingMore(true)
@@ -32,28 +39,37 @@ export const useSpaces = () => {
   }
 
   const toggleJoin = async (id: string) => {
-    const space = spaces.find(s => s.id === id)
+    const space = spaces.find((s) => s.id === id)
     if (!space) return
-    setSpaces(prev => prev.map(s => s.id === id ? { ...s, isJoined: !s.isJoined } : s))
-    try { await spaceService.toggleJoin(id, !!space.isJoined) } 
-    catch (e) { setSpaces(prev => prev.map(s => s.id === id ? { ...s, isJoined: space.isJoined } : s)) }
+
+    const newJoinStatus = !space.isJoined
+    setSpaces((prev) => prev.map((s) => (s.id === id ? { ...s, isJoined: newJoinStatus } : s)))
+
+    try {
+      await spaceService.toggleJoin(id)
+    } catch {
+      setSpaces((prev) => prev.map((s) => (s.id === id ? { ...s, isJoined: space.isJoined } : s)))
+      showError('Failed to update membership. Please try again.')
+    }
   }
 
-  const goToSpace = (name: string) => navigate(`/space/${name}`)
+  const goToSpace = (name: string) => navigate(`/r/${name}`)
   const goToCreateSpace = () => navigate('/spaces/create')
 
   const processedSpaces = useMemo(() => {
     let result = [...spaces]
-    if (filter !== 'All Spaces') result = result.filter(s => s.category === filter)
+
+    if (filter !== 'All Spaces') {
+      result = result.filter((s) => s.category === filter)
+    }
+
     result.sort((a, b) => {
       if (sortBy === 'A-Z') return a.displayName.localeCompare(b.displayName)
       if (sortBy === 'Z-A') return b.displayName.localeCompare(a.displayName)
-      if (sortBy === 'Members') {
-        const parse = (s: string) => parseFloat(s) * (s.includes('k') ? 1000 : 1)
-        return parse(b.memberCount) - parse(a.memberCount)
-      }
+      if (sortBy === 'Members') return b.memberCount - a.memberCount
       return 0
     })
+
     return result
   }, [spaces, filter, sortBy])
 
@@ -69,6 +85,6 @@ export const useSpaces = () => {
     toggleJoin,
     loadMore,
     goToSpace,
-    goToCreateSpace
+    goToCreateSpace,
   }
 }

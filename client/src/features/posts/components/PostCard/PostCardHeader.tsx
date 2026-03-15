@@ -1,0 +1,131 @@
+import { MoreHorizontal, Edit, Trash2 } from 'lucide-react'
+import { Dropdown, DropdownItem, DropdownSeparator } from '@/components/ui'
+import { cn } from '@/lib/utils'
+import { formatTimeAgo } from '@/lib/dateUtils'
+import type { PostCardHeaderProps } from './types'
+import { FLAIR_COLORS } from './types'
+
+export const PostCardHeader = ({
+  space,
+  spaceIcon,
+  author,
+  createdAt,
+  flair,
+  isOwner = false,
+  onEdit,
+  onDelete,
+}: PostCardHeaderProps) => {
+  return (
+    <div className="flex items-start justify-between gap-2 mb-2">
+      {/* Metadata row — wraps on mobile, stays single line on wider screens */}
+      <div
+        className={cn(
+          'flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-xs',
+          'text-gray-500 dark:text-gray-400 min-w-0',
+        )}
+      >
+        {/* Space */}
+        <span
+          className={cn(
+            'font-semibold whitespace-nowrap',
+            'text-gray-900 dark:text-gray-200',
+            'hover:underline cursor-pointer',
+          )}
+          onClick={(e) => {
+            e.stopPropagation()
+            window.location.href = `/r/${space}`
+          }}
+        >
+          {spaceIcon && (
+            <img
+              className="inline w-4 h-4 rounded-full object-cover mr-1 -mt-0.5"
+              src={spaceIcon}
+              alt={space}
+            />
+          )}
+          r/{space}
+        </span>
+
+        <span>•</span>
+        <span className="whitespace-nowrap">Posted by</span>
+
+        {/* Author */}
+        <span
+          className={cn(
+            'font-semibold whitespace-nowrap',
+            'hover:underline cursor-pointer',
+          )}
+          onClick={(e) => {
+            e.stopPropagation()
+            window.location.href = `/profile/${author.username}`
+          }}
+        >
+          u/{author.username}
+        </span>
+
+        <span>•</span>
+
+        {/* Time — whitespace-nowrap keeps "1 minute ago" together */}
+        <span className="whitespace-nowrap">{formatTimeAgo(createdAt)}</span>
+
+        {/* Flair */}
+        {flair && (
+          <span
+            className={cn(
+              'px-2 py-0.5 rounded-full whitespace-nowrap',
+              'text-[10px] font-bold tracking-wide uppercase',
+              FLAIR_COLORS[flair],
+            )}
+          >
+            {flair}
+          </span>
+        )}
+      </div>
+
+      {/* Owner menu */}
+      {isOwner && (
+        <div
+          className="relative z-20 shrink-0"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Dropdown
+            align="right"
+            trigger={
+              <button
+                className={cn(
+                  'p-1.5 rounded-full hover:bg-gray-100',
+                  'dark:hover:bg-gray-800 text-gray-500',
+                  'dark:text-gray-400 transition-colors',
+                )}
+                aria-label="Post options"
+              >
+                <MoreHorizontal className="h-5 w-5" />
+              </button>
+            }
+          >
+            <DropdownItem
+              icon={<Edit className="h-4 w-4" />}
+              onClick={(e) => {
+                e?.stopPropagation()
+                onEdit?.()
+              }}
+            >
+              Edit Post
+            </DropdownItem>
+            <DropdownSeparator />
+            <DropdownItem
+              icon={<Trash2 className="h-4 w-4" />}
+              destructive
+              onClick={(e) => {
+                e?.stopPropagation()
+                onDelete?.()
+              }}
+            >
+              Delete Post
+            </DropdownItem>
+          </Dropdown>
+        </div>
+      )}
+    </div>
+  )
+}
