@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { CommentInputProps } from '../types'
+import { MarkdownToolbar } from '@/components/ui/MarkdownToolbar'
 
 export const CommentInput = ({
   onSubmit,
@@ -12,6 +13,7 @@ export const CommentInput = ({
 }: CommentInputProps) => {
   const [content, setContent] = useState('')
   const [isFocused, setIsFocused] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleSubmit = async () => {
     if (content.trim() && !isSubmitting) {
@@ -41,13 +43,6 @@ export const CommentInput = ({
         'p-4 sm:p-6',
       )}
     >
-      <p className="text-sm text-gray-500 mb-2">
-        Comment as{' '}
-        <span className="font-medium text-primary">
-          Current User
-        </span>
-      </p>
-
       <div
         className={cn(
           'border border-gray-300 dark:border-gray-700',
@@ -56,63 +51,14 @@ export const CommentInput = ({
           isFocused && 'ring-2 ring-primary/50 border-primary',
         )}
       >
-        {/* Formatting Toolbar */}
-        <div
-          className={cn(
-            'bg-gray-50 dark:bg-gray-800',
-            'border-b border-gray-300 dark:border-gray-700',
-            'px-3 py-2 flex items-center gap-2',
-            'text-gray-600 dark:text-gray-400',
-          )}
-        >
-          <button
-            type="button"
-            className={cn(
-              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded',
-            )}
-            title="Bold"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              format_bold
-            </span>
-          </button>
-          <button
-            type="button"
-            className={cn(
-              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded',
-            )}
-            title="Italic"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              format_italic
-            </span>
-          </button>
-          <button
-            type="button"
-            className={cn(
-              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded',
-            )}
-            title="Link"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              link
-            </span>
-          </button>
-          <button
-            type="button"
-            className={cn(
-              'hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded',
-            )}
-            title="Code"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              code
-            </span>
-          </button>
-        </div>
+        <MarkdownToolbar 
+          textareaRef={textareaRef} 
+          value={content} 
+          onChange={setContent} 
+        />
 
-        {/* Text Area */}
         <textarea
+          ref={textareaRef}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onFocus={() => setIsFocused(true)}
@@ -131,7 +77,6 @@ export const CommentInput = ({
         />
       </div>
 
-      {/* Submit Section */}
       <div className="flex justify-end gap-2 mt-3">
         {onCancel && (
           <button
@@ -143,7 +88,6 @@ export const CommentInput = ({
               'px-4 py-2 rounded-lg font-medium text-sm',
               'hover:bg-gray-100 dark:hover:bg-gray-800',
               'transition-colors',
-              isSubmitting && 'opacity-50 cursor-not-allowed',
             )}
           >
             Cancel
@@ -163,19 +107,9 @@ export const CommentInput = ({
               : 'opacity-50 cursor-not-allowed',
           )}
         >
-          {isSubmitting && (
-            <span className={cn(
-              "material-symbols-outlined text-[16px] animate-spin")}>
-              progress_activity
-            </span>
-          )}
           {isSubmitting ? 'Posting...' : submitLabel}
         </button>
       </div>
-
-      <p className="text-xs text-gray-400 mt-2">
-        Tip: Press Cmd/Ctrl + Enter to submit
-      </p>
     </div>
   )
 }
