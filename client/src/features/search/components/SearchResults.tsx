@@ -24,7 +24,9 @@ export function SearchResults() {
     const load = async () => {
       setIsLoading(true)
       try {
-        const allPosts = await postService.getAllPosts()
+        const result = await postService.getSortedPosts('new', { limit: 100 })
+        const allPosts = Array.isArray(result) ? result : result.data
+
         const filtered = allPosts.filter(post =>
           post.title.toLowerCase().includes(searchTerm) ||
           post.content.toLowerCase().includes(searchTerm)
