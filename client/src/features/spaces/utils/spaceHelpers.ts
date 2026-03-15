@@ -30,6 +30,10 @@ export const mapApiSpace = (
     memberCount: members.length,
     icon,
     iconType: icon.startsWith('http') ? 'image' : 'text',
+    createdDate: raw.createdAt 
+      ? new Date(raw.createdAt).toLocaleDateString(
+        'en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : 'Unknown',
     isJoined: currentUser
       ? members.some((m: any) => resolveId(m) === currentUser.id)
       : false,
