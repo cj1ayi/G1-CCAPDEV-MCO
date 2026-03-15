@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import type { CommentContentProps } from './types'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import { RichTextEditor } from '@/components/ui/RichTextEditor'
 
 export const CommentContent = ({
@@ -57,7 +58,10 @@ export const CommentContent = ({
       {isDeleted ? (
         '[deleted]'
       ) : (
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]} 
+          rehypePlugins={[rehypeRaw]}
+        >
           {content}
         </ReactMarkdown>
       )}
