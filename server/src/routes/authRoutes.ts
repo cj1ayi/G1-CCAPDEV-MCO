@@ -2,16 +2,24 @@ import { Router } from 'express';
 import passport from 'passport';
 
 const router = Router();
-
 const THREE_WEEKS = 1000 * 60 * 60 * 24 * 21;
 const DEFAULT_SESSION = 1000 * 60 * 60 * 24; // 1 day
 
 // @desc    Auth with Google (remember=true|false passed as query param)
 // @route   GET /api/auth/google
 router.get('/google', (req, res, next) => {
-  // Store remember preference in session before redirecting to Google
-  // so we can read it in the callback
-  (req.session as any).rememberMe = req.query.remember === 'true';
+  const remember = req.query.remember === 'true';
+
+  // Store remember preference in a short-lived signed cookie that survives
+  // the OAuth round trip we can't use the session here because passport
+  // regenerates the session after OAuth completes (security measure),
+  // which would wipe anything stored before the redirect.
+  res.cookie('rememberMe', remember ? 'true' : 'false', {
+    maxAge: 5 * 60 * 1000, // 5 minutes — just enough for the OAuth flow
+    httpOnly: true,
+    signed: true
+  });
+
   passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
 });
 
@@ -20,16 +28,20 @@ router.get('/google', (req, res, next) => {
 router.get(
   '/google/callback',
   passport.authenticate('google', {
+    // If domain verification fails, redirect to login with an error flag
     failureRedirect: 'http://localhost:5173/login?error=unauthorized_domain',
   }),
   (req, res) => {
-    const rememberMe = (req.session as any).rememberMe === true;
+    // Read the remember preference from the signed cookie set before redirect
+    // (session-based storage doesn't work here — see comment above)
+    const rememberMe = req.signedCookies.rememberMe === 'true';
+    res.clearCookie('rememberMe');
 
     if (rememberMe) {
-      // Extend cookie to 3 weeks, and re-extend on every visit
+      // Extend cookie to 3 weeks, re-extended on every visit via rolling: true
       req.session.cookie.maxAge = THREE_WEEKS;
     } else {
-      // Browser session only — cookie dies when browser closes
+      // Default 1 day session
       req.session.cookie.expires = undefined;
       req.session.cookie.maxAge = DEFAULT_SESSION;
     }
@@ -40,7 +52,7 @@ router.get(
   }
 );
 
-// @desc    Extend session on every visit if remember me is active
+// @desc    Get current logged in user
 // @route   GET /api/auth/me
 router.get('/me', (req, res) => {
   if (!req.user) {
