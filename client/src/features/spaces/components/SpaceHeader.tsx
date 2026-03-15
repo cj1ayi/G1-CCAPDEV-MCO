@@ -1,7 +1,6 @@
-import React from 'react'
-import { Plus, Check, Settings, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui'
-import { cn } from '@/lib/utils'
+import { Plus, Check, Settings, Trash2, Users, MessageSquare } from 'lucide-react'
+import { Button, Badge } from '@/components/ui'
+import { cn, formatNumber } from '@/lib/utils'
 import { Space } from '../services'
 import { SpaceDeleteModal } from './SpaceDeleteModal'
 
@@ -113,6 +112,25 @@ export const SpaceHeader = ({
                 </>
               )}
             </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1.5">
+              <Users className="size-4" />
+              <span className="font-semibold text-gray-700 dark:text-gray-300">
+                {formatNumber(Number(space.memberCount))}
+              </span>
+              <span>members</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <MessageSquare className="size-4" />
+              <span className="font-semibold text-gray-700 dark:text-gray-300">
+                {postCount}
+              </span>
+              <span>posts</span>
+            </span>
+            <Badge variant="secondary" size="sm">{space.category}</Badge>
           </div>
         </div>
       </div>
