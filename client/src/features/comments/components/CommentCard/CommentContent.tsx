@@ -2,6 +2,8 @@ import { Check, X } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import type { CommentContentProps } from './types'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export const CommentContent = ({
   content,
@@ -55,13 +57,19 @@ export const CommentContent = ({
   return (
     <div
       className={cn(
-        'text-sm leading-relaxed mb-2',
+        'text-sm leading-relaxed mb-2 break-words',
         isDeleted
           ? 'text-gray-400 dark:text-gray-500 italic'
-          : 'text-gray-900 dark:text-gray-100'
+          : 'text-gray-900 dark:text-gray-100 prose prose-sm dark:prose-invert max-w-none'
       )}
     >
-      {isDeleted ? '[deleted]' : content}
+      {isDeleted ? (
+        '[deleted]'
+      ) : (
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {content}
+        </ReactMarkdown>
+      )}
     </div>
   )
 }
