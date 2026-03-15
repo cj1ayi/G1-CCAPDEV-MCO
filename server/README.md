@@ -29,7 +29,7 @@ implementation of the backend logic.
    CALLBACK_URL=http://localhost:3000/api/auth/google/callback
    ```
 
-3. **CRITICAL: Seed the Database**
+3. **Seed the Database**
    This populates the 5 required users, posts, and comments.
    ```bash
    npm run seed
