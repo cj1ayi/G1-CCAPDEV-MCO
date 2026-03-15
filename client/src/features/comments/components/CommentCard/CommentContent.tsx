@@ -2,6 +2,10 @@ import { Check, X } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import type { CommentContentProps } from './types'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
+import { RichTextEditor } from '@/components/ui/RichTextEditor'
 
 export const CommentContent = ({
   content,
@@ -16,18 +20,10 @@ export const CommentContent = ({
   if (isEditing) {
     return (
       <div className="space-y-2 mb-2">
-        <textarea
+        <RichTextEditor
           value={editContent}
-          onChange={(e) => onEditContentChange(e.target.value)}
-          className={cn(
-            'w-full min-h-[80px] text-sm rounded-lg border',
-            'bg-white dark:bg-gray-900 px-4 py-3',
-            'text-gray-900 dark:text-white',
-            'border-gray-200 dark:border-gray-700',
-            'focus:outline-none focus:ring-2 focus:ring-primary/20',
-            'focus:border-primary'
-          )}
-          autoFocus
+          onChange={onEditContentChange}
+          minHeight="min-h-[100px]"
         />
         <div className="flex gap-2">
           <Button
@@ -53,15 +49,22 @@ export const CommentContent = ({
   }
 
   return (
-    <div
-      className={cn(
-        'text-sm leading-relaxed mb-2',
-        isDeleted
-          ? 'text-gray-400 dark:text-gray-500 italic'
-          : 'text-gray-900 dark:text-gray-100'
+    <div className={cn(
+      'text-sm leading-relaxed mb-2 break-words',
+      isDeleted
+        ? 'text-gray-400 dark:text-gray-500 italic'
+        : 'text-gray-900 dark:text-gray-100 prose prose-sm dark:prose-invert max-w-none'
+    )}>
+      {isDeleted ? (
+        '[deleted]'
+      ) : (
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]} 
+          rehypePlugins={[rehypeRaw]}
+        >
+          {content}
+        </ReactMarkdown>
       )}
-    >
-      {isDeleted ? '[deleted]' : content}
     </div>
   )
 }

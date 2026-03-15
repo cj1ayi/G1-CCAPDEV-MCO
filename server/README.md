@@ -46,7 +46,10 @@ Since Google OAuth requires specific API keys and authorized domains, we
 have implemented a **Grading Bypass** to allow full access to all features:
 
 1. Ensure the server and frontend are both running.
-2. Open your browser and go to: `http://localhost:3000/api/auth/grading-login`
+2. Open your browser and go to:
+   ```
+   http://localhost:3000/api/auth/grading-login
+   ```
 3. You will be automatically logged in as the seeded user **tiamlee** and 
    redirected to the Explore page.
 4. You can now test Create Post, Voting, Joining Spaces, and Profile 

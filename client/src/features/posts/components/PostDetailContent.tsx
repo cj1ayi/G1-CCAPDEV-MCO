@@ -1,5 +1,3 @@
-// Location: client/src/features/posts/components/PostDetailContent.tsx
-
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
@@ -10,6 +8,9 @@ import type { PostDetailContentProps } from '../types'
 import type { PostDetailVoteColumnProps } from './PostDetailVoteColumn'
 import { formatTimeAgo } from '@/lib/dateUtils'
 import { PostImage } from './PostImage'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 
 const FLAIR_STYLES: Record<string, string> = {
   Question:
@@ -162,10 +163,16 @@ export const PostDetailContent = ({
           <div
             className={cn(
               'text-slate-700 dark:text-slate-300',
-              'text-base leading-relaxed mb-4'
+              'text-base leading-relaxed mb-4',
+              'prose dark:prose-invert max-w-none'
             )}
           >
-            {post.content}
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]} 
+              rehypePlugins={[rehypeRaw]}
+            >
+              {post.content}
+            </ReactMarkdown>
           </div>
 
           {post.imageUrl && (

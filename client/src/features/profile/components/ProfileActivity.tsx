@@ -3,6 +3,9 @@ import { Card } from '@/components/ui'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { getRelativeTime } from '@/lib/utils'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 
 interface ProfileActivityProps {
   activeTab: ProfileTab
@@ -45,9 +48,14 @@ export const ProfileActivity = ({
                 {comment.post.space} • {comment.post.title}
               </p>
             )}
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              {comment.content}
-            </p>
+            <div className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 prose prose-sm dark:prose-invert max-w-none">
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]} 
+                rehypePlugins={[rehypeRaw]}
+              >
+                {comment.content}
+              </ReactMarkdown>
+            </div>
             <p className="text-xs text-gray-400 mt-2">
               {getRelativeTime(comment.createdAt)}
             </p>
