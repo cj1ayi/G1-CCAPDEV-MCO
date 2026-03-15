@@ -8,4 +8,10 @@
     @apply text-gray-900 dark:text-white;
     @apply font-sans antialiased;
   }
+
+  sup {
+    @apply text-[0.7em] leading-none align-top;
+    position: relative;
+    top: -0.2em;
+  }
 }
