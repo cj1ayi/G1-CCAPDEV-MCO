@@ -1,15 +1,13 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, X } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import { postService } from '@/features/posts/services'
 import { LoadingSpinner, ErrorState } from '@/components/shared'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/ToastContext'
-import { MarkdownToolbar } from '@/components/ui/MarkdownToolbar'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { RichTextEditor } from '@/components/ui/RichTextEditor'
 
 import { 
   Card, 
@@ -22,8 +20,6 @@ export default function EditPostPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { error: showError, warning: showWarning, success: showSuccess} = useToast()
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const [isPreview, setIsPreview] = useState(false)
   
   const [formData, setFormData] = useState({
     title: '',
@@ -67,7 +63,10 @@ export default function EditPostPage() {
   }, [id])
 
   const validateForm = () => {
-    const validationErrors = postService.validatePostForm({ title: formData.title, content: formData.content }, true)
+    const validationErrors = postService.validatePostForm(
+      { title: formData.title, content: formData.content }, 
+      true
+    )
     setErrors(validationErrors)
     return Object.keys(validationErrors).length === 0
   }
@@ -130,29 +129,12 @@ export default function EditPostPage() {
 
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Content <span className="text-red-500">*</span></label>
-              <div className={cn("border rounded-lg overflow-hidden bg-white dark:bg-surface-dark", errors.content ? "border-red-500" : "border-gray-200 dark:border-gray-700")}>
-                <MarkdownToolbar 
-                  textareaRef={textareaRef} 
-                  value={formData.content} 
-                  onChange={(val) => setFormData({ ...formData, content: val })}
-                  isPreview={isPreview}
-                  onTogglePreview={setIsPreview}
-                />
-                {isPreview ? (
-                  <div className="w-full p-4 min-h-[200px] bg-white dark:bg-gray-900 prose prose-sm dark:prose-invert max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{formData.content}</ReactMarkdown>
-                  </div>
-                ) : (
-                  <textarea
-                    ref={textareaRef}
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    placeholder="What are your thoughts?"
-                    rows={10}
-                    className="w-full p-4 bg-transparent outline-none text-sm resize-y min-h-[200px]"
-                  />
-                )}
-              </div>
+              <RichTextEditor
+                value={formData.content}
+                onChange={(val) => setFormData({ ...formData, content: val })}
+                placeholder="What are your thoughts?"
+                error={!!errors.content}
+              />
               {errors.content && <p className="text-xs text-red-500">{errors.content}</p>}
             </div>
 
