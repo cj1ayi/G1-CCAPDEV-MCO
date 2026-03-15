@@ -170,6 +170,17 @@ export const PostDetailContent = ({
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]} 
               rehypePlugins={[rehypeRaw]}
+              components={{
+                a: ({ node, ...props }) => (
+                  <a 
+                    {...props} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-primary hover:underline"
+                    onClick={(e) => e.stopPropagation()} 
+                  />
+                )
+              }}
             >
               {post.content}
             </ReactMarkdown>
