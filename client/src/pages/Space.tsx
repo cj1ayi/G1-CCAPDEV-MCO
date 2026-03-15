@@ -3,7 +3,7 @@
 import { Plus, FileText } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useParams } from 'react-router-dom'
-import { PostCard, DeletePostModal, TrendingWidget } from '@/features/posts/components'
+import { PostCard, DeletePostModal } from '@/features/posts/components'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { useSpacePage } from '@/features/spaces/hooks/useSpacePage'
 import { DefaultLeftSidebar, DefaultRightSidebar } from '@/components/layout'
@@ -13,7 +13,7 @@ import { postService } from '@/features/posts/services'
 import { commentService } from '@/features/comments/services'
 import { getTotalCommentCount } from '@/features/comments/utils/comment-utils'
 import { Post } from '@/features/posts/types'
-
+import { SpaceAboutWidget } from '@/features/spaces/components'
 import { 
   RulesWidget,
   SpaceHeader,
@@ -95,10 +95,10 @@ export default function Space() {
       maxWidth="max-w-6xl"
       leftSidebar={<DefaultLeftSidebar/>} 
       rightSidebar={
-        <>
-          <TrendingWidget/>
+        <div className="flex flex-col gap-4">
+          <SpaceAboutWidget space={space} postCount={posts.length} />
           <RulesWidget rules={space.rules}/>
-        </>
+        </div>
       }
     >
       <SpaceHeader 
