@@ -1,5 +1,3 @@
-// Location: client/src/features/posts/components/PostDetailContent.tsx
-
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
@@ -12,6 +10,7 @@ import { formatTimeAgo } from '@/lib/dateUtils'
 import { PostImage } from './PostImage'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 
 const FLAIR_STYLES: Record<string, string> = {
   Question:
@@ -168,7 +167,10 @@ export const PostDetailContent = ({
               'prose dark:prose-invert max-w-none'
             )}
           >
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]} 
+              rehypePlugins={[rehypeRaw]}
+            >
               {post.content}
             </ReactMarkdown>
           </div>
