@@ -3,9 +3,9 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardContent,
 } from '@/components/ui'
-
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export const AboutWidget = ({ user }: { user: any }) => {
   return (
@@ -13,8 +13,10 @@ export const AboutWidget = ({ user }: { user: any }) => {
       <Card>
         <CardHeader>
           <CardTitle>About Me: </CardTitle>
-          <CardDescription>
-            {user.bio}
+          <CardDescription className="prose prose-sm dark:prose-invert max-w-none">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {user.bio || 'No bio provided.'}
+            </ReactMarkdown>
           </CardDescription>
         </CardHeader>
      </Card>
