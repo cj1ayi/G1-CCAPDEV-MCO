@@ -12,12 +12,19 @@ router.get('/grading-login', async (req, res) => {
   try {
     const user = await User.findOne({ username: 'tiamlee' });
     if (!user) {
-      return res.status(404).json({ message: 'Seeded user not found' });
+      return res.status(404).json({ 
+        message: 'Seeded user not found. Please run npm run seed.' 
+      });
     }
 
     req.login(user, (err) => {
       if (err) return res.status(500).json(err);
-      res.redirect('http://localhost:5173/explore');
+      
+      // Explicitly save session before redirecting to ensure 
+      // the grader is logged in immediately on the frontend.
+      req.session.save(() => {
+        res.redirect('http://localhost:5173/explore');
+      });
     });
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
