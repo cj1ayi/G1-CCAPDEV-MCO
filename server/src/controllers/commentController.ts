@@ -59,7 +59,7 @@ export const getCommentsByPostId = async (req: Request, res: Response) => {
 
 export const updateComment = async (req: Request, res: Response) => {
   try {
-    const commentId = req.params.id as string  // fixed: was req.params.commentId
+    const commentId = req.params.id as string
     const { content } = req.body;
 
     const comment = await Comment.findById(commentId);
@@ -119,7 +119,6 @@ const cleanupAncestors = async (parentId: string | null, postId: string): Promis
 export const deleteComment = async (req: Request, res: Response) => {
   try {
     const commentId = req.params.id as string
-    const postId = req.body.postId
 
     const comment = await Comment.findById(commentId);
     if (!comment) return res.status(404).json({ message: 'Comment not found' });
@@ -128,6 +127,7 @@ export const deleteComment = async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'Not authorized to delete this comment' });
     }
 
+    const postId = comment.postId.toString();
     const livingDescendants = await hasLivingDescendants(commentId);
 
     if (livingDescendants) {
@@ -151,7 +151,7 @@ export const voteComment = async (req: Request, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
 
-    const commentId = req.params.id as string  // fixed: was req.params.commentId
+    const commentId = req.params.id as string
 
     const comment = await Comment.findById(commentId);
     if (!comment) return res.status(404).json({ message: 'Comment not found' });
