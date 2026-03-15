@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import type { CommentContentProps } from './types'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { MarkdownToolbar } from '@/components/ui/MarkdownToolbar'
 
 export const CommentContent = ({
@@ -18,6 +18,7 @@ export const CommentContent = ({
   onCancelEdit,
 }: CommentContentProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [isPreview, setIsPreview] = useState(false)
 
   if (isEditing) {
     return (
@@ -26,20 +27,23 @@ export const CommentContent = ({
           <MarkdownToolbar 
             textareaRef={textareaRef} 
             value={editContent} 
-            onChange={onEditContentChange} 
+            onChange={onEditContentChange}
+            isPreview={isPreview}
+            onTogglePreview={setIsPreview}
           />
-          <textarea
-            ref={textareaRef}
-            value={editContent}
-            onChange={(e) => onEditContentChange(e.target.value)}
-            className={cn(
-              'w-full min-h-[100px] text-sm p-4',
-              'bg-white dark:bg-gray-900',
-              'text-gray-900 dark:text-white',
-              'focus:outline-none'
-            )}
-            autoFocus
-          />
+          {isPreview ? (
+            <div className="w-full p-4 min-h-[100px] bg-white dark:bg-gray-900 prose prose-sm dark:prose-invert max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{editContent}</ReactMarkdown>
+            </div>
+          ) : (
+            <textarea
+              ref={textareaRef}
+              value={editContent}
+              onChange={(e) => onEditContentChange(e.target.value)}
+              className="w-full min-h-[100px] text-sm p-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none resize-y"
+              autoFocus
+            />
+          )}
         </div>
         <div className="flex gap-2">
           <Button
@@ -53,7 +57,10 @@ export const CommentContent = ({
           <Button
             size="sm"
             variant="ghost"
-            onClick={onCancelEdit}
+            onClick={() => {
+              setIsPreview(false)
+              onCancelEdit()
+            }}
             disabled={isSaving}
             leftIcon={<X className="h-4 w-4" />}
           >
@@ -65,21 +72,13 @@ export const CommentContent = ({
   }
 
   return (
-    <div
-      className={cn(
-        'text-sm leading-relaxed mb-2 break-words',
-        isDeleted
-          ? 'text-gray-400 dark:text-gray-500 italic'
-          : 'text-gray-900 dark:text-gray-100 prose prose-sm dark:prose-invert max-w-none'
-      )}
-    >
-      {isDeleted ? (
-        '[deleted]'
-      ) : (
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {content}
-        </ReactMarkdown>
-      )}
+    <div className={cn(
+      'text-sm leading-relaxed mb-2 break-words',
+      isDeleted
+        ? 'text-gray-400 dark:text-gray-500 italic'
+        : 'text-gray-900 dark:text-gray-100 prose prose-sm dark:prose-invert max-w-none'
+    )}>
+      {isDeleted ? '[deleted]' : <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>}
     </div>
   )
 }
