@@ -1,6 +1,8 @@
 import { cn } from '@/lib/utils'
 import type { PostCardContentProps } from './types'
-import  { PostImage } from '../PostImage'
+import { PostImage } from '../PostImage'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export const PostCardContent = ({
   title,
@@ -25,9 +27,12 @@ export const PostCardContent = ({
           className={cn(
             'text-sm text-gray-600 dark:text-gray-300',
             'leading-relaxed mb-3 line-clamp-3 break-words',
+            'prose prose-sm dark:prose-invert max-w-none'
           )}
         >
-          {content}
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {content}
+          </ReactMarkdown>
         </div>
       )}
 
