@@ -1,4 +1,4 @@
-import { useEditor, EditorContent, Mark } from '@tiptap/react'
+import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
 import Link from '@tiptap/extension-link'
@@ -16,37 +16,10 @@ import {
   Link as LinkIcon,
   ListOrdered,
   Quote,
-  EyeOff,
   Superscript as SuperscriptIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
-
-const Spoiler = Mark.create({
-  name: 'spoiler',
-  addOptions() {
-    return {
-      HTMLAttributes: {
-        class: cn(
-          'bg-gray-900 text-gray-900 hover:text-white',
-          'transition-colors rounded px-1 cursor-help'
-        ),
-        'data-spoiler': '',
-      },
-    }
-  },
-  parseHTML() {
-    return [{ tag: 'span[data-spoiler]' }]
-  },
-  renderHTML({ HTMLAttributes }) {
-    return ['span', HTMLAttributes, 0]
-  },
-  addCommands() {
-    return {
-      toggleSpoiler: () => ({ commands }) => commands.toggleMark(this.name),
-    }
-  },
-})
 
 interface RichTextEditorProps {
   value: string
@@ -77,7 +50,6 @@ export const RichTextEditor = ({
         },
       }),
       Superscript,
-      Spoiler,
       Markdown,
     ],
     content: value,
@@ -95,7 +67,6 @@ export const RichTextEditor = ({
     },
   })
 
-  // Sync external value changes (important for Edit pages)
   useEffect(() => {
     if (editor && value !== editor.storage.markdown.getMarkdown()) {
       editor.commands.setContent(value, false)
@@ -194,19 +165,25 @@ export const RichTextEditor = ({
         />
         <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
         <ToolbarButton
-          onAction={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onAction={() => 
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
           active={editor.isActive('heading', { level: 1 })}
           icon={Heading1}
           title="H1"
         />
         <ToolbarButton
-          onAction={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onAction={() => 
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           active={editor.isActive('heading', { level: 2 })}
           icon={Heading2}
           title="H2"
         />
         <ToolbarButton
-          onAction={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onAction={() => 
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
           active={editor.isActive('heading', { level: 3 })}
           icon={Heading3}
           title="H3"
@@ -231,12 +208,6 @@ export const RichTextEditor = ({
           title="Ordered List"
         />
         <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
-        <ToolbarButton
-          onAction={() => (editor.chain().focus() as any).toggleSpoiler().run()}
-          active={editor.isActive('spoiler')}
-          icon={EyeOff}
-          title="Spoiler"
-        />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleBlockquote().run()}
           active={editor.isActive('blockquote')}
