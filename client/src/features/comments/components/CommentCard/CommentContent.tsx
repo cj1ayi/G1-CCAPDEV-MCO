@@ -4,6 +4,8 @@ import { cn } from '@/lib/utils'
 import type { CommentContentProps } from './types'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { useRef } from 'react'
+import { MarkdownToolbar } from '@/components/ui/MarkdownToolbar'
 
 export const CommentContent = ({
   content,
@@ -15,22 +17,30 @@ export const CommentContent = ({
   onSaveEdit,
   onCancelEdit,
 }: CommentContentProps) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
   if (isEditing) {
     return (
       <div className="space-y-2 mb-2">
-        <textarea
-          value={editContent}
-          onChange={(e) => onEditContentChange(e.target.value)}
-          className={cn(
-            'w-full min-h-[80px] text-sm rounded-lg border',
-            'bg-white dark:bg-gray-900 px-4 py-3',
-            'text-gray-900 dark:text-white',
-            'border-gray-200 dark:border-gray-700',
-            'focus:outline-none focus:ring-2 focus:ring-primary/20',
-            'focus:border-primary'
-          )}
-          autoFocus
-        />
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <MarkdownToolbar 
+            textareaRef={textareaRef} 
+            value={editContent} 
+            onChange={onEditContentChange} 
+          />
+          <textarea
+            ref={textareaRef}
+            value={editContent}
+            onChange={(e) => onEditContentChange(e.target.value)}
+            className={cn(
+              'w-full min-h-[100px] text-sm p-4',
+              'bg-white dark:bg-gray-900',
+              'text-gray-900 dark:text-white',
+              'focus:outline-none'
+            )}
+            autoFocus
+          />
+        </div>
         <div className="flex gap-2">
           <Button
             size="sm"
