@@ -4,7 +4,6 @@ import { YourSpacesWidget } from '@/features/spaces/components'
 
 import { 
   SearchResults, 
-  TrendingWidgets 
 } from '@/features/search/components'
 
 const Search = () => {
@@ -18,8 +17,6 @@ const Search = () => {
           <YourSpacesWidget />
         </div>
       }
- 
-        rightSidebar={<TrendingWidgets/>}
     >
       <SearchResults />
     </MainLayout>
