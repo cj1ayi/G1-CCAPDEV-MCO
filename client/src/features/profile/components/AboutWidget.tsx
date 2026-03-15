@@ -6,6 +6,7 @@ import {
 } from '@/components/ui'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 
 export const AboutWidget = ({ user }: { user: any }) => {
   return (
@@ -14,7 +15,10 @@ export const AboutWidget = ({ user }: { user: any }) => {
         <CardHeader>
           <CardTitle>About Me: </CardTitle>
           <CardDescription className="prose prose-sm dark:prose-invert max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]} 
+              rehypePlugins={[rehypeRaw]}
+            >
               {user.bio || 'No bio provided.'}
             </ReactMarkdown>
           </CardDescription>
