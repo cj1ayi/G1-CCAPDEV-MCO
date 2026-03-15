@@ -1,6 +1,8 @@
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, Mark } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
+import Link from '@tiptap/extension-link'
+import Superscript from '@tiptap/extension-superscript'
 import {
   Bold,
   Italic,
@@ -9,10 +11,43 @@ import {
   List,
   Terminal,
   Heading1,
-  Heading2
+  Heading2,
+  Heading3,
+  Link as LinkIcon,
+  ListOrdered,
+  Quote,
+  EyeOff,
+  Superscript as SuperscriptIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
+
+// Custom Spoiler Extension
+const Spoiler = Mark.create({
+  name: 'spoiler',
+  addOptions() {
+    return {
+      HTMLAttributes: {
+        class: cn(
+          'bg-gray-900 text-gray-900 hover:text-white',
+          'transition-colors rounded px-1 cursor-help'
+        ),
+        'data-spoiler': '',
+      },
+    }
+  },
+  parseHTML() {
+    return [{ tag: 'span[data-spoiler]' }]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['span', HTMLAttributes, 0]
+  },
+  addCommands() {
+    return {
+      toggleSpoiler: () => ({ commands }) => commands.toggleMark(this.name),
+    }
+  },
+})
 
 interface RichTextEditorProps {
   value: string
@@ -27,15 +62,21 @@ export const RichTextEditor = ({
   placeholder,
   error
 }: RichTextEditorProps) => {
-  // Dummy state to force re-render on selection changes
-  // This ensures marks (bold, etc.) highlight correctly at the cursor position
   const [, setSelectionUpdate] = useState(0)
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: { levels: [1, 2] },
+        heading: { levels: [1, 2, 3] },
       }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary underline cursor-pointer',
+        },
+      }),
+      Superscript, // Used for "Emboss" effect
+      Spoiler,
       Markdown,
     ],
     content: value,
@@ -52,7 +93,6 @@ export const RichTextEditor = ({
     },
   })
 
-  // Force re-render when the cursor moves or marks change
   useEffect(() => {
     if (!editor) return
     const handler = () => setSelectionUpdate(s => s + 1)
@@ -66,23 +106,34 @@ export const RichTextEditor = ({
 
   if (!editor) return null
 
+  const setLink = () => {
+    const previousUrl = editor.getAttributes('link').href
+    const url = window.prompt('URL', previousUrl)
+
+    if (url === null) return
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run()
+      return
+    }
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+  }
+
   const ToolbarButton = ({
     onAction,
     active,
     icon: Icon,
-    title
+    title,
+    className: extraClass
   }: {
     onAction: () => void,
-    active: boolean,
+    active?: boolean,
     icon: any,
-    title: string
+    title: string,
+    className?: string
   }) => (
     <button
       type="button"
-      onMouseDown={(e) => {
-        // Prevent focus loss from the editor
-        e.preventDefault()
-      }}
+      onMouseDown={(e) => e.preventDefault()}
       onClick={(e) => {
         e.preventDefault()
         onAction()
@@ -91,7 +142,8 @@ export const RichTextEditor = ({
         'p-2 rounded transition-colors',
         active
           ? 'bg-primary/10 text-primary'
-          : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
+          : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800',
+        extraClass
       )}
       title={title}
     >
@@ -106,23 +158,23 @@ export const RichTextEditor = ({
       error ? 'border-red-500' : 'border-gray-200 dark:border-gray-700',
       editor.isFocused && 'ring-2 ring-primary/20 border-primary'
     )}>
-      {/* Ribbon / Toolbar */}
       <div className={cn(
-        'flex items-center gap-0.5 px-2 py-1 border-b',
+        'flex items-center flex-wrap gap-0.5 px-2 py-1 border-b',
         'border-gray-200 dark:border-gray-700',
         'bg-gray-50 dark:bg-gray-800/50'
       )}>
+        {/* Group 1: Text Styles */}
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive('bold')}
           icon={Bold}
-          title="Bold"
+          title="Bold (Ctrl+B)"
         />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleItalic().run()}
           active={editor.isActive('italic')}
           icon={Italic}
-          title="Italic"
+          title="Italic (Ctrl+I)"
         />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleStrike().run()}
@@ -130,25 +182,77 @@ export const RichTextEditor = ({
           icon={Strikethrough}
           title="Strike"
         />
-        <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
         <ToolbarButton
-          onAction={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onAction={() => editor.chain().focus().toggleSuperscript().run()}
+          active={editor.isActive('superscript')}
+          icon={SuperscriptIcon}
+          title="Emboss (Superscript)"
+        />
+
+        <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
+
+        {/* Headings */}
+        <ToolbarButton
+          onAction={() => 
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
           active={editor.isActive('heading', { level: 1 })}
           icon={Heading1}
           title="Heading 1"
         />
         <ToolbarButton
-          onAction={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onAction={() => 
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           active={editor.isActive('heading', { level: 2 })}
           icon={Heading2}
           title="Heading 2"
         />
+        <ToolbarButton
+          onAction={() => 
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
+          active={editor.isActive('heading', { level: 3 })}
+          icon={Heading3}
+          title="Heading 3"
+        />
+
         <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
+
+        {/* Group 2: Links & Lists */}
+        <ToolbarButton
+          onAction={setLink}
+          active={editor.isActive('link')}
+          icon={LinkIcon}
+          title="Link (Ctrl+K)"
+        />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive('bulletList')}
           icon={List}
-          title="Bullet List"
+          title="Unordered List"
+        />
+        <ToolbarButton
+          onAction={() => editor.chain().focus().toggleOrderedList().run()}
+          active={editor.isActive('orderedList')}
+          icon={ListOrdered}
+          title="Ordered List"
+        />
+
+        <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
+
+        {/* Group 3: Advanced */}
+        <ToolbarButton
+          onAction={() => (editor.chain().focus() as any).toggleSpoiler().run()}
+          active={editor.isActive('spoiler')}
+          icon={EyeOff}
+          title="Spoiler"
+        />
+        <ToolbarButton
+          onAction={() => editor.chain().focus().toggleBlockquote().run()}
+          active={editor.isActive('blockquote')}
+          icon={Quote}
+          title="Quote"
         />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleCode().run()}
@@ -164,10 +268,8 @@ export const RichTextEditor = ({
         />
       </div>
 
-      {/* Actual Editor Area */}
       <EditorContent editor={editor} />
 
-      {/* Placeholder overlay */}
       {!editor.getText() && placeholder && (
         <div className={cn(
           'absolute top-[52px] left-4 pointer-events-none',
