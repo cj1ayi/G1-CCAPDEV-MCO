@@ -8,5 +8,22 @@
     @apply text-gray-900 dark:text-white;
     @apply font-sans antialiased;
   }
+}
 
+/* Spoiler Styling */
+span[data-spoiler] {
+  @apply bg-gray-800 text-gray-800 rounded px-1 transition-colors duration-200 cursor-pointer;
+}
+
+span[data-spoiler]:hover,
+span[data-spoiler]:active {
+  @apply text-white;
+}
+
+.dark span[data-spoiler] {
+  @apply bg-gray-200 text-gray-200;
+}
+
+.dark span[data-spoiler]:hover {
+  @apply text-gray-900;
 }
