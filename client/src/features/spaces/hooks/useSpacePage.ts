@@ -128,9 +128,15 @@ export const useSpacePage = (spaceName?: string) => {
 
   const isOwner = !!user && !!space && isSpaceOwner(space, user.id)
 
+  const postsWithVotes = posts.map(post => ({
+    ...post,
+    isUpvoted: votes[`post:${post.id}`] === 'up',
+    isDownvoted: votes[`post:${post.id}`] === 'down',
+  }))
+
   return {
     space,
-    posts,
+    posts: postsWithVotes,
     sortBy,
     setSortBy,
     isJoined,
