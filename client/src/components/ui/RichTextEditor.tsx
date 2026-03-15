@@ -22,7 +22,6 @@ import {
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 
-// Custom Spoiler Extension
 const Spoiler = Mark.create({
   name: 'spoiler',
   addOptions() {
@@ -54,13 +53,15 @@ interface RichTextEditorProps {
   onChange: (value: string) => void
   placeholder?: string
   error?: boolean
+  minHeight?: string
 }
 
 export const RichTextEditor = ({
   value,
   onChange,
   placeholder,
-  error
+  error,
+  minHeight = 'min-h-[200px]'
 }: RichTextEditorProps) => {
   const [, setSelectionUpdate] = useState(0)
 
@@ -75,7 +76,7 @@ export const RichTextEditor = ({
           class: 'text-primary underline cursor-pointer',
         },
       }),
-      Superscript, // Used for "Emboss" effect
+      Superscript,
       Spoiler,
       Markdown,
     ],
@@ -84,7 +85,8 @@ export const RichTextEditor = ({
       attributes: {
         class: cn(
           'prose prose-sm dark:prose-invert max-w-none focus:outline-none',
-          'min-h-[200px] p-4 text-sm text-gray-900 dark:text-white'
+          'p-4 text-sm text-gray-900 dark:text-white',
+          minHeight
         ),
       },
     },
@@ -92,6 +94,13 @@ export const RichTextEditor = ({
       onChange(editor.storage.markdown.getMarkdown())
     },
   })
+
+  // Sync external value changes (important for Edit pages)
+  useEffect(() => {
+    if (editor && value !== editor.storage.markdown.getMarkdown()) {
+      editor.commands.setContent(value, false)
+    }
+  }, [value, editor])
 
   useEffect(() => {
     if (!editor) return
@@ -109,7 +118,6 @@ export const RichTextEditor = ({
   const setLink = () => {
     const previousUrl = editor.getAttributes('link').href
     const url = window.prompt('URL', previousUrl)
-
     if (url === null) return
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run()
@@ -123,13 +131,11 @@ export const RichTextEditor = ({
     active,
     icon: Icon,
     title,
-    className: extraClass
   }: {
     onAction: () => void,
     active?: boolean,
     icon: any,
     title: string,
-    className?: string
   }) => (
     <button
       type="button"
@@ -142,8 +148,7 @@ export const RichTextEditor = ({
         'p-2 rounded transition-colors',
         active
           ? 'bg-primary/10 text-primary'
-          : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800',
-        extraClass
+          : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
       )}
       title={title}
     >
@@ -163,7 +168,6 @@ export const RichTextEditor = ({
         'border-gray-200 dark:border-gray-700',
         'bg-gray-50 dark:bg-gray-800/50'
       )}>
-        {/* Group 1: Text Styles */}
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive('bold')}
@@ -186,51 +190,39 @@ export const RichTextEditor = ({
           onAction={() => editor.chain().focus().toggleSuperscript().run()}
           active={editor.isActive('superscript')}
           icon={SuperscriptIcon}
-          title="Emboss (Superscript)"
+          title="Emboss"
         />
-
         <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
-
-        {/* Headings */}
         <ToolbarButton
-          onAction={() => 
-            editor.chain().focus().toggleHeading({ level: 1 }).run()
-          }
+          onAction={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           active={editor.isActive('heading', { level: 1 })}
           icon={Heading1}
-          title="Heading 1"
+          title="H1"
         />
         <ToolbarButton
-          onAction={() => 
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }
+          onAction={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           active={editor.isActive('heading', { level: 2 })}
           icon={Heading2}
-          title="Heading 2"
+          title="H2"
         />
         <ToolbarButton
-          onAction={() => 
-            editor.chain().focus().toggleHeading({ level: 3 }).run()
-          }
+          onAction={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
           active={editor.isActive('heading', { level: 3 })}
           icon={Heading3}
-          title="Heading 3"
+          title="H3"
         />
-
         <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
-
-        {/* Group 2: Links & Lists */}
         <ToolbarButton
           onAction={setLink}
           active={editor.isActive('link')}
           icon={LinkIcon}
-          title="Link (Ctrl+K)"
+          title="Link"
         />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive('bulletList')}
           icon={List}
-          title="Unordered List"
+          title="Bullet List"
         />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleOrderedList().run()}
@@ -238,10 +230,7 @@ export const RichTextEditor = ({
           icon={ListOrdered}
           title="Ordered List"
         />
-
         <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
-
-        {/* Group 3: Advanced */}
         <ToolbarButton
           onAction={() => (editor.chain().focus() as any).toggleSpoiler().run()}
           active={editor.isActive('spoiler')}
@@ -258,7 +247,7 @@ export const RichTextEditor = ({
           onAction={() => editor.chain().focus().toggleCode().run()}
           active={editor.isActive('code')}
           icon={Code}
-          title="Inline Code"
+          title="Code"
         />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleCodeBlock().run()}
@@ -267,14 +256,9 @@ export const RichTextEditor = ({
           title="Code Block"
         />
       </div>
-
       <EditorContent editor={editor} />
-
       {!editor.getText() && placeholder && (
-        <div className={cn(
-          'absolute top-[52px] left-4 pointer-events-none',
-          'text-gray-400 text-sm'
-        )}>
+        <div className="absolute top-[52px] left-4 pointer-events-none text-gray-400 text-sm">
           {placeholder}
         </div>
       )}
