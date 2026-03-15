@@ -27,6 +27,7 @@ interface RichTextEditorProps {
   placeholder?: string
   error?: boolean
   minHeight?: string
+  hideHeaders?: boolean
 }
 
 export const RichTextEditor = ({
@@ -34,14 +35,15 @@ export const RichTextEditor = ({
   onChange,
   placeholder,
   error,
-  minHeight = 'min-h-[200px]'
+  minHeight = 'min-h-[200px]',
+  hideHeaders = false
 }: RichTextEditorProps) => {
   const [, setSelectionUpdate] = useState(0)
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: { levels: [1, 2, 3] },
+        heading: hideHeaders ? false : { levels: [1, 2, 3] },
       }),
       Link.configure({
         openOnClick: false,
@@ -163,31 +165,31 @@ export const RichTextEditor = ({
           icon={SuperscriptIcon}
           title="Emboss"
         />
-        <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
-        <ToolbarButton
-          onAction={() => 
-            editor.chain().focus().toggleHeading({ level: 1 }).run()
-          }
-          active={editor.isActive('heading', { level: 1 })}
-          icon={Heading1}
-          title="H1"
-        />
-        <ToolbarButton
-          onAction={() => 
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }
-          active={editor.isActive('heading', { level: 2 })}
-          icon={Heading2}
-          title="H2"
-        />
-        <ToolbarButton
-          onAction={() => 
-            editor.chain().focus().toggleHeading({ level: 3 }).run()
-          }
-          active={editor.isActive('heading', { level: 3 })}
-          icon={Heading3}
-          title="H3"
-        />
+        
+        {!hideHeaders && (
+          <>
+            <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
+            <ToolbarButton
+              onAction={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+              active={editor.isActive('heading', { level: 1 })}
+              icon={Heading1}
+              title="H1"
+            />
+            <ToolbarButton
+              onAction={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              active={editor.isActive('heading', { level: 2 })}
+              icon={Heading2}
+              title="H2"
+            />
+            <ToolbarButton
+              onAction={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+              active={editor.isActive('heading', { level: 3 })}
+              icon={Heading3}
+              title="H3"
+            />
+          </>
+        )}
+
         <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
         <ToolbarButton
           onAction={setLink}
