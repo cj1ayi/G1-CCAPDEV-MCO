@@ -12,6 +12,7 @@ import {
   Heading2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
 
 interface RichTextEditorProps {
   value: string
@@ -26,6 +27,10 @@ export const RichTextEditor = ({
   placeholder,
   error
 }: RichTextEditorProps) => {
+  // Dummy state to force re-render on selection changes
+  // This ensures marks (bold, etc.) highlight correctly at the cursor position
+  const [, setSelectionUpdate] = useState(0)
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -43,10 +48,21 @@ export const RichTextEditor = ({
       },
     },
     onUpdate: ({ editor }) => {
-      // This outputs clean Markdown string for the backend
       onChange(editor.storage.markdown.getMarkdown())
     },
   })
+
+  // Force re-render when the cursor moves or marks change
+  useEffect(() => {
+    if (!editor) return
+    const handler = () => setSelectionUpdate(s => s + 1)
+    editor.on('selectionUpdate', handler)
+    editor.on('transaction', handler)
+    return () => {
+      editor.off('selectionUpdate', handler)
+      editor.off('transaction', handler)
+    }
+  }, [editor])
 
   if (!editor) return null
 
@@ -64,9 +80,10 @@ export const RichTextEditor = ({
     <button
       type="button"
       onMouseDown={(e) => {
-        // CRITICAL: preventDefault stops the button from taking focus
-        // away from the editor. This allows toggling marks (bold, etc)
-        // at the current cursor position without a selection.
+        // Prevent focus loss from the editor
+        e.preventDefault()
+      }}
+      onClick={(e) => {
         e.preventDefault()
         onAction()
       }}
