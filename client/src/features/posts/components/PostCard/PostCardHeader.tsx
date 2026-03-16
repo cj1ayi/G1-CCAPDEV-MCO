@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { formatTimeAgo } from '@/lib/dateUtils'
-import { PostOwnerMenu } from './PostOwnerMenu'
+import { PostOwnerMenu } from '../PostOwnerMenu'
 import type { PostCardHeaderProps } from './types'
 import { FLAIR_COLORS } from './types'
 
