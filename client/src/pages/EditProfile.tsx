@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/useToast'
 import { Toast } from '@/components/ui/Toast'
 import { RichTextEditor } from '@/components/ui/RichTextEditor'
+import { dispatchAuthChange } from '@/features/auth/AuthContext'
 
 import { 
   Card, 
@@ -76,6 +77,7 @@ const EditProfile = () => {
     setIsSaving(true)
     try {
       await userService.updateUser(user.id, formData)
+      dispatchAuthChange()
       navigate(`/profile/${formData.username}`)
     } catch (error) {
       console.error('Error updating profile:', error)
