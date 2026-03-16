@@ -55,7 +55,6 @@ export const PostCardContent = ({
         <PostImage 
           src={imageUrl} 
           alt={title} 
-          maxHeight="max-h-96" 
         />
       }
     </>

@@ -50,8 +50,7 @@ export const PostDetailContent = ({
   }
 
   const flairStyle = post.flair
-    ? (FLAIR_COLORS[post.flair] ?? FLAIR_FALLBACK)
-    : null
+    ? (FLAIR_COLORS[post.flair] ?? FLAIR_FALLBACK) : null
 
   return (
     <article
@@ -177,7 +176,6 @@ export const PostDetailContent = ({
             <PostImage
               src={post.imageUrl}
               alt={post.title}
-              maxHeight="max-h-[500px]"
             />
           )}
 
