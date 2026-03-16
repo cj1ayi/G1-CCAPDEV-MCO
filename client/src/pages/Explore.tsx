@@ -9,7 +9,7 @@ const Explore = () => {
 
   return (
     <MainLayout
-      maxWidth="max-w-6xl"
+      maxWidth="max-w-2xl"
       leftSidebar={
         <DefaultLeftSidebar />
       }

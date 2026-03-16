@@ -44,27 +44,54 @@ export const PostImage = ({
   return (
     <div
       className={cn(
-        'mt-3 mb-3',
+        'relative w-full rounded-xl',
+        'overflow-hidden mt-3 mb-3',
+        maxHeight,
         className,
       )}
     >
+      {/* Blurred background fill */}
+      <div
+        className={cn(
+          'absolute inset-0',
+          'bg-black/80',
+        )}
+      >
+        {loaded && (
+          <img
+            src={src}
+            alt=""
+            aria-hidden="true"
+            className={cn(
+              'w-full h-full',
+              'object-cover',
+              'blur-2xl opacity-40',
+              'scale-110',
+            )}
+          />
+        )}
+      </div>
+
+      {/* Loading skeleton */}
       {!loaded && (
         <div
           className={cn(
-            'w-full animate-pulse',
+            'w-full min-h-48 animate-pulse',
             'bg-gray-200 dark:bg-gray-800',
-            'rounded-xl min-h-48',
           )}
         />
       )}
+
+      {/* Actual image — centered, natural ratio */}
       <img
         src={src}
         alt={alt}
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
         className={cn(
-          'rounded-xl',
-          'max-w-full h-auto',
+          'relative z-10',
+          'mx-auto max-w-full h-auto',
+          'object-contain',
           maxHeight,
           !loaded && 'hidden',
         )}
