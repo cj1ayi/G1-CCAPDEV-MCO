@@ -1,4 +1,4 @@
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, Mark } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
 import Link from '@tiptap/extension-link'
@@ -70,13 +70,13 @@ export const RichTextEditor = ({
       },
     },
     onUpdate: ({ editor }) => {
-      onChange(editor.storage.markdown.getMarkdown())
+      onChange((editor.storage as any).markdown.getMarkdown())
     },
   })
 
   useEffect(() => {
-    if (editor && value !== editor.storage.markdown.getMarkdown()) {
-      editor.commands.setContent(value, false)
+    if (editor && value !== (editor.storage as any).markdown.getMarkdown()) {
+      editor.commands.setContent(value, { emitUpdate: false })
     }
   }, [value, editor])
 
@@ -111,9 +111,11 @@ export const RichTextEditor = ({
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run()
     } else {
-      // Logic: If it doesn't start with a protocol or a relative path marker, 
-      // prepend https:// to prevent it being treated as a relative route.
-      if (!/^https?:\/\//i.test(url) && !url.startsWith('/') && !url.startsWith('#')) {
+      if (
+        !/^https?:\/\//i.test(url) && 
+        !url.startsWith('/') && 
+        !url.startsWith('#')
+      ) {
         url = `https://${url}`
       }
       
@@ -273,8 +275,9 @@ export const RichTextEditor = ({
         <div
           className={cn(
             'absolute top-11 left-2 right-2 z-10 p-2 rounded-md shadow-lg',
-            'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
-            'flex items-center gap-2 animate-in fade-in slide-in-from-top-1',
+            'bg-white dark:bg-gray-800 border border-gray-200 ' +
+            'dark:border-gray-700 flex items-center gap-2 animate-in ' +
+            'fade-in slide-in-from-top-1',
           )}
         >
           <input
