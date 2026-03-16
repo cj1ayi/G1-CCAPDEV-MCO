@@ -4,8 +4,7 @@ import { cn } from '@/lib/utils'
 import { PostDetailVoteColumn } from './PostDetailVoteColumn'
 import { PostDetailActions } from './PostDetailActions'
 import { Avatar } from '@/components/ui'
-import type { PostDetailContentProps } from '../types'
-import type { PostDetailVoteColumnProps } from './PostDetailVoteColumn'
+import type { PostDetailContentProps, PostDetailVoteColumnProps} from '../types'
 import { formatTimeAgo } from '@/lib/dateUtils'
 import { PostImage } from './PostImage'
 import ReactMarkdown from 'react-markdown'
@@ -54,8 +53,6 @@ export const PostDetailContent = ({
 
   const voteProps: PostDetailVoteColumnProps = {
     score,
-    upvotes,
-    downvotes,
     isUpvoted,
     isDownvoted,
     onUpvote,
@@ -216,6 +213,8 @@ export const PostDetailContent = ({
           <PostDetailActions
             postId={post.id}
             commentCount={commentCount}
+            upvotes={upvotes}
+            downvotes={downvotes}
             {...voteProps}
           />
         </div>
