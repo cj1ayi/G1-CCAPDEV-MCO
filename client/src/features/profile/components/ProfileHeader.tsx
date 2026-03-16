@@ -8,8 +8,6 @@ import {
 } from '@/components/ui'
 
 import {
-  UserPlus,
-  Mail,
   MoreHorizontal,
   Settings,
   LogOut,
@@ -89,20 +87,7 @@ export const ProfileHeader = ({
                     </DropdownItem>
                   </Dropdown>
                 </>
-              ) : (
-                <>
-                  <Button leftIcon={<UserPlus className="h-4 w-4" />} size="sm">
-                    Follow
-                  </Button>
-                  <Button
-                    leftIcon={<Mail className="h-4 w-4" />}
-                    size="sm"
-                    variant="secondary"
-                  >
-                    Message
-                  </Button>
-                </>
-              )}
+              ) : null }
             </div>
           </div>
         </div>
