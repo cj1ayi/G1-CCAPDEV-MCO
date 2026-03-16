@@ -13,6 +13,7 @@ import {
   hasErrors as checkHasErrors,
   type FieldErrors,
 } from '../utils'
+import { SpaceFormData } from '../components'
 
 export interface EditSpaceFormData {
   displayName: string
@@ -117,9 +118,9 @@ export const useEditSpace = (spaceName?: string) => {
     setErrors(nextErrors)
   }, [formData, touched])
 
-  const onChange = useCallback((data: EditSpaceFormData) => setFormData(data), [])
+  const onChange = useCallback((data: SpaceFormData) => setFormData(data as EditSpaceFormData), [])
 
-  const onBlur = useCallback((field: keyof EditSpaceFormData) => {
+  const onBlur = useCallback((field: keyof SpaceFormData) => {
     setTouched((prev) => ({ ...prev, [field]: true }))
   }, [])
 
