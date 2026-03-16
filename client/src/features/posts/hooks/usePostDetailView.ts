@@ -29,6 +29,7 @@ export function usePostDetailView(postId?: string) {
   const {
     comments: rawComments,
     isLoading: isLoadingComments,
+    isSubmitting: isSubmittingComments,
     error: commentError,
     addComment,
     editComment,
@@ -78,6 +79,7 @@ export function usePostDetailView(postId?: string) {
       data: sortedComments,
       count: totalCommentCount,
       isLoading: isLoadingComments,
+      isSubmitting: isSubmittingComments,
       error: commentError,
       addComment,
     },
