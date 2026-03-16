@@ -1,8 +1,10 @@
-import { useEditor, EditorContent, Mark } from '@tiptap/react'
+import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
 import Link from '@tiptap/extension-link'
 import Superscript from '@tiptap/extension-superscript'
+import Placeholder from '@tiptap/extension-placeholder'
+import Image from '@tiptap/extension-image'
 import {
   Bold,
   Italic,
@@ -19,6 +21,7 @@ import {
   Superscript as SuperscriptIcon,
   Check,
   X,
+  ImageIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEffect, useState, useRef } from 'react'
@@ -32,10 +35,15 @@ interface RichTextEditorProps {
   hideHeaders?: boolean
 }
 
+/** Safe accessor for tiptap-markdown storage. */
+function getMarkdown(editor: any): string {
+  return editor?.storage?.markdown?.getMarkdown?.() ?? ''
+}
+
 export const RichTextEditor = ({
   value,
   onChange,
-  placeholder,
+  placeholder = '',
   error,
   minHeight = 'min-h-[200px]',
   hideHeaders = false,
@@ -43,12 +51,16 @@ export const RichTextEditor = ({
   const [, setSelectionUpdate] = useState(0)
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
+  const [showImageInput, setShowImageInput] = useState(false)
+  const [imageUrl, setImageUrl] = useState('')
   const linkInputRef = useRef<HTMLInputElement>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: hideHeaders ? false : { levels: [1, 2, 3] },
+        link: false,
       }),
       Link.configure({
         openOnClick: false,
@@ -58,31 +70,53 @@ export const RichTextEditor = ({
       }),
       Superscript,
       Markdown,
+      Image.configure({
+        inline: false,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'rounded-lg max-w-full h-auto max-h-80 mt-2 mb-2',
+        },
+      }),
+      Placeholder.configure({
+        placeholder,
+        emptyEditorClass: cn(
+          'before:content-[attr(data-placeholder)]',
+          'before:text-gray-400',
+          'before:float-left',
+          'before:h-0',
+          'before:pointer-events-none',
+        ),
+      }),
     ],
     content: value,
     editorProps: {
       attributes: {
         class: cn(
-          'prose prose-sm dark:prose-invert max-w-none focus:outline-none',
-          'p-4 text-sm text-gray-900 dark:text-white',
+          'prose prose-sm dark:prose-invert',
+          'max-w-none focus:outline-none',
+          'p-4 text-sm',
+          'text-gray-900 dark:text-white',
           minHeight,
         ),
       },
     },
-    onUpdate: ({ editor }) => {
-      onChange((editor.storage as any).markdown.getMarkdown())
+    onUpdate: ({ editor: e }) => {
+      onChange(getMarkdown(e))
     },
   })
 
   useEffect(() => {
-    if (editor && value !== (editor.storage as any).markdown.getMarkdown()) {
-      editor.commands.setContent(value, { emitUpdate: false })
+    if (!editor) return
+    if (value !== getMarkdown(editor)) {
+      editor.commands.setContent(value)
     }
   }, [value, editor])
 
   useEffect(() => {
     if (!editor) return
-    const handler = () => setSelectionUpdate((s) => s + 1)
+    const handler = () => {
+      setSelectionUpdate((s) => s + 1)
+    }
     editor.on('selectionUpdate', handler)
     editor.on('transaction', handler)
     return () => {
@@ -97,28 +131,40 @@ export const RichTextEditor = ({
     }
   }, [showLinkInput])
 
+  useEffect(() => {
+    if (showImageInput && imageInputRef.current) {
+      imageInputRef.current.focus()
+    }
+  }, [showImageInput])
+
   if (!editor) return null
 
   const openLinkInput = () => {
     const previousUrl = editor.getAttributes('link').href
     setLinkUrl(previousUrl || '')
+    setShowImageInput(false)
     setShowLinkInput(true)
+  }
+
+  const openImageInput = () => {
+    setImageUrl('')
+    setShowLinkInput(false)
+    setShowImageInput(true)
   }
 
   const applyLink = () => {
     let url = linkUrl.trim()
-    
+
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run()
     } else {
       if (
-        !/^https?:\/\//i.test(url) && 
-        !url.startsWith('/') && 
+        !/^https?:\/\//i.test(url) &&
+        !url.startsWith('/') &&
         !url.startsWith('#')
       ) {
         url = `https://${url}`
       }
-      
       editor
         .chain()
         .focus()
@@ -128,6 +174,20 @@ export const RichTextEditor = ({
     }
     setShowLinkInput(false)
     setLinkUrl('')
+  }
+
+  const applyImage = () => {
+    let url = imageUrl.trim()
+    if (!url) {
+      setShowImageInput(false)
+      return
+    }
+    if (!/^https?:\/\//i.test(url)) {
+      url = `https://${url}`
+    }
+    editor.chain().focus().setImage({ src: url }).run()
+    setShowImageInput(false)
+    setImageUrl('')
   }
 
   const ToolbarButton = ({
@@ -152,7 +212,11 @@ export const RichTextEditor = ({
         'p-2 rounded transition-colors',
         active
           ? 'bg-primary/10 text-primary'
-          : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800',
+          : cn(
+              'text-gray-500',
+              'hover:bg-gray-100',
+              'dark:hover:bg-gray-800',
+            ),
       )}
       title={title}
     >
@@ -163,15 +227,19 @@ export const RichTextEditor = ({
   return (
     <div
       className={cn(
-        'relative border rounded-lg overflow-hidden transition-all',
+        'relative border rounded-lg',
+        'overflow-hidden transition-all',
         'bg-white dark:bg-surface-dark',
-        error ? 'border-red-500' : 'border-gray-200 dark:border-gray-700',
+        error
+          ? 'border-red-500'
+          : 'border-gray-200 dark:border-gray-700',
         editor.isFocused && 'ring-2 ring-primary/20 border-primary',
       )}
     >
       <div
         className={cn(
-          'flex items-center flex-wrap gap-0.5 px-2 py-1 border-b',
+          'flex items-center flex-wrap',
+          'gap-0.5 px-2 py-1 border-b',
           'border-gray-200 dark:border-gray-700',
           'bg-gray-50 dark:bg-gray-800/50',
         )}
@@ -203,7 +271,7 @@ export const RichTextEditor = ({
 
         {!hideHeaders && (
           <>
-            <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
+            <div className={cn('w-px h-4 mx-1', 'bg-gray-300 dark:bg-gray-600')} />
             <ToolbarButton
               onAction={() =>
                 editor.chain().focus().toggleHeading({ level: 1 }).run()
@@ -231,12 +299,18 @@ export const RichTextEditor = ({
           </>
         )}
 
-        <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
+        <div className={cn('w-px h-4 mx-1', 'bg-gray-300 dark:bg-gray-600')} />
         <ToolbarButton
           onAction={openLinkInput}
           active={editor.isActive('link')}
           icon={LinkIcon}
           title="Link"
+        />
+        <ToolbarButton
+          onAction={openImageInput}
+          active={showImageInput}
+          icon={ImageIcon}
+          title="Insert Image"
         />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleBulletList().run()}
@@ -250,7 +324,7 @@ export const RichTextEditor = ({
           icon={ListOrdered}
           title="Ordered List"
         />
-        <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
+        <div className={cn('w-px h-4 mx-1', 'bg-gray-300 dark:bg-gray-600')} />
         <ToolbarButton
           onAction={() => editor.chain().focus().toggleBlockquote().run()}
           active={editor.isActive('blockquote')}
@@ -271,13 +345,16 @@ export const RichTextEditor = ({
         />
       </div>
 
+      {/* Link input popover */}
       {showLinkInput && (
         <div
           className={cn(
-            'absolute top-11 left-2 right-2 z-10 p-2 rounded-md shadow-lg',
-            'bg-white dark:bg-gray-800 border border-gray-200 ' +
-            'dark:border-gray-700 flex items-center gap-2 animate-in ' +
-            'fade-in slide-in-from-top-1',
+            'absolute top-11 left-2 right-2',
+            'z-10 p-2 rounded-md shadow-lg',
+            'bg-white dark:bg-gray-800',
+            'border border-gray-200 dark:border-gray-700',
+            'flex items-center gap-2',
+            'animate-in fade-in slide-in-from-top-1',
           )}
         >
           <input
@@ -291,8 +368,9 @@ export const RichTextEditor = ({
             }}
             placeholder="Paste or type a link..."
             className={cn(
-              'flex-1 bg-gray-50 dark:bg-gray-900 border-none px-3 py-1.5',
-              'text-sm rounded focus:ring-2 focus:ring-primary/20 outline-none',
+              'flex-1 bg-gray-50 dark:bg-gray-900',
+              'border-none px-3 py-1.5 text-sm rounded',
+              'focus:ring-2 focus:ring-primary/20 outline-none',
             )}
           />
           <button
@@ -310,17 +388,50 @@ export const RichTextEditor = ({
         </div>
       )}
 
-      <EditorContent editor={editor} />
-      {!editor.getText() && placeholder && (
+      {/* Image URL input popover */}
+      {showImageInput && (
         <div
           className={cn(
-            'absolute top-[52px] left-4 pointer-events-none',
-            'text-gray-400 text-sm',
+            'absolute top-11 left-2 right-2',
+            'z-10 p-2 rounded-md shadow-lg',
+            'bg-white dark:bg-gray-800',
+            'border border-gray-200 dark:border-gray-700',
+            'flex items-center gap-2',
+            'animate-in fade-in slide-in-from-top-1',
           )}
         >
-          {placeholder}
+          <input
+            ref={imageInputRef}
+            type="text"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') applyImage()
+              if (e.key === 'Escape') setShowImageInput(false)
+            }}
+            placeholder="Paste image URL..."
+            className={cn(
+              'flex-1 bg-gray-50 dark:bg-gray-900',
+              'border-none px-3 py-1.5 text-sm rounded',
+              'focus:ring-2 focus:ring-primary/20 outline-none',
+            )}
+          />
+          <button
+            onClick={applyImage}
+            className="p-1.5 text-green-600 hover:bg-green-50 rounded"
+          >
+            <Check className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setShowImageInput(false)}
+            className="p-1.5 text-red-600 hover:bg-red-50 rounded"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
+
+      <EditorContent editor={editor} />
     </div>
   )
 }
