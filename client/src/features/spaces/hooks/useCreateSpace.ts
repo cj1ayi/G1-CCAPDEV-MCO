@@ -8,6 +8,8 @@ import {
   type FieldErrors,
 } from '../utils'
 
+import { SpaceFormData } from '../components/SpaceForm'
+
 export interface CreateSpaceFormData {
   name: string
   displayName: string
@@ -38,7 +40,7 @@ export const useCreateSpace = () => {
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const onChange = useCallback((data: CreateSpaceFormData) => setFormData(data), [])
+  const onChange = useCallback((data: SpaceFormData) => setFormData(data as CreateSpaceFormData), [])
 
   const onRulesChange = useCallback((rules: SpaceRule[]) => {
     setFormData((prev) => ({ ...prev, rules }))
