@@ -2,7 +2,7 @@
 
 A Reddit-style web forum platform designed specifically for DLSU students to centralize campus discussions in a unified, searchable environment.
 
-[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-19.x-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
@@ -39,7 +39,7 @@ AnimoForums addresses the fragmentation of student communication across multiple
 
 ### Discussion System
 - Create and share posts with text, images, and links
-- **Rich Text Editor:** WYSIWYG editing with Markdown support
+- **Rich Text Editor:** WYSIWYG editing with Markdown support (TipTap)
 - Nested comment threads with unlimited depth
 - Upvote/downvote system for posts and comments
 - Real-time trending content discovery
@@ -54,7 +54,7 @@ AnimoForums addresses the fragmentation of student communication across multiple
 ### Frontend
 | Technology | Purpose |
 |------------|---------|
-| React 18.x | UI Library |
+| React 19.x | UI Library |
 | TypeScript | Type-safe Development |
 | Vite | Build Tool & Dev Server |
 | TailwindCSS | Utility-first Styling |
@@ -135,246 +135,82 @@ G1-CCAPDEV-MCO
 ├── client
 │   ├── src
 │   │   ├── assets
+│   │   │   ├── homeImage
 │   │   │   ├── loginpics
-│   │   │   │   ├── legendsyuch.jpg
-│   │   │   │   ├── sundownhenry.jpg
-│   │   │   │   ├── sunerisehenry.jpg
-│   │   │   │   └── sunrisestmig.jpg
 │   │   │   ├── logo
-│   │   │   │   ├── AnimoForumsLogoCombined.svg
-│   │   │   │   ├── AnimoForumsLogoHat.svg
-│   │   │   │   └── AnimoForumsLogoWhite.svg
 │   │   │   ├── pfp
-│   │   │   │   ├── callo.png
-│   │   │   │   ├── default.png
-│   │   │   │   ├── diane.png
-│   │   │   │   ├── enzo.gif
-│   │   │   │   ├── gabb.png
-│   │   │   │   ├── karl.png
-│   │   │   │   ├── pring.gif
-│   │   │   │   └── tiamlee.png
 │   │   │   └── post
-│   │   │       ├── car.jpg
-│   │   │       └── shark.jpg
 │   │   ├── components
 │   │   │   ├── layout
+│   │   │   │   ├── DefaultLeftSidebar.tsx
+│   │   │   │   ├── DefaultRightSidebar.tsx
 │   │   │   │   ├── Footer.tsx
 │   │   │   │   ├── Header.tsx
 │   │   │   │   └── MainLayout.tsx
+│   │   │   ├── shared
+│   │   │   │   ├── CommentSkeleton.tsx
+│   │   │   │   ├── EmptyState.tsx
+│   │   │   │   ├── ErrorState.tsx
+│   │   │   │   ├── FeedSkeleton.tsx
+│   │   │   │   ├── LoadingBar.tsx
+│   │   │   │   ├── LoadingSpinner.tsx
+│   │   │   │   ├── PostCardSkeleton.tsx
+│   │   │   │   ├── PostDetailSkeleton.tsx
+│   │   │   │   ├── ProfileHeaderSkeleton.tsx
+│   │   │   │   ├── Skeleton.tsx
+│   │   │   │   ├── SpaceCardSkeleton.tsx
+│   │   │   │   └── Spaceheaderskeleton.tsx
 │   │   │   └── ui
 │   │   │       ├── Avatar.tsx
+│   │   │       ├── AvatarDropdown.tsx
 │   │   │       ├── Badge.tsx
 │   │   │       ├── Button.tsx
 │   │   │       ├── Card.tsx
 │   │   │       ├── Checkbox.tsx
+│   │   │       ├── ConfirmDeleteModal.tsx
 │   │   │       ├── Dropdown.tsx
-│   │   │       ├── index.ts
 │   │   │       ├── Input.tsx
 │   │   │       ├── MarkdownToolbar.tsx
 │   │   │       ├── Modal.tsx
 │   │   │       ├── PasswordInput.tsx
 │   │   │       ├── RichTextEditor.tsx
 │   │   │       ├── Select.tsx
-│   │   │       └── Textarea.tsx
+│   │   │       ├── Textarea.tsx
+│   │   │       ├── Toast.tsx
+│   │   │       └── VoteButtons.tsx
 │   │   ├── features
 │   │   │   ├── auth
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── useAuth.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── authService.ts
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── AuthContext.tsx
-│   │   │   │   └── types.ts
 │   │   │   ├── comments
-│   │   │   │   ├── components
-│   │   │   │   │   ├── CommentCard.tsx
-│   │   │   │   │   ├── CommentInput.tsx
-│   │   │   │   │   ├── CommentSection.tsx
-│   │   │   │   │   ├── DeleteCommentModal.tsx
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── useComments.ts
-│   │   │   │   │   └── useCommentVoting.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── commentService.ts
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── utils
-│   │   │   │   │   ├── comment-utils.ts
-│   │   │   │   │   └── seedComments.ts
-│   │   │   │   └── types.ts
-│   │   ├── features
 │   │   │   ├── explore
-│   │   │   │   ├── components
-│   │   │   │   │   ├── Feed.tsx
-│   │   │   │   │   ├── Filter.tsx
-│   │   │   │   │   └── index.ts
-│   │   │   │   └── types.ts
 │   │   │   ├── landing
-│   │   │   │   ├── components
-│   │   │   │   │   ├── CarouselCard.tsx
-│   │   │   │   │   ├── Hero.tsx
-│   │   │   │   │   ├── HeroPostCard.tsx
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── Stats.tsx
-│   │   │   │   │   └── TrendingCarousel.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── useThumbnails.ts
-│   │   │   │   │   └── useTrendingPosts.ts
-│   │   │   │   ├── utils
-│   │   │   │   │   └── imageUtils.ts
-│   │   │   │   └── types.ts
 │   │   │   ├── navigation
-│   │   │   │   └── components
-│   │   │   │       ├── index.ts
-│   │   │   │       └── SidebarNav.tsx
 │   │   │   ├── posts
-│   │   │   │   ├── components
-│   │   │   │   │   ├── DeletePostModal.tsx
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── PostCard.tsx
-│   │   │   │   │   ├── PostDetailActions.tsx
-│   │   │   │   │   ├── PostDetailBreadcrumbs.tsx
-│   │   │   │   │   ├── PostDetailContent.tsx
-│   │   │   │   │   ├── PostDetailHeader.tsx
-│   │   │   │   │   ├── PostDetailVoteColumn.tsx
-│   │   │   │   │   ├── PostForm.tsx
-│   │   │   │   │   └── TrendingWidget.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── usePostDetail.ts
-│   │   │   │   │   ├── usePostDetailView.ts
-│   │   │   │   │   └── useVoting.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── postService.ts
-│   │   │   │   └── types.ts
 │   │   │   ├── profile
-│   │   │   │   ├── components
-│   │   │   │   │   ├── AboutWidget.tsx
-│   │   │   │   │   ├── ActivityFeed.tsx
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── PostPreviewCard.tsx
-│   │   │   │   │   ├── ProfileActivity.tsx
-│   │   │   │   │   ├── ProfileHeader.tsx
-│   │   │   │   │   ├── ProfileLoadingState.tsx
-│   │   │   │   │   ├── ProfileNavbar.tsx
-│   │   │   │   │   ├── ProfileNotFound.tsx
-│   │   │   │   │   ├── ProfilePostsList.tsx
-│   │   │   │   │   ├── ProfileSidebar.tsx
-│   │   │   │   │   ├── SpacesWidget.tsx
-│   │   │   │   │   └── StatsWidget.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── useProfileView.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── userService.ts
-│   │   │   │   └── types.ts
 │   │   │   ├── search
-│   │   │   │   └── components
-│   │   │   │       ├── index.ts
-│   │   │   │       ├── SearchResults.tsx
-│   │   │   │       └── TrendingWidgets.tsx
-│   │   │   └── spaces
-│   │   │       ├── components
-│   │   │       │   ├── CreateSpaceCard.tsx
-│   │   │       │   ├── index.ts
-│   │   │       │   ├── RulesWidget.tsx
-│   │   │       │   ├── SpaceAboutWidget.tsx
-│   │   │       │   ├── SpaceCard.tsx
-│   │   │       │   ├── SpaceDirectoryHeader.tsx
-│   │   │       │   ├── SpaceEmptyState.tsx
-│   │   │       │   ├── SpaceFilters.tsx
-│   │   │       │   ├── SpaceForm.tsx
-│   │   │       │   ├── SpaceHeader.tsx
-│   │   │       │   ├── SpaceSortBar.tsx
-│   │   │       │   └── YourSpacesWidget.tsx
-│   │   │       ├── hooks
-│   │   │       │   ├── index.ts
-│   │   │       │   ├── useCreateSpace.ts
-│   │   │       │   ├── useSpacePage.ts
-│   │   │       │   └── useSpaces.ts
-│   │   │       ├── services
-│   │   │       │   ├── index.ts
-│   │   │       │   └── spaceService.ts
-│   │   │       ├── data.ts
-│   │   │       └── types.ts
+│   │   │   ├── spaces
+│   │   │   └── votes
 │   │   ├── hooks
-│   │   │   ├── index.ts
-│   │   │   ├── useDarkMode.ts
-│   │   │   ├── useImageRotation.ts
-│   │   │   └── usePasswordStrength.ts
 │   │   ├── lib
-│   │   │   ├── mockData.ts
-│   │   │   └── utils.ts
 │   │   ├── pages
-│   │   │   ├── CreatePost.tsx
-│   │   │   ├── CreateSpace.tsx
-│   │   │   ├── EditPost.tsx
-│   │   │   ├── EditProfile.tsx
-│   │   │   ├── Explore.tsx
-│   │   │   ├── Home.tsx
-│   │   │   ├── index.ts
-│   │   │   ├── Login.tsx
-│   │   │   ├── PostDetail.tsx
-│   │   │   ├── Profile.tsx
-│   │   │   ├── Search.tsx
-│   │   │   ├── Signup.tsx
-│   │   │   ├── Space.tsx
-│   │   │   └── SpacesDirectory.tsx
 │   │   ├── App.tsx
 │   │   ├── index.css
-│   │   ├── main.tsx
-│   │   └── vite-env.d.ts
-│   ├── eslint.config.mjs
-│   ├── index.html
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── postcss.config.ts
-│   ├── README.md
+│   │   └── main.tsx
 │   ├── tailwind.config.ts
 │   ├── tsconfig.json
 │   └── vite.config.ts
 ├── server
 │   ├── src
 │   │   ├── config
-│   │   │   ├── db.ts
-│   │   │   └── passport.ts
 │   │   ├── controllers
-│   │   │   ├── commentController.ts
-│   │   │   ├── postController.ts
-│   │   │   ├── spaceController.ts
-│   │   │   ├── statsController.ts
-│   │   │   ├── userController.ts
-│   │   │   └── voteController.ts
 │   │   ├── middleware
-│   │   │   └── validator.ts
 │   │   ├── models
-│   │   │   ├── Comment.ts
-│   │   │   ├── Post.ts
-│   │   │   ├── Space.ts
-│   │   │   ├── User.ts
-│   │   │   └── Vote.ts
 │   │   ├── routes
-│   │   │   ├── authRoutes.ts
-│   │   │   ├── commentRoutes.ts
-│   │   │   ├── postRoutes.ts
-│   │   │   ├── spaceRoutes.ts
-│   │   │   ├── statsRoutes.ts
-│   │   │   ├── userRoutes.ts
-│   │   │   └── voteRoutes.ts
 │   │   ├── app.ts
 │   │   ├── index.ts
 │   │   └── seed.ts
-│   ├── package-lock.json
 │   ├── package.json
 │   ├── README.md
 │   └── tsconfig.json
-├── package-lock.json
-├── package.json
 └── README.md
 ```
 
