@@ -8,6 +8,8 @@ export { Checkbox } from './Checkbox'
 export { PasswordInput } from './PasswordInput'
 export { VoteButtons } from './VoteButtons'
 export type { VoteButtonsProps } from './VoteButtons'
+export { ConfirmDeleteModal } from './ConfirmDeleteModal'
+export type { ConfirmDeleteModalProps } from './ConfirmDeleteModal'
 
 export { 
   Card, 
