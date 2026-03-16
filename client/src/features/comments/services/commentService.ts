@@ -1,9 +1,8 @@
-// Location: client/src/features/comments/services/commentService.ts
-
 import { CommentCardProps, Comment, CreateCommentDto, UpdateCommentDto } from '../types'
 import { getCurrentUser as getAuthUser } from '@/features/auth/services'
 import { buildCommentTree, treeToLegacyFormat } from '../utils/comment-tree-builder'
 import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
+import { formatTimeAgo } from '@/lib/dateUtils'
 
 class CommentService {
   async getCommentsByPostId(postId: string): Promise<CommentCardProps[]> {
@@ -173,8 +172,8 @@ class CommentService {
       author,
       upvotes: 0,
       downvotes: 0,
-      createdAt: this.formatTimeAgo(comment.createdAt),
-      editedAt: comment.editedAt ? this.formatTimeAgo(comment.editedAt) : undefined,
+      createdAt: formatTimeAgo(comment.createdAt),
+      editedAt: comment.editedAt ? formatTimeAgo(comment.editedAt) : undefined,
       isOwner: currentUser ? comment.authorId === currentUser.id : false,
       isDeleted: comment.deletedAt !== null,
       replies: []
@@ -187,21 +186,6 @@ class CommentService {
       isOwner: currentUserId ? comment.author._id === currentUserId || comment.author.id === currentUserId : false,
       replies: comment.replies ? this.deriveOwnership(comment.replies, currentUserId) : []
     }))
-  }
-
-  private formatTimeAgo(date: Date): string {
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
-    const months = Math.floor(diff / 2592000000)
-
-    if (minutes < 1) return 'Just now'
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
-    if (days < 30) return `${days}d ago`
-    return `${months}mo ago`
   }
 }
 
