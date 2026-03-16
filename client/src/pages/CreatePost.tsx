@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import { YourSpacesWidget } from '@/features/spaces/components'
@@ -7,6 +6,7 @@ import { Card } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { useCreatePost } from '@/features/posts/hooks/useCreatePost'
 import { PostForm } from '@/features/posts/components/PostForm'
+import { PageHeader } from '@/components/shared'
 
 export default function CreatePostPage() {
   const navigate = useNavigate()
@@ -40,35 +40,11 @@ export default function CreatePostPage() {
         </div>
       }
     >
-      <Card className="mb-4">
-        <button
-          onClick={() => navigate(-1)}
-          className={cn(
-            'flex items-center gap-2 mb-4',
-            'text-gray-600 dark:text-gray-400',
-            'hover:text-primary transition-colors',
-          )}
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span className="font-medium">Back</span>
-        </button>
-        <h1
-          className={cn(
-            'text-2xl font-bold mb-1',
-            'text-gray-900 dark:text-white',
-          )}
-        >
-          Create a Post
-        </h1>
-        <p
-          className={cn(
-            'text-sm',
-            'text-gray-500 dark:text-gray-400',
-          )}
-        >
-          Share your thoughts with the community
-        </p>
-      </Card>
+      <PageHeader
+        title="Create a Post"
+        subtitle="Share your thoughts with the community"
+        onBack={() => navigate(-1)}
+      />
 
       <Card>
         <PostForm
