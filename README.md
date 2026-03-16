@@ -477,14 +477,24 @@ to `main` or `develop`.**
     git rebase origin/develop
     ```
 
-5.  **Merge and Push:** Switch to `develop` and merge your branch using the 
-    `--no-ff` flag. This ensures a merge commit is created, documenting the 
-    integration.
-    ```bash
-    git checkout develop
-    git merge --no-ff feature/your-feature-name
-    git push origin develop
-    ```
+5.  **Merge and Push:** You have two options to integrate your changes into 
+    `develop`:
+
+    - **Option A: Local Merge (Manual Flow)**
+      Switch to `develop` and merge using the `--no-ff` flag. This ensures a 
+      merge commit is created, documenting the integration.
+      ```bash
+      git checkout develop
+      git merge --no-ff feature/your-feature-name
+      git push origin develop
+      ```
+
+    - **Option B: Pull Request (GitHub Flow)**
+      Push your branch to remote and open a Pull Request against `develop` on 
+      GitHub.
+      ```bash
+      git push origin feature/your-feature-name
+      ```
 
 ### Branch Naming Conventions
 
@@ -507,6 +517,7 @@ to `main` or `develop`.**
 | **`feat`** | Add a new feature | `feat: implement TipTap editor` |
 | **`fix`** | Fix a bug | `fix: update count on delete` |
 | **`refactor`** | Improve code without changing behavior | `refactor: simplify auth logic` |
+| **`merge`** | Merging branches | `merge: feature/voting into develop` |
 | **`perf`** | Optimize performance | `perf: optimize image loading` |
 | **`style`** | Formatting changes (indentation, etc.) | `style: fix indentation in Header` |
 | **`test`** | Add or update test cases | `test: add unit tests for voting` |
