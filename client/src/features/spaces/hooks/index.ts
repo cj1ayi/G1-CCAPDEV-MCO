@@ -1,7 +1,5 @@
 export { useCreateSpace } from './useCreateSpace'
-export type { CreateSpaceFormData } from './useCreateSpace'
 export { useEditSpace } from './useEditSpace'
-export type { EditSpaceFormData } from './useEditSpace'
 export { useDeleteSpace } from './useDeleteSpace'
 export { useSpacePage } from './useSpacePage'
 export { useSpaces } from './useSpaces'

@@ -1,10 +1,16 @@
-import { useState, useEffect, useCallback, FormEvent } from 'react'
+import {
+  useState,
+  useEffect,
+  useCallback,
+  FormEvent,
+} from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getCurrentUser } from '@/features/auth/services/authService'
 import { spaceService, Space, SpaceRule } from '../services'
 import { validateAllRules } from '../utils/spaceValidation'
 import { useToast } from '@/hooks/ToastContext'
-import { useNavigate } from 'react-router-dom'
 import { validateIcon } from '../utils'
+import type { SpaceFormData } from '../components/SpaceForm'
 
 import {
   isSpaceOwner,
@@ -13,18 +19,20 @@ import {
   hasErrors as checkHasErrors,
   type FieldErrors,
 } from '../utils'
-import { SpaceFormData } from '../components'
 
-export interface EditSpaceFormData {
-  displayName: string
-  description: string
-  category: Space['category']
-  icon: string
-  iconType: 'text' | 'image'
-  rules: SpaceRule[]
-}
+const EDIT_FIELDS = [
+  'displayName',
+  'description',
+  'category',
+  'icon',
+]
 
-const EDIT_FIELDS = ['displayName', 'description', 'category', 'icon']
+/** Fields skipped during per-key validation. */
+const SKIP_VALIDATION: (keyof SpaceFormData)[] = [
+  'name',
+  'rules',
+  'iconType',
+]
 
 export const useEditSpace = (spaceName?: string) => {
   const navigate = useNavigate()
@@ -33,9 +41,10 @@ export const useEditSpace = (spaceName?: string) => {
   const [space, setSpace] = useState<Space | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [authError, setAuthError] = useState<string | null>(null)
+  const [authError, setAuthError] =
+    useState<string | null>(null)
 
-  const [formData, setFormData] = useState<EditSpaceFormData>({
+  const [formData, setFormData] = useState<SpaceFormData>({
     displayName: '',
     description: '',
     category: 'Interest',
@@ -44,9 +53,12 @@ export const useEditSpace = (spaceName?: string) => {
     rules: [],
   })
 
-  const [touched, setTouched] = useState<Partial<Record<keyof EditSpaceFormData, boolean>>>({})
+  const [touched, setTouched] = useState<
+    Partial<Record<keyof SpaceFormData, boolean>>
+  >({})
   const [errors, setErrors] = useState<FieldErrors>({})
 
+  // ── Load space & verify ownership ──────────────────
   useEffect(() => {
     const load = async () => {
       if (!spaceName) {
@@ -59,11 +71,14 @@ export const useEditSpace = (spaceName?: string) => {
         const user = await getCurrentUser()
 
         if (!user) {
-          navigate(`/login?redirect=/r/${spaceName}/edit`)
+          navigate(
+            `/login?redirect=/r/${spaceName}/edit`,
+          )
           return
         }
 
-        const found = await spaceService.getSpaceByName(spaceName)
+        const found =
+          await spaceService.getSpaceByName(spaceName)
 
         if (!found) {
           setAuthError('Space not found')
@@ -72,7 +87,9 @@ export const useEditSpace = (spaceName?: string) => {
         }
 
         if (!isSpaceOwner(found, user.id)) {
-          setAuthError('Only the space owner can edit this space')
+          setAuthError(
+            'Only the space owner can edit this space',
+          )
           setIsLoading(false)
           return
         }
@@ -83,8 +100,9 @@ export const useEditSpace = (spaceName?: string) => {
           description: found.description,
           category: found.category,
           icon: found.icon,
-          // Detect iconType from existing icon value
-          iconType: found.icon?.startsWith('http') ? 'image' : 'text',
+          iconType: found.icon?.startsWith('http')
+            ? 'image'
+            : 'text',
           rules: found.rules.map((r) => ({ ...r })),
         })
       } catch {
@@ -97,46 +115,82 @@ export const useEditSpace = (spaceName?: string) => {
     load()
   }, [spaceName, navigate])
 
+  // ── Live validation on touched fields ──────────────
   useEffect(() => {
     const nextErrors: FieldErrors = {}
+    const keys = Object.keys(touched) as (
+      keyof SpaceFormData
+    )[]
 
-    for (const key of Object.keys(touched) as (keyof EditSpaceFormData)[]) {
-      if (!touched[key] || key === 'rules' || key === 'iconType') continue
+    for (const key of keys) {
+      if (!touched[key]) continue
+      if (SKIP_VALIDATION.includes(key)) continue
+
       if (key === 'icon') {
-        const err = validateIcon(formData.icon, formData.iconType)
+        const err = validateIcon(
+          formData.icon,
+          formData.iconType,
+        )
         if (err) nextErrors.icon = err
         continue
       }
-      const err = validateField(key, formData[key] as string)
+
+      const err = validateField(
+        key,
+        formData[key] as string,
+      )
       if (err) (nextErrors as any)[key] = err
     }
 
     if (touched.rules || formData.rules.length > 0) {
-      Object.assign(nextErrors, validateAllRules(formData.rules))
+      Object.assign(
+        nextErrors,
+        validateAllRules(formData.rules),
+      )
     }
 
     setErrors(nextErrors)
   }, [formData, touched])
 
-  const onChange = useCallback((data: SpaceFormData) => setFormData(data as EditSpaceFormData), [])
+  // ── Handlers ──────────────────
+  const onChange = useCallback(
+    (data: SpaceFormData) => setFormData(data),
+    [],
+  )
 
-  const onBlur = useCallback((field: keyof SpaceFormData) => {
-    setTouched((prev) => ({ ...prev, [field]: true }))
-  }, [])
+  const onBlur = useCallback(
+    (field: keyof SpaceFormData) => {
+      setTouched((prev) => ({ ...prev, [field]: true }))
+    },
+    [],
+  )
 
-  const onRulesChange = useCallback((rules: SpaceRule[]) => {
-    setFormData((prev) => ({ ...prev, rules }))
-    setTouched((prev) => ({ ...prev, rules: true }))
-  }, [])
+  const onRulesChange = useCallback(
+    (rules: SpaceRule[]) => {
+      setFormData((prev) => ({ ...prev, rules }))
+      setTouched((prev) => ({ ...prev, rules: true }))
+    },
+    [],
+  )
 
   const onSubmit = useCallback(
     async (e: FormEvent): Promise<void> => {
       e.preventDefault()
       if (!space) return
 
-      setTouched({ displayName: true, description: true, category: true, icon: true, rules: true })
+      setTouched({
+        displayName: true,
+        description: true,
+        category: true,
+        icon: true,
+        rules: true,
+      })
 
-      const nextErrors = validateSpaceForm(formData, EDIT_FIELDS, formData.rules)
+      const nextErrors = validateSpaceForm(
+        formData,
+        EDIT_FIELDS,
+        formData.rules,
+      )
       setErrors(nextErrors)
 
       if (checkHasErrors(nextErrors)) return
@@ -152,13 +206,16 @@ export const useEditSpace = (spaceName?: string) => {
         })
         navigate(`/r/${space.name}`)
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to save changes'
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Failed to save changes'
         showError(message)
       } finally {
         setIsSubmitting(false)
       }
     },
-    [space, formData, navigate, showError]
+    [space, formData, navigate, showError],
   )
 
   const onCancel = useCallback(() => {
