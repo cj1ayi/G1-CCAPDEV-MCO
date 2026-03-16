@@ -1,5 +1,4 @@
 import { useParams } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import {
@@ -10,6 +9,7 @@ import { Card } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { useEditPost } from '@/features/posts/hooks/useEditPost'
 import { PostForm } from '@/features/posts/components/PostForm'
+import { PageHeader } from '@/components/shared'
 
 export default function EditPostPage() {
   const { id } = useParams<{ id: string }>()
@@ -63,29 +63,12 @@ export default function EditPostPage() {
         </div>
       }
     >
-      <Card className="mb-4">
-        <button
-          onClick={handleCancel}
-          className={cn(
-            'flex items-center gap-2 mb-4',
-            'text-gray-600 dark:text-gray-400',
-            'hover:text-primary transition-colors',
-          )}
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span className="font-medium">Back</span>
-        </button>
-        <h1
-          className={cn(
-            'text-2xl font-bold mb-2',
-            'text-gray-900 dark:text-white',
-          )}
-        >
-          Edit Post
-        </h1>
-      </Card>
-
-      <Card>
+     <PageHeader
+        title="Edit Post"
+        onBack={handleCancel}
+      />
+      
+     <Card>
         <PostForm
           mode="edit"
           formData={formData}

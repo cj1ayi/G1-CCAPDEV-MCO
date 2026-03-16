@@ -1,11 +1,10 @@
 import { useParams } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import { LoadingSpinner, ErrorState } from '@/components/shared'
-import { cn } from '@/lib/utils'
 import { useEditSpace } from '@/features/spaces/hooks/useEditSpace'
 import { SpaceForm } from '@/features/spaces/components'
+import { PageHeader } from '@/components/shared'
 
 export default function EditSpace() {
   const { name } = useParams<{ name: string }>()
@@ -46,35 +45,25 @@ export default function EditSpace() {
 
   return (
     <MainLayout maxWidth="max-w-3xl" leftSidebar={<SidebarNav />}>
-      <div className="space-y-6">
-        <button
-          onClick={onCancel}
-          className={cn("flex items-center gap-2 text-gray-500", "hover:text-primary transition-colors")}
-        >
-          <ArrowLeft className="size-4" />
-          <span className="text-sm font-bold">Back to r/{space.name}</span>
-        </button>
+      <PageHeader
+        title="Edit Space"
+        subtitle={<>Update settings for <span className="font-semibold">{space.displayName}</span></>}
+        backLabel={`Back to r/${space.name}`}
+        onBack={onCancel}
+      />
 
-        <div>
-          <h1 className="text-3xl font-black dark:text-white">Edit Space</h1>
-          <p className="text-gray-500 mt-1">
-            Update settings for <span className="font-semibold">{space.displayName}</span>
-          </p>
-        </div>
-
-        <SpaceForm
-          mode="edit"
-          space={space}
-          formData={formData}
-          errors={errors}
-          isSubmitting={isSubmitting}
-          onChange={onChange}
-          onBlur={onBlur}
-          onRulesChange={onRulesChange}
-          onSubmit={onSubmit}
-          onCancel={onCancel}
-        />
-      </div>
+      <SpaceForm
+        mode="edit"
+        space={space}
+        formData={formData}
+        errors={errors}
+        isSubmitting={isSubmitting}
+        onChange={onChange}
+        onBlur={onBlur}
+        onRulesChange={onRulesChange}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+      />
     </MainLayout>
   )
 }
