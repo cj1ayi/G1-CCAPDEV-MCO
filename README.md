@@ -39,6 +39,7 @@ AnimoForums addresses the fragmentation of student communication across multiple
 
 ### Discussion System
 - Create and share posts with text, images, and links
+- **Rich Text Editor:** WYSIWYG editing with Markdown support
 - Nested comment threads with unlimited depth
 - Upvote/downvote system for posts and comments
 - Real-time trending content discovery
@@ -51,18 +52,22 @@ AnimoForums addresses the fragmentation of student communication across multiple
 ## Technology Stack
 
 ### Frontend
-
 | Technology | Purpose |
 |------------|---------|
-| React 18.x | UI library |
-| TypeScript | Type-safe development |
-| Vite | Build tool and dev server |
-| TailwindCSS | Utility-first styling |
-| React Router | Client-side routing |
+| React 18.x | UI Library |
+| TypeScript | Type-safe Development |
+| Vite | Build Tool & Dev Server |
+| TailwindCSS | Utility-first Styling |
+| React Router | Client-side Routing |
 
 ### Backend
-
-For the full backend setup, tech stack, and login instructions, see the [server README](server/README.md).
+| Technology | Purpose |
+|------------|---------|
+| Node.js | Runtime Environment |
+| Express | Web Framework |
+| MongoDB | NoSQL Database |
+| Mongoose | ODM for MongoDB |
+| Passport.js | Authentication Middleware |
 
 ## Getting Started
 
@@ -165,8 +170,10 @@ G1-CCAPDEV-MCO
 │   │   │       ├── Dropdown.tsx
 │   │   │       ├── index.ts
 │   │   │       ├── Input.tsx
+│   │   │       ├── MarkdownToolbar.tsx
 │   │   │       ├── Modal.tsx
 │   │   │       ├── PasswordInput.tsx
+│   │   │       ├── RichTextEditor.tsx
 │   │   │       ├── Select.tsx
 │   │   │       └── Textarea.tsx
 │   │   ├── features
@@ -197,6 +204,7 @@ G1-CCAPDEV-MCO
 │   │   │   │   │   ├── comment-utils.ts
 │   │   │   │   │   └── seedComments.ts
 │   │   │   │   └── types.ts
+│   │   ├── features
 │   │   │   ├── explore
 │   │   │   │   ├── components
 │   │   │   │   │   ├── Feed.tsx
@@ -392,21 +400,33 @@ git push origin feature/feature-name
 
 4. Open a Pull Request on GitHub
 
+### Branch Naming Conventions
+We follow a structured branching model to maintain a clean repository history:
+
+| Branch Type | Purpose | Sample Branch Name |
+|:---|:---|:---|
+| **`main`** | Production branch (stable code) | `main` |
+| **`develop`** | Integration branch for features | `develop` |
+| **`feature/`** | New features or UI improvements | `feature/rich-text-editor` |
+| **`fix/`** | Bug fixes | `fix/comment-deletion` |
+| **`chore/`** | Maintenance or configuration | `chore/update-packages` |
+| **`documentation/`** | README or wiki updates | `documentation/setup-guide` |
+
 ### Coding Standards
 
 #### Conventional Commit Types
 
-| **Type**       | **Purpose** |
-|----------------|-------------|
-| **`feat`**     | Add a new feature (functions, logic) |
-| **`fix`**      | Fix a bug (incorrect output, logic errors) |
-| **`refactor`** | Improve code without changing behavior |
-| **`perf`**     | Optimize performance (faster loops, better memory usage) |
-| **`style`**    | Formatting changes (indentation, comments) |
-| **`test`**     | Add or update test cases |
-| **`build`**    | Modify Makefile or compilation setup |
-| **`docs`**     | Update README, specs, or comments |
-| **`chore`**    | Non-code maintenance (renaming files, updating `.gitignore`) |
+| Type | Purpose | Sample Commit Message |
+|:---|:---|:---|
+| **`feat`** | Add a new feature | `feat: implement TipTap editor` |
+| **`fix`** | Fix a bug | `fix: update count on delete` |
+| **`refactor`** | Improve code without changing behavior | `refactor: simplify auth logic` |
+| **`perf`** | Optimize performance | `perf: optimize image loading` |
+| **`style`** | Formatting changes (indentation, etc.) | `style: fix indentation in Header` |
+| **`test`** | Add or update test cases | `test: add unit tests for voting` |
+| **`build`** | Modify build system or config | `build: update vite config` |
+| **`docs`** | Update README, specs, or comments | `docs: update setup instructions` |
+| **`chore`** | Non-code maintenance | `chore: bump dependencies` |
 
 > [See conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
