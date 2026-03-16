@@ -28,7 +28,8 @@ export const PostCardContent = ({
           className={cn(
             'text-sm text-gray-600 dark:text-gray-300',
             'leading-relaxed mb-3 line-clamp-3 break-words',
-            'prose prose-sm dark:prose-invert max-w-none'
+            'prose prose-sm dark:prose-invert max-w-none',
+            'min-h-[2rem]',
           )}
         >
           <ReactMarkdown 
