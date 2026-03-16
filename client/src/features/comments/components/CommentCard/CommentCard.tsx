@@ -37,6 +37,7 @@ export const CommentCard = ({
   const [isSaving, setIsSaving] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
   const { toasts, error: showError, removeToast } = useToast()
@@ -106,14 +107,17 @@ export const CommentCard = ({
   }
 
   const handleSubmitReply = async (content: string) => {
-    if (!onReply) return
+    if (!onReply || isSubmittingReply) return
 
+    setIsSubmittingReply(true)
     try {
       await onReply(content)
       setIsReplying(false)
     } catch (error) {
       console.error('Failed to submit reply:', error)
       throw error
+    } finally {
+      setIsSubmittingReply(false)
     }
   }
 
@@ -197,6 +201,7 @@ export const CommentCard = ({
             <CommentReplyForm
               onSubmit={handleSubmitReply}
               onCancel={handleCancelReply}
+              isSubmitting={isSubmittingReply}
             />
           )}
         </div>
@@ -236,4 +241,3 @@ export const CommentCard = ({
     </>
   )
 }
-
