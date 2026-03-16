@@ -21,7 +21,6 @@ centralize campus discussions in a unified, searchable environment.
 - [Development](#development)
   - [Git Workflow](#git-workflow)
   - [Coding Standards](#coding-standards)
-- [Contributing](#contributing)
 - [License](#license)
 - [Team](#team)
 
@@ -526,15 +525,6 @@ to `main` or `develop`.**
 | **`chore`** | Non-code maintenance | `chore: bump dependencies` |
 
 > [See conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
-
-## Contributing
-
-Contributions are welcome. Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'feat: add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
 
 ## License
 
