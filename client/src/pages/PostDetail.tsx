@@ -91,7 +91,10 @@ export default function PostDetail() {
         />
 
         <div className="mt-4">
-          <CommentInput onSubmit={comments.addComment} />
+          <CommentInput 
+            onSubmit={comments.addComment} 
+            isSubmitting={comments.isSubmitting}
+          />
         </div>
 
         {comments.isLoading ? (

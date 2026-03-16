@@ -1,4 +1,3 @@
-
 /**
  * Base Comment - Flat storage structure
  */
@@ -110,6 +109,7 @@ export interface UseCommentsOptions {
 export interface UseCommentsReturn {
   comments: CommentCardProps[]
   isLoading: boolean
+  isSubmitting: boolean
   error: Error | null
   addComment: (content: string, parentId?: string) => Promise<void>
   editComment: (commentId: string, newContent: string) => Promise<void>

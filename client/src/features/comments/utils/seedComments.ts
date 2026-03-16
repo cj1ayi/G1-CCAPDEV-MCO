@@ -55,6 +55,7 @@ export function useComments({
 }: UseCommentsOptions): UseCommentsReturn {
   const [rawComments, setRawComments] = useState<CommentCardProps[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
   // Memoized sorted comments that update when votes change
@@ -85,7 +86,10 @@ export function useComments({
   // Add a new comment (root or reply)
   const addComment = useCallback(
     async (content: string, parentId?: string) => {
+      if (isSubmitting) return
+
       try {
+        setIsSubmitting(true)
         setError(null)
 
         // Optimistic update with real current user
@@ -124,9 +128,11 @@ export function useComments({
           'Failed to add comment'))
         // Rollback optimistic update
         await loadComments()
+      } finally {
+        setIsSubmitting(false)
       }
     },
-    [postId, loadComments]
+    [postId, loadComments, isSubmitting]
   )
 
   // Edit an existing comment
@@ -187,6 +193,7 @@ export function useComments({
   return {
     comments,
     isLoading,
+    isSubmitting,
     error,
     addComment,
     editComment,
