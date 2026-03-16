@@ -60,8 +60,8 @@ export const MarkdownToolbar = ({
     const s = styles[type as keyof typeof styles]
 
     if (selection) {
-      const prefix = 'marker' in s ? s.marker : s.prefix
-      const suffix = 'marker' in s ? s.marker : s.suffix || ''
+      const prefix = 'marker' in s ? s.marker : (s as any).prefix
+      const suffix = 'marker' in s ? s.marker : (s as any).suffix || ''
       
       if (selection.startsWith(prefix) && selection.endsWith(suffix)) {
         const inner = selection.substring(prefix.length, selection.length - suffix.length)
@@ -72,8 +72,8 @@ export const MarkdownToolbar = ({
         newCursorPos = start + prefix.length + selection.length + suffix.length
       }
     } else {
-      const prefix = 'marker' in s ? s.marker : s.prefix
-      const suffix = 'marker' in s ? s.marker : s.suffix || ''
+      const prefix = 'marker' in s ? s.marker : (s as any).prefix
+      const suffix = 'marker' in s ? s.marker : (s as any).suffix || ''
       const placeholder = s.placeholder
       
       newText = before + prefix + placeholder + suffix + after

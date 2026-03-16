@@ -6,7 +6,7 @@ import { YourSpacesWidget } from '@/features/spaces/components'
 import { Card } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { useCreatePost } from '@/features/posts/hooks/useCreatePost'
-import { CreatePostForm } from '@/features/posts/components/CreatePostForm'
+import { PostForm } from '@/features/posts/components/PostForm'
 
 export default function CreatePostPage() {
   const navigate = useNavigate()
@@ -15,7 +15,6 @@ export default function CreatePostPage() {
     tagInput,
     errors,
     joinedSpaces,
-    isLoadingSpaces,
     isSubmitting,
     selectedSpace,
     setField,
@@ -31,39 +30,53 @@ export default function CreatePostPage() {
       leftSidebar={
         <div className="space-y-6">
           <SidebarNav />
-          <div className="h-px bg-gray-200 dark:bg-gray-800" />
+          <div
+            className={cn(
+              'h-px bg-gray-200',
+              'dark:bg-gray-800',
+            )}
+          />
           <YourSpacesWidget />
         </div>
       }
     >
-      {/* ── Page header ─────────────────────────────────────────────────── */}
       <Card className="mb-4">
         <button
           onClick={() => navigate(-1)}
           className={cn(
-            'flex items-center gap-2 mb-4 text-gray-600',
-            'dark:text-gray-400 hover:text-primary transition-colors'
+            'flex items-center gap-2 mb-4',
+            'text-gray-600 dark:text-gray-400',
+            'hover:text-primary transition-colors',
           )}
         >
           <ArrowLeft className="h-5 w-5" />
           <span className="font-medium">Back</span>
         </button>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+        <h1
+          className={cn(
+            'text-2xl font-bold mb-1',
+            'text-gray-900 dark:text-white',
+          )}
+        >
           Create a Post
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p
+          className={cn(
+            'text-sm',
+            'text-gray-500 dark:text-gray-400',
+          )}
+        >
           Share your thoughts with the community
         </p>
       </Card>
 
-      {/* ── Form ────────────────────────────────────────────────────────── */}
       <Card>
-        <CreatePostForm
+        <PostForm
+          mode="create"
           formData={formData}
           tagInput={tagInput}
           errors={errors}
           joinedSpaces={joinedSpaces}
-          isLoadingSpaces={isLoadingSpaces}
           isSubmitting={isSubmitting}
           selectedSpace={selectedSpace}
           onFieldChange={setField}

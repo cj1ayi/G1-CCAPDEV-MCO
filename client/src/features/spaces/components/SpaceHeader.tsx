@@ -14,9 +14,8 @@ interface SpaceHeaderProps {
   onDeleteClick?: () => void
   deleteModal?: {
     isOpen: boolean
-    isDeleting: boolean
-    onConfirm: () => void
-    onCancel: () => void
+    onConfirm: () => void | Promise<void>
+    onClose: () => void
   }
 }
 
@@ -75,7 +74,11 @@ export const SpaceHeader = ({
             On mobile: title on top, buttons below (flex-col).
             On md+: title and buttons side by side (flex-row).
           */}
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 md:gap-4">
+          <div className={cn(
+            "flex flex-col md:flex-row md:items-start",
+            "md:justify-between gap-2 md:gap-4"
+            )}
+          >
             {/* Title */}
             <div className="min-w-0">
               <h1 className="text-xl md:text-3xl font-black dark:text-white truncate">
@@ -135,14 +138,12 @@ export const SpaceHeader = ({
         </div>
       </div>
 
-      {deleteModal?.isOpen && (
         <SpaceDeleteModal
+          isOpen={deleteModal?.isOpen ?? false}
           spaceName={space.name}
-          isDeleting={deleteModal.isDeleting}
-          onConfirm={deleteModal.onConfirm}
-          onCancel={deleteModal.onCancel}
+          onConfirm={deleteModal?.onConfirm ?? (() => {})}
+          onClose={deleteModal?.onClose ?? (() => {})}
         />
-      )}
     </div>
   )
 }

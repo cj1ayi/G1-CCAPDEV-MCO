@@ -1,45 +1,50 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import {
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom'
 import { postService } from '@/features/posts/services'
-import { spaceService } from '@/features/spaces/services/spaceService'
+import {
+  spaceService,
+} from '@/features/spaces/services/spaceService'
 import { Space } from '@/features/spaces/services'
 import { useToast } from '@/hooks/ToastContext'
+import type {
+  PostFormData,
+  PostFormErrors,
+} from '../components/PostForm'
 
-export interface CreatePostFormData {
-  title: string
-  content: string
-  space: string
-  imageUrl: string
-  tags: string[]
-}
-
-export interface CreatePostErrors {
-  title?: string
-  content?: string
-  space?: string
-}
+export type { PostFormData, PostFormErrors }
 
 export function useCreatePost() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { error: showError, warning: showWarning, success: showSuccess } = useToast()
+  const {
+    error: showError,
+    warning: showWarning,
+    success: showSuccess,
+  } = useToast()
 
-  const [joinedSpaces, setJoinedSpaces] = useState<Space[]>([])
-  const [isLoadingSpaces, setIsLoadingSpaces] = useState(true)
+  const [joinedSpaces, setJoinedSpaces] =
+    useState<Space[]>([])
+  const [isLoadingSpaces, setIsLoadingSpaces] =
+    useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<CreatePostErrors>({})
+  const [errors, setErrors] =
+    useState<PostFormErrors>({})
 
-  const [formData, setFormData] = useState<CreatePostFormData>({
-    title: '',
-    content: '',
-    space: searchParams.get('space') ?? '',
-    imageUrl: '',
-    tags: [],
-  })
+  const [formData, setFormData] =
+    useState<PostFormData>({
+      title: '',
+      content: '',
+      space: searchParams.get('space') ?? '',
+      imageUrl: '',
+      tags: [],
+    })
 
   const [tagInput, setTagInput] = useState('')
 
-  // ── Load joined spaces ──────────────────────────────────────────────────────
+  // ── Load joined spaces ────────
   useEffect(() => {
     let cancelled = false
 
@@ -50,14 +55,20 @@ export function useCreatePost() {
         if (cancelled) return
 
         if (!Array.isArray(data)) {
-          console.error('useCreatePost: unexpected spaces response', data)
+          console.error(
+            'useCreatePost: unexpected spaces response',
+            data,
+          )
           return
         }
 
         setJoinedSpaces(data.filter((s) => s.isJoined))
       } catch (err) {
         if (!cancelled) {
-          console.error('useCreatePost: failed to load spaces', err)
+          console.error(
+            'useCreatePost: failed to load spaces',
+            err,
+          )
         }
       } finally {
         if (!cancelled) setIsLoadingSpaces(false)
@@ -68,19 +79,21 @@ export function useCreatePost() {
     return () => { cancelled = true }
   }, [])
 
-  // ── Field helpers ───────────────────────────────────────────────────────────
-  const setField = <K extends keyof CreatePostFormData>(
+  // ── Field helpers ─────────────
+  const setField = <K extends keyof PostFormData>(
     key: K,
-    value: CreatePostFormData[K]
+    value: PostFormData[K],
   ) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
-    // Clear error for the field being edited
     if (key in errors) {
-      setErrors((prev) => ({ ...prev, [key]: undefined }))
+      setErrors((prev) => ({
+        ...prev,
+        [key]: undefined,
+      }))
     }
   }
 
-  // ── Tag management ──────────────────────────────────────────────────────────
+  // ── Tags ─────────────────────
   const addTag = () => {
     const tag = tagInput.trim().toLowerCase()
     if (!tag) return
@@ -89,12 +102,16 @@ export function useCreatePost() {
       showWarning('Maximum 5 tags allowed')
       return
     }
+
     if (formData.tags.includes(tag)) {
       showWarning('Tag already added')
       return
     }
 
-    setFormData((prev) => ({ ...prev, tags: [...prev.tags, tag] }))
+    setFormData((prev) => ({
+      ...prev,
+      tags: [...prev.tags, tag],
+    }))
     setTagInput('')
   }
 
@@ -106,19 +123,25 @@ export function useCreatePost() {
     }))
   }
 
-  // ── Validation ──────────────────────────────────────────────────────────────
+  // ── Validation ────────────────
   const validate = (): boolean => {
-    const newErrors: CreatePostErrors = {}
+    const next: PostFormErrors = {}
 
-    if (!formData.title.trim()) newErrors.title = 'Title is required'
-    if (!formData.content.trim()) newErrors.content = 'Content is required'
-    if (!formData.space.trim()) newErrors.space = 'Please select a space'
+    if (!formData.title.trim()) {
+      next.title = 'Title is required'
+    }
+    if (!formData.content.trim()) {
+      next.content = 'Content is required'
+    }
+    if (!formData.space.trim()) {
+      next.space = 'Please select a space'
+    }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    setErrors(next)
+    return Object.keys(next).length === 0
   }
 
-  // ── Submit ──────────────────────────────────────────────────────────────────
+  // ── Submit ──────────────────--
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
@@ -140,21 +163,21 @@ export function useCreatePost() {
       showSuccess('Post created successfully')
       navigate(`/post/${newPost.id}`)
     } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Failed to create post. Please try again.'
-      showError(message)
+      const msg = err instanceof Error
+        ? err.message
+        : 'Failed to create post. Please try again.'
+      showError(msg)
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // ── Derived ─────────────────────────────────────────────────────────────────
-  const selectedSpace = joinedSpaces.find((s) => s.name === formData.space) ?? null
+  // ── Derived ─────────────────--
+  const selectedSpace =
+    joinedSpaces.find((s) => s.name === formData.space)
+    ?? null
 
   return {
-    // State
     formData,
     tagInput,
     errors,
@@ -162,10 +185,8 @@ export function useCreatePost() {
     isLoadingSpaces,
     isSubmitting,
     selectedSpace,
-    // Setters
     setField,
     setTagInput,
-    // Handlers
     addTag,
     removeTag,
     handleSubmit,

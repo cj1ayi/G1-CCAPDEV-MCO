@@ -111,9 +111,8 @@ export default function Space() {
         onDeleteClick={() => setIsDeleteModalOpen(true)}
         deleteModal={{
           isOpen: isDeleteModalOpen,
-          isDeleting: isDeleting,
           onConfirm: handleDeleteSpace,
-          onCancel: () => setIsDeleteModalOpen(false)
+          onClose: () => setIsDeleteModalOpen(false)
         }}
       />
 
