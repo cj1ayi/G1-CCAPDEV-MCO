@@ -32,7 +32,7 @@ export const SpacesWidget = ({ spaces }: SpacesWidgetProps) => {
               {spaces.slice(0, 5).map((space: any) => (
                 <button
                   key={space._id || space.id || space.name}
-                  onClick={() => navigate(`/spaces/${space.name}`)}
+                  onClick={() => navigate(`/r/${space.name}`)}
                   className={cn(
                     'w-full text-left flex items-center gap-2',
                     'text-sm text-gray-700 dark:text-gray-300',
