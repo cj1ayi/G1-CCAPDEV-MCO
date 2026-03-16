@@ -1,67 +1,74 @@
 import { useCallback } from 'react'
-import { CommentCardProps, VoteType, UseCommentVotingReturn } from '../types'
+import {
+  CommentCardProps,
+  VoteType,
+  UseCommentVotingReturn,
+} from '../types'
 import { useVoting } from '@/features/votes/VotingContext'
+import { applyVoteOffset } from '@/features/votes/voteUtils'
 
-export function useCommentVoting(): UseCommentVotingReturn {
+export function useCommentVoting():
+  UseCommentVotingReturn {
   const { votes, toggleVote } = useVoting()
 
-  const handleToggleVote = useCallback((
-    commentId: string, 
-    voteType: VoteType
-  ) => {
-    if (!commentId) {
-      console.warn('toggleVote called with empty commentId')
-      return
-    }
-    
-    toggleVote(commentId, 'comment', voteType)
-  }, [toggleVote])
+  const handleToggleVote = useCallback(
+    (commentId: string, voteType: VoteType) => {
+      if (!commentId) {
+        console.warn(
+          'toggleVote called with empty commentId',
+        )
+        return
+      }
+      toggleVote(commentId, 'comment', voteType)
+    },
+    [toggleVote],
+  )
 
   const getCommentScore = useCallback(
     (comment: CommentCardProps) => {
       if (!comment) return 0
-      
+
       const key = `comment:${comment.id}`
       const voteState = votes[key]
-      let score = comment.upvotes - comment.downvotes
+      const { upvotes, downvotes } = applyVoteOffset(
+        comment.upvotes,
+        comment.downvotes,
+        voteState,
+      )
 
-      if (voteState === 'up') {
-        score += 1
-      } else if (voteState === 'down') {
-        score -= 1
-      }
-
-      return score
+      return upvotes - downvotes
     },
-    [votes]
+    [votes],
   )
 
   const addVoteHandlers = useCallback(
     (
       comment: CommentCardProps,
       onEdit?: (
-        commentId: string, 
-        newContent: string
+        commentId: string,
+        newContent: string,
       ) => void | Promise<void>,
-      onDelete?: (commentId: string) => void | Promise<void>,
+      onDelete?: (
+        commentId: string,
+      ) => void | Promise<void>,
       onReply?: (
-        content: string, 
-        parentId?: string
-      ) => void | Promise<void>
+        content: string,
+        parentId?: string,
+      ) => void | Promise<void>,
     ): CommentCardProps => {
       if (!comment) return comment
 
       const key = `comment:${comment.id}`
       const voteState = votes[key] || null
 
-      let displayUpvotes = comment.upvotes
-      let displayDownvotes = comment.downvotes
-
-      if (voteState === 'up') {
-        displayUpvotes += 1
-      } else if (voteState === 'down') {
-        displayDownvotes += 1
-      }
+      const {
+        upvotes: displayUpvotes,
+        downvotes: displayDownvotes,
+      } = applyVoteOffset(
+        comment.upvotes,
+        comment.downvotes,
+        voteState,
+      )
 
       const handleUpvote = () => {
         handleToggleVote(comment.id, 'up')
@@ -71,21 +78,31 @@ export function useCommentVoting(): UseCommentVotingReturn {
         handleToggleVote(comment.id, 'down')
       }
 
-      const handleEdit = onEdit 
-        ? (newContent: string) => onEdit(comment.id, newContent)
+      const handleEdit = onEdit
+        ? (newContent: string) => {
+            onEdit(comment.id, newContent)
+          }
         : undefined
 
-      const handleDelete = onDelete 
+      const handleDelete = onDelete
         ? () => onDelete(comment.id)
         : undefined
 
-      const handleReply = onReply 
-        ? (content: string) => onReply(content, comment.id)
+      const handleReply = onReply
+        ? (content: string) => {
+            onReply(content, comment.id)
+          }
         : undefined
 
-      const processedReplies = comment.replies?.map(reply =>
-        addVoteHandlers(reply, onEdit, onDelete, onReply)
-      )
+      const processedReplies =
+        comment.replies?.map((reply) =>
+          addVoteHandlers(
+            reply,
+            onEdit,
+            onDelete,
+            onReply,
+          ),
+        )
 
       return {
         ...comment,
@@ -101,13 +118,13 @@ export function useCommentVoting(): UseCommentVotingReturn {
         replies: processedReplies,
       }
     },
-    [votes, handleToggleVote]
+    [votes, handleToggleVote],
   )
 
-  return { 
+  return {
     votes,
-    toggleVote: handleToggleVote, 
-    getCommentScore, 
-    addVoteHandlers 
+    toggleVote: handleToggleVote,
+    getCommentScore,
+    addVoteHandlers,
   }
 }
