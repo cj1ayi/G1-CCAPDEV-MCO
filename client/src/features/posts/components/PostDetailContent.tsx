@@ -10,17 +10,7 @@ import { PostImage } from './PostImage'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-
-const FLAIR_STYLES: Record<string, string> = {
-  Question:
-    'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-  News:
-    'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-  Marketplace:
-    'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
-  Discussion:
-    'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-}
+import { FLAIR_COLORS, FLAIR_FALLBACK } from '../constants'
 
 export const PostDetailContent = ({
   post,
@@ -60,7 +50,7 @@ export const PostDetailContent = ({
   }
 
   const flairStyle = post.flair
-    ? (FLAIR_STYLES[post.flair] ?? 'bg-gray-100 text-gray-700')
+    ? (FLAIR_COLORS[post.flair] ?? FLAIR_FALLBACK)
     : null
 
   return (
