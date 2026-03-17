@@ -56,6 +56,7 @@ export const PostCardContent = ({
         <PostImage 
           src={imageUrl} 
           alt={title} 
+          variant='card'
         />
       }
     </>
