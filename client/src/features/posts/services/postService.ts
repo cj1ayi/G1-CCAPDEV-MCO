@@ -196,14 +196,37 @@ class PostService {
   }
 
   validatePostForm(
-    data: { title: string; content: string; space?: string },
+    data: { title: string; content: string; space?: string; imageUrl?: string },
     isEdit: boolean = false
   ): Record<string, string> {
     const errors: Record<string, string> = {}
 
-    if (!data.title?.trim()) errors.title = 'Title is required'
-    if (!data.content?.trim()) errors.content = 'Content is required'
+    const stripInvisible = (s: string) =>
+      s.replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '').trim()
+
+    const visibleTitle = stripInvisible(data.title ?? '')
+    if (!visibleTitle) {
+      errors.title = 'Title is required'
+    } else if (visibleTitle.length < 5) {
+      errors.title = 'Title must be at least 5 characters'
+    }
+
+    const visibleContent = stripInvisible(data.content ?? '')
+    if (!visibleContent) errors.content = 'Content is required'
+
     if (!isEdit && !data.space) errors.space = 'Please select a space'
+
+    const imageUrl = (data.imageUrl ?? '').trim()
+    if (imageUrl) {
+      try {
+        const url = new URL(imageUrl)
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          errors.imageUrl = 'Image URL must start with http:// or https://'
+        }
+      } catch {
+        errors.imageUrl = 'Image URL must be a valid URL'
+      }
+    }
 
     return errors
   }

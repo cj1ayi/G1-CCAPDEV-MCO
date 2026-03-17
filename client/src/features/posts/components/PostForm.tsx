@@ -25,6 +25,7 @@ export interface PostFormErrors {
   title?: string
   content?: string
   space?: string
+  imageUrl?: string
 }
 
 interface PostFormProps {
@@ -313,6 +314,7 @@ export function PostForm({
           onFieldChange('imageUrl', e.target.value)
         }}
         placeholder="https://example.com/image.jpg"
+        error={errors.imageUrl}
       />
 
       <TagsSection
