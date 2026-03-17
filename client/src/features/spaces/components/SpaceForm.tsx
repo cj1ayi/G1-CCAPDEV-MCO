@@ -89,6 +89,7 @@ export const SpaceForm = ({
           placeholder={isEdit ? 'e.g. CCS Student Gov' : 'e.g. Animo Developers'}
           value={formData.displayName}
           maxLength={50}
+          showCharCount
           required
           error={errors.displayName}
           onChange={(e) => onChange({ ...formData, displayName: e.target.value })}
@@ -101,6 +102,7 @@ export const SpaceForm = ({
           rows={4}
           value={formData.description}
           maxLength={500}
+          showCharCount
           required
           error={errors.description}
           onChange={(e) => onChange({ ...formData, description: e.target.value })}

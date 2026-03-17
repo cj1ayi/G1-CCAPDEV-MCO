@@ -276,6 +276,7 @@ export function PostForm({
         }}
         placeholder="What's your post about?"
         maxLength={300}
+        showCharCount
         error={errors.title}
         required
       />
@@ -298,6 +299,7 @@ export function PostForm({
           }}
           placeholder="What are your thoughts?"
           error={!!errors.content}
+          maxLength={40000}
         />
         {errors.content && (
           <p className="text-xs text-red-500">

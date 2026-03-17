@@ -209,10 +209,16 @@ class PostService {
       errors.title = 'Title is required'
     } else if (visibleTitle.length < 5) {
       errors.title = 'Title must be at least 5 characters'
+    } else if (visibleTitle.length > 300) {
+      errors.title = 'Title must be at most 300 characters'
     }
 
     const visibleContent = stripInvisible(data.content ?? '')
-    if (!visibleContent) errors.content = 'Content is required'
+    if (!visibleContent) {
+      errors.content = 'Content is required'
+    } else if (visibleContent.length > 40000) {
+      errors.content = 'Content must be at most 40,000 characters'
+    }
 
     if (!isEdit && !data.space) errors.space = 'Please select a space'
 

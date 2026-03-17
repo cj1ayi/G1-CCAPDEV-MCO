@@ -120,9 +120,9 @@ const EditProfile = () => {
           <Card>
             <CardHeader><CardTitle>Basic Information</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <Input label="Display Name" name="name" value={formData.name} onChange={handleInputChange} required />
-              <Input label="Username" name="username" value={formData.username} onChange={handleInputChange} required />
-              
+              <Input label="Display Name" name="name" value={formData.name} onChange={handleInputChange} maxLength={30} showCharCount required />
+              <Input label="Username" name="username" value={formData.username} onChange={handleInputChange} maxLength={20} showCharCount required />
+
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Bio</label>
                 <RichTextEditor
@@ -131,10 +131,11 @@ const EditProfile = () => {
                   placeholder="Tell us about yourself..."
                   minHeight="min-h-[150px]"
                   hideHeaders={true}
+                  maxLength={200}
                 />
               </div>
 
-              <Input label="Location" name="location" value={formData.location} onChange={handleInputChange} placeholder="City, Country" />
+              <Input label="Location" name="location" value={formData.location} onChange={handleInputChange} placeholder="City, Country" maxLength={100} showCharCount />
             </CardContent>
           </Card>
 

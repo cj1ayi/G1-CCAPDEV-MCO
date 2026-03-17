@@ -135,10 +135,15 @@ export function useCreatePost() {
       next.title = 'Title is required'
     } else if (visibleTitle.length < 5) {
       next.title = 'Title must be at least 5 characters'
+    } else if (visibleTitle.length > 300) {
+      next.title = 'Title must be at most 300 characters'
     }
 
-    if (!stripInvisible(formData.content)) {
+    const visibleContent = stripInvisible(formData.content)
+    if (!visibleContent) {
       next.content = 'Content is required'
+    } else if (visibleContent.length > 40000) {
+      next.content = 'Content must be at most 40,000 characters'
     }
 
     if (!formData.space.trim()) {

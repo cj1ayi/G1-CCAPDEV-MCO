@@ -53,6 +53,7 @@ export const RuleEditor = ({
         placeholder="e.g. Be Respectful"
         value={rule.title}
         maxLength={50}
+        showCharCount
         onChange={handleTitleChange}
         error={titleError}
       />
@@ -63,6 +64,7 @@ export const RuleEditor = ({
         rows={2}
         value={rule.description}
         maxLength={200}
+        showCharCount
         onChange={handleDescriptionChange}
         error={descriptionError}
       />

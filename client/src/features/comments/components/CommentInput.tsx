@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils'
 import { CommentInputProps } from '../types'
 import { RichTextEditor } from '@/components/ui/RichTextEditor'
 
+const COMMENT_MAX = 10_000
+
 export const CommentInput = ({
   onSubmit,
   placeholder = 'What are your thoughts?',
@@ -15,8 +17,10 @@ export const CommentInput = ({
   const hasVisibleContent = (s: string) =>
     s.replace(/\p{Cf}/gu, '').trim().length > 0
 
+  const isOverLimit = content.length > COMMENT_MAX
+
   const handleSubmit = async () => {
-    if (hasVisibleContent(content) && !isSubmitting) {
+    if (hasVisibleContent(content) && !isSubmitting && !isOverLimit) {
       await onSubmit(content)
       setContent('')
     }
@@ -32,6 +36,7 @@ export const CommentInput = ({
         onChange={setContent}
         placeholder={placeholder}
         minHeight="min-h-[120px]"
+        maxLength={COMMENT_MAX}
       />
 
       <div className="flex justify-end gap-2 mt-3">
@@ -51,11 +56,13 @@ export const CommentInput = ({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!hasVisibleContent(content) || isSubmitting}
+          disabled={!hasVisibleContent(content) || isSubmitting || isOverLimit}
           className={cn(
             'bg-primary text-white px-5 py-2 rounded-lg font-medium text-sm',
             'transition-colors shadow-sm flex items-center gap-2',
-            hasVisibleContent(content) && !isSubmitting ? 'hover:bg-primary-dark' : 'opacity-50 cursor-not-allowed',
+            hasVisibleContent(content) && !isSubmitting && !isOverLimit
+              ? 'hover:bg-primary-dark'
+              : 'opacity-50 cursor-not-allowed',
           )}
         >
           {isSubmitting ? 'Posting...' : submitLabel}

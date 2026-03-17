@@ -33,6 +33,7 @@ interface RichTextEditorProps {
   error?: boolean
   minHeight?: string
   hideHeaders?: boolean
+  maxLength?: number
 }
 
 /** Safe accessor for tiptap-markdown storage. */
@@ -47,7 +48,11 @@ export const RichTextEditor = ({
   error,
   minHeight = 'min-h-[200px]',
   hideHeaders = false,
+  maxLength,
 }: RichTextEditorProps) => {
+  const charCount = value.length
+  const isOverLimit = maxLength !== undefined && charCount > maxLength
+  const isNearLimit = maxLength !== undefined && charCount >= maxLength * 0.9
   const [, setSelectionUpdate] = useState(0)
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
@@ -439,6 +444,29 @@ export const RichTextEditor = ({
       )}
 
       <EditorContent editor={editor} />
+
+      {maxLength && (
+        <div
+          className={cn(
+            'flex justify-end px-3 py-1.5',
+            'border-t border-gray-200 dark:border-gray-700',
+            'bg-gray-50 dark:bg-gray-800/50',
+          )}
+        >
+          <span
+            className={cn(
+              'text-xs',
+              isOverLimit
+                ? 'text-red-500 font-medium'
+                : isNearLimit
+                  ? 'text-amber-500'
+                  : 'text-gray-400',
+            )}
+          >
+            {charCount.toLocaleString()}/{maxLength.toLocaleString()}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
