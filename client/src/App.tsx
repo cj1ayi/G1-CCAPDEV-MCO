@@ -4,7 +4,7 @@ import { AuthProvider } from "@/features/auth/AuthContext";
 import { LoadingBar } from "@/components/shared";
 import { VotingProvider } from "./features/votes/VotingContext";
 import { ToastProvider } from "./hooks/ToastContext";
-
+import { JoinedSpacesProvider } from '@/features/spaces/hooks/JoinedSpacesContext'
 import {
   Home,
   PostDetail,
@@ -61,10 +61,12 @@ const App = () => {
     <BrowserRouter>
       <AuthProvider>
         <VotingProvider>
+          <JoinedSpacesProvider>
           <LoadingBar />
             <ToastProvider>
               <AppRoutes />
             </ToastProvider>
+             </JoinedSpacesProvider>
         </VotingProvider>
       </AuthProvider>
     </BrowserRouter>
