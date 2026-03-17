@@ -42,7 +42,7 @@ export const CommentCard = ({
 
   const { toasts, error: showError, removeToast } = useToast()
   const menuRef = useRef<HTMLDivElement>(null)
-  const maxDepth = 5
+  const maxDepth = Infinity
   const hasReplies = replies.length > 0
 
   useEffect(() => {
@@ -130,13 +130,16 @@ export const CommentCard = ({
       <div
         className={cn(
           'group',
-          depth > 0 && [
-            'ml-6 md:ml-8 pl-4',
-            'border-l-2 border-gray-200 dark:border-gray-800',
-            'hover:border-gray-300 dark:hover:border-gray-600',
-            'transition-colors',
-          ],
-        )}
+        depth > 0 && [
+        depth <= 4
+          ? 'ml-6 md:ml-8 pl-4'
+          : 'ml-3 md:ml-4 pl-3',
+        'border-l-2 border-gray-200',
+        'dark:border-gray-800',
+        'hover:border-gray-300',
+        'dark:hover:border-gray-600',
+        'transition-colors',
+          ])}
       >
         <div className="py-3">
           {/* Header with Menu */}
