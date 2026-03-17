@@ -22,44 +22,40 @@ export const toggleVote = async (
         .json({ message: 'Unauthorized' })
     }
 
-    const { targetId, targetType, value } = req.body
+    const { targetId, targetType, value } =
+      req.body
     const userId = (req.user as any)._id
     const Model = getTargetModel(targetType)
 
-    // Atomic: find and remove in one operation
-    const existing = await Vote.findOneAndDelete({
+    const existing = await Vote.findOne({
       userId,
       targetId,
-      value,
     })
 
-    // Same button clicked → vote removed
     if (existing) {
+      if (existing.value === value) {
+        // Same button → remove vote
+        await existing.deleteOne()
+
+        const update =
+          value === 1
+            ? { $inc: { upvotes: -1 } }
+            : { $inc: { downvotes: -1 } }
+        await Model.findByIdAndUpdate(
+          targetId,
+          update,
+        )
+        return res.json({ voteType: 'none' })
+      }
+
+      // Opposite button → switch vote
+      existing.value = value
+      await existing.save()
+
       const update =
         value === 1
-          ? { $inc: { upvotes: -1 } }
-          : { $inc: { downvotes: -1 } }
-      await Model.findByIdAndUpdate(
-        targetId,
-        update,
-      )
-      return res.json({ voteType: 'none' })
-    }
-
-    // Different button or new vote →
-    // upsert atomically
-    const prev = await Vote.findOneAndUpdate(
-      { userId, targetId },
-      { userId, targetId, targetType, value },
-      { upsert: true, returnDocument: 'before' },
-    )
-
-    // prev is null → new vote created
-    if (!prev) {
-      const update =
-        value === 1
-          ? { $inc: { upvotes: 1 } }
-          : { $inc: { downvotes: 1 } }
+          ? { $inc: { upvotes: 1, downvotes: -1 } }
+          : { $inc: { upvotes: -1, downvotes: 1 } }
       await Model.findByIdAndUpdate(
         targetId,
         update,
@@ -69,11 +65,18 @@ export const toggleVote = async (
       })
     }
 
-    // prev existed with opposite value → switched
+    // No existing vote → create new
+    await Vote.create({
+      userId,
+      targetId,
+      targetType,
+      value,
+    })
+
     const update =
       value === 1
-        ? { $inc: { upvotes: 1, downvotes: -1 } }
-        : { $inc: { upvotes: -1, downvotes: 1 } }
+        ? { $inc: { upvotes: 1 } }
+        : { $inc: { downvotes: 1 } }
     await Model.findByIdAndUpdate(
       targetId,
       update,
@@ -81,7 +84,25 @@ export const toggleVote = async (
     return res.json({
       voteType: value === 1 ? 'up' : 'down',
     })
-  } catch (error) {
+  } catch (error: any) {
+    // Race condition: parallel request already
+    // created the vote. Return current state.
+    if (error?.code === 11000) {
+      const existing = await Vote.findOne({
+        userId: (req.user as any)?._id,
+        targetId: req.body.targetId,
+      })
+
+      if (!existing) {
+        return res.json({ voteType: 'none' })
+      }
+
+      return res.json({
+        voteType:
+          existing.value === 1 ? 'up' : 'down',
+      })
+    }
+
     res.status(500).json({
       message: 'Failed to process vote',
     })
