@@ -51,8 +51,8 @@ const VARIANTS = {
     hoverBg:
       'hover:bg-gray-100 dark:hover:bg-gray-800',
     scoreSize: cn(
-      'text-xs font-bold',
-      'min-w-[24px] text-center',
+      'text-xs font-bold leading-none',
+      'w-6 text-center',
     ),
     neutralScore:
       'text-gray-700 dark:text-gray-300',
@@ -93,7 +93,7 @@ function buildBtnClass(
   pad: string,
   hoverBg: string,
 ) {
-  const base = cn(pad, 'rounded transition-colors')
+  const base = cn(pad, 'flex items-center justify-center rounded transition-colors')
 
   if (isActive) return cn(base, activeColor, hoverBg)
 
@@ -163,7 +163,7 @@ export const VoteButtons = ({
       >
         <span
           className={cn(
-            'material-symbols-outlined',
+            'material-symbols-outlined leading-none',
             v.iconSize,
           )}
           style={isUpvoted ? FILL : undefined}
@@ -181,7 +181,7 @@ export const VoteButtons = ({
       >
         <span
           className={cn(
-            'material-symbols-outlined',
+            'material-symbols-outlined leading-none',
             v.iconSize,
             'rotate-180',
           )}
