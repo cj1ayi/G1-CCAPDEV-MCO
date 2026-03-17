@@ -1,5 +1,3 @@
-// Location: client/src/features/explore/components/Feed.tsx
-
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -15,26 +13,11 @@ import { Button } from '@/components/ui'
 import {
   postService,
 } from '@/features/posts/services'
-import {
-  commentService,
-} from '@/features/comments/services'
-import {
-  getTotalCommentCount,
-} from '@/features/comments/utils/comment-utils'
 import { Post } from '@/features/posts/types'
 import { useLoadingBar } from '@/hooks'
 import { useVoting } from '@/features/votes/VotingContext'
 
-type CommentCountMap = Record<string, number>
-
 const PAGE_SIZE = 15
-
-const sortByScore = (posts: Post[]) =>
-  [...posts].sort(
-    (a, b) =>
-      (b.upvotes - b.downvotes) -
-      (a.upvotes - a.downvotes),
-  )
 
 export const Feed = ({
   sortBy = 'best',
@@ -43,8 +26,6 @@ export const Feed = ({
 }) => {
   const navigate = useNavigate()
   const [posts, setPosts] = useState<Post[]>([])
-  const [commentCounts, setCommentCounts] =
-    useState<CommentCountMap>({})
   const [isInitialLoad, setIsInitialLoad] =
     useState(true)
   const [isPageLoading, setIsPageLoading] =
@@ -56,7 +37,8 @@ export const Feed = ({
     useState<Set<string>>(new Set())
   const [deleteModalPost, setDeleteModalPost] =
     useState<Post | null>(null)
-  const { startLoading, stopLoading } = useLoadingBar()
+  const { startLoading, stopLoading } =
+    useLoadingBar()
   const { votes, toggleVote } = useVoting()
 
   const fetchPage = useCallback(
@@ -78,20 +60,14 @@ export const Feed = ({
             offset: (page - 1) * PAGE_SIZE,
           })
 
+        // Backend now sorts by score —
+        // no client-side re-sort needed
         if (Array.isArray(result)) {
-          setPosts(
-            sort === 'new'
-              ? result
-              : sortByScore(result),
-          )
+          setPosts(result)
           setTotalPages(1)
           setTotalPosts(result.length)
         } else {
-          setPosts(
-            sort === 'new'
-              ? result.data
-              : sortByScore(result.data),
-          )
+          setPosts(result.data)
           setTotalPosts(result.pagination.total)
           setTotalPages(
             Math.ceil(
@@ -107,7 +83,10 @@ export const Feed = ({
           })
         }
       } catch (err) {
-        console.error('Failed to load posts:', err)
+        console.error(
+          'Failed to load posts:',
+          err,
+        )
       } finally {
         setIsInitialLoad(false)
         setIsPageLoading(false)
@@ -122,29 +101,6 @@ export const Feed = ({
     fetchPage(1, sortBy, true)
   }, [sortBy]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    const loadCounts = async () => {
-      if (posts.length === 0) return
-
-      const counts: CommentCountMap = {}
-      for (const post of posts) {
-        try {
-          const comments =
-            await commentService.getCommentsByPostId(
-              post.id,
-            )
-          counts[post.id] =
-            getTotalCommentCount(comments)
-        } catch (err) {
-          counts[post.id] = post.commentCount
-        }
-      }
-      setCommentCounts(counts)
-    }
-
-    loadCounts()
-  }, [posts])
-
   const goToPage = (page: number) => {
     if (
       page < 1 ||
@@ -158,7 +114,10 @@ export const Feed = ({
     fetchPage(page, sortBy, false)
   }
 
-  const getPageNumbers = (): (number | '...')[] => {
+  const getPageNumbers = (): (
+    | number
+    | '...'
+  )[] => {
     if (totalPages <= 7) {
       return Array.from(
         { length: totalPages },
@@ -247,11 +206,16 @@ export const Feed = ({
       )
       setDeleteModalPost(null)
     } catch (error) {
-      console.error('Failed to delete post:', error)
+      console.error(
+        'Failed to delete post:',
+        error,
+      )
     }
   }
 
-  if (isInitialLoad) return <FeedSkeleton count={5} />
+  if (isInitialLoad) {
+    return <FeedSkeleton count={5} />
+  }
 
   return (
     <>
@@ -265,9 +229,6 @@ export const Feed = ({
         {posts.map((post) => {
           const voteKey = `post:${post.id}`
           const voteState = votes[voteKey]
-          const realCommentCount =
-            commentCounts[post.id] ??
-            post.commentCount
 
           return (
             <PostCard
@@ -275,7 +236,7 @@ export const Feed = ({
               {...post}
               upvotes={post.upvotes}
               downvotes={post.downvotes}
-              commentCount={realCommentCount}
+              commentCount={post.commentCount}
               isUpvoted={voteState === 'up'}
               isDownvoted={voteState === 'down'}
               onClick={() => {
@@ -354,7 +315,9 @@ export const Feed = ({
                 currentPage === 1 || isPageLoading
               }
               leftIcon={
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft
+                  className="h-4 w-4"
+                />
               }
             >
               Prev
@@ -426,7 +389,9 @@ export const Feed = ({
           isOpen={!!deleteModalPost}
           postTitle={deleteModalPost.title}
           onConfirm={handleDeletePost}
-          onClose={() => setDeleteModalPost(null)}
+          onClose={() => {
+            setDeleteModalPost(null)
+          }}
         />
       )}
     </>
