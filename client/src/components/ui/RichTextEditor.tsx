@@ -177,15 +177,22 @@ export const RichTextEditor = ({
   }
 
   const applyImage = () => {
-    let url = imageUrl.trim()
+    const url = imageUrl.trim()
     if (!url) {
       setShowImageInput(false)
       return
     }
-    if (!/^https?:\/\//i.test(url)) {
-      url = `https://${url}`
+    try {
+      const parsed = new URL(
+        /^https?:\/\//i.test(url) ? url : `https://${url}`,
+      )
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        return
+      }
+      editor.chain().focus().setImage({ src: parsed.href }).run()
+    } catch {
+      return
     }
-    editor.chain().focus().setImage({ src: url }).run()
     setShowImageInput(false)
     setImageUrl('')
   }

@@ -123,6 +123,7 @@ export function useEditPost(postId?: string) {
       {
         title: formData.title,
         content: formData.content,
+        imageUrl: formData.imageUrl,
       },
       true,
     )

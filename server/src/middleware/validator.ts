@@ -18,24 +18,37 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
 
 export const postValidationRules = [
   body('title')
+    .trim()
     .notEmpty().withMessage('Title is required')
     .isLength({ min: 5, max: 300 }).withMessage('Title must be between 5 and 300 characters'),
   body('content')
+    .trim()
     .notEmpty().withMessage('Content is required'),
   body('space')
-    .notEmpty().withMessage('Space name is required')
+    .notEmpty().withMessage('Space name is required'),
+  body('imageUrl')
+    .optional({ values: 'falsy' })
+    .isURL({ protocols: ['http', 'https'], require_protocol: true })
+    .withMessage('Image URL must be a valid http or https URL'),
 ];
 
 export const postUpdateValidationRules = [
   body('title')
+    .trim()
     .notEmpty().withMessage('Title is required')
     .isLength({ min: 5, max: 300 }).withMessage('Title must be between 5 and 300 characters'),
   body('content')
+    .trim()
     .notEmpty().withMessage('Content is required'),
+  body('imageUrl')
+    .optional({ values: 'falsy' })
+    .isURL({ protocols: ['http', 'https'], require_protocol: true })
+    .withMessage('Image URL must be a valid http or https URL'),
 ]
 
 export const commentValidationRules = [
   body('content')
+    .trim()
     .notEmpty().withMessage('Comment cannot be empty')
     .isLength({ max: 1000 }).withMessage('Comment is too long'),
   body('postId')

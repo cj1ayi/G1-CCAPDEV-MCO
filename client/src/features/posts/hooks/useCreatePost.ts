@@ -127,14 +127,34 @@ export function useCreatePost() {
   const validate = (): boolean => {
     const next: PostFormErrors = {}
 
-    if (!formData.title.trim()) {
+    const stripInvisible = (s: string) =>
+      s.replace(/\p{Cf}/gu, '').trim()
+
+    const visibleTitle = stripInvisible(formData.title)
+    if (!visibleTitle) {
       next.title = 'Title is required'
+    } else if (visibleTitle.length < 5) {
+      next.title = 'Title must be at least 5 characters'
     }
-    if (!formData.content.trim()) {
+
+    if (!stripInvisible(formData.content)) {
       next.content = 'Content is required'
     }
+
     if (!formData.space.trim()) {
       next.space = 'Please select a space'
+    }
+
+    const imageUrl = formData.imageUrl.trim()
+    if (imageUrl) {
+      try {
+        const url = new URL(imageUrl)
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          next.imageUrl = 'Image URL must start with http:// or https://'
+        }
+      } catch {
+        next.imageUrl = 'Image URL must be a valid URL'
+      }
     }
 
     setErrors(next)
