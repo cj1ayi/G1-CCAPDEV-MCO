@@ -202,7 +202,7 @@ class PostService {
     const errors: Record<string, string> = {}
 
     const stripInvisible = (s: string) =>
-      s.replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '').trim()
+      s.replace(/\p{Cf}/gu, '').trim()
 
     const visibleTitle = stripInvisible(data.title ?? '')
     if (!visibleTitle) {

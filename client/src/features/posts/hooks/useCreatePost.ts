@@ -127,19 +127,17 @@ export function useCreatePost() {
   const validate = (): boolean => {
     const next: PostFormErrors = {}
 
-    const visibleTitle = formData.title
-      .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '')
-      .trim()
+    const stripInvisible = (s: string) =>
+      s.replace(/\p{Cf}/gu, '').trim()
+
+    const visibleTitle = stripInvisible(formData.title)
     if (!visibleTitle) {
       next.title = 'Title is required'
     } else if (visibleTitle.length < 5) {
       next.title = 'Title must be at least 5 characters'
     }
 
-    const visibleContent = formData.content
-      .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '')
-      .trim()
-    if (!visibleContent) {
+    if (!stripInvisible(formData.content)) {
       next.content = 'Content is required'
     }
 

@@ -12,8 +12,11 @@ export const CommentInput = ({
 }: CommentInputProps) => {
   const [content, setContent] = useState('')
 
+  const hasVisibleContent = (s: string) =>
+    s.replace(/\p{Cf}/gu, '').trim().length > 0
+
   const handleSubmit = async () => {
-    if (content.trim() && !isSubmitting) {
+    if (hasVisibleContent(content) && !isSubmitting) {
       await onSubmit(content)
       setContent('')
     }
@@ -48,11 +51,11 @@ export const CommentInput = ({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!content.trim() || isSubmitting}
+          disabled={!hasVisibleContent(content) || isSubmitting}
           className={cn(
             'bg-primary text-white px-5 py-2 rounded-lg font-medium text-sm',
             'transition-colors shadow-sm flex items-center gap-2',
-            content.trim() && !isSubmitting ? 'hover:bg-primary-dark' : 'opacity-50 cursor-not-allowed',
+            hasVisibleContent(content) && !isSubmitting ? 'hover:bg-primary-dark' : 'opacity-50 cursor-not-allowed',
           )}
         >
           {isSubmitting ? 'Posting...' : submitLabel}
