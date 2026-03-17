@@ -176,6 +176,7 @@ export const PostDetailContent = ({
             <PostImage
               src={post.imageUrl}
               alt={post.title}
+              variant="card"
             />
           )}
 
