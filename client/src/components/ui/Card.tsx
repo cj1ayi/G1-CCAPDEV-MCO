@@ -43,7 +43,7 @@ export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
   ({ children, className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('flex flex-col space-y-1.5', className)}
+      className={cn('flex flex-col space-y-1.5 mb-4', className)}
       {...props}
     >
       {children}
