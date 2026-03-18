@@ -187,10 +187,13 @@ export function VotingProvider({
       setIsLoading(true)
 
       try {
+        const apiValue = newVoteType ??
+          (voteType === 'up' ? 1 : -1)
+
         await voteService.toggleVote({
           targetId,
           targetType: capitalizeType(targetType),
-          voteType: newVoteType,
+          voteType: apiValue,
         })
 
         setVoteDeltas((prev) => {
