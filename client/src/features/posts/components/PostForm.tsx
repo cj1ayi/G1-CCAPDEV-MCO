@@ -34,9 +34,8 @@ interface PostFormProps {
   tagInput: string
   errors: PostFormErrors
   isSubmitting: boolean
-  /** Only needed in create mode. */
   joinedSpaces?: Space[]
-  /** Only needed in create mode. */
+  isLoadingSpaces?: boolean
   selectedSpace?: Space | null
   onFieldChange: <K extends keyof PostFormData>(
     key: K,
@@ -53,6 +52,7 @@ function SpaceSelector({
   formData,
   errors,
   joinedSpaces,
+  isLoadingSpaces,
   selectedSpace,
   onFieldChange,
 }: Pick<
@@ -60,12 +60,18 @@ function SpaceSelector({
   | 'formData'
   | 'errors'
   | 'joinedSpaces'
+  | 'isLoadingSpaces'
   | 'selectedSpace'
   | 'onFieldChange'
 >) {
+  const navigate = useNavigate()
   const spaces = joinedSpaces ?? []
+  const hasNoSpaces =
+    !isLoadingSpaces && spaces.length === 0
+
   const label = selectedSpace
-    ? `r/${selectedSpace.name} — ${selectedSpace.displayName}`
+    ? `r/${selectedSpace.name}` +
+      ` — ${selectedSpace.displayName}`
     : 'Select a space...'
 
   const borderClass = errors.space
@@ -80,53 +86,98 @@ function SpaceSelector({
           'text-gray-700 dark:text-gray-200',
         )}
       >
-        Space <span className="text-red-500">*</span>
+        Space{' '}
+        <span className="text-red-500">*</span>
       </label>
-      <Dropdown
-        fullWidth
-        trigger={
-          <button
-            type="button"
+
+      {hasNoSpaces ? (
+        <div
+          className={cn(
+            'rounded-lg border px-4 py-3',
+            'bg-amber-50 dark:bg-amber-900/20',
+            'border-amber-200',
+            'dark:border-amber-700',
+          )}
+        >
+          <p
             className={cn(
-              'w-full flex items-center',
-              'justify-between rounded-lg',
-              'border px-4 py-3 text-sm',
-              'bg-white dark:bg-surface-dark',
-              'text-gray-900 dark:text-white',
-              borderClass,
+              'text-sm text-amber-700',
+              'dark:text-amber-400',
             )}
           >
-            <span
-              className={
-                selectedSpace ? '' : 'text-gray-400'
+            You must join a space before posting.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/spaces')}
+            className={cn(
+              'text-sm font-semibold',
+              'text-primary hover:underline',
+              'mt-1',
+            )}
+          >
+            Browse All Spaces →
+          </button>
+        </div>
+      ) : (
+        <Dropdown
+          fullWidth
+          trigger={
+            <button
+              type="button"
+              className={cn(
+                'w-full flex items-center',
+                'justify-between rounded-lg',
+                'border px-4 py-3 text-sm',
+                'bg-white dark:bg-surface-dark',
+                'text-gray-900 dark:text-white',
+                borderClass,
+              )}
+            >
+              <span
+                className={
+                  selectedSpace
+                    ? ''
+                    : 'text-gray-400'
+                }
+              >
+                {label}
+              </span>
+              <ChevronDown
+                className={cn(
+                  'h-4 w-4 text-gray-400',
+                )}
+              />
+            </button>
+          }
+        >
+          {spaces.map((space) => (
+            <DropdownItem
+              key={space.name}
+              onClick={() => {
+                onFieldChange(
+                  'space',
+                  space.name,
+                )
+              }}
+              icon={
+                formData.space ===
+                  space.name && (
+                  <Check
+                    className={cn(
+                      'h-4 w-4 text-primary',
+                    )}
+                  />
+                )
               }
             >
-              {label}
-            </span>
-            <ChevronDown
-              className="h-4 w-4 text-gray-400"
-            />
-          </button>
-        }
-      >
-        {spaces.map((space) => (
-          <DropdownItem
-            key={space.name}
-            onClick={() => {
-              onFieldChange('space', space.name)
-            }}
-            icon={
-              formData.space === space.name && (
-                <Check
-                  className="h-4 w-4 text-primary"
-                />
-              )
-            }
-          >
-            r/{space.name} — {space.displayName}
-          </DropdownItem>
-        ))}
-      </Dropdown>
+              r/{space.name} —{' '}
+              {space.displayName}
+            </DropdownItem>
+          ))}
+        </Dropdown>
+      )}
+
       {errors.space && (
         <p className="text-xs text-red-500 mt-1">
           {errors.space}
@@ -136,7 +187,11 @@ function SpaceSelector({
   )
 }
 
-function ReadOnlySpace({ space }: { space: string }) {
+function ReadOnlySpace({
+  space,
+}: {
+  space: string
+}) {
   return (
     <div>
       <label
@@ -188,7 +243,9 @@ function TagsSection({
       <div className="flex gap-2">
         <Input
           value={tagInput}
-          onChange={(e) => onTagInputChange(e.target.value)}
+          onChange={(e) => {
+            onTagInputChange(e.target.value)
+          }}
           placeholder="Add a tag..."
           className="flex-1"
         />
@@ -201,18 +258,24 @@ function TagsSection({
         </Button>
       </div>
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div
+          className="flex flex-wrap gap-2 mt-3"
+        >
           {tags.map((tag) => (
             <Badge
               key={tag}
               variant="secondary"
-              className="flex items-center gap-1"
+              className={cn(
+                'flex items-center gap-1',
+              )}
             >
               #{tag}
               <button
                 type="button"
                 onClick={() => onRemoveTag(tag)}
-                className="ml-1 hover:text-red-500"
+                className={cn(
+                  'ml-1 hover:text-red-500',
+                )}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -231,6 +294,7 @@ export function PostForm({
   errors,
   isSubmitting,
   joinedSpaces,
+  isLoadingSpaces,
   selectedSpace,
   onFieldChange,
   onTagInputChange,
@@ -242,12 +306,19 @@ export function PostForm({
   const navigate = useNavigate()
   const isEdit = mode === 'edit'
 
+  const hasNoSpaces =
+    !isEdit &&
+    !isLoadingSpaces &&
+    (joinedSpaces ?? []).length === 0
+
   const handleCancel = () => {
     if (onCancel) return onCancel()
     navigate(-1)
   }
 
-  const submitLabel = isEdit ? 'Save Changes' : 'Post'
+  const submitLabel = isEdit
+    ? 'Save Changes'
+    : 'Post'
 
   return (
     <form
@@ -255,7 +326,6 @@ export function PostForm({
       className="space-y-6"
       noValidate
     >
-      {/* Space — selector or read-only */}
       {isEdit ? (
         <ReadOnlySpace space={formData.space} />
       ) : (
@@ -263,6 +333,7 @@ export function PostForm({
           formData={formData}
           errors={errors}
           joinedSpaces={joinedSpaces}
+          isLoadingSpaces={isLoadingSpaces}
           selectedSpace={selectedSpace}
           onFieldChange={onFieldChange}
         />
@@ -281,7 +352,6 @@ export function PostForm({
         required
       />
 
-      {/* Content */}
       <div className="space-y-2">
         <label
           className={cn(
@@ -313,7 +383,10 @@ export function PostForm({
         type="url"
         value={formData.imageUrl}
         onChange={(e) => {
-          onFieldChange('imageUrl', e.target.value)
+          onFieldChange(
+            'imageUrl',
+            e.target.value,
+          )
         }}
         placeholder="https://example.com/image.jpg"
         error={errors.imageUrl}
@@ -327,7 +400,6 @@ export function PostForm({
         onRemoveTag={onRemoveTag}
       />
 
-      {/* Actions */}
       <div
         className={cn(
           'flex gap-3 justify-end pt-4',
@@ -342,7 +414,11 @@ export function PostForm({
         >
           Cancel
         </Button>
-        <Button type="submit" isLoading={isSubmitting}>
+        <Button
+          type="submit"
+          isLoading={isSubmitting}
+          disabled={hasNoSpaces}
+        >
           {submitLabel}
         </Button>
       </div>
