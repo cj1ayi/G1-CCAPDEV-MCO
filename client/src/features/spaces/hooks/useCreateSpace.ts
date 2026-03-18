@@ -9,6 +9,7 @@ import {
   hasErrors as checkHasErrors,
   type FieldErrors,
 } from '../utils'
+import { useJoinedSpaces } from './JoinedSpacesContext'
 
 const INITIAL_DATA: SpaceFormData = {
   name: '',
@@ -36,6 +37,7 @@ export const useCreateSpace = () => {
     useState<SpaceFormData>(INITIAL_DATA)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { refresh: refreshSpace } = useJoinedSpaces()
 
   const onChange = useCallback(
     (data: SpaceFormData) => setFormData(data),
@@ -85,6 +87,7 @@ export const useCreateSpace = () => {
         }
 
         const created = await spaceService.createSpace(dto)
+        refreshSpace()
         navigate(`/r/${created.name}`)
       } catch {
         showError(
