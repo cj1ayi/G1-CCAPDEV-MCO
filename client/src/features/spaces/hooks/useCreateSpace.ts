@@ -1,6 +1,13 @@
-import { useState, useCallback, FormEvent } from 'react'
+import {
+  useState,
+  useCallback,
+  FormEvent,
+} from 'react'
 import { useNavigate } from 'react-router-dom'
-import { spaceService, SpaceRule } from '../services'
+import {
+  spaceService,
+  SpaceRule,
+} from '../services'
 import type { CreateSpaceDto } from '../services'
 import { useToast } from '@/hooks/ToastContext'
 import type {
@@ -56,7 +63,10 @@ export const useCreateSpace = () => {
 
   const onRulesChange = useCallback(
     (rules: SpaceRule[]) => {
-      setFormData((prev) => ({ ...prev, rules }))
+      setFormData((prev) => ({
+        ...prev,
+        rules,
+      }))
     },
     [],
   )
@@ -74,7 +84,8 @@ export const useCreateSpace = () => {
 
       if (checkHasErrors(nextErrors)) {
         showError(
-          'Please fix the errors before submitting',
+          'Please fix the errors'
+          + ' before submitting',
         )
         return
       }
@@ -116,8 +127,8 @@ export const useCreateSpace = () => {
           msg.includes('already exists')
         ) {
           showError(
-            'A space with this name already exists.'
-            + ' Please choose a different name.',
+            'A space with this name already'
+            + ' exists. Choose a different name.',
           )
         } else if (msg) {
           showError(msg)
@@ -131,7 +142,13 @@ export const useCreateSpace = () => {
         setIsSubmitting(false)
       }
     },
-    [formData, navigate, showError, showSuccess, refreshSpaces],
+    [
+      formData,
+      navigate,
+      showError,
+      showSuccess,
+      refreshSpaces,
+    ],
   )
 
   return {

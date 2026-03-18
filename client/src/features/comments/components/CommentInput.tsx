@@ -57,7 +57,6 @@ export const CommentInput = ({
           'justify-between mt-3',
         )}
       >
-        {/* Character count */}
         <div>
           {showWarning && (
             <span
@@ -75,7 +74,6 @@ export const CommentInput = ({
           )}
         </div>
 
-        {/* Buttons */}
         <div className="flex gap-2">
           {onCancel && (
             <button
