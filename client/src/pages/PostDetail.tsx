@@ -16,6 +16,7 @@ import {
 import {
   ErrorState,
   PostDetailSkeleton,
+  PostDetailRightSkeleton,
   CommentsSkeleton,
 } from '@/components/shared'
 import {
@@ -32,7 +33,9 @@ const LeftSidebar = () => (
   <div className="space-y-6">
     <SidebarNav />
     <div
-      className="h-px bg-gray-200 dark:bg-gray-800"
+      className={
+        'h-px bg-gray-200 dark:bg-gray-800'
+      }
     />
     <YourSpacesWidget />
   </div>
@@ -53,8 +56,9 @@ export default function PostDetail() {
   if (isLoading) {
     return (
       <MainLayout
-        maxWidth="max-w-6xl"
+        maxWidth="max-w-3xl"
         leftSidebar={<LeftSidebar />}
+        rightSidebar={<PostDetailRightSkeleton />}
       >
         <PostDetailSkeleton />
         <CommentsSkeleton count={3} />
