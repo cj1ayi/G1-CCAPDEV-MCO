@@ -40,11 +40,12 @@ const capitalizeType = (
 interface VotingContextValue {
   votes: Record<string, VoteType>
   voteDeltas: Record<string, number>
+  /** Returns false if blocked (e.g. not signed in). */
   toggleVote: (
     targetId: string,
     targetType: TargetType,
     voteType: VoteType,
-  ) => Promise<void>
+  ) => Promise<boolean>
   getDisplayVotes: (
     targetId: string,
     targetType: TargetType,
@@ -58,7 +59,9 @@ interface VotingContextValue {
 }
 
 const VotingContext =
-  createContext<VotingContextValue | null>(null)
+  createContext<VotingContextValue | null>(
+    null,
+  )
 
 function calculateVoteChange(
   previousVote: VoteType,
@@ -173,15 +176,15 @@ export function VotingProvider({
       targetId: string,
       targetType: TargetType,
       voteType: VoteType,
-    ) => {
+    ): Promise<boolean> => {
       if (!user) {
         showInfo(
           'Sign in to vote on posts'
           + ' and comments.',
         )
-        return
+        return false
       }
-      if (!targetId) return
+      if (!targetId) return false
 
       const key =
         `${normalizeType(targetType)}` +
@@ -224,6 +227,8 @@ export function VotingProvider({
           delete updated[key]
           return updated
         })
+
+        return true
       } catch (err) {
         console.error(
           'Failed to save vote:',
@@ -237,6 +242,7 @@ export function VotingProvider({
           ...prev,
           [key]: previousDelta,
         }))
+        return false
       } finally {
         setIsLoading(false)
       }
