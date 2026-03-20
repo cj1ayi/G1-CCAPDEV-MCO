@@ -12,12 +12,17 @@ import {
 import { Space } from '@/features/spaces/services'
 import { useToast } from '@/hooks/ToastContext'
 
+import type {
+  PostFlair,
+} from '../components/PostForm'
+
 export interface CreatePostFormData {
   title: string
   content: string
   space: string
   imageUrl: string
   tags: string[]
+  flair?: PostFlair
 }
 
 export interface CreatePostErrors {
@@ -52,6 +57,7 @@ export function useCreatePost() {
       space: searchParams.get('space') ?? '',
       imageUrl: '',
       tags: [],
+      flair: undefined,
     })
 
   const [tagInput, setTagInput] = useState('')
@@ -211,8 +217,10 @@ export function useCreatePost() {
           content: formData.content.trim(),
           space: formData.space,
           imageUrl:
-            formData.imageUrl.trim() || undefined,
+            formData.imageUrl.trim()
+            || undefined,
           tags: formData.tags,
+          flair: formData.flair,
         })
 
       if (!newPost?.id) {

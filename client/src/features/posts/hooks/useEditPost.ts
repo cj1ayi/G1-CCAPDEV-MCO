@@ -15,13 +15,15 @@ export function useEditPost(postId?: string) {
     success: showSuccess,
   } = useToast()
 
-  const [formData, setFormData] = useState<PostFormData>({
-    title: '',
-    content: '',
-    space: '',
-    imageUrl: '',
-    tags: [],
-  })
+  const [formData, setFormData] =
+    useState<PostFormData>({
+      title: '',
+      content: '',
+      space: '',
+      imageUrl: '',
+      tags: [],
+      flair: undefined,
+    })
 
   const [tagInput, setTagInput] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -57,6 +59,7 @@ export function useEditPost(postId?: string) {
           space: post.space,
           imageUrl: post.imageUrl || '',
           tags: post.tags || [],
+          flair: post.flair,
         })
       } catch (err) {
         if (cancelled) return
@@ -141,8 +144,10 @@ export function useEditPost(postId?: string) {
       await postService.updatePost(postId, {
         title: formData.title,
         content: formData.content,
-        imageUrl: formData.imageUrl || undefined,
+        imageUrl:
+          formData.imageUrl || undefined,
         tags: formData.tags,
+        flair: formData.flair,
       })
       showSuccess('Post updated successfully')
       navigate(`/post/${postId}`)
