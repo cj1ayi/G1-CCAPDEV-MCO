@@ -15,6 +15,7 @@ export { PostDetailSkeleton } from './PostDetailSkeleton'
 export { PostDetailRightSkeleton } from './PostDetailSkeleton'
 export { SpaceHeaderSkeleton } from './Spaceheaderskeleton.tsx'
 export { PageHeader } from './PageHeader.tsx'
+export { ProfilePageSkeleton } from './ProfilePageSkeleton'
 
 export { 
   SpaceCardSkeleton, 
