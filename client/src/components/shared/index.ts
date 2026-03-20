@@ -7,12 +7,31 @@ export { LoadingSpinner } from './LoadingSpinner'
 export { LoadingBar } from './LoadingBar'
 
 // Skeleton components
-export { Skeleton, SkeletonText, SkeletonAvatar } from './Skeleton'
+
 export { PostCardSkeleton } from './PostCardSkeleton'
-export { CommentSkeleton, CommentsSkeleton } from './CommentSkeleton'
 export { FeedSkeleton } from './FeedSkeleton'
 export { ProfileHeaderSkeleton } from './ProfileHeaderSkeleton'
-export { SpaceCardSkeleton, SpaceCardsSkeleton } from './SpaceCardSkeleton'
 export { PostDetailSkeleton } from './PostDetailSkeleton'
+export { PostDetailRightSkeleton } from './PostDetailSkeleton'
 export { SpaceHeaderSkeleton } from './Spaceheaderskeleton.tsx'
 export { PageHeader } from './PageHeader.tsx'
+
+export { 
+  SpaceCardSkeleton, 
+  SpaceCardsSkeleton 
+} from './SpaceCardSkeleton'
+export {
+  SpacePageSkeleton,
+  SpaceRightSkeleton,
+} from './SpacePageSkeleton'
+
+export { 
+  CommentSkeleton, 
+  CommentsSkeleton 
+} from './CommentSkeleton'
+
+export { 
+  Skeleton, 
+  SkeletonText, 
+  SkeletonAvatar 
+} from './Skeleton'
