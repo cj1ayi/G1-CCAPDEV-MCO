@@ -39,11 +39,14 @@ import {
   SpaceHeader,
   SpaceSortBar,
 } from '@/features/spaces/components'
+import { useToast } from '@/hooks/ToastContext'
 
 type CommentCountMap = Record<string, number>
 
 export default function Space() {
-  const { name } = useParams<{ name: string }>()
+  const { name } = useParams<{
+    name: string
+  }>()
 
   const {
     space,
@@ -62,6 +65,11 @@ export default function Space() {
     navigate,
     isLoading,
   } = useSpacePage(name)
+
+  const {
+    success: showSuccess,
+    error: showError,
+  } = useToast()
 
   const [
     deletePostModalData,
@@ -84,7 +92,8 @@ export default function Space() {
           counts[post.id] =
             getTotalCommentCount(comments)
         } catch {
-          counts[post.id] = post.commentCount
+          counts[post.id] =
+            post.commentCount
         }
       }
       setCommentCounts(counts)
@@ -92,29 +101,32 @@ export default function Space() {
     loadCounts()
   }, [posts])
 
-  const handleDeletePostConfirm = async () => {
-    if (!deletePostModalData) return
+  const handleDeletePostConfirm =
+    async () => {
+      if (!deletePostModalData) return
 
-    try {
-      await postService.deletePost(
-        deletePostModalData.id,
-      )
-      setDeletePostModalData(null)
-      window.location.reload()
-    } catch (error) {
-      console.error(
-        'Failed to delete post:',
-        error,
-      )
+      try {
+        await postService.deletePost(
+          deletePostModalData.id,
+        )
+        setDeletePostModalData(null)
+        showSuccess('Post deleted.')
+      } catch {
+        showError(
+          'Could not delete post.'
+          + ' Please try again.',
+        )
+      }
     }
-  }
 
   if (isLoading) {
     return (
       <MainLayout
         maxWidth="max-w-2xl"
         leftSidebar={<DefaultLeftSidebar />}
-        rightSidebar={<SpaceRightSkeleton />}
+        rightSidebar={
+          <SpaceRightSkeleton />
+        }
       >
         <SpacePageSkeleton />
       </MainLayout>
@@ -129,7 +141,9 @@ export default function Space() {
       >
         <ErrorState
           title="Space Not Found"
-          message="This space does not exist."
+          message={
+            'This space does not exist.'
+          }
           onRetry={
             () => navigate('/spaces')
           }
@@ -197,7 +211,9 @@ export default function Space() {
         {posts.length === 0 ? (
           <EmptyState
             icon={
-              <FileText className="h-16 w-16" />
+              <FileText
+                className="h-16 w-16"
+              />
             }
             title="No posts yet"
             description={
@@ -219,7 +235,10 @@ export default function Space() {
                 ?? post.commentCount
               }
               onUpvote={
-                () => handleVote(post.id, 'up')
+                () => handleVote(
+                  post.id,
+                  'up',
+                )
               }
               onDownvote={
                 () => handleVote(
@@ -242,7 +261,9 @@ export default function Space() {
               onDelete={
                 post.isOwner
                   ? () =>
-                    setDeletePostModalData(post)
+                    setDeletePostModalData(
+                      post,
+                    )
                   : undefined
               }
             />
@@ -257,9 +278,8 @@ export default function Space() {
             deletePostModalData.title
           }
           onConfirm={handleDeletePostConfirm}
-          onClose={
-            () =>
-              setDeletePostModalData(null)
+          onClose={() =>
+            setDeletePostModalData(null)
           }
         />
       )}
