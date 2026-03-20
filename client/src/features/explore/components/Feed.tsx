@@ -213,7 +213,7 @@ export const Feed = ({
     }
   }
 
-  if (isInitialLoad) {
+  if (isInitialLoad || isPageLoading) {
     return <FeedSkeleton count={5} />
   }
 
