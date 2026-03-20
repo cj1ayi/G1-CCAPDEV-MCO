@@ -273,15 +273,18 @@ function PostsList({ posts }: { posts: any[] }) {
 function OverviewTab({
   posts,
   comments,
+  spaces,
   navigate,
 }: {
   posts: any[]
   comments: any[]
+  spaces: any[]
   navigate: ReturnType<typeof useNavigate>
 }) {
   const hasNone =
     posts.length === 0
     && comments.length === 0
+    && spaces.length === 0
 
   if (hasNone) {
     return (
@@ -295,11 +298,13 @@ function OverviewTab({
     )
   }
 
-  const recentComments = comments.slice(0, 3)
+  const topPosts = posts.slice(0, 5)
+  const topComments = comments.slice(0, 5)
+  const topSpaces = spaces.slice(0, 5)
 
   return (
     <div className="space-y-6">
-      {posts.length > 0 && (
+      {topPosts.length > 0 && (
         <section>
           <h3
             className={cn(
@@ -311,7 +316,7 @@ function OverviewTab({
             Posts
           </h3>
           <div className="space-y-4">
-            {posts.map((post: any) => (
+            {topPosts.map((post: any) => (
               <PostPreviewCard
                 key={post.id}
                 post={post}
@@ -321,7 +326,7 @@ function OverviewTab({
         </section>
       )}
 
-      {recentComments.length > 0 && (
+      {topComments.length > 0 && (
         <section>
           <h3
             className={cn(
@@ -333,9 +338,67 @@ function OverviewTab({
             Recent Comments
           </h3>
           <CommentsList
-            comments={recentComments}
+            comments={topComments}
             navigate={navigate}
           />
+        </section>
+      )}
+
+      {topSpaces.length > 0 && (
+        <section>
+          <h3
+            className={cn(
+              'text-sm font-bold uppercase',
+              'tracking-wide text-gray-400',
+              'mb-3',
+            )}
+          >
+            Spaces
+          </h3>
+          <div
+            className={cn(
+              'grid grid-cols-1',
+              'sm:grid-cols-2 gap-3',
+            )}
+          >
+            {topSpaces.map((space: any) => (
+              <Card
+                key={
+                  space._id
+                  ?? space.name
+                }
+                hover
+                onClick={
+                  () => navigate(
+                    `/r/${space.name}`,
+                  )
+                }
+                className="p-4"
+              >
+                <p
+                  className={cn(
+                    'font-semibold',
+                    'text-gray-900',
+                    'dark:text-white',
+                  )}
+                >
+                  r/{space.name}
+                </p>
+                {space.displayName && (
+                  <p
+                    className={cn(
+                      'text-xs',
+                      'text-gray-500',
+                      'dark:text-gray-400',
+                      'mt-0.5',
+                    )}
+                  >
+                    {space.displayName}
+                  </p>
+                )}
+              </Card>
+            ))}
+          </div>
         </section>
       )}
     </div>
@@ -356,6 +419,7 @@ export const ProfileActivity = ({
       <OverviewTab
         posts={posts}
         comments={comments}
+        spaces={spaces}
         navigate={navigate}
       />
     )
@@ -389,4 +453,3 @@ export const ProfileActivity = ({
 
   return <PostsList posts={posts} />
 }
-
