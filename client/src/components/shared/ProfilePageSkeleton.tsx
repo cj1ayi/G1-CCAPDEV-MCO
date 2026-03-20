@@ -6,163 +6,88 @@ import {
   SkeletonText,
 } from './Skeleton'
 
-/** Matches ProfileHeader: full-bleed with border. */
+/** Header: avatar scales down on mobile. */
 const HeaderSkeleton = () => (
   <div
     className={cn(
+      'px-4 md:px-8 py-5',
       'border-b border-gray-200',
       'dark:border-gray-800',
-      'px-4 md:px-8 py-4',
     )}
   >
-    <div className="max-w-7xl mx-auto">
-      <div
+    <div className="flex items-center gap-3">
+      <SkeletonAvatar
+        size="lg"
         className={cn(
-          'flex flex-col sm:flex-row',
-          'sm:items-center',
-          'sm:justify-between gap-3',
+          'h-16 w-16 md:h-24 md:w-24',
+          'shrink-0',
         )}
-      >
-        <div className="flex items-center gap-3">
-          <SkeletonAvatar
-            size="lg"
-            className="h-16 w-16 shrink-0"
-          />
-          <div className="space-y-1">
-            <Skeleton
-              className="h-6 w-36"
-              variant="text"
-            />
-            <Skeleton
-              className="h-4 w-24"
-              variant="text"
-            />
-          </div>
-        </div>
-
+      />
+      <div className="flex-1 space-y-1">
         <Skeleton
-          className="h-9 w-28 rounded-lg"
+          className="h-6 md:h-7 w-40"
+          variant="text"
+        />
+        <Skeleton
+          className="h-4 w-24"
+          variant="text"
         />
       </div>
+      <Skeleton
+        className={cn(
+          'h-9 w-28 rounded-lg',
+          'hidden sm:block',
+        )}
+      />
     </div>
   </div>
 )
 
-/** Matches ProfileNavbar: 5 tab placeholders. */
+/** 4 pill tab placeholders in content col. */
 const NavbarSkeleton = () => (
-  <div
-    className={cn(
-      'bg-white dark:bg-[#1a1a1b]',
-      'border-b border-border-light',
-      'dark:border-gray-700',
-    )}
-  >
+  <div className="py-3">
     <div
       className={cn(
-        'max-w-7xl mx-auto',
-        'flex items-center',
-        'pl-4 pr-8 md:px-10',
-        'gap-4 sm:gap-8',
+        'grid grid-cols-1',
+        'lg:grid-cols-12',
+        'gap-4 lg:gap-6',
       )}
     >
-      {[16, 12, 20, 14, 16].map((w, i) => (
-        <div key={i} className="py-4">
-          <Skeleton
-            className={`h-4 rounded`}
-            style={{ width: `${w * 4}px` }}
-            variant="text"
-          />
+      <div className="lg:col-span-8">
+        <div
+          className={cn(
+            'flex items-center',
+            'bg-gray-100',
+            'dark:bg-surface-dark',
+            'rounded-xl p-1',
+          )}
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className={cn(
+                'flex-1 flex',
+                'justify-center py-2',
+              )}
+            >
+              <Skeleton
+                className="h-4 w-16 rounded"
+                variant="text"
+              />
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   </div>
 )
 
-/** Matches AboutWidget card. */
-const AboutSkeleton = () => (
-  <Card>
-    <Skeleton
-      className="h-5 w-24 mb-3"
-      variant="text"
-    />
-    <SkeletonText lines={2} />
-  </Card>
-)
-
-/** Matches StatsWidget: 3 stat rows. */
-const StatsSkeleton = () => (
-  <Card>
-    <Skeleton
-      className="h-5 w-32 mb-3"
-      variant="text"
-    />
-    {[0, 1, 2].map((i) => (
-      <div key={i}>
-        <div
-          className={cn(
-            'h-px w-full bg-gray-200',
-            'dark:bg-gray-700 my-3',
-          )}
-        />
-        <div
-          className="flex items-center gap-2"
-        >
-          <Skeleton className="h-4 w-4" />
-          <Skeleton
-            className="h-4 w-24"
-            variant="text"
-          />
-        </div>
-      </div>
-    ))}
-  </Card>
-)
-
-/** Matches SpacesWidget: title + 3 rows. */
-const SpacesSkeleton = () => (
-  <Card>
-    <Skeleton
-      className="h-5 w-16 mb-3"
-      variant="text"
-    />
-    <div
-      className={cn(
-        'h-px w-full bg-gray-200',
-        'dark:bg-gray-700 mb-3',
-      )}
-    />
-    <div className="space-y-2">
-      {[0, 1, 2].map((i) => (
-        <div
-          key={i}
-          className="flex items-center gap-2"
-        >
-          <Skeleton
-            className="h-4 w-20"
-            variant="text"
-          />
-          <Skeleton
-            className="h-3 w-28"
-            variant="text"
-          />
-        </div>
-      ))}
-    </div>
-  </Card>
-)
-
-/** Sidebar skeleton: about + stats + spaces. */
-const SidebarSkeleton = () => (
-  <aside className="w-full space-y-4">
-    <AboutSkeleton />
-    <StatsSkeleton />
-    <SpacesSkeleton />
-  </aside>
-)
-
-/** Post card skeleton for the main column. */
+/** Post card skeleton. */
 const PostSkeleton = () => (
-  <Card padding="none" className="overflow-hidden">
+  <Card
+    padding="none"
+    className="overflow-hidden"
+  >
     <div className="flex">
       <div
         className={cn(
@@ -182,12 +107,12 @@ const PostSkeleton = () => (
         <Skeleton className="h-5 w-5" />
       </div>
       <div
-        className="flex-1 min-w-0 p-4 space-y-3"
+        className={cn(
+          'flex-1 min-w-0 p-4 space-y-3',
+        )}
       >
         <div
-          className={cn(
-            'flex items-center gap-1.5',
-          )}
+          className="flex items-center gap-1.5"
         >
           <Skeleton
             className="h-3 w-20"
@@ -208,29 +133,132 @@ const PostSkeleton = () => (
   </Card>
 )
 
-/**
- * Full profile page skeleton matching the
- * loaded layout: header + navbar + grid
- * with sidebar and post list.
- */
+/** Sidebar: profile card + bio + spaces. */
+const SidebarSkeleton = () => (
+  <aside className="w-full space-y-4">
+    <Card padding="none">
+      {/* Banner — matches actual gray */}
+      <div
+        className={cn(
+          'h-20 rounded-t-xl',
+          'bg-gray-200 dark:bg-gray-800',
+        )}
+      />
+      <div className="px-4 pb-4">
+        <div className="-mt-8 mb-3">
+          <SkeletonAvatar
+            size="lg"
+            className="h-16 w-16"
+          />
+        </div>
+        <Skeleton
+          className="h-5 w-28 mb-1"
+          variant="text"
+        />
+        <Skeleton
+          className="h-3 w-20 mb-3"
+          variant="text"
+        />
+        <Skeleton
+          className="h-9 w-full rounded-lg"
+        />
+      </div>
+
+      {/* Stats: 2 cols (Posts, Comments) */}
+      <div
+        className={cn(
+          'border-t border-gray-100',
+          'dark:border-gray-800',
+          'px-4 py-3 grid grid-cols-2',
+          'gap-3',
+        )}
+      >
+        {[0, 1].map((i) => (
+          <div key={i} className="space-y-1">
+            <Skeleton
+              className="h-4 w-8"
+              variant="text"
+            />
+            <Skeleton
+              className="h-3 w-14"
+              variant="text"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Joined */}
+      <div
+        className={cn(
+          'border-t border-gray-100',
+          'dark:border-gray-800',
+          'px-4 py-3',
+        )}
+      >
+        <Skeleton
+          className="h-3 w-24"
+          variant="text"
+        />
+      </div>
+    </Card>
+
+    <Card>
+      <Skeleton
+        className="h-3 w-12 mb-2"
+        variant="text"
+      />
+      <SkeletonText lines={2} />
+    </Card>
+
+    <Card>
+      <Skeleton
+        className="h-3 w-14 mb-3"
+        variant="text"
+      />
+      <div className="space-y-2">
+        {[0, 1, 2].map((i) => (
+          <Skeleton
+            key={i}
+            className="h-4 w-24"
+            variant="text"
+          />
+        ))}
+      </div>
+    </Card>
+  </aside>
+)
+
 export const ProfilePageSkeleton = () => (
   <>
     <div className="relative -mx-4 md:-mx-6">
       <HeaderSkeleton />
-      <NavbarSkeleton />
     </div>
 
-    <div className="h-4 lg:h-6" />
+    <NavbarSkeleton />
 
     <div
       className={cn(
         'grid grid-cols-1',
-        'lg:grid-cols-12 gap-4 lg:gap-6',
+        'lg:grid-cols-12',
+        'gap-4 lg:gap-6',
       )}
     >
+      {/* Sidebar first on mobile */}
+      <aside
+        className={cn(
+          'lg:col-span-4',
+          'lg:col-start-9',
+          'order-first lg:order-none',
+        )}
+      >
+        <SidebarSkeleton />
+      </aside>
+
       <main
         className={cn(
-          'lg:col-span-9 lg:col-start-4',
+          'lg:col-span-8',
+          'lg:col-start-1',
+          'lg:row-start-1',
         )}
       >
         <div className="space-y-4">
@@ -239,15 +267,6 @@ export const ProfilePageSkeleton = () => (
           <PostSkeleton />
         </div>
       </main>
-
-      <aside
-        className={cn(
-          'lg:col-span-3 lg:col-start-1',
-          'lg:row-start-1',
-        )}
-      >
-        <SidebarSkeleton />
-      </aside>
     </div>
   </>
 )

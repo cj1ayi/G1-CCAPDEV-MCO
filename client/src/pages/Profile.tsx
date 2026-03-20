@@ -1,20 +1,43 @@
-import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components'
-import { YourSpacesWidget } from '@/features/spaces/components'
-import { useProfileView } from '@/features/profile/hooks/useProfileView'
-import { userService } from '@/features/profile/services/userService'
-import { useEffect, useState } from 'react'
+ximport { useEffect, useState } from 'react'
+import {
+  MainLayout,
+} from '@/components/layout/MainLayout'
+import {
+  SidebarNav,
+} from '@/features/navigation/components'
+import {
+  YourSpacesWidget,
+} from '@/features/spaces/components'
+import {
+  useProfileView,
+} from '@/features/profile/hooks/useProfileView'
+import {
+  userService,
+} from '@/features/profile/services/userService'
 import {
   ErrorState,
   ProfilePageSkeleton,
 } from '@/components/shared'
-
 import {
   ProfileHeader,
   ProfileNavbar,
   ProfileSidebar,
   ProfileActivity,
 } from '@/features/profile/components'
+import { cn } from '@/lib/utils'
+
+const LeftSidebar = () => (
+  <div className="flex flex-col gap-6 px-4">
+    <SidebarNav />
+    <div
+      className={cn(
+        'h-px bg-gray-200',
+        'dark:bg-gray-800',
+      )}
+    />
+    <YourSpacesWidget />
+  </div>
+)
 
 const Profile = () => {
   const {
@@ -28,31 +51,28 @@ const Profile = () => {
     setActiveTab,
   } = useProfileView()
 
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] =
+    useState<any>(null)
 
   useEffect(() => {
-    userService.getCurrentUser().then(setCurrentUser)
+    userService
+      .getCurrentUser()
+      .then(setCurrentUser)
   }, [])
 
   const isOwnProfile = !!(
     currentUser &&
     user &&
-    (currentUser.id === user.id || currentUser.username === user.username)
-  )
-
-  const leftSidebar = (
-    <div className="flex flex-col gap-6 px-4">
-      <SidebarNav />
-      <div className="h-px bg-gray-200 dark:bg-gray-800" />
-      <YourSpacesWidget />
-    </div>
+    (currentUser.id === user.id
+      || currentUser.username
+        === user.username)
   )
 
   if (isLoading) {
     return (
       <MainLayout
-        maxWidth="max-w-full"
-        leftSidebar={leftSidebar}
+        maxWidth="max-w-6xl"
+        leftSidebar={<LeftSidebar />}
       >
         <ProfilePageSkeleton />
       </MainLayout>
@@ -64,41 +84,78 @@ const Profile = () => {
       <MainLayout>
         <ErrorState
           title="User not found"
-          message="This user does not exist or has been deleted."
+          message={
+            'This user does not exist'
+            + ' or has been deleted.'
+          }
         />
       </MainLayout>
     )
   }
 
   return (
-    <MainLayout maxWidth="max-w-full" leftSidebar={leftSidebar}>
-      {/* Profile header + sticky tab bar — full-bleed */}
-      <div className="relative -mx-4 md:-mx-6">
-        <ProfileHeader user={user} isOwnProfile={isOwnProfile} />
-        <ProfileNavbar activeTab={activeTab} onTabChange={setActiveTab} />
+    <MainLayout
+      maxWidth="max-w-6xl"
+      leftSidebar={<LeftSidebar />}
+    >
+      {/* Header — full bleed */}
+      <div
+        className="relative -mx-4 md:-mx-6"
+      >
+        <ProfileHeader
+          user={user}
+          isOwnProfile={isOwnProfile}
+        />
       </div>
 
-      <div className="h-4 lg:h-6" />
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-          <main className="lg:col-span-9 lg:col-start-4">
-            <ProfileActivity
-              activeTab={activeTab}
-              posts={posts}
-              comments={comments}
-              spaces={spaces}
-              upvotedPosts={upvotedPosts}
-            />
-          </main>
+      {/* Pill tabs */}
+      <ProfileNavbar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-          <aside className="lg:col-span-3 lg:col-start-1 lg:row-start-1">
-            <ProfileSidebar
-              user={user}
-              postCount={posts.length}
-              commentCount={comments.length}
-              spaces={spaces}
-            />
-          </aside>
-        </div>
+      {/* Grid: sidebar first on mobile */}
+      <div
+        className={cn(
+          'grid grid-cols-1',
+          'lg:grid-cols-12',
+          'gap-4 lg:gap-6',
+        )}
+      >
+        {/* Sidebar — shows first on mobile */}
+        <aside
+          className={cn(
+            'lg:col-span-4',
+            'lg:col-start-9',
+            'order-first lg:order-none',
+          )}
+        >
+          <ProfileSidebar
+            user={user}
+            postCount={posts.length}
+            commentCount={comments.length}
+            spaces={spaces}
+          />
+        </aside>
+
+        {/* Content — below sidebar on mobile,
+            left column on desktop */}
+        <main
+          className={cn(
+            'lg:col-span-8',
+            'lg:col-start-1',
+            'lg:row-start-1',
+          )}
+        >
+          <ProfileActivity
+            activeTab={activeTab}
+            posts={posts}
+            comments={comments}
+            spaces={spaces}
+            upvotedPosts={upvotedPosts}
+          />
+        </main>
+      </div>
     </MainLayout>
   )
 }
