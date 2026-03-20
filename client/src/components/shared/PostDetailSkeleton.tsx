@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 
 export const PostDetailSkeleton = () => {
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-3xl space-y-4">
       {/* Breadcrumbs Skeleton */}
       <div className="flex items-center gap-2">
         <Skeleton className="h-4 w-16" variant="text" />

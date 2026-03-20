@@ -19,7 +19,7 @@ export const CommentSkeleton = ({
         ]
       )}
     >
-      <div className="py-3 space-y-3">
+      <div className="mx-auto max-w-3xl py-3 space-y-3">
         {/* Header Skeleton */}
         <div className="flex items-center gap-2">
           <SkeletonAvatar size="sm" />
