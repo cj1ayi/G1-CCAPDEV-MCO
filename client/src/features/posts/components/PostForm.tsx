@@ -540,9 +540,11 @@ function TagsSection({
         <Input
           value={tagInput}
           onChange={(e) => {
-            onTagInputChange(e.target.value)
+						onTagInputChange(e.target.value)
           }}
           placeholder="Add a tag..."
+					maxLength={20}
+        	showCharCount
           className="flex-1"
         />
         <Button
