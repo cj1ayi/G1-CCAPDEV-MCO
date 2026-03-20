@@ -1,4 +1,4 @@
-ximport { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   MainLayout,
 } from '@/components/layout/MainLayout'
