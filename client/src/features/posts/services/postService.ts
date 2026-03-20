@@ -14,6 +14,12 @@ export interface CreatePostDto {
   space: string
   imageUrl?: string
   tags?: string[]
+  flair?: (
+    | 'Question'
+    | 'News'
+    | 'Marketplace'
+    | 'Discussion'
+  )
 }
 
 export interface UpdatePostDto {
@@ -21,6 +27,12 @@ export interface UpdatePostDto {
   content?: string
   imageUrl?: string
   tags?: string[]
+  flair?: (
+    | 'Question'
+    | 'News'
+    | 'Marketplace'
+    | 'Discussion'
+  )
 }
 
 export interface PaginationParams {
