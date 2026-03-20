@@ -20,6 +20,22 @@ import {
   Input,
   Badge,
 } from '@/components/ui'
+import {
+  FLAIR_COLORS,
+} from '@/features/posts/constants'
+
+export type PostFlair =
+  | 'Question'
+  | 'News'
+  | 'Marketplace'
+  | 'Discussion'
+
+export const POST_FLAIRS: PostFlair[] = [
+  'Question',
+  'News',
+  'Marketplace',
+  'Discussion',
+]
 
 export interface PostFormData {
   title: string
@@ -27,6 +43,7 @@ export interface PostFormData {
   space: string
   imageUrl: string
   tags: string[]
+  flair?: PostFlair
 }
 
 export interface PostFormErrors {
@@ -91,7 +108,7 @@ const getEmptyLabel = (query: string) =>
 const clamp = (val: number, max: number) =>
   Math.max(-1, Math.min(val, max - 1))
 
-// ── Hooks ──────────────────────────────
+// ── Hooks ─────────────────────────
 
 function useClickOutside(
   ref: React.RefObject<HTMLElement | null>,
@@ -171,7 +188,7 @@ function SpaceOption({
         isHighlighted
           ? 'bg-gray-100 dark:bg-white/10'
           : 'hover:bg-gray-100' +
-            ' dark:hover:bg-white/10',
+          ' dark:hover:bg-white/10',
       )}
     >
       <span className="w-4 shrink-0">
@@ -511,6 +528,71 @@ function ReadOnlySpace({
   )
 }
 
+// ── FlairSelector ─────────────────────
+
+function FlairSelector({
+  value,
+  onChange,
+}: {
+  value?: PostFlair
+  onChange: (flair?: PostFlair) => void
+}) {
+  return (
+    <div>
+      <label
+        className={cn(
+          'block text-sm font-semibold',
+          'mb-2 text-gray-700',
+          'dark:text-gray-200',
+        )}
+      >
+        Flair (Optional)
+      </label>
+      <div className="flex flex-wrap gap-2">
+        {POST_FLAIRS.map((flair) => {
+          const active = value === flair
+          const colors =
+            FLAIR_COLORS[flair] ?? ''
+
+          return (
+            <button
+              key={flair}
+              type="button"
+              onClick={() =>
+                onChange(
+                  active ? undefined : flair,
+                )
+              }
+              className={cn(
+                'px-3 py-1.5 rounded-full',
+                'text-xs font-bold',
+                'uppercase tracking-wide',
+                'border-2 transition-all',
+                active
+                  ? cn(
+                    colors,
+                    'border-current',
+                  )
+                  : cn(
+                    'border-transparent',
+                    'bg-gray-100',
+                    'dark:bg-gray-800',
+                    'text-gray-500',
+                    'dark:text-gray-400',
+                    'hover:bg-gray-200',
+                    'dark:hover:bg-gray-700',
+                  ),
+              )}
+            >
+              {flair}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── TagsSection ────────────────────────
 
 function TagsSection({
@@ -540,11 +622,11 @@ function TagsSection({
         <Input
           value={tagInput}
           onChange={(e) => {
-						onTagInputChange(e.target.value)
+            onTagInputChange(e.target.value)
           }}
           placeholder="Add a tag..."
-					maxLength={20}
-        	showCharCount
+          maxLength={20}
+          showCharCount
           className="flex-1"
         />
         <Button
@@ -652,6 +734,13 @@ export function PostForm({
         showCharCount
         error={errors.title}
         required
+      />
+
+      <FlairSelector
+        value={formData.flair}
+        onChange={(f) =>
+          onFieldChange('flair', f)
+        }
       />
 
       <div className="space-y-2">
