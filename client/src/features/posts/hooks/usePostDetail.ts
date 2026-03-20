@@ -108,13 +108,15 @@ export const usePostDetail = ({
   ) => {
     if (!post) return
 
-    const previousVote =
-      votes[`post:${post.id}`] ?? null
-    await toggleVote(
+    const allowed = await toggleVote(
       post.id,
       'post',
       voteType,
     )
+    if (!allowed) return
+
+    const previousVote =
+      votes[`post:${post.id}`] ?? null
 
     setPost((prev) => {
       if (!prev) return prev
