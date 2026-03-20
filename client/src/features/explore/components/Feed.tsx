@@ -173,6 +173,13 @@ export const Feed = ({
     if (!postId) return
     if (votingPosts.has(postId)) return
 
+    const allowed = await toggleVote(
+      postId,
+      'post',
+      voteType,
+    )
+    if (!allowed) return
+
     const previousVote =
       votes[`post:${postId}`] ?? null
     setVotingPosts((prev) =>
@@ -224,19 +231,11 @@ export const Feed = ({
       }),
     )
 
-    try {
-      await toggleVote(
-        postId,
-        'post',
-        voteType,
-      )
-    } finally {
-      setVotingPosts((prev) => {
-        const next = new Set(prev)
-        next.delete(postId)
-        return next
-      })
-    }
+    setVotingPosts((prev) => {
+      const next = new Set(prev)
+      next.delete(postId)
+      return next
+    })
   }
 
   const handleDeletePost = async () => {
