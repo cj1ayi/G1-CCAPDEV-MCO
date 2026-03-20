@@ -53,6 +53,10 @@ export const Feed = ({
       startLoading()
       setPosts([])
 
+      if (!isFirst) {
+        window.scrollTo({ top: 0 })
+      }
+
       try {
         const result =
           await postService.getSortedPosts(sort, {
@@ -74,13 +78,6 @@ export const Feed = ({
               result.pagination.total / PAGE_SIZE,
             ),
           )
-        }
-
-        if (!isFirst) {
-          window.scrollTo({
-            top: 0,
-            behavior: 'instant',
-          })
         }
       } catch (err) {
         console.error(
