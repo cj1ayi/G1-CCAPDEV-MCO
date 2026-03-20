@@ -79,7 +79,7 @@ export const Feed = ({
         if (!isFirst) {
           window.scrollTo({
             top: 0,
-            behavior: 'smooth',
+            behavior: 'instant',
           })
         }
       } catch (err) {
