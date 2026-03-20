@@ -171,7 +171,6 @@ function PostResult({
       commentCount={post.commentCount ?? 0}
       createdAt={post.createdAt ?? ''}
       imageUrl={post.imageUrl}
-      tags={post.tags ?? []}
       isOwner={post.isOwner ?? false}
       isUpvoted={false}
       isDownvoted={false}
