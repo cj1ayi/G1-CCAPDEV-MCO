@@ -75,7 +75,11 @@ function CommentsList({
   comments: any[]
   navigate: ReturnType<typeof useNavigate>
 }) {
-  if (comments.length === 0) {
+  const valid = comments.filter(
+    (c) => c.post,
+  )
+
+  if (valid.length === 0) {
     return (
       <Card
         className={cn(
@@ -89,21 +93,24 @@ function CommentsList({
 
   return (
     <div className="space-y-3">
-      {comments.map((comment: any) => (
-        <Card
-          key={comment._id}
-          className={cn(
-            'p-4 cursor-pointer',
-            'hover:border-primary/50',
-            'transition-colors',
-          )}
-          onClick={
-            () => navigate(
-              `/post/${comment.postId}`,
-            )
-          }
-        >
-          {comment.post && (
+      {valid.map((comment: any) => {
+        const postId =
+          comment.post?._id
+          ?? comment.post?.id
+          ?? comment.postId
+
+        return (
+          <Card
+            key={comment._id ?? comment.id}
+            className={cn(
+              'p-4 cursor-pointer',
+              'hover:border-primary/50',
+              'transition-colors',
+            )}
+            onClick={() =>
+              navigate(`/post/${postId}`)
+            }
+          >
             <p
               className={cn(
                 'text-xs text-primary',
@@ -114,34 +121,39 @@ function CommentsList({
               {' • '}
               {comment.post.title}
             </p>
-          )}
 
-          <div
-            className={cn(
-              'text-sm text-gray-700',
-              'dark:text-gray-300',
-              'line-clamp-2 prose prose-sm',
-              'dark:prose-invert max-w-none',
-            )}
-          >
-            <ReactMarkdown
-              remarkPlugins={MD_REMARK}
-              rehypePlugins={MD_REHYPE}
-              components={MD_COMPONENTS}
+            <div
+              className={cn(
+                'text-sm text-gray-700',
+                'dark:text-gray-300',
+                'line-clamp-2 prose',
+                'prose-sm',
+                'dark:prose-invert',
+                'max-w-none',
+              )}
             >
-              {comment.content}
-            </ReactMarkdown>
-          </div>
+              <ReactMarkdown
+                remarkPlugins={MD_REMARK}
+                rehypePlugins={MD_REHYPE}
+                components={MD_COMPONENTS}
+              >
+                {comment.content}
+              </ReactMarkdown>
+            </div>
 
-          <p
-            className={cn(
-              'text-xs text-gray-400 mt-2',
-            )}
-          >
-            {getRelativeTime(comment.createdAt)}
-          </p>
-        </Card>
-      ))}
+            <p
+              className={cn(
+                'text-xs text-gray-400',
+                'mt-2',
+              )}
+            >
+              {getRelativeTime(
+                comment.createdAt,
+              )}
+            </p>
+          </Card>
+        )
+      })}
     </div>
   )
 }
@@ -299,7 +311,9 @@ function OverviewTab({
   }
 
   const topPosts = posts.slice(0, 5)
-  const topComments = comments.slice(0, 5)
+  const topComments = comments
+    .filter((c: any) => c.post)
+    .slice(0, 5)
   const topSpaces = spaces.slice(0, 5)
 
   return (
