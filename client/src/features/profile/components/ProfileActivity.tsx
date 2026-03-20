@@ -270,6 +270,78 @@ function PostsList({ posts }: { posts: any[] }) {
   )
 }
 
+function OverviewTab({
+  posts,
+  comments,
+  navigate,
+}: {
+  posts: any[]
+  comments: any[]
+  navigate: ReturnType<typeof useNavigate>
+}) {
+  const hasNone =
+    posts.length === 0
+    && comments.length === 0
+
+  if (hasNone) {
+    return (
+      <Card
+        className={cn(
+          'p-10 text-center text-gray-500',
+        )}
+      >
+        No activity yet.
+      </Card>
+    )
+  }
+
+  const recentComments = comments.slice(0, 3)
+
+  return (
+    <div className="space-y-6">
+      {posts.length > 0 && (
+        <section>
+          <h3
+            className={cn(
+              'text-sm font-bold uppercase',
+              'tracking-wide text-gray-400',
+              'mb-3',
+            )}
+          >
+            Posts
+          </h3>
+          <div className="space-y-4">
+            {posts.map((post: any) => (
+              <PostPreviewCard
+                key={post.id}
+                post={post}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {recentComments.length > 0 && (
+        <section>
+          <h3
+            className={cn(
+              'text-sm font-bold uppercase',
+              'tracking-wide text-gray-400',
+              'mb-3',
+            )}
+          >
+            Recent Comments
+          </h3>
+          <CommentsList
+            comments={recentComments}
+            navigate={navigate}
+          />
+        </section>
+      )}
+    </div>
+  )
+}
+
 export const ProfileActivity = ({
   activeTab,
   posts,
@@ -278,6 +350,16 @@ export const ProfileActivity = ({
   upvotedPosts,
 }: ProfileActivityProps) => {
   const navigate = useNavigate()
+
+  if (activeTab === 'Overview') {
+    return (
+      <OverviewTab
+        posts={posts}
+        comments={comments}
+        navigate={navigate}
+      />
+    )
+  }
 
   if (activeTab === 'Comments') {
     return (
@@ -307,3 +389,4 @@ export const ProfileActivity = ({
 
   return <PostsList posts={posts} />
 }
+
