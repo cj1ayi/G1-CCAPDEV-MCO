@@ -9,10 +9,13 @@ import {
 import {
   voteService,
 } from './services/voteService'
-import { useAuth } from '@/features/auth/hooks'
+import {
+  useAuth,
+} from '@/features/auth/hooks'
 import {
   useAuthChangeListener,
 } from '@/features/auth/AuthContext'
+import { useToast } from '@/hooks/ToastContext'
 
 type VoteType = 'up' | 'down' | null
 type TargetType =
@@ -47,7 +50,10 @@ interface VotingContextValue {
     targetType: TargetType,
     baseUpvotes: number,
     baseDownvotes: number,
-  ) => { upvotes: number; downvotes: number }
+  ) => {
+    upvotes: number
+    downvotes: number
+  }
   isLoading: boolean
 }
 
@@ -66,7 +72,6 @@ function calculateVoteChange(
 
   if (voteType === 'up') {
     if (previousVote === 'up') {
-      newVoteType = null
       newDelta = -1
     } else if (previousVote === 'down') {
       newVoteType = 1
@@ -77,7 +82,6 @@ function calculateVoteChange(
     }
   } else if (voteType === 'down') {
     if (previousVote === 'down') {
-      newVoteType = null
       newDelta = 1
     } else if (previousVote === 'up') {
       newVoteType = -1
@@ -105,46 +109,56 @@ export function VotingProvider({
   children: ReactNode
 }) {
   const { user } = useAuth()
+  const { info: showInfo } = useToast()
 
   const [votes, setVotes] = useState<
     Record<string, VoteType>
   >({})
-  const [voteDeltas, setVoteDeltas] = useState<
-    Record<string, number>
-  >({})
-  const [isLoading, setIsLoading] = useState(false)
+  const [voteDeltas, setVoteDeltas] =
+    useState<Record<string, number>>({})
+  const [isLoading, setIsLoading] =
+    useState(false)
 
-  const loadAllVotes = useCallback(async () => {
-    if (!user) {
-      setVotes({})
-      setVoteDeltas({})
-      return
-    }
-
-    try {
-      const userVotes =
-        await voteService.getUserVotes()
-      const voteMap: Record<string, VoteType> = {}
-
-      for (const vote of userVotes) {
-        const key =
-          `${normalizeType(vote.targetType as TargetType)}` +
-          `:${vote.targetId}`
-        voteMap[key] =
-          vote.voteType === 1 ? 'up' : 'down'
+  const loadAllVotes = useCallback(
+    async () => {
+      if (!user) {
+        setVotes({})
+        setVoteDeltas({})
+        return
       }
 
-      setVotes(voteMap)
-      setVoteDeltas({})
-    } catch (err) {
-      console.error(
-        'Failed to load votes:',
-        err,
-      )
-      setVotes({})
-      setVoteDeltas({})
-    }
-  }, [user])
+      try {
+        const userVotes =
+          await voteService.getUserVotes()
+        const voteMap: Record<
+          string,
+          VoteType
+        > = {}
+
+        for (const vote of userVotes) {
+          const key =
+            `${normalizeType(
+              vote.targetType as TargetType,
+            )}:${vote.targetId}`
+          voteMap[key] =
+            vote.voteType === 1
+              ? 'up'
+              : 'down'
+        }
+
+        setVotes(voteMap)
+        setVoteDeltas({})
+      } catch (err) {
+        console.error(
+          'Failed to load votes:',
+          err,
+        )
+        setVotes({})
+        setVoteDeltas({})
+      }
+    },
+    [user],
+  )
 
   useEffect(() => {
     loadAllVotes()
@@ -160,21 +174,28 @@ export function VotingProvider({
       targetType: TargetType,
       voteType: VoteType,
     ) => {
-      // User already known from context —
-      // no API call needed
-      if (!user) return
+      if (!user) {
+        showInfo(
+          'Sign in to vote on posts'
+          + ' and comments.',
+        )
+        return
+      }
       if (!targetId) return
 
       const key =
-        `${normalizeType(targetType)}:${targetId}`
+        `${normalizeType(targetType)}` +
+        `:${targetId}`
       const previousVote = votes[key]
       const previousDelta =
         voteDeltas[key] || 0
 
       const { newVoteType, newDelta } =
-        calculateVoteChange(previousVote, voteType)
+        calculateVoteChange(
+          previousVote,
+          voteType,
+        )
 
-      // Optimistic update — instant UI
       setVotes((prev) => ({
         ...prev,
         [key]: mapToVoteType(newVoteType),
@@ -187,12 +208,14 @@ export function VotingProvider({
       setIsLoading(true)
 
       try {
-        const apiValue = newVoteType ??
+        const apiValue =
+          newVoteType ??
           (voteType === 'up' ? 1 : -1)
 
         await voteService.toggleVote({
           targetId,
-          targetType: capitalizeType(targetType),
+          targetType:
+            capitalizeType(targetType),
           voteType: apiValue,
         })
 
@@ -202,7 +225,6 @@ export function VotingProvider({
           return updated
         })
       } catch (err) {
-        // Rollback on failure
         console.error(
           'Failed to save vote:',
           err,
@@ -219,7 +241,7 @@ export function VotingProvider({
         setIsLoading(false)
       }
     },
-    [votes, voteDeltas, user],
+    [votes, voteDeltas, user, showInfo],
   )
 
   const getDisplayVotes = useCallback(
@@ -237,14 +259,16 @@ export function VotingProvider({
       }
 
       const key =
-        `${normalizeType(targetType)}:${targetId}`
+        `${normalizeType(targetType)}` +
+        `:${targetId}`
       const delta = voteDeltas[key] || 0
 
       let upvotes = baseUpvotes
       let downvotes = baseDownvotes
 
-      if (delta > 0) upvotes += delta
-      else if (delta < 0) {
+      if (delta > 0) {
+        upvotes += delta
+      } else if (delta < 0) {
         downvotes += Math.abs(delta)
       }
 
@@ -272,7 +296,8 @@ export function useVoting() {
   const context = useContext(VotingContext)
   if (!context) {
     throw new Error(
-      'useVoting must be used within VotingProvider',
+      'useVoting must be used'
+      + ' within VotingProvider',
     )
   }
   return context
