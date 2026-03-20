@@ -60,14 +60,14 @@ const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <VotingProvider>
-          <JoinedSpacesProvider>
-          <LoadingBar />
-            <ToastProvider>
+        <ToastProvider>
+          <VotingProvider>
+            <JoinedSpacesProvider>
+              <LoadingBar />
               <AppRoutes />
-            </ToastProvider>
-             </JoinedSpacesProvider>
-        </VotingProvider>
+            </JoinedSpacesProvider>
+          </VotingProvider>
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   )
