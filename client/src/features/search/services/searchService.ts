@@ -34,7 +34,12 @@ export interface SearchPostResult {
   title: string
   content: string
   space: string
-  flair?: string
+  flair?: (
+    | 'Question'
+    | 'News'
+    | 'Marketplace'
+    | 'Discussion'
+  )
   author: {
     id: string
     username: string
