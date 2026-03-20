@@ -80,6 +80,13 @@ export function PostPreviewCard({
     if (!currentPost?.id) return
     if (isVoting) return
 
+    const allowed = await toggleVote(
+      currentPost.id,
+      'post',
+      voteType,
+    )
+    if (!allowed) return
+
     const previousVote =
       votes[
         `post:${currentPost.id}`
@@ -132,15 +139,7 @@ export function PostPreviewCard({
       },
     )
 
-    try {
-      await toggleVote(
-        currentPost.id,
-        'post',
-        voteType,
-      )
-    } finally {
-      setIsVoting(false)
-    }
+    setIsVoting(false)
 
     onUpdate?.()
   }
