@@ -3,18 +3,31 @@ import { useParams } from 'react-router-dom'
 import { userService } from '../services'
 import { ProfileTab } from '../types'
 import { useLoadingBar } from '@/hooks'
+import { useToast } from '@/hooks/ToastContext'
 
 export const useProfileView = () => {
-  const { username } = useParams<{ username: string }>()
-  
-  const [user, setUser] = useState<any>(null)
-  const [posts, setPosts] = useState<any[]>([])
-  const [comments, setComments] = useState<any[]>([])
-  const [spaces, setSpaces] = useState<any[]>([])
-  const [upvotedPosts, setUpvotedPosts] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<ProfileTab>('Overview')
-  const { startLoading, stopLoading } = useLoadingBar()
+  const { username } = useParams<{
+    username: string
+  }>()
+
+  const [user, setUser] =
+    useState<any>(null)
+  const [posts, setPosts] =
+    useState<any[]>([])
+  const [comments, setComments] =
+    useState<any[]>([])
+  const [spaces, setSpaces] =
+    useState<any[]>([])
+  const [upvotedPosts, setUpvotedPosts] =
+    useState<any[]>([])
+  const [isLoading, setIsLoading] =
+    useState(true)
+  const [activeTab, setActiveTab] =
+    useState<ProfileTab>('Overview')
+
+  const { startLoading, stopLoading } =
+    useLoadingBar()
+  const { error: showError } = useToast()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,25 +40,45 @@ export const useProfileView = () => {
       setIsLoading(true)
 
       try {
-        const fetchedUser = await userService.getUserByUsername(username)
-        if (fetchedUser) {
-          setUser(fetchedUser)
+        const fetchedUser =
+          await userService
+            .getUserByUsername(username)
 
-          // Fetch all tab data in parallel
-          const [userPosts, userComments, userSpaces, userUpvoted] = await Promise.all([
-            userService.getUserPosts(fetchedUser.id),
-            userService.getUserComments(fetchedUser.id),
-            userService.getUserSpaces(fetchedUser.id),
-            userService.getUserUpvotedPosts(fetchedUser.id),
-          ])
-
-          setPosts(userPosts)
-          setComments(userComments)
-          setSpaces(userSpaces)
-          setUpvotedPosts(userUpvoted)
+        if (!fetchedUser) {
+          setUser(null)
+          return
         }
-      } catch (err) {
-        console.error(err)
+
+        setUser(fetchedUser)
+
+        const [
+          userPosts,
+          userComments,
+          userSpaces,
+          userUpvoted,
+        ] = await Promise.all([
+          userService.getUserPosts(
+            fetchedUser.id,
+          ),
+          userService.getUserComments(
+            fetchedUser.id,
+          ),
+          userService.getUserSpaces(
+            fetchedUser.id,
+          ),
+          userService.getUserUpvotedPosts(
+            fetchedUser.id,
+          ),
+        ])
+
+        setPosts(userPosts)
+        setComments(userComments)
+        setSpaces(userSpaces)
+        setUpvotedPosts(userUpvoted)
+      } catch {
+        showError(
+          'Could not load this profile.',
+        )
       } finally {
         setIsLoading(false)
         stopLoading()
@@ -53,8 +86,7 @@ export const useProfileView = () => {
     }
 
     fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username])
+  }, [username]) // eslint-disable-line
 
   return {
     user,
@@ -64,6 +96,6 @@ export const useProfileView = () => {
     upvotedPosts,
     isLoading,
     activeTab,
-    setActiveTab
+    setActiveTab,
   }
 }

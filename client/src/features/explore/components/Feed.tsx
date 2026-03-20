@@ -1,4 +1,8 @@
-import { useEffect, useState, useCallback } from 'react'
+import {
+  useEffect,
+  useState,
+  useCallback,
+} from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ChevronLeft,
@@ -8,14 +12,20 @@ import {
   PostCard,
   DeletePostModal,
 } from '@/features/posts/components'
-import { FeedSkeleton } from '@/components/shared'
+import {
+  FeedSkeleton,
+} from '@/components/shared'
 import { Button } from '@/components/ui'
 import {
   postService,
 } from '@/features/posts/services'
 import { Post } from '@/features/posts/types'
 import { useLoadingBar } from '@/hooks'
-import { useVoting } from '@/features/votes/VotingContext'
+import {
+  useVoting,
+} from '@/features/votes/VotingContext'
+import { useToast } from '@/hooks/ToastContext'
+import { cn } from '@/lib/utils'
 
 const PAGE_SIZE = 15
 
@@ -25,18 +35,28 @@ export const Feed = ({
   sortBy?: string
 }) => {
   const navigate = useNavigate()
-  const [posts, setPosts] = useState<Post[]>([])
+  const {
+    error: showError,
+    success: showSuccess,
+  } = useToast()
+
+  const [posts, setPosts] =
+    useState<Post[]>([])
   const [isInitialLoad, setIsInitialLoad] =
     useState(true)
   const [isPageLoading, setIsPageLoading] =
     useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalPosts, setTotalPosts] = useState(0)
+  const [currentPage, setCurrentPage] =
+    useState(1)
+  const [totalPages, setTotalPages] =
+    useState(1)
+  const [totalPosts, setTotalPosts] =
+    useState(0)
   const [votingPosts, setVotingPosts] =
     useState<Set<string>>(new Set())
   const [deleteModalPost, setDeleteModalPost] =
     useState<Post | null>(null)
+
   const { startLoading, stopLoading } =
     useLoadingBar()
   const { votes, toggleVote } = useVoting()
@@ -47,9 +67,11 @@ export const Feed = ({
       sort: string,
       isFirst: boolean,
     ) => {
-      isFirst
-        ? setIsInitialLoad(true)
-        : setIsPageLoading(true)
+      if (isFirst) {
+        setIsInitialLoad(true)
+      } else {
+        setIsPageLoading(true)
+      }
       startLoading()
       setPosts([])
 
@@ -59,30 +81,35 @@ export const Feed = ({
 
       try {
         const result =
-          await postService.getSortedPosts(sort, {
-            limit: PAGE_SIZE,
-            offset: (page - 1) * PAGE_SIZE,
-          })
+          await postService.getSortedPosts(
+            sort,
+            {
+              limit: PAGE_SIZE,
+              offset:
+                (page - 1) * PAGE_SIZE,
+            },
+          )
 
-        // Backend now sorts by score —
-        // no client-side re-sort needed
         if (Array.isArray(result)) {
           setPosts(result)
           setTotalPages(1)
           setTotalPosts(result.length)
         } else {
           setPosts(result.data)
-          setTotalPosts(result.pagination.total)
+          setTotalPosts(
+            result.pagination.total,
+          )
           setTotalPages(
             Math.ceil(
-              result.pagination.total / PAGE_SIZE,
+              result.pagination.total
+              / PAGE_SIZE,
             ),
           )
         }
-      } catch (err) {
-        console.error(
-          'Failed to load posts:',
-          err,
+      } catch {
+        showError(
+          'Could not load posts.'
+          + ' Please try again.',
         )
       } finally {
         setIsInitialLoad(false)
@@ -90,23 +117,20 @@ export const Feed = ({
         stopLoading()
       }
     },
-    [startLoading, stopLoading],
+    [startLoading, stopLoading, showError],
   )
 
   useEffect(() => {
     setCurrentPage(1)
     fetchPage(1, sortBy, true)
-  }, [sortBy]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sortBy]) // eslint-disable-line
 
   const goToPage = (page: number) => {
-    if (
-      page < 1 ||
-      page > totalPages ||
-      page === currentPage ||
-      isPageLoading
-    ) {
-      return
-    }
+    if (page < 1) return
+    if (page > totalPages) return
+    if (page === currentPage) return
+    if (isPageLoading) return
+
     setCurrentPage(page)
     fetchPage(page, sortBy, false)
   }
@@ -122,7 +146,10 @@ export const Feed = ({
       )
     }
     const delta = 2
-    const left = Math.max(2, currentPage - delta)
+    const left = Math.max(
+      2,
+      currentPage - delta,
+    )
     const right = Math.min(
       totalPages - 1,
       currentPage + delta,
@@ -132,7 +159,9 @@ export const Feed = ({
     for (let i = left; i <= right; i++) {
       range.push(i)
     }
-    if (right < totalPages - 1) range.push('...')
+    if (right < totalPages - 1) {
+      range.push('...')
+    }
     range.push(totalPages)
     return range
   }
@@ -141,7 +170,15 @@ export const Feed = ({
     postId: string,
     voteType: 'up' | 'down',
   ) => {
-    if (!postId || votingPosts.has(postId)) return
+    if (!postId) return
+    if (votingPosts.has(postId)) return
+
+    const allowed = await toggleVote(
+      postId,
+      'post',
+      voteType,
+    )
+    if (!allowed) return
 
     const previousVote =
       votes[`post:${postId}`] ?? null
@@ -156,19 +193,35 @@ export const Feed = ({
 
         if (voteType === 'up') {
           if (previousVote === 'up') {
-            upvotes = Math.max(0, upvotes - 1)
-          } else if (previousVote === 'down') {
+            upvotes = Math.max(
+              0,
+              upvotes - 1,
+            )
+          } else if (
+            previousVote === 'down'
+          ) {
             upvotes += 1
-            downvotes = Math.max(0, downvotes - 1)
+            downvotes = Math.max(
+              0,
+              downvotes - 1,
+            )
           } else {
             upvotes += 1
           }
         } else {
           if (previousVote === 'down') {
-            downvotes = Math.max(0, downvotes - 1)
-          } else if (previousVote === 'up') {
+            downvotes = Math.max(
+              0,
+              downvotes - 1,
+            )
+          } else if (
+            previousVote === 'up'
+          ) {
             downvotes += 1
-            upvotes = Math.max(0, upvotes - 1)
+            upvotes = Math.max(
+              0,
+              upvotes - 1,
+            )
           } else {
             downvotes += 1
           }
@@ -178,15 +231,11 @@ export const Feed = ({
       }),
     )
 
-    try {
-      await toggleVote(postId, 'post', voteType)
-    } finally {
-      setVotingPosts((prev) => {
-        const next = new Set(prev)
-        next.delete(postId)
-        return next
-      })
-    }
+    setVotingPosts((prev) => {
+      const next = new Set(prev)
+      next.delete(postId)
+      return next
+    })
   }
 
   const handleDeletePost = async () => {
@@ -202,10 +251,11 @@ export const Feed = ({
         ),
       )
       setDeleteModalPost(null)
-    } catch (error) {
-      console.error(
-        'Failed to delete post:',
-        error,
+      showSuccess('Post deleted.')
+    } catch {
+      showError(
+        'Could not delete post.'
+        + ' Please try again.',
       )
     }
   }
@@ -217,11 +267,13 @@ export const Feed = ({
   return (
     <>
       <div
-        className={`space-y-4 transition-opacity duration-150 ${
+        className={cn(
+          'space-y-4 transition-opacity',
+          'duration-150',
           isPageLoading
             ? 'opacity-50 pointer-events-none'
-            : 'opacity-100'
-        }`}
+            : 'opacity-100',
+        )}
       >
         {posts.map((post) => {
           const voteKey = `post:${post.id}`
@@ -233,34 +285,49 @@ export const Feed = ({
               {...post}
               upvotes={post.upvotes}
               downvotes={post.downvotes}
-              commentCount={post.commentCount}
-              isUpvoted={voteState === 'up'}
-              isDownvoted={voteState === 'down'}
-              onClick={() => {
-                navigate(`/post/${post.id}`)
-              }}
+              commentCount={
+                post.commentCount
+              }
+              isUpvoted={
+                voteState === 'up'
+              }
+              isDownvoted={
+                voteState === 'down'
+              }
+              onClick={() =>
+                navigate(
+                  `/post/${post.id}`,
+                )
+              }
               onUpvote={() => {
-                if (!votingPosts.has(post.id)) {
+                if (
+                  !votingPosts.has(post.id)
+                ) {
                   handleVote(post.id, 'up')
                 }
               }}
               onDownvote={() => {
-                if (!votingPosts.has(post.id)) {
-                  handleVote(post.id, 'down')
+                if (
+                  !votingPosts.has(post.id)
+                ) {
+                  handleVote(
+                    post.id,
+                    'down',
+                  )
                 }
               }}
               onEdit={
                 post.isOwner
-                  ? () => {
-                      navigate(
-                        `/post/${post.id}/edit`,
-                      )
-                    }
+                  ? () =>
+                    navigate(
+                      `/post/${post.id}/edit`,
+                    )
                   : undefined
               }
               onDelete={
                 post.isOwner
-                  ? () => setDeleteModalPost(post)
+                  ? () =>
+                    setDeleteModalPost(post)
                   : undefined
               }
             />
@@ -268,12 +335,14 @@ export const Feed = ({
         })}
       </div>
 
-      {posts.length === 0 && !isInitialLoad && (
+      {posts.length === 0 &&
+        !isInitialLoad && (
         <p
-          className={
-            'text-center text-sm mt-10 ' +
-            'text-gray-500 dark:text-gray-400'
-          }
+          className={cn(
+            'text-center text-sm mt-10',
+            'text-gray-500',
+            'dark:text-gray-400',
+          )}
         >
           No posts yet. Be the first to post!
         </p>
@@ -281,19 +350,20 @@ export const Feed = ({
 
       {totalPages > 1 && (
         <div
-          className={
-            'flex flex-col items-center ' +
-            'gap-3 mt-8 mb-4'
-          }
+          className={cn(
+            'flex flex-col items-center',
+            'gap-3 mt-8 mb-4',
+          )}
         >
           <p
-            className={
-              'text-xs text-gray-500 ' +
-              'dark:text-gray-400'
-            }
+            className={cn(
+              'text-xs text-gray-500',
+              'dark:text-gray-400',
+            )}
           >
             Showing{' '}
-            {(currentPage - 1) * PAGE_SIZE + 1}–
+            {(currentPage - 1) * PAGE_SIZE + 1}
+            –
             {Math.min(
               currentPage * PAGE_SIZE,
               totalPosts,
@@ -301,15 +371,18 @@ export const Feed = ({
             of {totalPosts} posts
           </p>
 
-          <div className="flex items-center gap-1">
+          <div
+            className="flex items-center gap-1"
+          >
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => {
+              onClick={() =>
                 goToPage(currentPage - 1)
-              }}
+              }
               disabled={
-                currentPage === 1 || isPageLoading
+                currentPage === 1
+                || isPageLoading
               }
               leftIcon={
                 <ChevronLeft
@@ -321,53 +394,57 @@ export const Feed = ({
             </Button>
 
             <div
-              className={
-                'flex items-center gap-1 mx-1'
-              }
+              className={cn(
+                'flex items-center',
+                'gap-1 mx-1',
+              )}
             >
-              {getPageNumbers().map((page, i) =>
-                page === '...' ? (
-                  <span
-                    key={`ellipsis-${i}`}
-                    className={
-                      'w-9 text-center text-sm ' +
-                      'text-gray-400 ' +
-                      'dark:text-gray-500 ' +
-                      'select-none'
-                    }
-                  >
-                    …
-                  </span>
-                ) : (
-                  <Button
-                    key={page}
-                    variant={
-                      currentPage === page
-                        ? 'primary'
-                        : 'secondary'
-                    }
-                    size="sm"
-                    onClick={() => {
-                      goToPage(page as number)
-                    }}
-                    disabled={isPageLoading}
-                    className="w-9 px-0"
-                  >
-                    {page}
-                  </Button>
-                ),
+              {getPageNumbers().map(
+                (page, i) =>
+                  page === '...' ? (
+                    <span
+                      key={`ellipsis-${i}`}
+                      className={cn(
+                        'w-9 text-center',
+                        'text-sm text-gray-400',
+                        'dark:text-gray-500',
+                        'select-none',
+                      )}
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <Button
+                      key={page}
+                      variant={
+                        currentPage === page
+                          ? 'primary'
+                          : 'secondary'
+                      }
+                      size="sm"
+                      onClick={() =>
+                        goToPage(
+                          page as number,
+                        )
+                      }
+                      disabled={isPageLoading}
+                      className="w-9 px-0"
+                    >
+                      {page}
+                    </Button>
+                  ),
               )}
             </div>
 
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => {
+              onClick={() =>
                 goToPage(currentPage + 1)
-              }}
+              }
               disabled={
-                currentPage === totalPages ||
-                isPageLoading
+                currentPage === totalPages
+                || isPageLoading
               }
               rightIcon={
                 <ChevronRight
@@ -386,9 +463,9 @@ export const Feed = ({
           isOpen={!!deleteModalPost}
           postTitle={deleteModalPost.title}
           onConfirm={handleDeletePost}
-          onClose={() => {
+          onClose={() =>
             setDeleteModalPost(null)
-          }}
+          }
         />
       )}
     </>
