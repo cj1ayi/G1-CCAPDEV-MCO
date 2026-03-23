@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   PostCard,
@@ -12,8 +12,8 @@ import {
   useVoting,
 } from '@/features/votes/VotingContext'
 import {
-  getCurrentUser,
-} from '@/features/auth/services/authService'
+  useAuth,
+} from '@/features/auth/hooks'
 import { useToast } from '@/hooks/ToastContext'
 
 export function PostPreviewCard({
@@ -24,6 +24,7 @@ export function PostPreviewCard({
   onUpdate?: () => void
 }) {
   const navigate = useNavigate()
+  const { user: currentUser } = useAuth()
   const {
     success: showSuccess,
     error: showError,
@@ -33,20 +34,15 @@ export function PostPreviewCard({
     useState(false)
   const [currentPost, setCurrentPost] =
     useState<Post>(post)
-  const [isOwner, setIsOwner] = useState(false)
   const [isVoting, setIsVoting] = useState(false)
 
   const { votes, toggleVote } = useVoting()
 
-  useEffect(() => {
-    getCurrentUser().then((user) => {
-      setIsOwner(
-        !!user &&
-        !!currentPost?.author &&
-        user.id === currentPost.author.id,
-      )
-    })
-  }, [currentPost?.author?.id])
+  const isOwner =
+    !!currentUser
+    && !!currentPost?.author
+    && currentUser.id
+      === currentPost.author.id
 
   const handleVote = async (
     voteType: 'up' | 'down',
@@ -136,36 +132,48 @@ export function PostPreviewCard({
   const voteKey = `post:${currentPost.id}`
   const voteState = votes[voteKey]
 
-  return (
+return (
     <>
       <PostCard
-      post={{
-        ...currentPost,
-        isUpvoted: voteState === 'up',
-        isDownvoted: voteState === 'down',
-        commentCount: currentPost.commentCount ?? 0,
-      }}
-      onClick={() => navigate(`/post/${currentPost.id}`)}
-      onUpvote={() => !isVoting && handleVote('up')}
-      onDownvote={() => !isVoting && handleVote('down')}
-      onEdit={
-        isOwner
-          ? () => navigate(`/post/${currentPost.id}/edit`)
-          : undefined
-      }
-      onDelete={
-        isOwner
-          ? () => setIsDeleteModalOpen(true)
-          : undefined
-      }
-    />
+        post={{
+          ...currentPost,
+          isUpvoted: voteState === 'up',
+          isDownvoted: voteState === 'down',
+        }}
+        onClick={() =>
+          navigate(
+            `/post/${currentPost.id}`,
+          )
+        }
+        onUpvote={() =>
+          !isVoting && handleVote('up')
+        }
+        onDownvote={() =>
+          !isVoting && handleVote('down')
+        }
+        onEdit={
+          isOwner
+            ? () => navigate(
+              `/post/${currentPost.id}/edit`,
+            )
+            : undefined
+        }
+        onDelete={
+          isOwner
+            ? () =>
+              setIsDeleteModalOpen(true)
+            : undefined
+        }
+      />
 
-    <DeletePostModal
-      isOpen={isDeleteModalOpen}
-      postTitle={currentPost.title}
-      onConfirm={handleDelete}
-      onClose={() => setIsDeleteModalOpen(false)}
-    />
-   </>
+      <DeletePostModal
+        isOpen={isDeleteModalOpen}
+        postTitle={currentPost.title}
+        onConfirm={handleDelete}
+        onClose={() =>
+          setIsDeleteModalOpen(false)
+        }
+      />
+    </>
   )
 }
