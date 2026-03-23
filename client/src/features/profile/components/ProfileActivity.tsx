@@ -8,13 +8,18 @@ import { cn, getRelativeTime } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
+import { Post } from '@/features/posts/types'
+import type {
+  UserComment,
+  UserSpace,
+} from '../services/userService'
 
 interface ProfileActivityProps {
   activeTab: ProfileTab
-  posts: any[]
-  comments: any[]
-  spaces: any[]
-  upvotedPosts: any[]
+  posts: Post[]
+  comments: UserComment[]
+  spaces: UserSpace[]
+  upvotedPosts: Post[]
 }
 
 /** Only render images with valid http(s) URLs. */
@@ -72,7 +77,7 @@ function CommentsList({
   comments,
   navigate,
 }: {
-  comments: any[]
+  comments: UserComment[]
   navigate: ReturnType<typeof useNavigate>
 }) {
   const valid = comments.filter(
@@ -93,10 +98,10 @@ function CommentsList({
 
   return (
     <div className="space-y-3">
-      {valid.map((comment: any) => {
+      {valid.map((comment) => {
         const postId =
           comment.post?._id
-          ?? comment.post?.id
+          ?? comment.postId
           ?? comment.postId
 
         return (
@@ -117,9 +122,9 @@ function CommentsList({
                 'font-medium mb-1',
               )}
             >
-              {comment.post.space}
+              {comment.post?.space}
               {' • '}
-              {comment.post.title}
+              {comment.post?.title}
             </p>
 
             <div
@@ -162,7 +167,7 @@ function SpacesList({
   spaces,
   navigate,
 }: {
-  spaces: any[]
+  spaces: UserSpace[]
   navigate: ReturnType<typeof useNavigate>
 }) {
   if (spaces.length === 0) {
@@ -184,7 +189,7 @@ function SpacesList({
         'sm:grid-cols-2 gap-4',
       )}
     >
-      {spaces.map((space: any) => (
+      {spaces.map((space) => (
         <Card
           key={space._id ?? space.name}
           className={cn(
@@ -231,7 +236,7 @@ function SpacesList({
 function UpvotedList({
   upvotedPosts,
 }: {
-  upvotedPosts: any[]
+  upvotedPosts: Post[]
 }) {
   if (upvotedPosts.length === 0) {
     return (
@@ -247,7 +252,7 @@ function UpvotedList({
 
   return (
     <div className="space-y-4">
-      {upvotedPosts.map((post: any) => (
+      {upvotedPosts.map((post) => (
         <PostPreviewCard
           key={post.id}
           post={post}
@@ -257,7 +262,11 @@ function UpvotedList({
   )
 }
 
-function PostsList({ posts }: { posts: any[] }) {
+function PostsList({
+  posts,
+}: {
+  posts: Post[]
+}) {
   if (posts.length === 0) {
     return (
       <Card
@@ -272,7 +281,7 @@ function PostsList({ posts }: { posts: any[] }) {
 
   return (
     <div className="space-y-4">
-      {posts.map((post: any) => (
+      {posts.map((post) => (
         <PostPreviewCard
           key={post.id}
           post={post}
@@ -288,9 +297,9 @@ function OverviewTab({
   spaces,
   navigate,
 }: {
-  posts: any[]
-  comments: any[]
-  spaces: any[]
+  posts: Post[]
+  comments: UserComment[]
+  spaces: UserSpace[]
   navigate: ReturnType<typeof useNavigate>
 }) {
   const hasNone =
@@ -312,7 +321,7 @@ function OverviewTab({
 
   const topPosts = posts.slice(0, 5)
   const topComments = comments
-    .filter((c: any) => c.post)
+    .filter((c) => c.post)
     .slice(0, 5)
   const topSpaces = spaces.slice(0, 5)
 
@@ -330,7 +339,7 @@ function OverviewTab({
             Posts
           </h3>
           <div className="space-y-4">
-            {topPosts.map((post: any) => (
+            {topPosts.map((post) => (
               <PostPreviewCard
                 key={post.id}
                 post={post}
@@ -375,7 +384,7 @@ function OverviewTab({
               'sm:grid-cols-2 gap-3',
             )}
           >
-            {topSpaces.map((space: any) => (
+            {topSpaces.map((space) => (
               <Card
                 key={
                   space._id

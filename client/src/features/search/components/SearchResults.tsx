@@ -147,41 +147,25 @@ function PostResult({
 }) {
   const navigate = useNavigate()
 
-  const author = post.author ?? {
-    id: '',
-    username: 'deleted',
-    name: 'Deleted User',
-    avatar: '',
-  }
-
-  const upvotes = Number(post.upvotes) || 0
-  const downvotes =
-    Number(post.downvotes) || 0
-
+  // Construct the object for the new PostCard 'post' prop
   return (
     <PostCard
-      id={post.id}
-      title={post.title ?? ''}
-      content={post.content ?? ''}
-      space={post.space ?? ''}
-      flair={post.flair}
-      author={author}
-      upvotes={upvotes}
-      downvotes={downvotes}
-      commentCount={post.commentCount ?? 0}
-      createdAt={post.createdAt ?? ''}
-      imageUrl={post.imageUrl}
-      isOwner={post.isOwner ?? false}
-      isUpvoted={false}
-      isDownvoted={false}
-      onClick={
-        () => navigate(`/post/${post.id}`)
-      }
+      key={post.id}
+      post={{
+        ...post,
+        // Ensure the search result fields match the Post interface expectations
+        upvotes: Number(post.upvotes) || 0,
+        downvotes: Number(post.downvotes) || 0,
+        commentCount: post.commentCount ?? 0,
+        createdAt: post.createdAt ?? '',
+        isOwner: post.isOwner ?? false,
+        isUpvoted: false,
+        isDownvoted: false,
+      } as any} // Cast as any only if SearchPostResult is missing core Post fields
+      onClick={() => navigate(`/post/${post.id}`)}
       onEdit={
         post.isOwner
-          ? () => navigate(
-            `/post/${post.id}/edit`,
-          )
+          ? () => navigate(`/post/${post.id}/edit`)
           : undefined
       }
     />
@@ -399,22 +383,22 @@ function ResultsList({
   results,
 }: {
   tab: SearchTab
-  results: any[]
+  results: unknown[]
 }) {
   return (
     <div className="space-y-4">
       {tab === 'posts' &&
-        results.map((p: SearchPostResult) => (
+        (results as SearchPostResult[]).map((p) => (
           <PostResult key={p.id} post={p} />
         ))}
 
       {tab === 'spaces' &&
-        results.map((s: SearchSpaceResult) => (
+        (results as SearchSpaceResult[]).map((s) => (
           <SpaceResult key={s.id} space={s} />
         ))}
 
       {tab === 'users' &&
-        results.map((u: SearchUserResult) => (
+        (results as SearchUserResult[]).map((u) => (
           <UserResult key={u.id} user={u} />
         ))}
     </div>

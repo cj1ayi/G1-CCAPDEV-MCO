@@ -334,6 +334,7 @@ function SpaceSelector({
   return (
     <div ref={ref} className="relative">
       <label
+        htmlFor="space-search-input"
         className={cn(
           'block text-sm font-semibold mb-2',
           'text-gray-700 dark:text-gray-200',
@@ -346,7 +347,10 @@ function SpaceSelector({
       {/* Trigger */}
       <button
         type="button"
+        id="space-selector-button"
         onClick={handleToggle}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
         className={cn(
           'w-full flex items-center',
           'justify-between rounded-lg',
@@ -406,6 +410,8 @@ function SpaceSelector({
             </span>
             <input
               ref={inputRef}
+              id="space-search-input"
+              name="spaceSearch"
               type="text"
               value={search}
               onChange={(e) => {
@@ -505,14 +511,14 @@ function ReadOnlySpace({
 }) {
   return (
     <div>
-      <label
+      <p
         className={cn(
           'block text-sm font-semibold mb-2',
           'text-gray-700 dark:text-gray-200',
         )}
       >
         Space
-      </label>
+      </p>
       <div
         className={cn(
           'px-4 py-2 rounded-lg',
@@ -539,7 +545,7 @@ function FlairSelector({
 }) {
   return (
     <div>
-      <label
+      <p
         className={cn(
           'block text-sm font-semibold',
           'mb-2 text-gray-700',
@@ -547,7 +553,7 @@ function FlairSelector({
         )}
       >
         Flair (Optional)
-      </label>
+      </p>
       <div className="flex flex-wrap gap-2">
         {POST_FLAIRS.map((flair) => {
           const active = value === flair
@@ -611,6 +617,7 @@ function TagsSection({
   return (
     <div>
       <label
+        htmlFor="tag-input-field"
         className={cn(
           'block text-sm font-semibold mb-2',
           'text-gray-700 dark:text-gray-200',
@@ -620,6 +627,8 @@ function TagsSection({
       </label>
       <div className="flex gap-2">
         <Input
+          id="tag-input-field"
+          name="tagInput"
           value={tagInput}
           onChange={(e) => {
             onTagInputChange(e.target.value)
@@ -721,6 +730,8 @@ export function PostForm({
       )}
 
       <Input
+        id="post-title-field"
+        name="title"
         label="Title"
         value={formData.title}
         onChange={(e) => {
@@ -745,6 +756,7 @@ export function PostForm({
 
       <div className="space-y-2">
         <label
+          htmlFor="post-content-editor"
           className={cn(
             'block text-sm font-semibold',
             'text-gray-700 dark:text-gray-200',
@@ -774,6 +786,8 @@ export function PostForm({
       </div>
 
       <Input
+        id="post-image-url-field"
+        name="imageUrl"
         label="Image URL (Optional)"
         type="url"
         value={formData.imageUrl}

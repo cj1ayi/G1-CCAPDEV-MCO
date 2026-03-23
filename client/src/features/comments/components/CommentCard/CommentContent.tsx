@@ -73,16 +73,35 @@ const markdownComponents = {
   img: ({
     node,
     ...props
-  }: any) => (
-    <img
-      {...props}
-      className={cn(
-        'rounded-lg max-w-full h-auto',
-        'max-h-80 mt-2 mb-2',
-      )}
-      loading="lazy"
-    />
-  ),
+  }: any) => {
+    const src = props.src ?? ''
+    if (!src) return null
+
+    try {
+      const url = new URL(src)
+      const ok =
+        url.protocol === 'http:'
+        || url.protocol === 'https:'
+      if (!ok) return null
+    } catch {
+      return null
+    }
+
+    return (
+      <img
+        {...props}
+        className={cn(
+          'rounded-lg max-w-full',
+          'h-auto max-h-80 mt-2 mb-2',
+        )}
+        loading="lazy"
+        onError={(e: any) => {
+          e.currentTarget.style.display =
+            'none'
+        }}
+      />
+    )
+  },
 }
 
 export const CommentContent = ({

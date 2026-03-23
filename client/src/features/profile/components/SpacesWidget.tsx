@@ -6,9 +6,12 @@ import {
   CardContent,
 } from '@/components/ui'
 import { cn } from '@/lib/utils'
+import type {
+  UserSpace,
+} from '../services/userService'
 
 interface SpacesWidgetProps {
-  spaces: any[]
+  spaces: UserSpace[]
 }
 
 export const SpacesWidget = ({ spaces }: SpacesWidgetProps) => {
@@ -29,7 +32,7 @@ export const SpacesWidget = ({ spaces }: SpacesWidgetProps) => {
             </p>
           ) : (
             <div className="space-y-2">
-              {spaces.slice(0, 5).map((space: any) => (
+              {spaces.slice(0, 5).map((space) => (
                 <button
                   key={space._id || space.id || space.name}
                   onClick={() => navigate(`/r/${space.name}`)}

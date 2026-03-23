@@ -56,19 +56,25 @@ const AppRoutes = () => {
   )
 }
 
+import {
+  QueryProvider,
+} from '@/lib/QueryProvider'
+
 const App = () => {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
-          <VotingProvider>
-            <JoinedSpacesProvider>
-              <LoadingBar />
-              <AppRoutes />
-            </JoinedSpacesProvider>
-          </VotingProvider>
-        </ToastProvider>
-      </AuthProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <VotingProvider>
+              <JoinedSpacesProvider>
+                <LoadingBar />
+                <AppRoutes />
+              </JoinedSpacesProvider>
+            </VotingProvider>
+          </ToastProvider>
+        </AuthProvider>
+      </QueryProvider>
     </BrowserRouter>
   )
 }

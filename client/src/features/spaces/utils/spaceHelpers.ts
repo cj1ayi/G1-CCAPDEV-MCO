@@ -1,27 +1,29 @@
 import { convertObjectId } from '@/lib/apiUtils'
 import type { Space } from '../services/spaceService'
 
-// ─── Type Guards ─────────────────────────────────────────────
+// ── Type Guards ──────────────────
 export const resolveId = (ref: string | { id?: string; _id?: string }): string =>
   typeof ref === 'object' ? (ref.id ?? ref._id ?? '') : ref
 
-// ─── Ownership ───────────────────────────────────────────────
+// ── Ownership ────────────────────
 export const isSpaceOwner = (space: Space, userId: string): boolean =>
   resolveId(space.owner) === userId
 
-// ─── Sanitizers ──────────────────────────────────────────────
+// ── Sanitizers ───────────────────
 export const sanitizeInput = <T extends object>(dto: T): T =>
   Object.fromEntries(
     Object.entries(dto).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v])
   ) as T
 
-// ─── API Space → Domain Space Mapper ─────────────────────────
+// ── API Space → Domain Space ─────
 export const mapApiSpace = (
-  raw: any,
-  currentUser: { id: string } | null
+  raw: Record<string, unknown>,
+  currentUser: { id: string } | null,
 ): Space => {
   const converted = convertObjectId(raw)
-  const members: any[] = converted.members ?? []
+  const members: Array<
+    string | { id?: string; _id?: string }
+  > = converted.members ?? []
   const icon = converted.icon ?? ''
 
   return {
@@ -29,13 +31,23 @@ export const mapApiSpace = (
     owner: converted.owner,
     memberCount: members.length,
     icon,
-    iconType: icon.startsWith('http') ? 'image' : 'text',
-    createdDate: raw.createdAt 
-      ? new Date(raw.createdAt).toLocaleDateString(
-        'en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    iconType: icon.startsWith('http')
+      ? 'image'
+      : 'text',
+    createdDate: raw.createdAt
+      ? new Date(
+        raw.createdAt as string,
+      ).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
       : 'Unknown',
     isJoined: currentUser
-      ? members.some((m: any) => resolveId(m) === currentUser.id)
+      ? members.some(
+        (m) =>
+          resolveId(m) === currentUser.id,
+      )
       : false,
   }
 }

@@ -13,7 +13,7 @@ export interface Comment {
   editedAt: Date | null
   deletedAt: Date | null
   deletedBy: string | null
-  author?: any
+  author?: { _id?: string; username: string; displayName?: string; avatar?: string }
 }
 
 /**

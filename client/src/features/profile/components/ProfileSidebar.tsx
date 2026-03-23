@@ -13,15 +13,19 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/ToastContext'
+import type { User } from '../types'
+import type {
+  UserSpace,
+} from '../services/userService'
 import { formatTimeAgo } from '@/lib/dateUtils'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 interface ProfileSidebarProps {
-  user: any
+  user: User
   postCount: number
   commentCount: number
-  spaces: any[]
+  spaces: UserSpace[]
 }
 
 function StatCell({
@@ -209,7 +213,7 @@ export const ProfileSidebar = ({
           </h3>
           <div className="space-y-2">
             {spaces.slice(0, 5).map(
-              (space: any) => (
+              (space) => (
                 <button
                   key={
                     space._id

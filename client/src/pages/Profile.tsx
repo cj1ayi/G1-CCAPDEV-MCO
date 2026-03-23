@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import {
   MainLayout,
 } from '@/components/layout/MainLayout'
@@ -11,9 +10,7 @@ import {
 import {
   useProfileView,
 } from '@/features/profile/hooks/useProfileView'
-import {
-  userService,
-} from '@/features/profile/services/userService'
+import { useAuth } from '@/features/auth/hooks'
 import {
   ErrorState,
   ProfilePageSkeleton,
@@ -51,14 +48,7 @@ const Profile = () => {
     setActiveTab,
   } = useProfileView()
 
-  const [currentUser, setCurrentUser] =
-    useState<any>(null)
-
-  useEffect(() => {
-    userService
-      .getCurrentUser()
-      .then(setCurrentUser)
-  }, [])
+  const { user: currentUser } = useAuth()
 
   const isOwnProfile = !!(
     currentUser &&

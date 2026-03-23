@@ -1,78 +1,48 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   PostCard,
   DeletePostModal,
 } from '@/features/posts/components'
 import {
-  commentService,
-} from '@/features/comments/services'
-import {
   postService,
 } from '@/features/posts/services'
-import {
-  getTotalCommentCount,
-} from '@/features/comments/utils/comment-utils'
+import { Post } from '@/features/posts/types'
 import {
   useVoting,
 } from '@/features/votes/VotingContext'
 import {
-  getCurrentUser,
-} from '@/features/auth/services/authService'
+  useAuth,
+} from '@/features/auth/hooks'
 import { useToast } from '@/hooks/ToastContext'
 
 export function PostPreviewCard({
   post,
   onUpdate,
 }: {
-  post: any
+  post: Post
   onUpdate?: () => void
 }) {
   const navigate = useNavigate()
+  const { user: currentUser } = useAuth()
   const {
     success: showSuccess,
     error: showError,
   } = useToast()
 
-  const [commentCount, setCommentCount] =
-    useState<number>(post.commentCount)
   const [isDeleteModalOpen, setIsDeleteModalOpen] =
     useState(false)
   const [currentPost, setCurrentPost] =
-    useState<typeof post>(post)
-  const [isOwner, setIsOwner] = useState(false)
+    useState<Post>(post)
   const [isVoting, setIsVoting] = useState(false)
 
   const { votes, toggleVote } = useVoting()
 
-  useEffect(() => {
-    const loadComments = async () => {
-      if (!post?.id) return
-      try {
-        const comments =
-          await commentService
-            .getCommentsByPostId(post.id)
-        setCommentCount(
-          getTotalCommentCount(comments),
-        )
-      } catch {
-        setCommentCount(
-          post.commentCount || 0,
-        )
-      }
-    }
-    loadComments()
-  }, [post.id, post.commentCount])
-
-  useEffect(() => {
-    getCurrentUser().then((user) => {
-      setIsOwner(
-        !!user &&
-        !!currentPost?.author &&
-        user.id === currentPost.author.id,
-      )
-    })
-  }, [currentPost?.author?.id])
+  const isOwner =
+    !!currentUser
+    && !!currentPost?.author
+    && currentUser.id
+      === currentPost.author.id
 
   const handleVote = async (
     voteType: 'up' | 'down',
@@ -95,7 +65,7 @@ export function PostPreviewCard({
     setIsVoting(true)
 
     setCurrentPost(
-      (prev: typeof post) => {
+      (prev: Post) => {
         if (!prev) return prev
         let { upvotes, downvotes } = prev
 
@@ -162,15 +132,14 @@ export function PostPreviewCard({
   const voteKey = `post:${currentPost.id}`
   const voteState = votes[voteKey]
 
-  return (
+return (
     <>
       <PostCard
-        {...currentPost}
-        upvotes={currentPost.upvotes}
-        downvotes={currentPost.downvotes}
-        commentCount={commentCount}
-        isUpvoted={voteState === 'up'}
-        isDownvoted={voteState === 'down'}
+        post={{
+          ...currentPost,
+          isUpvoted: voteState === 'up',
+          isDownvoted: voteState === 'down',
+        }}
         onClick={() =>
           navigate(
             `/post/${currentPost.id}`,
