@@ -31,29 +31,22 @@ import {
   QueryProvider,
 } from '@/lib/QueryProvider'
 
-const Home = lazy(
-  () => import('./pages/Home'),
-)
-const Explore = lazy(
-  () => import('./pages/Explore'),
-)
-const PostDetail = lazy(
-  () => import('./pages/PostDetail'),
-)
+// ── Static imports (high traffic) ───
+import Home from './pages/Home'
+import Explore from './pages/Explore'
+import PostDetail from './pages/PostDetail'
+import Profile from './pages/Profile'
+import Space from './pages/Space'
+
+// ── Lazy imports (low traffic) ──────
 const CreatePost = lazy(
   () => import('./pages/CreatePost'),
 )
 const EditPost = lazy(
   () => import('./pages/EditPost'),
 )
-const Profile = lazy(
-  () => import('./pages/Profile'),
-)
 const EditProfile = lazy(
   () => import('./pages/EditProfile'),
-)
-const Space = lazy(
-  () => import('./pages/Space'),
 )
 const EditSpace = lazy(
   () => import('./pages/EditSpace'),
@@ -75,6 +68,8 @@ const Signup = lazy(
 const Search = lazy(
   () => import('./pages/Search'),
 )
+
+// ── Routes ──────────────────────
 
 const AppRoutes = () => {
   const { user } = useAuth()
@@ -148,6 +143,12 @@ const AppRoutes = () => {
   )
 }
 
+import {
+  MainLayout,
+} from '@/components/layout/MainLayout'
+
+// ── App ─────────────────────────
+
 const App = () => (
   <BrowserRouter>
     <QueryProvider>
@@ -158,7 +159,12 @@ const App = () => (
               <LoadingBar />
               <Suspense
                 fallback={
-                  <LoadingSpinner />
+                  <MainLayout>
+                    <LoadingSpinner
+                      size="lg"
+                      text="Loading..."
+                    />
+                  </MainLayout>
                 }
               >
                 <AppRoutes />
