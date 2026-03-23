@@ -1,76 +1,88 @@
 import { Card } from '@/components/ui'
 import { cn } from '@/lib/utils'
-import type { PostCardProps } from '../../types'
-import { PostCardVoting } from './PostCardVoting'
-import { PostCardHeader } from './PostCardHeader'
-import { PostCardContent } from './PostCardContent'
+import { Post } from '../../types'
+import {
+  PostCardVoting,
+} from './PostCardVoting'
+import {
+  PostCardHeader,
+} from './PostCardHeader'
+import {
+  PostCardContent,
+} from './PostCardContent'
 import { PostActions } from '../PostAction'
 
+export interface PostCardProps {
+  post: Post & {
+    isUpvoted?: boolean
+    isDownvoted?: boolean
+  }
+  onClick?: () => void
+  onUpvote?: () => void
+  onDownvote?: () => void
+  onEdit?: () => void
+  onDelete?: () => void
+}
+
 const PostCard = ({
-  id,
-  title,
-  content,
-  author,
-  space,
-  spaceIcon,
-  flair,
-  upvotes,
-  downvotes,
-  commentCount,
-  createdAt,
-  imageUrl,
-  isUpvoted = false,
-  isDownvoted = false,
-  isOwner = false,
+  post,
+  onClick,
   onUpvote,
   onDownvote,
   onEdit,
   onDelete,
-  onClick,
 }: PostCardProps) => {
   return (
     <Card
       padding="none"
       className={cn(
         'overflow-hidden',
-        'hover:border-gray-300 dark:hover:border-gray-700',
+        'hover:border-gray-300',
+        'dark:hover:border-gray-700',
         'transition-colors',
       )}
     >
       <div className="flex">
-        {/* Vote Column */}
         <PostCardVoting
-          upvotes={upvotes}
-          downvotes={downvotes}
-          isUpvoted={isUpvoted}
-          isDownvoted={isDownvoted}
+          upvotes={post.upvotes}
+          downvotes={post.downvotes}
+          isUpvoted={
+            post.isUpvoted ?? false
+          }
+          isDownvoted={
+            post.isDownvoted ?? false
+          }
           onUpvote={onUpvote}
           onDownvote={onDownvote}
         />
 
-        {/* Content Column — min-w-0 prevents flex child from overflowing */}
         <div
-          className="flex-1 min-w-0 p-4 cursor-pointer"
+          className={cn(
+            'flex-1 min-w-0 p-4',
+            'cursor-pointer',
+          )}
           onClick={onClick}
         >
           <PostCardHeader
-            space={space}
-            spaceIcon={spaceIcon}
-            author={author}
-            createdAt={createdAt}
-            flair={flair}
-            isOwner={isOwner}
+            space={post.space}
+            spaceIcon={post.spaceIcon}
+            author={post.author}
+            createdAt={post.createdAt}
+            flair={post.flair}
+            isOwner={post.isOwner}
             onEdit={onEdit}
             onDelete={onDelete}
           />
           <PostCardContent
-            title={title}
-            content={content}
-            imageUrl={imageUrl}
+            title={post.title}
+            content={post.content}
+            imageUrl={post.imageUrl}
           />
           <PostActions
-            postId={id}
-            commentCount={commentCount}
+            postId={post.id}
+            commentCount={
+              post.commentCount
+            }
             onClick={onClick}
           />
         </div>

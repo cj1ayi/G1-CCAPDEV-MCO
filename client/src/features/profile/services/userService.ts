@@ -58,7 +58,7 @@ class UserService {
       joinedAt: c.joinedAt,
       email: c.email,
       badges: c.badges || [],
-    }
+    } as User
   }
 
   private mapPost(data: RawData): Post {

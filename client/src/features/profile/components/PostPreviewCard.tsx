@@ -7,6 +7,7 @@ import {
 import {
   postService,
 } from '@/features/posts/services'
+import { Post } from '@/features/posts/types'
 import {
   useVoting,
 } from '@/features/votes/VotingContext'
@@ -19,7 +20,7 @@ export function PostPreviewCard({
   post,
   onUpdate,
 }: {
-  post: any
+  post: Post
   onUpdate?: () => void
 }) {
   const navigate = useNavigate()
@@ -31,7 +32,7 @@ export function PostPreviewCard({
   const [isDeleteModalOpen, setIsDeleteModalOpen] =
     useState(false)
   const [currentPost, setCurrentPost] =
-    useState<typeof post>(post)
+    useState<Post>(post)
   const [isOwner, setIsOwner] = useState(false)
   const [isVoting, setIsVoting] = useState(false)
 
@@ -68,7 +69,7 @@ export function PostPreviewCard({
     setIsVoting(true)
 
     setCurrentPost(
-      (prev: typeof post) => {
+      (prev: Post) => {
         if (!prev) return prev
         let { upvotes, downvotes } = prev
 
@@ -138,48 +139,33 @@ export function PostPreviewCard({
   return (
     <>
       <PostCard
-        {...currentPost}
-        upvotes={currentPost.upvotes}
-        downvotes={currentPost.downvotes}
-        commentCount={
-          currentPost.commentCount ?? 0
-        }
-        isUpvoted={voteState === 'up'}
-        isDownvoted={voteState === 'down'}
-        onClick={() =>
-          navigate(
-            `/post/${currentPost.id}`,
-          )
-        }
-        onUpvote={() =>
-          !isVoting && handleVote('up')
-        }
-        onDownvote={() =>
-          !isVoting && handleVote('down')
-        }
-        onEdit={
-          isOwner
-            ? () => navigate(
-              `/post/${currentPost.id}/edit`,
-            )
-            : undefined
-        }
-        onDelete={
-          isOwner
-            ? () =>
-              setIsDeleteModalOpen(true)
-            : undefined
-        }
-      />
+      post={{
+        ...currentPost,
+        isUpvoted: voteState === 'up',
+        isDownvoted: voteState === 'down',
+        commentCount: currentPost.commentCount ?? 0,
+      }}
+      onClick={() => navigate(`/post/${currentPost.id}`)}
+      onUpvote={() => !isVoting && handleVote('up')}
+      onDownvote={() => !isVoting && handleVote('down')}
+      onEdit={
+        isOwner
+          ? () => navigate(`/post/${currentPost.id}/edit`)
+          : undefined
+      }
+      onDelete={
+        isOwner
+          ? () => setIsDeleteModalOpen(true)
+          : undefined
+      }
+    />
 
-      <DeletePostModal
-        isOpen={isDeleteModalOpen}
-        postTitle={currentPost.title}
-        onConfirm={handleDelete}
-        onClose={() =>
-          setIsDeleteModalOpen(false)
-        }
-      />
-    </>
+    <DeletePostModal
+      isOpen={isDeleteModalOpen}
+      postTitle={currentPost.title}
+      onConfirm={handleDelete}
+      onClose={() => setIsDeleteModalOpen(false)}
+    />
+   </>
   )
 }

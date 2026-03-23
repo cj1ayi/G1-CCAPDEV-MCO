@@ -1,38 +1,76 @@
-import { CommentCardProps, Comment, CreateCommentDto, UpdateCommentDto } from '../types'
+import {
+  CommentCardProps,
+  Comment,
+  CommentWithAuthor,
+  CreateCommentDto,
+  UpdateCommentDto,
+} from '../types'
 import { getCurrentUser as getAuthUser } from '@/features/auth/services'
 import { buildCommentTree, treeToLegacyFormat } from '../utils/comment-tree-builder'
 import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
 import { formatTimeAgo } from '@/lib/dateUtils'
 
+interface RawAuthor {
+  username: string
+  avatar?: string
+  badges?: string[]
+  displayName?: string
+}
+
 class CommentService {
-  async getCommentsByPostId(postId: string): Promise<CommentCardProps[]> {
+  async getCommentsByPostId(
+    postId: string,
+    postAuthorId?: string,
+  ): Promise<CommentCardProps[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/comments/post/${postId}`)
+      const response = await fetch(
+        `${API_BASE_URL}/comments`
+        + `/post/${postId}`,
+      )
       const data = await response.json()
 
-      const flatComments: Comment[] = data.map((comment: any) => {
-        const converted = convertObjectId(comment)
-        return {
-          _id: converted.id,
-          postId: converted.postId,
-          authorId: converted.authorId,
-          parentId: converted.parentId,
-          content: converted.content,
-          depth: converted.depth || 0,
-          createdAt: new Date(converted.createdAt),
-          updatedAt: new Date(converted.updatedAt),
-          editedAt: converted.editedAt ? new Date(converted.editedAt) : null,
-          deletedAt: converted.deletedAt ? new Date(converted.deletedAt) : null,
-          deletedBy: converted.deletedBy || null,
-          // Backend always populates author — no fallback needed
-          author: comment.author
-        }
-      })
+      const flatComments: Comment[] =
+        data.map((comment: Record<string, unknown>) => {
+          const converted =
+            convertObjectId(comment)
+          return {
+            _id: converted.id,
+            postId: converted.postId,
+            authorId: converted.authorId,
+            parentId: converted.parentId,
+            content: converted.content,
+            depth: converted.depth || 0,
+            createdAt: new Date(
+              converted.createdAt,
+            ),
+            updatedAt: new Date(
+              converted.updatedAt,
+            ),
+            editedAt: converted.editedAt
+              ? new Date(converted.editedAt)
+              : null,
+            deletedAt: converted.deletedAt
+              ? new Date(
+                converted.deletedAt,
+              )
+              : null,
+            deletedBy:
+              converted.deletedBy || null,
+            author: comment.author,
+          }
+        })
 
-      const legacy = await this.flatToLegacyFormat(flatComments)
+      const legacy =
+        await this.flatToLegacyFormat(
+          flatComments,
+          postAuthorId,
+        )
       return legacy
     } catch (err) {
-      console.error('Failed to fetch comments:', err)
+      console.error(
+        'Failed to fetch comments:',
+        err,
+      )
       return []
     }
   }
@@ -69,7 +107,11 @@ class CommentService {
     }
   }
 
-  async updateComment(postId: string, commentId: string, dto: UpdateCommentDto): Promise<CommentCardProps> {
+  async updateComment(
+    postId: string,
+    commentId: string,
+    dto: UpdateCommentDto,
+  ): Promise<CommentCardProps> {
     try {
       const response = await fetchWithAuth(`${API_BASE_URL}/comments/${commentId}`, {
         method: 'PATCH',
@@ -111,80 +153,132 @@ class CommentService {
     }
   }
 
-  private async flatToLegacyFormat(flatComments: Comment[]): Promise<CommentCardProps[]> {
+  private async flatToLegacyFormat(
+    flatComments: Comment[],
+    postAuthorId?: string,
+  ): Promise<CommentCardProps[]> {
     const currentUser = await getAuthUser()
 
-    const populated = flatComments.map(c => {
-      // Backend always sends author object — use it directly
-      const backendAuthor = (c as any).author
+    const populated = flatComments.map(
+      (c) => {
+        const backendAuthor =
+          (c as unknown as {
+            author?: RawAuthor
+          }).author
 
-      if (!backendAuthor) {
-        // Deleted comment — no author
+        if (!backendAuthor) {
+          return {
+            ...c,
+            author: {
+              _id: c.authorId,
+              username: '[deleted]',
+              displayName: '[deleted]',
+              avatar: '',
+              badges: [],
+            },
+            voteScore: 0,
+            userVote: null as never,
+          }
+        }
+
         return {
           ...c,
-          author: { _id: c.authorId, username: '[deleted]', displayName: '[deleted]', avatar: '' },
+          author: {
+            _id: c.authorId,
+            username:
+              backendAuthor.username,
+            displayName:
+              backendAuthor.username,
+            avatar:
+              backendAuthor.avatar || '',
+            badges:
+              backendAuthor.badges || [],
+          },
           voteScore: 0,
-          userVote: null as any
+          userVote: null as never,
         }
-      }
+      },
+    )
 
-      const author = {
-        _id: c.authorId,
-        username: backendAuthor.username,
-        displayName: backendAuthor.username,
-        avatar: backendAuthor.avatar || ''
-      }
+    const tree = buildCommentTree(
+      populated as CommentWithAuthor[],
+    )
+    const legacy = treeToLegacyFormat(
+      tree,
+      postAuthorId,
+    )
 
-      return {
-        ...c,
-        author,
-        voteScore: 0,
-        userVote: null as any
-      }
-    })
-
-    const tree = buildCommentTree(populated as any[])
-    const legacy = treeToLegacyFormat(tree)
-
-    return this.deriveOwnership(legacy, currentUser?.id)
+    return this.deriveOwnership(
+      legacy,
+      currentUser?.id,
+    )
   }
 
-  private commentToLegacy(comment: Comment, currentUser: any): CommentCardProps {
-    const backendAuthor = (comment as any).author
+  private commentToLegacy(
+    comment: Comment,
+    currentUser: { id: string } | null,
+  ): CommentCardProps {
+    const backendAuthor =
+      (comment as unknown as {
+        author?: RawAuthor
+      }).author
 
     const author = backendAuthor
       ? {
           id: comment.authorId,
           name: backendAuthor.username,
-          username: backendAuthor.username,
-          avatar: backendAuthor.avatar || ''
+          username:
+            backendAuthor.username,
+          avatar:
+            backendAuthor.avatar || '',
         }
       : {
           id: comment.authorId,
           name: '[deleted]',
           username: '[deleted]',
-          avatar: ''
+          avatar: '',
         }
 
     return {
       id: comment._id,
-      content: comment.deletedAt ? '[deleted]' : comment.content,
+      content: comment.deletedAt
+        ? '[deleted]'
+        : comment.content,
       author,
       upvotes: 0,
       downvotes: 0,
-      createdAt: formatTimeAgo(comment.createdAt),
-      editedAt: comment.editedAt ? formatTimeAgo(comment.editedAt) : undefined,
-      isOwner: currentUser ? comment.authorId === currentUser.id : false,
-      isDeleted: comment.deletedAt !== null,
-      replies: []
+      createdAt: formatTimeAgo(
+        comment.createdAt,
+      ),
+      editedAt: comment.editedAt
+        ? formatTimeAgo(comment.editedAt)
+        : undefined,
+      isOwner: currentUser
+        ? comment.authorId
+          === currentUser.id
+        : false,
+      isDeleted:
+        comment.deletedAt !== null,
+      replies: [],
     }
   }
 
-  private deriveOwnership(comments: any[], currentUserId?: string): any[] {
-    return comments.map(comment => ({
+  private deriveOwnership(
+    comments: CommentCardProps[],
+    currentUserId?: string,
+  ): CommentCardProps[] {
+    return comments.map((comment) => ({
       ...comment,
-      isOwner: currentUserId ? comment.author._id === currentUserId || comment.author.id === currentUserId : false,
-      replies: comment.replies ? this.deriveOwnership(comment.replies, currentUserId) : []
+      isOwner: currentUserId
+        ? comment.author.id
+          === currentUserId
+        : false,
+      replies: comment.replies
+        ? this.deriveOwnership(
+          comment.replies,
+          currentUserId,
+        )
+        : [],
     }))
   }
 }

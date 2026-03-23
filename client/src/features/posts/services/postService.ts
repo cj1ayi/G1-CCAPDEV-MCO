@@ -54,21 +54,29 @@ class PostService {
   private populateAuthor(
     post: StoredPost,
   ): Post {
-    const backendAuthor = (post as any).author
+    const raw = post as unknown as {
+      author?: {
+        username: string
+        avatar?: string
+        badges?: string[]
+      }
+    }
+    const backendAuthor = raw.author
 
-    if (
-      backendAuthor &&
-      typeof backendAuthor === 'object'
-    ) {
+    if (backendAuthor) {
       return {
         ...post,
         author: {
           id: post.authorId,
           name: backendAuthor.username,
-          username: backendAuthor.username,
-          avatar: backendAuthor.avatar || '',
+          username:
+            backendAuthor.username,
+          avatar:
+            backendAuthor.avatar || '',
+          badges:
+            backendAuthor.badges || [],
         },
-      }
+      } as Post
     }
 
     return {
@@ -78,8 +86,9 @@ class PostService {
         name: 'Deleted User',
         username: 'deleted',
         avatar: '',
+        badges: [],
       },
-    }
+    } as Post
   }
 
   /**
@@ -107,7 +116,9 @@ class PostService {
       })
   }
 
-  private mapPost(post: any): StoredPost {
+  private mapPost(
+    post: Record<string, unknown>,
+  ): StoredPost {
     const converted = convertObjectId(post)
     return {
       ...converted,
@@ -215,7 +226,7 @@ class PostService {
       ) {
         const posts =
           await this.applyPopulation(
-            data.data.map((p: any) =>
+            data.data.map((p: Record<string, unknown>) =>
               this.mapPost(p),
             ),
           )
@@ -226,7 +237,7 @@ class PostService {
       }
 
       return this.applyPopulation(
-        data.map((p: any) => this.mapPost(p)),
+        data.map((p: Record<string, unknown>) => this.mapPost(p)),
       )
     } catch (err) {
       console.error(

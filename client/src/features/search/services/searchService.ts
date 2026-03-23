@@ -45,6 +45,7 @@ export interface SearchPostResult {
     username: string
     name: string
     avatar: string
+    badges?: string[]
   }
   authorId: string
   upvotes: number
@@ -80,58 +81,96 @@ export interface SearchUserResult {
  * Extracts a stable id from a raw API object.
  * The backend may return `_id` or `id`.
  */
-function extractId(obj: any): string {
+function extractId(
+  obj: Record<string, unknown>,
+): string {
   if (!obj) return ''
   if (obj.id) return String(obj.id)
   if (obj._id) return String(obj._id)
   return ''
 }
 
-/**
- * Maps a raw post from the search API into
- * the shape that PostCard expects.
- * Does NOT use convertObjectId — we handle
- * the mapping explicitly to avoid mangling.
- */
+interface RawPost {
+  _id?: string
+  id?: string
+  title?: string
+  content?: string
+  space?: string
+  flair?: string
+  author?: {
+    username: string
+    name?: string
+    avatar?: string
+    badges?: string[]
+  }
+  authorId?: string
+  upvotes?: number
+  downvotes?: number
+  commentCount?: number
+  imageUrl?: string
+  tags?: string[]
+  createdAt?: string
+}
+
+interface RawSpace {
+  _id?: string
+  id?: string
+  name?: string
+  displayName?: string
+  description?: string
+  icon?: string
+  category?: string
+  members?: unknown[]
+}
+
+interface RawUser {
+  _id?: string
+  id?: string
+  username?: string
+  name?: string
+  avatar?: string
+  bio?: string
+}
+
 function mapSearchPost(
-  raw: any,
+  raw: RawPost,
   currentUserId: string | null,
 ): SearchPostResult {
-  const id = extractId(raw)
+  const id = extractId(
+    raw as Record<string, unknown>,
+  )
   const authorId = raw.authorId ?? ''
+  const a = raw.author
 
-  const rawAuthor = raw.author
-  const hasAuthor =
-    rawAuthor &&
-    typeof rawAuthor === 'object' &&
-    rawAuthor.username
-
-  const author = hasAuthor
+  const author = a
     ? {
-        id: authorId,
-        username: rawAuthor.username,
-        name:
-          rawAuthor.name
-          ?? rawAuthor.username,
-        avatar: rawAuthor.avatar ?? '',
-      }
+      id: String(authorId),
+      username: a.username,
+      name: a.name ?? a.username,
+      avatar: a.avatar ?? '',
+      badges: a.badges ?? [],
+    }
     : {
-        id: authorId,
-        username: 'deleted',
-        name: 'Deleted User',
-        avatar: '',
-      }
+      id: String(authorId),
+      username: 'deleted',
+      name: 'Deleted User',
+      avatar: '',
+      badges: [] as string[],
+    }
 
   return {
     id,
     title: raw.title ?? '',
     content: raw.content ?? '',
     space: raw.space ?? '',
-    flair: raw.flair,
+    flair: raw.flair as
+      SearchPostResult['flair'],
     author,
-    authorId,
-    upvotes: Number(raw.upvotes) || 0,
-    downvotes: Number(raw.downvotes) || 0,
+    authorId: String(authorId),
+    upvotes:
+      Number(raw.upvotes) || 0,
+    downvotes:
+      Number(raw.downvotes) || 0,
     commentCount:
       Number(raw.commentCount) || 0,
     imageUrl: raw.imageUrl,
@@ -145,13 +184,19 @@ function mapSearchPost(
   }
 }
 
-function mapSpace(raw: any): SearchSpaceResult {
+function mapSpace(
+  raw: RawSpace,
+): SearchSpaceResult {
   return {
-    id: extractId(raw),
+    id: extractId(
+      raw as Record<string, unknown>,
+    ),
     name: raw.name ?? '',
     displayName:
-      raw.displayName ?? raw.name ?? '',
-    description: raw.description ?? '',
+      raw.displayName
+      ?? raw.name ?? '',
+    description:
+      raw.description ?? '',
     icon: raw.icon,
     category: raw.category ?? '',
     memberCount:
@@ -159,9 +204,13 @@ function mapSpace(raw: any): SearchSpaceResult {
   }
 }
 
-function mapUser(raw: any): SearchUserResult {
+function mapUser(
+  raw: RawUser,
+): SearchUserResult {
   return {
-    id: extractId(raw),
+    id: extractId(
+      raw as Record<string, unknown>,
+    ),
     username: raw.username ?? '',
     name: raw.name ?? '',
     avatar: raw.avatar,
@@ -210,7 +259,11 @@ class SearchService {
 
       const json = await res.json()
       const items = json.data ?? []
-      let data: any[]
+      let data: (
+        | SearchPostResult
+        | SearchSpaceResult
+        | SearchUserResult
+      )[]
 
       switch (type) {
         case 'posts': {
@@ -218,16 +271,20 @@ class SearchService {
             await getCurrentUser()
           const uid = user?.id ?? null
           data = items.map(
-            (p: any) =>
+            (p: RawPost) =>
               mapSearchPost(p, uid),
           )
           break
         }
         case 'spaces':
-          data = items.map(mapSpace)
+          data = items.map(
+            (s: RawSpace) => mapSpace(s),
+          )
           break
         case 'users':
-          data = items.map(mapUser)
+          data = items.map(
+            (u: RawUser) => mapUser(u),
+          )
           break
         default:
           data = items

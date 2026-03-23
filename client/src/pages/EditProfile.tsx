@@ -1,3 +1,4 @@
+import type { User } from "@/features/profile/types"
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -97,7 +98,7 @@ const EditProfile = () => {
     useState(true)
   const [isSaving, setIsSaving] =
     useState(false)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [formData, setFormData] =
     useState<ProfileFormData>({
       name: '',

@@ -5,9 +5,10 @@ import {
 import { Edit } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import type { User } from '../types'
 
 interface ProfileHeaderProps {
-  user: any
+  user: User
   isOwnProfile?: boolean
 }
 

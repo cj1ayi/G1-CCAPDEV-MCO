@@ -101,7 +101,7 @@ function CommentsList({
       {valid.map((comment) => {
         const postId =
           comment.post?._id
-          ?? comment.post?.id
+          ?? comment.postId
           ?? comment.postId
 
         return (
@@ -122,9 +122,9 @@ function CommentsList({
                 'font-medium mb-1',
               )}
             >
-              {comment.post.space}
+              {comment.post?.space}
               {' • '}
-              {comment.post.title}
+              {comment.post?.title}
             </p>
 
             <div

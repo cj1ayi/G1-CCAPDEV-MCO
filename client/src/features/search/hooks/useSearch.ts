@@ -30,7 +30,7 @@ export interface UseSearchReturn {
   query: string
   tab: SearchTab
   setTab: (t: SearchTab) => void
-  results: any[]
+  results: unknown[]
   counts: SearchCounts
   pagination: SearchPagination
   isLoading: boolean

@@ -11,6 +11,7 @@ import {
 import {
   useProfileView,
 } from '@/features/profile/hooks/useProfileView'
+import type { User } from '@/features/profile/types'
 import {
   userService,
 } from '@/features/profile/services/userService'
@@ -52,7 +53,7 @@ const Profile = () => {
   } = useProfileView()
 
   const [currentUser, setCurrentUser] =
-    useState<any>(null)
+    useState<User | null>(null)
 
   useEffect(() => {
     userService

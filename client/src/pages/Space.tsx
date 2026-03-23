@@ -1,6 +1,7 @@
 import { Plus, FileText } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useParams } from 'react-router-dom'
+import { queryClient } from '@/lib/QueryProvider'
 import {
   PostCard,
   DeletePostModal,
@@ -45,7 +46,6 @@ export default function Space() {
   const {
     space,
     posts,
-    setPosts,
     sortBy,
     isOwner,
     setSortBy,
@@ -70,11 +70,9 @@ export default function Space() {
       await postService.deletePost(
         deleteTarget.id,
       )
-      setPosts((prev: Post[]) =>
-        prev.filter(
-          (p) => p.id !== deleteTarget.id,
-        ),
-      )
+      queryClient.invalidateQueries({
+        queryKey: ['space-posts', name],
+      })
       setDeleteTarget(null)
       showSuccess('Post deleted.')
     } catch {
@@ -197,7 +195,7 @@ export default function Space() {
           posts.map((post) => (
             <PostCard
               key={post.id}
-              {...post}
+              post={post}
               onUpvote={() =>
                 handleVote(post.id, 'up')
               }

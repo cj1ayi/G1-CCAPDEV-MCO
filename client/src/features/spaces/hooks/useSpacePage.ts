@@ -1,39 +1,27 @@
 import {
   useState,
-  useEffect,
   useCallback,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   spaceService,
-  Space,
   SortOption,
 } from '../services'
 import { isSpaceOwner } from '../utils'
-import { Post } from '@/features/posts/types'
-import { useLoadingBar } from '@/hooks'
 import {
   useVoting,
 } from '@/features/votes/VotingContext'
-import {
-  useAuth,
-} from '@/features/auth/hooks'
+import { useAuth } from '@/features/auth/hooks'
 import { useToast } from '@/hooks/ToastContext'
 import {
   useJoinedSpaces,
 } from './JoinedSpacesContext'
-
-const VOTE_DELTAS: Record<
-  string,
-  { up: number; down: number }
-> = {
-  'up:up': { up: -1, down: 0 },
-  'up:down': { up: 1, down: -1 },
-  'up:null': { up: 1, down: 0 },
-  'down:down': { up: 0, down: -1 },
-  'down:up': { up: -1, down: 1 },
-  'down:null': { up: 0, down: 1 },
-}
+import {
+  useSpaceQuery,
+} from './useSpaceQuery'
+import {
+  queryClient,
+} from '@/lib/QueryProvider'
 
 export const useSpacePage = (
   spaceName?: string,
@@ -41,24 +29,16 @@ export const useSpacePage = (
   const navigate = useNavigate()
   const { user } = useAuth()
   const {
+    info: showInfo,
     success: showSuccess,
     error: showError,
-    info: showInfo,
   } = useToast()
   const { refresh: refreshSpaces } =
     useJoinedSpaces()
 
-  const [space, setSpace] =
-    useState<Space | null>(null)
-  const [posts, setPosts] =
-    useState<Post[]>([])
   const [sortBy, setSortBy] =
     useState<SortOption>('hot')
   const [isJoined, setIsJoined] =
-    useState(false)
-  const [isLoading, setIsLoading] =
-    useState(true)
-  const [isLoadingPosts, setIsLoadingPosts] =
     useState(false)
   const [isDeleting, setIsDeleting] =
     useState(false)
@@ -69,68 +49,38 @@ export const useSpacePage = (
   const [votingPosts, setVotingPosts] =
     useState<Set<string>>(new Set())
 
-  const { startLoading, stopLoading } =
-    useLoadingBar()
   const { votes, toggleVote } = useVoting()
 
-  const loadPosts = async () => {
-    if (!spaceName) return
-    try {
-      const spacePosts =
-        await spaceService.getSpacePosts(
-          spaceName,
-          sortBy,
-        )
-      setPosts(spacePosts || [])
-    } catch {
-      setPosts([])
-    }
+  const {
+    space,
+    posts: rawPosts,
+    isLoading,
+    isLoadingPosts,
+  } = useSpaceQuery(spaceName, sortBy)
+
+  // Sync joined state from query
+  if (
+    space
+    && space.isJoined !== undefined
+    && isJoined !== space.isJoined
+  ) {
+    setIsJoined(space.isJoined)
   }
 
-  useEffect(() => {
-    const loadSpace = async () => {
-      if (!spaceName) {
-        setIsLoading(false)
-        return
-      }
-      startLoading()
-      setIsLoading(true)
-      try {
-        const found =
-          await spaceService.getSpaceByName(
-            spaceName,
-          )
-        if (found) {
-          setSpace(found)
-          setIsJoined(found.isJoined || false)
-        }
-      } finally {
-        setIsLoading(false)
-        stopLoading()
-      }
-    }
-    loadSpace()
-  }, [spaceName])
-
-  useEffect(() => {
-    loadPosts()
-  }, [spaceName, sortBy])
+  // ── Join / Leave ──────────────
 
   const toggleJoin = async () => {
     if (!space) return
-
     if (!user) {
-      showInfo(
-        'Sign in to join spaces.',
-      )
+      showInfo('Sign in to join spaces.')
       return
     }
-
     const prev = isJoined
     setIsJoined(!prev)
-
     try {
-      await spaceService.toggleJoin(space.id)
+      await spaceService.toggleJoin(
+        space.id,
+      )
       refreshSpaces()
       showSuccess(
         prev
@@ -140,11 +90,12 @@ export const useSpacePage = (
     } catch {
       setIsJoined(prev)
       showError(
-        'Could not update membership.'
-        + ' Please try again.',
+        'Could not update membership.',
       )
     }
   }
+
+  // ── Delete Space ──────────────
 
   const handleDeleteSpace = useCallback(
     async () => {
@@ -161,8 +112,7 @@ export const useSpacePage = (
         navigate('/spaces')
       } catch {
         showError(
-          'Failed to delete space.'
-          + ' Please try again.',
+          'Failed to delete space.',
         )
       } finally {
         setIsDeleting(false)
@@ -172,6 +122,8 @@ export const useSpacePage = (
     [space, navigate, refreshSpaces],
   )
 
+  // ── Vote ──────────────────────
+
   const handleVote = async (
     postId: string,
     voteType: 'up' | 'down',
@@ -179,40 +131,24 @@ export const useSpacePage = (
     if (!postId) return
     if (votingPosts.has(postId)) return
 
-    const allowed = await toggleVote(
+    const ok = await toggleVote(
       postId,
       'post',
       voteType,
     )
-    if (!allowed) return
-
-    const previousVote =
-      votes[`post:${postId}`] ?? null
-    const deltaKey =
-      `${voteType}:${previousVote ?? 'null'}`
-    const delta = VOTE_DELTAS[deltaKey]
-
-    if (!delta) return
+    if (!ok) return
 
     setVotingPosts((prev) =>
       new Set(prev).add(postId),
     )
-    setPosts((prev) =>
-      prev.map((post) => {
-        if (post.id !== postId) return post
-        return {
-          ...post,
-          upvotes: Math.max(
-            0,
-            post.upvotes + delta.up,
-          ),
-          downvotes: Math.max(
-            0,
-            post.downvotes + delta.down,
-          ),
-        }
-      }),
-    )
+
+    queryClient.invalidateQueries({
+      queryKey: [
+        'space-posts',
+        spaceName,
+      ],
+    })
+
     setVotingPosts((prev) => {
       const next = new Set(prev)
       next.delete(postId)
@@ -220,18 +156,39 @@ export const useSpacePage = (
     })
   }
 
-  const isOwner =
-    !!user &&
-    !!space &&
-    isSpaceOwner(space, user.id)
+  // ── Create Post ───────────────
 
-  const postsWithVotes = posts.map(
+  const handleCreatePost = () => {
+    if (!user) {
+      showInfo(
+        'Sign in to create posts.',
+      )
+      return
+    }
+    navigate(
+      space
+        ? `/post/create`
+          + `?space=${space.name}`
+        : '/post/create',
+    )
+  }
+
+  // ── Derived ───────────────────
+
+  const isOwner =
+    !!user
+    && !!space
+    && isSpaceOwner(space, user.id)
+
+  const postsWithVotes = rawPosts.map(
     (post) => ({
       ...post,
       isUpvoted:
-        votes[`post:${post.id}`] === 'up',
+        votes[`post:${post.id}`]
+          === 'up',
       isDownvoted:
-        votes[`post:${post.id}`] === 'down',
+        votes[`post:${post.id}`]
+          === 'down',
     }),
   )
 
@@ -249,18 +206,7 @@ export const useSpacePage = (
     setIsDeleteModalOpen,
     toggleJoin,
     handleDeleteSpace,
-    handleCreatePost: () => {
-      if (!user) {
-        showInfo(
-          'Sign in to create posts.',
-        )
-        return
-      }
-      const url = space
-        ? `/post/create?space=${space.name}`
-        : '/post/create'
-      navigate(url)
-    },
+    handleCreatePost,
     handleVote,
     navigate,
   }

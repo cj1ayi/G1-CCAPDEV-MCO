@@ -21,7 +21,11 @@ class VoteService {
         body: JSON.stringify({
           targetId: dto.targetId,
           // Capitalize: 'post' → 'Post', 'comment' → 'Comment'
-          targetType: (dto.targetType as string).charAt(0).toUpperCase() + (dto.targetType as string).slice(1),
+          targetType:
+            (dto.targetType as string)
+              .charAt(0).toUpperCase()
+            + (dto.targetType as string)
+              .slice(1),
           value: dto.voteType // 1 or -1
         })
       })
@@ -56,7 +60,7 @@ class VoteService {
       })
       const data = await response.json()
 
-      const vote = data.find((v: any) => {
+      const vote = data.find((v: Record<string, string>) => {
         return v.targetId === targetId && v.targetType === targetType
       })
 
@@ -72,7 +76,7 @@ class VoteService {
       const response = await fetchWithAuth(`${API_BASE_URL}/votes/me`)
       const data = await response.json()
 
-      return data.map((vote: any) => {
+      return data.map((vote: Record<string, unknown>) => {
         const converted = convertObjectId(vote)
         return {
           _id: converted.id,
