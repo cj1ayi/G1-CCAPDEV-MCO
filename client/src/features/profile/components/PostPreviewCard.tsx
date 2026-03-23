@@ -5,14 +5,8 @@ import {
   DeletePostModal,
 } from '@/features/posts/components'
 import {
-  commentService,
-} from '@/features/comments/services'
-import {
   postService,
 } from '@/features/posts/services'
-import {
-  getTotalCommentCount,
-} from '@/features/comments/utils/comment-utils'
 import {
   useVoting,
 } from '@/features/votes/VotingContext'
@@ -34,8 +28,6 @@ export function PostPreviewCard({
     error: showError,
   } = useToast()
 
-  const [commentCount, setCommentCount] =
-    useState<number>(post.commentCount)
   const [isDeleteModalOpen, setIsDeleteModalOpen] =
     useState(false)
   const [currentPost, setCurrentPost] =
@@ -44,25 +36,6 @@ export function PostPreviewCard({
   const [isVoting, setIsVoting] = useState(false)
 
   const { votes, toggleVote } = useVoting()
-
-  useEffect(() => {
-    const loadComments = async () => {
-      if (!post?.id) return
-      try {
-        const comments =
-          await commentService
-            .getCommentsByPostId(post.id)
-        setCommentCount(
-          getTotalCommentCount(comments),
-        )
-      } catch {
-        setCommentCount(
-          post.commentCount || 0,
-        )
-      }
-    }
-    loadComments()
-  }, [post.id, post.commentCount])
 
   useEffect(() => {
     getCurrentUser().then((user) => {
@@ -168,7 +141,9 @@ export function PostPreviewCard({
         {...currentPost}
         upvotes={currentPost.upvotes}
         downvotes={currentPost.downvotes}
-        commentCount={commentCount}
+        commentCount={
+          currentPost.commentCount ?? 0
+        }
         isUpvoted={voteState === 'up'}
         isDownvoted={voteState === 'down'}
         onClick={() =>
