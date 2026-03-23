@@ -1,6 +1,3 @@
-// client/src/pages/Space.tsx
-
-import { useState, useEffect } from 'react'
 import { Plus, FileText } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useParams } from 'react-router-dom'
@@ -23,15 +20,10 @@ import {
   SpacePageSkeleton,
   SpaceRightSkeleton,
 } from '@/components/shared'
+import { useState } from 'react'
 import {
   postService,
 } from '@/features/posts/services'
-import {
-  commentService,
-} from '@/features/comments/services'
-import {
-  getTotalCommentCount,
-} from '@/features/comments/utils/comment-utils'
 import { Post } from '@/features/posts/types'
 import {
   SpaceAboutWidget,
@@ -41,16 +33,19 @@ import {
 } from '@/features/spaces/components'
 import { useToast } from '@/hooks/ToastContext'
 
-type CommentCountMap = Record<string, number>
-
 export default function Space() {
   const { name } = useParams<{
     name: string
   }>()
+  const {
+    success: showSuccess,
+    error: showError,
+  } = useToast()
 
   const {
     space,
     posts,
+    setPosts,
     sortBy,
     isOwner,
     setSortBy,
@@ -66,58 +61,29 @@ export default function Space() {
     isLoading,
   } = useSpacePage(name)
 
-  const {
-    success: showSuccess,
-    error: showError,
-  } = useToast()
+  const [deleteTarget, setDeleteTarget] =
+    useState<Post | null>(null)
 
-  const [
-    deletePostModalData,
-    setDeletePostModalData,
-  ] = useState<Post | null>(null)
-
-  const [commentCounts, setCommentCounts] =
-    useState<CommentCountMap>({})
-
-  useEffect(() => {
-    const loadCounts = async () => {
-      if (posts.length === 0) return
-
-      const counts: CommentCountMap = {}
-      for (const post of posts) {
-        try {
-          const comments =
-            await commentService
-              .getCommentsByPostId(post.id)
-          counts[post.id] =
-            getTotalCommentCount(comments)
-        } catch {
-          counts[post.id] =
-            post.commentCount
-        }
-      }
-      setCommentCounts(counts)
+  const handleDeletePost = async () => {
+    if (!deleteTarget) return
+    try {
+      await postService.deletePost(
+        deleteTarget.id,
+      )
+      setPosts((prev: Post[]) =>
+        prev.filter(
+          (p) => p.id !== deleteTarget.id,
+        ),
+      )
+      setDeleteTarget(null)
+      showSuccess('Post deleted.')
+    } catch {
+      showError(
+        'Could not delete post.'
+        + ' Please try again.',
+      )
     }
-    loadCounts()
-  }, [posts])
-
-  const handleDeletePostConfirm =
-    async () => {
-      if (!deletePostModalData) return
-
-      try {
-        await postService.deletePost(
-          deletePostModalData.id,
-        )
-        setDeletePostModalData(null)
-        showSuccess('Post deleted.')
-      } catch {
-        showError(
-          'Could not delete post.'
-          + ' Please try again.',
-        )
-      }
-    }
+  }
 
   if (isLoading) {
     return (
@@ -152,21 +118,23 @@ export default function Space() {
     )
   }
 
-  const rightSidebar = (
-    <div className="flex flex-col gap-4">
-      <SpaceAboutWidget
-        space={space}
-        postCount={posts.length}
-      />
-      <RulesWidget rules={space.rules} />
-    </div>
-  )
-
   return (
     <MainLayout
       maxWidth="max-w-2xl"
       leftSidebar={<DefaultLeftSidebar />}
-      rightSidebar={rightSidebar}
+      rightSidebar={
+        <div
+          className="flex flex-col gap-4"
+        >
+          <SpaceAboutWidget
+            space={space}
+            postCount={posts.length}
+          />
+          <RulesWidget
+            rules={space.rules}
+          />
+        </div>
+      }
     >
       <SpaceHeader
         space={space}
@@ -174,13 +142,13 @@ export default function Space() {
         isOwner={isOwner}
         onToggleJoin={toggleJoin}
         postCount={posts.length}
-        onEdit={
-          () => navigate(
+        onEdit={() =>
+          navigate(
             `/r/${space.name}/edit`,
           )
         }
-        onDeleteClick={
-          () => setIsDeleteModalOpen(true)
+        onDeleteClick={() =>
+          setIsDeleteModalOpen(true)
         }
         deleteModal={{
           isOpen: isDeleteModalOpen,
@@ -217,8 +185,8 @@ export default function Space() {
             }
             title="No posts yet"
             description={
-              'Be the first to post in r/'
-              + space.name
+              'Be the first to post'
+              + ` in r/${space.name}`
             }
             action={{
               label: 'Create Post',
@@ -230,24 +198,14 @@ export default function Space() {
             <PostCard
               key={post.id}
               {...post}
-              commentCount={
-                commentCounts[post.id]
-                ?? post.commentCount
+              onUpvote={() =>
+                handleVote(post.id, 'up')
               }
-              onUpvote={
-                () => handleVote(
-                  post.id,
-                  'up',
-                )
+              onDownvote={() =>
+                handleVote(post.id, 'down')
               }
-              onDownvote={
-                () => handleVote(
-                  post.id,
-                  'down',
-                )
-              }
-              onClick={
-                () => navigate(
+              onClick={() =>
+                navigate(
                   `/post/${post.id}`,
                 )
               }
@@ -261,9 +219,7 @@ export default function Space() {
               onDelete={
                 post.isOwner
                   ? () =>
-                    setDeletePostModalData(
-                      post,
-                    )
+                    setDeleteTarget(post)
                   : undefined
               }
             />
@@ -271,15 +227,13 @@ export default function Space() {
         )}
       </div>
 
-      {deletePostModalData && (
+      {deleteTarget && (
         <DeletePostModal
-          isOpen={!!deletePostModalData}
-          postTitle={
-            deletePostModalData.title
-          }
-          onConfirm={handleDeletePostConfirm}
+          isOpen={!!deleteTarget}
+          postTitle={deleteTarget.title}
+          onConfirm={handleDeletePost}
           onClose={() =>
-            setDeletePostModalData(null)
+            setDeleteTarget(null)
           }
         />
       )}
