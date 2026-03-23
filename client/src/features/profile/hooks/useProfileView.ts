@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { userService } from '../services'
-import { ProfileTab } from '../types'
+import type {
+  UserComment,
+  UserSpace,
+} from '../services/userService'
+import { User, ProfileTab } from '../types'
+import { Post } from '@/features/posts/types'
 import { useLoadingBar } from '@/hooks'
 import { useToast } from '@/hooks/ToastContext'
 
@@ -11,15 +16,15 @@ export const useProfileView = () => {
   }>()
 
   const [user, setUser] =
-    useState<any>(null)
+    useState<User | null>(null)
   const [posts, setPosts] =
-    useState<any[]>([])
+    useState<Post[]>([])
   const [comments, setComments] =
-    useState<any[]>([])
+    useState<UserComment[]>([])
   const [spaces, setSpaces] =
-    useState<any[]>([])
+    useState<UserSpace[]>([])
   const [upvotedPosts, setUpvotedPosts] =
-    useState<any[]>([])
+    useState<Post[]>([])
   const [isLoading, setIsLoading] =
     useState(true)
   const [activeTab, setActiveTab] =
