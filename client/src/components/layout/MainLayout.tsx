@@ -1,5 +1,4 @@
 import { ReactNode, useState } from 'react'
-import { motion } from 'framer-motion'
 import { Footer } from './Footer'
 import { Header } from './Header'
 import { useDarkMode } from '@/hooks/useDarkMode'
@@ -106,14 +105,9 @@ export const MainLayout = ({
         )}
 
         <main className="flex-1 p-4 md:p-6 min-w-0">
-          <motion.div
-            className={cn("mx-auto", maxWidth)}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.15 }}
-          >
+          <div className={cn("mx-auto", maxWidth)}>
             {children}
-          </motion.div>
+          </div>
         </main>
 
         {rightSidebar && (
