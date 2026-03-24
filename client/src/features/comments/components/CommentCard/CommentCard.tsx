@@ -1,13 +1,27 @@
-import { useState, useRef, useEffect } from 'react'
+import {
+  useState,
+  useRef,
+  useEffect,
+} from 'react'
 import { cn } from '@/lib/utils'
 import type { CommentCardProps } from '../../types'
 import { CommentHeader } from './CommentHeader'
-import { CommentContent } from './CommentContent'
-import { CommentVoting } from './CommentVoting'
-import { CommentActions } from './CommentActions'
+import {
+  CommentContent,
+} from './CommentContent'
+import {
+  CommentVoting,
+} from './CommentVoting'
+import {
+  CommentActions,
+} from './CommentActions'
 import { CommentMenu } from './CommentMenu'
-import { CommentReplyForm } from './CommentReplyForm'
-import { DeleteCommentModal } from '../DeleteCommentModal'
+import {
+  CommentReplyForm,
+} from './CommentReplyForm'
+import {
+  DeleteCommentModal,
+} from '../DeleteCommentModal'
 import { useToast } from '@/hooks/useToast'
 import { Toast } from '@/components/ui/Toast'
 
@@ -32,51 +46,76 @@ export const CommentCard = ({
   replies = [],
   depth = 0,
 }: CommentCardProps) => {
-  const [isEditing, setIsEditing] = useState(false)
-  const [editContent, setEditContent] = useState(content)
-  const [isSaving, setIsSaving] = useState(false)
-  const [showMenu, setShowMenu] = useState(false)
-  const [isReplying, setIsReplying] = useState(false)
-  const [isSubmittingReply, setIsSubmittingReply] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isEditing, setIsEditing] =
+    useState(false)
+  const [editContent, setEditContent] =
+    useState(content)
+  const [isSaving, setIsSaving] =
+    useState(false)
+  const [showMenu, setShowMenu] =
+    useState(false)
+  const [isReplying, setIsReplying] =
+    useState(false)
+  const [
+    isSubmittingReply,
+    setIsSubmittingReply,
+  ] = useState(false)
+  const [
+    isDeleteModalOpen,
+    setIsDeleteModalOpen,
+  ] = useState(false)
 
-  const { toasts, error: showError, removeToast } = useToast()
-  const menuRef = useRef<HTMLDivElement>(null)
+  const {
+    toasts,
+    error: showError,
+    removeToast,
+  } = useToast()
+  const menuRef =
+    useRef<HTMLDivElement>(null)
   const maxDepth = Infinity
   const hasReplies = replies.length > 0
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    if (!showMenu) return
+
+    const handleClickOutside = (
+      event: MouseEvent,
+    ) => {
       if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
+        menuRef.current
+        && !menuRef.current.contains(
+          event.target as Node,
+        )
       ) {
         setShowMenu(false)
       }
     }
 
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () =>
-        document.removeEventListener('mousedown', handleClickOutside)
-    }
+    document.addEventListener(
+      'mousedown',
+      handleClickOutside,
+    )
+    return () =>
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutside,
+      )
   }, [showMenu])
 
-  if (!author) {
-    console.error('CommentCard: Missing required author prop')
-    return null
-  }
+  if (!author) return null
 
   const handleSaveEdit = async () => {
-    if (!editContent.trim() || !onEdit) return
+    if (!editContent.trim()) return
+    if (!onEdit) return
 
     setIsSaving(true)
     try {
       await onEdit(editContent)
       setIsEditing(false)
-    } catch (error) {
-      console.error('Failed to edit comment:', error)
-      showError('Failed to edit comment. Please try again.')
+    } catch {
+      showError(
+        'Failed to edit comment.',
+      )
     } finally {
       setIsSaving(false)
     }
@@ -106,15 +145,17 @@ export const CommentCard = ({
     setIsReplying(!isReplying)
   }
 
-  const handleSubmitReply = async (content: string) => {
-    if (!onReply || isSubmittingReply) return
+  const handleSubmitReply = async (
+    replyContent: string,
+  ) => {
+    if (!onReply) return
+    if (isSubmittingReply) return
 
     setIsSubmittingReply(true)
     try {
-      await onReply(content)
+      await onReply(replyContent)
       setIsReplying(false)
     } catch (error) {
-      console.error('Failed to submit reply:', error)
       throw error
     } finally {
       setIsSubmittingReply(false)
@@ -129,21 +170,59 @@ export const CommentCard = ({
     <>
       <div
         className={cn(
-          'group',
-        depth > 0 && [
-        depth <= 4
-          ? 'ml-6 md:ml-8 pl-4'
-          : 'ml-3 md:ml-4 pl-3',
-        'border-l-2 border-gray-200',
-        'dark:border-gray-800',
-        'hover:border-gray-300',
-        'dark:hover:border-gray-600',
-        'transition-colors',
-          ])}
+          'group relative',
+          depth > 0 && [
+            depth <= 4
+              ? 'ml-6 md:ml-8'
+              : 'ml-3 md:ml-4',
+          ],
+        )}
       >
-        <div className="py-3">
+        {/* Thread line */}
+        {depth > 0 && (
+          <button
+            type="button"
+            className={cn(
+              'comment-thread-line',
+              'absolute left-0 top-0',
+              'bottom-0 w-4',
+              'cursor-pointer',
+              'group/thread',
+              'border-gray-200',
+              'dark:border-gray-800',
+              'hover:border-primary/50',
+            )}
+            aria-label="Collapse thread"
+            tabIndex={-1}
+          >
+            <div
+              className={cn(
+                'absolute left-[7px]',
+                'top-0 bottom-0 w-[2px]',
+                'rounded-full',
+                'bg-current opacity-30',
+                'group-hover/thread'
+                + ':opacity-60',
+                'transition-all',
+              )}
+            />
+          </button>
+        )}
+
+        <div
+          className={cn(
+            'py-3',
+            depth > 0 && 'pl-5',
+          )}
+        >
           {/* Header with Menu */}
-          <div className="flex items-center justify-between gap-2 mb-2">
+          <div
+            className={cn(
+              'flex items-center',
+              'justify-between',
+              'gap-2 mb-2',
+            )}
+          >
             <CommentHeader
               author={author}
               createdAt={createdAt}
@@ -159,9 +238,13 @@ export const CommentCard = ({
               isDeleted={isDeleted}
               showMenu={showMenu}
               menuRef={menuRef}
-              onToggleMenu={() => setShowMenu(!showMenu)}
+              onToggleMenu={() =>
+                setShowMenu(!showMenu)
+              }
               onEditClick={handleEditClick}
-              onDeleteClick={handleDeleteClick}
+              onDeleteClick={
+                handleDeleteClick
+              }
             />
           </div>
 
@@ -172,14 +255,21 @@ export const CommentCard = ({
             isEditing={isEditing}
             editContent={editContent}
             isSaving={isSaving}
-            onEditContentChange={setEditContent}
+            onEditContentChange={
+              setEditContent
+            }
             onSaveEdit={handleSaveEdit}
             onCancelEdit={handleCancelEdit}
           />
 
-          {/* Actions (Voting + Reply) */}
+          {/* Actions */}
           {!isEditing && (
-            <div className="flex items-center gap-3">
+            <div
+              className={cn(
+                'flex items-center',
+                'gap-3',
+              )}
+            >
               <CommentVoting
                 upvotes={upvotes}
                 downvotes={downvotes}
@@ -189,11 +279,14 @@ export const CommentCard = ({
                 onUpvote={onUpvote}
                 onDownvote={onDownvote}
               />
-              {depth < maxDepth && onReply && (
+              {depth < maxDepth
+                && onReply && (
                 <CommentActions
                   isDeleted={isDeleted}
                   isReplying={isReplying}
-                  onReplyClick={handleReplyClick}
+                  onReplyClick={
+                    handleReplyClick
+                  }
                 />
               )}
             </div>
@@ -204,21 +297,26 @@ export const CommentCard = ({
             <CommentReplyForm
               onSubmit={handleSubmitReply}
               onCancel={handleCancelReply}
-              isSubmitting={isSubmittingReply}
+              isSubmitting={
+                isSubmittingReply
+              }
             />
           )}
         </div>
 
-        {/* Nested Replies (Recursion) */}
-        {replies.length > 0 && depth < maxDepth && (
+        {/* Nested Replies */}
+        {replies.length > 0
+          && depth < maxDepth && (
           <div className="space-y-0">
-            {replies.map((reply: CommentCardProps) => (
-              <CommentCard
-                key={reply.id}
-                {...reply}
-                depth={depth + 1}
-              />
-            ))}
+            {replies.map(
+              (reply: CommentCardProps) => (
+                <CommentCard
+                  key={reply.id}
+                  {...reply}
+                  depth={depth + 1}
+                />
+              ),
+            )}
           </div>
         )}
 
@@ -227,18 +325,22 @@ export const CommentCard = ({
           isOpen={isDeleteModalOpen}
           hasReplies={hasReplies}
           onConfirm={handleDeleteConfirm}
-          onClose={() => setIsDeleteModalOpen(false)}
+          onClose={() =>
+            setIsDeleteModalOpen(false)
+          }
         />
       </div>
 
-      {/* Toast Notifications */}
+      {/* Toasts */}
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
           message={toast.message}
           type={toast.type}
           duration={toast.duration}
-          onClose={() => removeToast(toast.id)}
+          onClose={() =>
+            removeToast(toast.id)
+          }
         />
       ))}
     </>
