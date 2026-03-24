@@ -49,17 +49,26 @@ export function useComments({
     return sortCommentsByBest(rawComments, voteState)
   }, [rawComments, voteState])
 
-  const loadComments = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      const data = await commentService.getCommentsByPostId(postId)
-      setRawComments(data)
-    } catch (err) {
-      showError('Failed to load comments.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [postId, showError])
+  const loadComments = useCallback(
+    async (silent = false) => {
+      try {
+        if (!silent) setIsLoading(true)
+        const data =
+          await commentService
+            .getCommentsByPostId(postId)
+        setRawComments(data)
+      } catch {
+        if (!silent) {
+          showError(
+            'Failed to load comments.',
+          )
+        }
+      } finally {
+        if (!silent) setIsLoading(false)
+      }
+    },
+    [postId, showError],
+  )
 
   useEffect(() => {
     loadComments()
@@ -95,12 +104,19 @@ export function useComments({
         )
       }
 
-      await commentService.createComment({ postId, content, parentId })
+      await commentService.createComment(
+        { postId, content, parentId },
+      )
       showSuccess('Comment posted!')
-      await loadComments()
-    } catch (err) {
-      showError('Failed to post comment. Please try again.')
-      await loadComments()
+      // Silent sync — update temp ID
+      // without showing skeleton
+      loadComments(true)
+    } catch {
+      showError(
+        'Failed to post comment.'
+        + ' Please try again.',
+      )
+      loadComments(true)
     } finally {
       setIsSubmitting(false)
     }
@@ -115,27 +131,36 @@ export function useComments({
         updateCommentContentOptimistic(prev, commentId, newContent)
       )
       await commentService.updateComment(
-        postId, 
-        commentId, 
-        { content: newContent }
+        postId,
+        commentId,
+        { content: newContent },
       )
       showSuccess('Comment updated!')
-      await loadComments()
-    } catch (err) {
-      showError('Failed to edit comment. Please try again.')
-      await loadComments()
+      loadComments(true)
+    } catch {
+      showError(
+        'Failed to edit comment.'
+        + ' Please try again.',
+      )
+      loadComments(true)
     }
   }, [postId, loadComments, showError, showSuccess])
 
   const deleteComment = useCallback(async (commentId: string) => {
     try {
       setRawComments(prev => removeCommentOptimistic(prev, commentId))
-      await commentService.deleteComment(postId, commentId)
+      await commentService.deleteComment(
+        postId,
+        commentId,
+      )
       showSuccess('Comment deleted!')
-      await loadComments()
-    } catch (err) {
-      showError('Failed to delete comment. Please try again.')
-      await loadComments()
+      loadComments(true)
+    } catch {
+      showError(
+        'Failed to delete comment.'
+        + ' Please try again.',
+      )
+      loadComments(true)
     }
   }, [postId, loadComments, showError, showSuccess])
 

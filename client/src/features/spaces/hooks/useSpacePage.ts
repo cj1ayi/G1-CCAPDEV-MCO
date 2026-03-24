@@ -81,7 +81,10 @@ export const useSpacePage = (
       await spaceService.toggleJoin(
         space.id,
       )
-      refreshSpaces()
+      await refreshSpaces()
+      queryClient.invalidateQueries({
+        queryKey: ['space', spaceName],
+      })
       showSuccess(
         prev
           ? `Left r/${space.name}`

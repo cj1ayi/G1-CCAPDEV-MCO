@@ -17,14 +17,14 @@ import {
 interface JoinedSpacesContextValue {
   spaces: Space[]
   isLoading: boolean
-  refresh: () => void
+  refresh: () => Promise<void>
 }
 
 const JoinedSpacesContext =
   createContext<JoinedSpacesContextValue>({
     spaces: [],
     isLoading: true,
-    refresh: () => {},
+    refresh: async () => {},
   })
 
 export function JoinedSpacesProvider({
