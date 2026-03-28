@@ -22,6 +22,9 @@ dotenv.config();
 
 const app = express();
 
+// Trust Render's reverse proxy so secure cookies work in production
+app.set('trust proxy', 1);
+
 // Connect to database
 connectDB();
 
