@@ -56,15 +56,22 @@ class AuthService {
    * Map the backend user object to the frontend AuthUser shape.
    * Backend uses `name`, `_id` → frontend uses `name`, `id`.
    */
-  private toAuthUser(data: any): AuthUser {
+  private toAuthUser(
+    data: Record<string, unknown>,
+  ): AuthUser {
+    const d = data as Record<string, string>
     return {
-      id: data._id || data.id,
-      name: data.name,
-      username: data.username,
-      avatar: data.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.username}`,
-      bio: data.bio || '',
-      location: data.location || '',
-      joinedAt: data.joinedAt,
+      id: d._id || d.id,
+      name: d.name,
+      username: d.username,
+      avatar:
+        d.avatar
+        || 'https://api.dicebear.com'
+          + '/7.x/avataaars/svg'
+          + `?seed=${d.username}`,
+      bio: d.bio || '',
+      location: d.location || '',
+      joinedAt: d.joinedAt,
     }
   }
 }

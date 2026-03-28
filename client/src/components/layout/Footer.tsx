@@ -46,37 +46,6 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Links */}
-        <nav className={cn(
-          "flex flex-row flex-wrap justify-center gap-x-4 gap-y-2",
-          "md:gap-x-8 text-[13px] md:text-sm font-semibold")}>
-          <a
-            href="#"
-            className={cn(
-              "flex items-center gap-1.5 text-gray-600",
-              "dark:text-gray-400 hover:text-primary transition-colors"
-            )}
-          >
-            <ShieldCheck className="h-3.5 w-3.5 md:h-4 md:w-4" /> Guidelines
-          </a>
-          <a
-            href="#"
-            className={cn(
-              "flex items-center gap-1.5 text-gray-600 dark:text-gray-400",
-              "hover:text-primary transition-colors")}
-          >
-            <LifeBuoy className="h-3.5 w-3.5 md:h-4 md:w-4" /> Privacy
-          </a>
-          <a
-            href="#"
-            className={cn(
-              "flex items-center gap-1.5 text-gray-600 dark:text-gray-400",
-              "hover:text-red-500 transition-colors")}
-          >
-            <AlertCircle className="h-3.5 w-3.5 md:h-4 md:w-4" /> Report
-          </a>
-        </nav>
-
         {/* Credits */}
         <div className="flex flex-col items-center md:items-end gap-0.5">
           <div className={cn(

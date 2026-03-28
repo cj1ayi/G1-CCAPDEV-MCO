@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { userService } from '@/features/profile/services'
+import {
+  userService,
+} from '@/features/profile/services'
+import {
+  useAuth,
+} from '@/features/auth/hooks'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import { YourSpacesWidget } from '@/features/spaces/components'
@@ -9,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/useToast'
 import { Toast } from '@/components/ui/Toast'
 import { RichTextEditor } from '@/components/ui/RichTextEditor'
+import { dispatchAuthChange } from '@/features/auth/AuthContext'
 
 import { 
   Card, 
@@ -21,11 +27,18 @@ import {
 
 const EditProfile = () => {
   const navigate = useNavigate()
-  const { toasts, error: showError, removeToast } = useToast()
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  
+  const {
+    toasts,
+    error: showError,
+    removeToast,
+  } = useToast()
+  const { user, isLoading: authLoading } =
+    useAuth()
+  const [isSaving, setIsSaving] =
+    useState(false)
+  const [didInit, setDidInit] =
+    useState(false)
+
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -37,33 +50,33 @@ const EditProfile = () => {
     linkedin: '',
   })
 
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const currentUser = await userService.getCurrentUser()
-        if (!currentUser) {
-          navigate('/login')
-          return
-        }
-        setUser(currentUser)
-        setFormData({
-          name: currentUser.name || '',
-          username: currentUser.username || '',
-          bio: currentUser.bio || '',
-          location: currentUser.location || '',
-          avatar: currentUser.avatar || '',
-          twitter: currentUser.twitter || '',
-          github: currentUser.github || '',
-          linkedin: currentUser.linkedin || '',
-        })
-      } catch (error) {
-        console.error('Error fetching user:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchCurrentUser()
-  }, [navigate])
+  // Redirect if not logged in
+  if (!authLoading && !user) {
+    navigate('/login')
+  }
+
+  // Populate form once user loads
+  if (user && !didInit) {
+    setDidInit(true)
+    setFormData({
+      name: user.name || '',
+      username: user.username || '',
+      bio: user.bio || '',
+      location: user.location || '',
+      avatar: user.avatar || '',
+      twitter:
+        ((user as unknown as Record<string, string>))
+          .twitter || '',
+      github:
+        ((user as unknown as Record<string, string>))
+          .github || '',
+      linkedin:
+        ((user as unknown as Record<string, string>))
+          .linkedin || '',
+    })
+  }
+
+  const isLoading = authLoading || !didInit
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -76,6 +89,7 @@ const EditProfile = () => {
     setIsSaving(true)
     try {
       await userService.updateUser(user.id, formData)
+      dispatchAuthChange()
       navigate(`/profile/${formData.username}`)
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -118,9 +132,9 @@ const EditProfile = () => {
           <Card>
             <CardHeader><CardTitle>Basic Information</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <Input label="Display Name" name="name" value={formData.name} onChange={handleInputChange} required />
-              <Input label="Username" name="username" value={formData.username} onChange={handleInputChange} required />
-              
+              <Input label="Display Name" name="name" value={formData.name} onChange={handleInputChange} maxLength={30} showCharCount required />
+              <Input label="Username" name="username" value={formData.username} onChange={handleInputChange} maxLength={20} showCharCount required />
+
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Bio</label>
                 <RichTextEditor
@@ -129,10 +143,11 @@ const EditProfile = () => {
                   placeholder="Tell us about yourself..."
                   minHeight="min-h-[150px]"
                   hideHeaders={true}
+                  maxLength={200}
                 />
               </div>
 
-              <Input label="Location" name="location" value={formData.location} onChange={handleInputChange} placeholder="City, Country" />
+              <Input label="Location" name="location" value={formData.location} onChange={handleInputChange} placeholder="City, Country" maxLength={100} showCharCount />
             </CardContent>
           </Card>
 

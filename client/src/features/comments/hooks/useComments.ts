@@ -36,32 +36,48 @@ function sortCommentsByBest(
   }))
 }
 
-export function useComments({ postId, voteState }: UseCommentsOptions): UseCommentsReturn {
+export function useComments({ 
+  postId, 
+  voteState 
+}: UseCommentsOptions): UseCommentsReturn {
   const [rawComments, setRawComments] = useState<CommentCardProps[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { error: showError , success: showSuccess} = useToast()
 
   const comments = useMemo(() => {
     return sortCommentsByBest(rawComments, voteState)
   }, [rawComments, voteState])
 
-  const loadComments = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      const data = await commentService.getCommentsByPostId(postId)
-      setRawComments(data)
-    } catch (err) {
-      showError('Failed to load comments.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [postId])
+  const loadComments = useCallback(
+    async (silent = false) => {
+      try {
+        if (!silent) setIsLoading(true)
+        const data =
+          await commentService
+            .getCommentsByPostId(postId)
+        setRawComments(data)
+      } catch {
+        if (!silent) {
+          showError(
+            'Failed to load comments.',
+          )
+        }
+      } finally {
+        if (!silent) setIsLoading(false)
+      }
+    },
+    [postId, showError],
+  )
 
   useEffect(() => {
     loadComments()
   }, [loadComments])
 
   const addComment = useCallback(async (content: string, parentId?: string) => {
+    if (isSubmitting) return
+    
+    setIsSubmitting(true)
     try {
       const currentUser = await getAuthUser()
       const tempComment: CommentCardProps = {
@@ -83,45 +99,75 @@ export function useComments({ postId, voteState }: UseCommentsOptions): UseComme
       if (!parentId) {
         setRawComments(prev => [tempComment, ...prev])
       } else {
-        setRawComments(prev => addReplyToCommentOptimistic(prev, parentId, tempComment))
+        setRawComments(prev => 
+          addReplyToCommentOptimistic(prev, parentId, tempComment)
+        )
       }
 
-      await commentService.createComment({ postId, content, parentId })
+      await commentService.createComment(
+        { postId, content, parentId },
+      )
       showSuccess('Comment posted!')
-      await loadComments()
-    } catch (err) {
-      showError('Failed to post comment. Please try again.')
-      await loadComments()
+      // Silent sync — update temp ID
+      // without showing skeleton
+      loadComments(true)
+    } catch {
+      showError(
+        'Failed to post comment.'
+        + ' Please try again.',
+      )
+      loadComments(true)
+    } finally {
+      setIsSubmitting(false)
     }
-  }, [postId, loadComments])
+  }, [postId, loadComments, isSubmitting, showError, showSuccess])
 
-  const editComment = useCallback(async (commentId: string, newContent: string) => {
+  const editComment = useCallback(async (
+    commentId: string, 
+    newContent: string
+  ) => {
     try {
-      setRawComments(prev => updateCommentContentOptimistic(prev, commentId, newContent))
-      await commentService.updateComment(postId, commentId, { content: newContent })
+      setRawComments(prev => 
+        updateCommentContentOptimistic(prev, commentId, newContent)
+      )
+      await commentService.updateComment(
+        postId,
+        commentId,
+        { content: newContent },
+      )
       showSuccess('Comment updated!')
-      await loadComments()
-    } catch (err) {
-      showError('Failed to edit comment. Please try again.')
-      await loadComments()
+      loadComments(true)
+    } catch {
+      showError(
+        'Failed to edit comment.'
+        + ' Please try again.',
+      )
+      loadComments(true)
     }
-  }, [postId, loadComments])
+  }, [postId, loadComments, showError, showSuccess])
 
   const deleteComment = useCallback(async (commentId: string) => {
     try {
       setRawComments(prev => removeCommentOptimistic(prev, commentId))
-      await commentService.deleteComment(postId, commentId)
+      await commentService.deleteComment(
+        postId,
+        commentId,
+      )
       showSuccess('Comment deleted!')
-      await loadComments()
-    } catch (err) {
-      showError('Failed to delete comment. Please try again.')
-      await loadComments()
+      loadComments(true)
+    } catch {
+      showError(
+        'Failed to delete comment.'
+        + ' Please try again.',
+      )
+      loadComments(true)
     }
-  }, [postId, loadComments])
+  }, [postId, loadComments, showError, showSuccess])
 
   return {
     comments,
     isLoading,
+    isSubmitting,
     error: null,
     addComment,
     editComment,
@@ -140,7 +186,14 @@ function addReplyToCommentOptimistic(
       return { ...comment, replies: [newReply, ...(comment.replies || [])] }
     }
     if (comment.replies?.length) {
-      return { ...comment, replies: addReplyToCommentOptimistic(comment.replies, parentId, newReply) }
+      return { 
+        ...comment, 
+        replies: addReplyToCommentOptimistic(
+          comment.replies, 
+          parentId, 
+          newReply
+        ) 
+      }
     }
     return comment
   })
@@ -154,7 +207,14 @@ function updateCommentContentOptimistic(
   return comments.map(comment => {
     if (comment.id === commentId) return { ...comment, content: newContent }
     if (comment.replies?.length) {
-      return { ...comment, replies: updateCommentContentOptimistic(comment.replies, commentId, newContent) }
+      return { 
+        ...comment, 
+        replies: updateCommentContentOptimistic(
+          comment.replies, 
+          commentId, 
+          newContent
+        ) 
+      }
     }
     return comment
   })
@@ -168,7 +228,10 @@ function removeCommentOptimistic(
     .filter(comment => comment.id !== commentId)
     .map(comment => {
       if (comment.replies?.length) {
-        return { ...comment, replies: removeCommentOptimistic(comment.replies, commentId) }
+        return { 
+          ...comment, 
+          replies: removeCommentOptimistic(comment.replies, commentId) 
+        }
       }
       return comment
     })

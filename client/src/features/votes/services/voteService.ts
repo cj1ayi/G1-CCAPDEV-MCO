@@ -15,17 +15,17 @@ class VoteService {
 
   async toggleVote(dto: VoteDto): Promise<Vote | null> {
     try {
-      // voteType is null when unvoting — backend doesn't support null,
-      // it handles "remove vote" by sending the same value again (Case A in voteController)
-      // So we should never send null — VotingContext handles the null case optimistically
-      if (dto.voteType === null) return null
 
       const response = await fetchWithAuth(`${API_BASE_URL}/votes`, {
         method: 'POST',
         body: JSON.stringify({
           targetId: dto.targetId,
           // Capitalize: 'post' → 'Post', 'comment' → 'Comment'
-          targetType: (dto.targetType as string).charAt(0).toUpperCase() + (dto.targetType as string).slice(1),
+          targetType:
+            (dto.targetType as string)
+              .charAt(0).toUpperCase()
+            + (dto.targetType as string)
+              .slice(1),
           value: dto.voteType // 1 or -1
         })
       })
@@ -60,7 +60,7 @@ class VoteService {
       })
       const data = await response.json()
 
-      const vote = data.find((v: any) => {
+      const vote = data.find((v: Record<string, string>) => {
         return v.targetId === targetId && v.targetType === targetType
       })
 
@@ -76,7 +76,7 @@ class VoteService {
       const response = await fetchWithAuth(`${API_BASE_URL}/votes/me`)
       const data = await response.json()
 
-      return data.map((vote: any) => {
+      return data.map((vote: Record<string, unknown>) => {
         const converted = convertObjectId(vote)
         return {
           _id: converted.id,

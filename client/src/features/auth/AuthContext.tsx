@@ -1,5 +1,3 @@
-// Location: client/src/features/auth/AuthContext.tsx
-
 import {
   createContext,
   useState,
@@ -34,7 +32,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const hasFetched = useRef(false)
 
   useEffect(() => {
-    // Only fetch once on mount — checks session cookie with backend
     if (hasFetched.current) return
     hasFetched.current = true
 
@@ -42,6 +39,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(fetchedUser)
       setIsLoading(false)
     })
+  }, [])
+
+  // Re-fetch user when profile is edited
+  useEffect(() => {
+    const refetch = () => {
+      getCurrentUser().then((fetched) => {
+        setUser(fetched)
+      })
+    }
+
+    window.addEventListener(
+      AUTH_CHANGE_EVENT,
+      refetch,
+    )
+    return () => {
+      window.removeEventListener(
+        AUTH_CHANGE_EVENT,
+        refetch,
+      )
+    }
   }, [])
 
   const login = useCallback(() => {

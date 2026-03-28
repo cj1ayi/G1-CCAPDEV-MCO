@@ -1,49 +1,69 @@
-import { useParams } from 'react-router-dom';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { usePostDetailView } from '@/features/posts/hooks/usePostDetailView';
-import { SidebarNav } from '@/features/navigation/components';
-import { YourSpacesWidget } from '@/features/spaces/components';
-import { ErrorState, PostDetailSkeleton, CommentsSkeleton } from '@/components/shared';
+import { useParams } from 'react-router-dom'
+import {
+  MainLayout,
+} from '@/components/layout/MainLayout'
+import {
+  usePostDetailView,
+} from '@/features/posts/hooks/usePostDetailView'
+import {
+  SidebarNav,
+} from '@/features/navigation/components'
+import {
+  YourSpacesWidget,
+  SpaceAboutWidget,
+  RulesWidget,
+} from '@/features/spaces/components'
+import {
+  ErrorState,
+  PostDetailSkeleton,
+  PostDetailRightSkeleton,
+  CommentsSkeleton,
+} from '@/components/shared'
+import {
+  PostDetailHeader,
+  PostDetailContent,
+  DeletePostModal,
+} from '@/features/posts/components'
+import {
+  CommentInput,
+  CommentSection,
+} from '@/features/comments/components'
 
-import { 
-  PostDetailHeader, 
-  PostDetailContent, 
-  DeletePostModal 
-} from '@/features/posts/components';
-
-import { 
-  CommentInput, 
-  CommentSection 
-} from '@/features/comments/components';
-
+const LeftSidebar = () => (
+  <div className="space-y-6">
+    <SidebarNav />
+    <div
+      className={
+        'h-px bg-gray-200 dark:bg-gray-800'
+      }
+    />
+    <YourSpacesWidget />
+  </div>
+)
 
 export default function PostDetail() {
-  const { id } = useParams<{ id: string }>();
-  
-  const { 
-    post, 
-    isLoading, 
-    postActions, 
-    comments, 
-    navigate 
-  } = usePostDetailView(id);
+  const { id } = useParams<{ id: string }>()
+
+  const {
+    post,
+    space,
+    isLoading,
+    postActions,
+    comments,
+    navigate,
+  } = usePostDetailView(id)
 
   if (isLoading) {
     return (
       <MainLayout
-        maxWidth="max-w-6xl"
-        leftSidebar={
-          <div className="space-y-6">
-            <SidebarNav />
-            <div className="h-px bg-gray-200 dark:bg-gray-800" />
-            <YourSpacesWidget />
-          </div>
-        }
+        maxWidth="max-w-3xl"
+        leftSidebar={<LeftSidebar />}
+        rightSidebar={<PostDetailRightSkeleton />}
       >
         <PostDetailSkeleton />
         <CommentsSkeleton count={3} />
       </MainLayout>
-    );
+    )
   }
 
   if (!post) {
@@ -51,31 +71,40 @@ export default function PostDetail() {
       <MainLayout>
         <ErrorState
           title="Post not found"
-          message="This post has been removed or does not exist"
+          message={
+            'This post has been removed'
+            + ' or does not exist'
+          }
           onRetry={() => navigate(-1)}
         />
-     </MainLayout>
-    );
+      </MainLayout>
+    )
   }
 
+  const rightSidebar = space ? (
+    <div className="flex flex-col gap-4">
+      <SpaceAboutWidget
+        space={space}
+        postCount={0}
+      />
+      <RulesWidget rules={space.rules} />
+    </div>
+  ) : undefined
+
   return (
-   <MainLayout
-      maxWidth="max-w-6xl"
-      leftSidebar={
-        <div className="space-y-6">
-          <SidebarNav />
-          <div className="h-px bg-gray-200 dark:bg-gray-800" />
-          <YourSpacesWidget />
-        </div>
-      }
+    <MainLayout
+      maxWidth="max-w-3xl"
+      leftSidebar={<LeftSidebar />}
+      rightSidebar={rightSidebar}
     >
- 
       <div className="flex flex-col gap-4">
-        <PostDetailHeader 
+        <PostDetailHeader
           post={post}
           onEdit={postActions.handleEdit}
           onDelete={postActions.openDeleteModal}
-          onSpaceClick={postActions.handleSpaceClick}
+          onSpaceClick={
+            postActions.handleSpaceClick
+          }
         />
 
         <PostDetailContent
@@ -91,12 +120,14 @@ export default function PostDetail() {
         />
 
         <div className="mt-4">
-          <CommentInput onSubmit={comments.addComment} />
+          <CommentInput
+            onSubmit={comments.addComment}
+          />
         </div>
 
         {comments.isLoading ? (
           <CommentsSkeleton count={5} />
-       ) : comments.error ? (
+        ) : comments.error ? (
           <ErrorState
             title="Failed to load comments"
             message={comments.error.message}
@@ -116,5 +147,5 @@ export default function PostDetail() {
         onClose={postActions.closeDeleteModal}
       />
     </MainLayout>
-  );
+  )
 }

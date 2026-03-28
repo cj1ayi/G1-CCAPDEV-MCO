@@ -2,55 +2,71 @@ import {
   ProfileNavbarProps,
   ProfileTab,
 } from '../types'
-
 import { cn } from '@/lib/utils'
+
+const TABS: ProfileTab[] = [
+  'Overview',
+  'Posts',
+  'Comments',
+  'Upvoted',
+]
 
 export const ProfileNavbar = ({
   activeTab,
   onTabChange,
-}: ProfileNavbarProps) => {
-  const tabs: ProfileTab[] = [
-    'Overview',
-    'Posts',
-    'Comments',
-    'Spaces',
-    'Upvoted',
-  ]
-
-  return (
-    <section
+}: ProfileNavbarProps) => (
+  <div className="py-3">
+    <div
       className={cn(
-        'bg-white dark:bg-[#1a1a1b]',
-        'border-b border-border-light dark:border-gray-700',
+        'grid grid-cols-1',
+        'lg:grid-cols-12',
+        'gap-4 lg:gap-6',
       )}
     >
-      <div
-        className={cn(
-          'max-w-7xl mx-auto',
-          'flex items-center',
-          'overflow-x-auto no-scrollbar',
-          'pl-4 pr-8 md:px-10',
-          'gap-4 sm:gap-8',
-        )}
-      >
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => onTabChange(tab)}
-            className={cn(
-              'py-4 border-b-2 transition-colors',
-              'text-sm font-semibold whitespace-nowrap px-1 shrink-0',
-              activeTab === tab
-                ? 'border-primary text-primary dark:text-primary'
-                : 'border-transparent text-gray-500 ' +
-                    'dark:text-gray-400 hover:text-gray-900 ' +
-                    'dark:hover:text-white',
-            )}
-          >
-            {tab}
-          </button>
-        ))}
+      {/* Pills sit in the 8-col content area */}
+      <div className="lg:col-span-8">
+        <div
+          className={cn(
+            'flex items-center',
+            'bg-gray-100',
+            'dark:bg-surface-dark',
+            'rounded-xl p-1',
+            'overflow-x-auto no-scrollbar',
+          )}
+        >
+          {TABS.map((tab) => {
+            const active = activeTab === tab
+            return (
+              <button
+                key={tab}
+                onClick={() => onTabChange(tab)}
+                className={cn(
+                  'flex-1 py-2 px-3',
+                  'text-sm font-semibold',
+                  'whitespace-nowrap',
+                  'rounded-lg',
+                  'transition-all duration-150',
+                  active
+                    ? cn(
+                      'bg-primary text-white',
+                      'shadow-sm',
+                    )
+                    : cn(
+                      'text-gray-500',
+                      'dark:text-gray-400',
+                      'hover:text-gray-900',
+                      'dark:hover:text-white',
+                      'hover:bg-gray-200/60',
+                      'dark:hover:bg-gray-700/40',
+                    ),
+                )}
+              >
+                {tab}
+              </button>
+            )
+          })}
+        </div>
       </div>
-    </section>
-  )
-}
+    </div>
+  </div>
+)

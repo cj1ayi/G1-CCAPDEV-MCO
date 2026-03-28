@@ -1,3 +1,4 @@
+import { queryClient } from "@/lib/QueryProvider"
 import {
   useState,
   useEffect,
@@ -204,6 +205,11 @@ export const useEditSpace = (spaceName?: string) => {
           icon: formData.icon,
           rules: formData.rules,
         })
+
+        queryClient.invalidateQueries({
+          queryKey: ['space', space.name],
+        })
+        
         navigate(`/r/${space.name}`)
       } catch (err) {
         const message =

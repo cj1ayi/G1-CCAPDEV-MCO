@@ -1,12 +1,22 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-import { MainLayout } from '@/components/layout/MainLayout'
-import { SidebarNav } from '@/features/navigation/components'
-import { YourSpacesWidget } from '@/features/spaces/components'
+import {
+  MainLayout,
+} from '@/components/layout/MainLayout'
+import {
+  SidebarNav,
+} from '@/features/navigation/components'
+import {
+  YourSpacesWidget,
+} from '@/features/spaces/components'
 import { Card } from '@/components/ui'
 import { cn } from '@/lib/utils'
-import { useCreatePost } from '@/features/posts/hooks/useCreatePost'
-import { PostForm } from '@/features/posts/components/PostForm'
+import {
+  useCreatePost,
+} from '@/features/posts/hooks/useCreatePost'
+import {
+  PostForm,
+} from '@/features/posts/components/PostForm'
 
 export default function CreatePostPage() {
   const navigate = useNavigate()
@@ -14,7 +24,7 @@ export default function CreatePostPage() {
     formData,
     tagInput,
     errors,
-    joinedSpaces,
+    allSpaces,
     isSubmitting,
     selectedSpace,
     setField,
@@ -46,24 +56,27 @@ export default function CreatePostPage() {
           className={cn(
             'flex items-center gap-2 mb-4',
             'text-gray-600 dark:text-gray-400',
-            'hover:text-primary transition-colors',
+            'hover:text-primary',
+            'transition-colors',
           )}
         >
           <ArrowLeft className="h-5 w-5" />
-          <span className="font-medium">Back</span>
+          <span className="font-medium">
+            Back
+          </span>
         </button>
         <h1
           className={cn(
-            'text-2xl font-bold mb-1',
-            'text-gray-900 dark:text-white',
+            'text-2xl font-bold',
+            'text-gray-900 dark:text-white mb-1',
           )}
         >
           Create a Post
         </h1>
         <p
           className={cn(
-            'text-sm',
-            'text-gray-500 dark:text-gray-400',
+            'text-sm text-gray-500',
+            'dark:text-gray-400',
           )}
         >
           Share your thoughts with the community
@@ -76,7 +89,7 @@ export default function CreatePostPage() {
           formData={formData}
           tagInput={tagInput}
           errors={errors}
-          joinedSpaces={joinedSpaces}
+          allSpaces={allSpaces}
           isSubmitting={isSubmitting}
           selectedSpace={selectedSpace}
           onFieldChange={setField}

@@ -1,4 +1,3 @@
-
 /**
  * Base Comment - Flat storage structure
  */
@@ -14,7 +13,7 @@ export interface Comment {
   editedAt: Date | null
   deletedAt: Date | null
   deletedBy: string | null
-  author?: any
+  author?: { _id?: string; username: string; displayName?: string; avatar?: string }
 }
 
 /**
@@ -110,6 +109,7 @@ export interface UseCommentsOptions {
 export interface UseCommentsReturn {
   comments: CommentCardProps[]
   isLoading: boolean
+  isSubmitting: boolean
   error: Error | null
   addComment: (content: string, parentId?: string) => Promise<void>
   editComment: (commentId: string, newContent: string) => Promise<void>

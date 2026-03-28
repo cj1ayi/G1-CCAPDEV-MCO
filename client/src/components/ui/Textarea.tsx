@@ -1,4 +1,4 @@
-import { TextareaHTMLAttributes, forwardRef, useState } from 'react'
+import { TextareaHTMLAttributes, forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 
 export interface TextareaProps
@@ -22,7 +22,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     },
     ref
   ) => {
-    const [charCount, setCharCount] = useState(0)
+    const charCount = typeof props.value === 'string' ? props.value.length : 0
+    const isAtLimit = maxLength !== undefined && charCount >= maxLength
 
     return (
       <div className="w-full">
@@ -54,20 +55,17 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 'focus:border-red-500'
               ],
               !error && 'border-gray-200 dark:border-gray-700',
+              showCharCount && maxLength && 'pb-7',
               className
             )}
-            onChange={(e) => {
-              setCharCount(e.target.value.length)
-              props.onChange?.(e)
-            }}
             {...props}
           />
 
           {showCharCount && maxLength && (
             <div
               className={cn(
-                'absolute bottom-3 right-3 text-xs',
-                'text-gray-400 pointer-events-none'
+                'absolute bottom-2 right-3 text-xs pointer-events-none',
+                isAtLimit ? 'text-red-500' : 'text-gray-400'
               )}
             >
               {charCount}/{maxLength}

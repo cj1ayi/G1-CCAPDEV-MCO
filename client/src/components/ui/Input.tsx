@@ -7,6 +7,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   helperText?: string
   leftIcon?: ReactNode
   rightIcon?: ReactNode
+  showCharCount?: boolean
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -18,6 +19,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       helperText,
       leftIcon,
       rightIcon,
+      showCharCount,
       type = 'text',
       id,
       ...props
@@ -31,6 +33,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     // Split long logic into a variable
     const describedBy = error ? errorId : helperText ? helperId : undefined
+
+    const charCount = typeof props.value === 'string' ? props.value.length : 0
+    const maxLength = props.maxLength
+    const isAtLimit = maxLength !== undefined && charCount >= maxLength
 
     return (
       <div className="w-full">
@@ -95,6 +101,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
         </div>
+
+        {showCharCount && maxLength && (
+          <div className="flex justify-end mt-1">
+            <span className={cn('text-xs', isAtLimit ? 'text-red-500' : 'text-gray-400')}>
+              {charCount}/{maxLength}
+            </span>
+          </div>
+        )}
 
         {error && (
           <p id={errorId} className="mt-1.5 text-sm text-red-500">

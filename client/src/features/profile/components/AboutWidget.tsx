@@ -8,8 +8,9 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { cn } from '@/lib/utils'
+import type { User } from '../types'
 
-export const AboutWidget = ({ user }: { user: any }) => {
+export const AboutWidget = ({ user }: { user: User }) => {
   return (
     <section className="space-y-4">
       <Card>

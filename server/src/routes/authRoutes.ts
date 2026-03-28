@@ -23,7 +23,7 @@ router.get('/grading-login', async (req, res) => {
       // Explicitly save session before redirecting to ensure 
       // the grader is logged in immediately on the frontend.
       req.session.save(() => {
-        res.redirect('http://localhost:5173/explore');
+        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/explore`);
       });
     });
   } catch (error) {
@@ -59,7 +59,7 @@ router.get(
   '/google/callback',
   passport.authenticate('google', {
     // If domain verification fails, redirect to login with an error flag
-    failureRedirect: 'http://localhost:5173/login?error=unauthorized_domain',
+    failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:5173'}/login?error=unauthorized_domain`,
   }),
   (req, res) => {
     // Read the remember preference from the signed cookie set before redirect
@@ -77,7 +77,7 @@ router.get(
     }
 
     req.session.save(() => {
-      res.redirect('http://localhost:5173/explore');
+      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/explore`);
     });
   }
 );

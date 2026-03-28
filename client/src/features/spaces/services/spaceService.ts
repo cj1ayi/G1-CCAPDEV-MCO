@@ -41,7 +41,7 @@ export interface Space {
 
 export type SortOption = 'hot' | 'new' | 'top' | 'week' | 'month' | 'year'
 
-// ─── DTOs ────────────────────────────────────────────────────
+// ── DTOs ─────────────────────────
 
 export interface CreateSpaceDto {
   name: string
@@ -60,7 +60,7 @@ export interface UpdateSpaceDto {
   rules: SpaceRule[]
 }
 
-// ─── Service ─────────────────────────────────────────────────
+// ── Service ──────────────────────
 
 class SpaceService {
   async getSpaces(page: number = 1): Promise<{ data: Space[]; hasMore: boolean }> {
@@ -69,7 +69,7 @@ class SpaceService {
       const raw = await response.json()
       const currentUser = await getCurrentUser()
 
-      const data = (raw as any[]).map((item) => mapApiSpace(item, currentUser))
+      const data = (raw as Record<string, unknown>[]).map((item) => mapApiSpace(item, currentUser))
 
       return { data, hasMore: data.length === 20 }
     } catch (err) {

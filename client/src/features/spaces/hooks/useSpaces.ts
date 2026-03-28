@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { spaceService, Space } from '../services'
 import { useLoadingBar } from '@/hooks'
 import { useToast } from '@/hooks/ToastContext'
+import {
+  useJoinedSpaces,
+} from './JoinedSpacesContext'
 
 export const useSpaces = () => {
   const navigate = useNavigate()
@@ -14,7 +17,9 @@ export const useSpaces = () => {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const { startLoading, stopLoading } = useLoadingBar()
-  const { error: showError } = useToast()
+  const { error: showError, success: showSuccess } = useToast()
+  const { refresh: refreshSpaces } =
+    useJoinedSpaces()
 
   const loadSpaces = useCallback(async (pageNum: number) => {
     const { data, hasMore } = await spaceService.getSpaces(pageNum)
@@ -47,6 +52,8 @@ export const useSpaces = () => {
 
     try {
       await spaceService.toggleJoin(id)
+      await refreshSpaces()
+      showSuccess(newJoinStatus ? `Joined r/${space.name}!` : `Left r/${space.name}`)
     } catch {
       setSpaces((prev) => prev.map((s) => (s.id === id ? { ...s, isJoined: space.isJoined } : s)))
       showError('Failed to update membership. Please try again.')

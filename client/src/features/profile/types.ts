@@ -1,3 +1,4 @@
+import { Post } from "@/features/posts/types"
 export interface User {
   id: string
   name: string
@@ -13,7 +14,7 @@ export interface User {
 }
 
 export interface ActivityFeedProps {
-  posts: any[]
+  posts: Post[]
   isOwnProfile?: boolean
 }
 
@@ -30,6 +31,6 @@ export interface ProfileNavbarProps {
 }
 
 export interface ProfilePostsListProps {
-  posts: any[]
+  posts: Post[]
   isOwnProfile?: boolean
 }

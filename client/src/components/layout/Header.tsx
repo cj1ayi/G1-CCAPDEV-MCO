@@ -123,11 +123,13 @@ export const Header = ({
             <ArrowLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </button>
 
-          <form onSubmit={handleSearch} className="flex-1">
+          <form onSubmit={handleSearch} className="flex-1" aria-label="Mobile Search">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 ref={mobileSearchInputRef}
+                id="mobile-search-input" // FIXED: Added ID
+                name="q"                 // FIXED: Added Name
                 type="text"
                 placeholder="Search AnimoForums..."
                 value={searchQuery}
@@ -148,16 +150,14 @@ export const Header = ({
         </div>
       )}
 
-      {/* ── Left: Hamburger + Desktop Toggle + Logo ── */}
+      {/* ── Left Section ── */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Mobile Menu Toggle */}
         {variant !== 'landing' && onToggleMobileMenu && (
           <button
             onClick={onToggleMobileMenu}
             className={cn(
               'xl:hidden p-2 rounded-lg',
               'hover:bg-gray-100 dark:hover:bg-surface-darker',
-              'transition-colors',
             )}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
@@ -169,25 +169,14 @@ export const Header = ({
           </button>
         )}
 
-        {/* Desktop Sidebar Toggle */}
         {variant !== 'landing' && onToggleDesktopSidebar && (
           <button
             onClick={onToggleDesktopSidebar}
             className={cn(
               'hidden xl:flex p-2 rounded-lg',
               'hover:bg-gray-100 dark:hover:bg-surface-darker',
-              'transition-colors',
             )}
-            aria-label={
-              isDesktopSidebarCollapsed
-                ? 'Expand navigation'
-                : 'Collapse navigation'
-            }
-            title={
-              isDesktopSidebarCollapsed
-                ? 'Expand navigation'
-                : 'Collapse navigation'
-            }
+            aria-label={isDesktopSidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'}
           >
             {isDesktopSidebarCollapsed ? (
               <PanelLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
@@ -198,12 +187,7 @@ export const Header = ({
         )}
 
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img
-            src={AnimoForumsLogoHat}
-            alt="AnimoForums"
-            className="h-9 w-9"
-          />
-          {/* Hide wordmark on very small screens to save space */}
+          <img src={AnimoForumsLogoHat} alt="AnimoForums" className="h-9 w-9" />
           <span className="hidden sm:block text-xl font-black text-primary">
             AnimoForums
           </span>
@@ -215,9 +199,12 @@ export const Header = ({
         <form
           onSubmit={handleSearch}
           className="relative flex-1 max-w-xl hidden sm:block"
+          aria-label="Desktop Search"
         >
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
+            id="desktop-search-input" // FIXED: Added ID
+            name="q"                  // FIXED: Added Name
             type="text"
             placeholder="Search AnimoForums..."
             value={searchQuery}
@@ -236,24 +223,18 @@ export const Header = ({
         </form>
       )}
 
-      {/* ── Right: Actions ── */}
+      {/* ── Right Section ── */}
       <div className="flex items-center gap-1 shrink-0">
-        {/* Mobile Search Icon (shown only on mobile, non-landing) */}
         {variant !== 'landing' && (
           <button
             onClick={() => setIsMobileSearchOpen(true)}
-            className={cn(
-              'sm:hidden p-2 rounded-lg',
-              'hover:bg-gray-100 dark:hover:bg-surface-darker',
-              'transition-colors',
-            )}
+            className="sm:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-darker"
             aria-label="Open search"
           >
             <Search className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </button>
         )}
 
-        {/* Dark Mode Toggle */}
         {onToggleDarkMode && (
           <Button
             variant="ghost"
@@ -262,17 +243,12 @@ export const Header = ({
             className="!px-2"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
-            {isDark ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
+            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
         )}
 
         {user ? (
           <>
-            {/* Create Post Button */}
             {variant !== 'landing' && (
               <>
                 <Button
@@ -284,7 +260,6 @@ export const Header = ({
                 >
                   Create
                 </Button>
-                {/* Icon-only on mobile */}
                 <Button
                   variant="primary"
                   size="sm"
@@ -297,56 +272,23 @@ export const Header = ({
               </>
             )}
 
-            {/* User Avatar with Dropdown */}
-            {variant !== 'landing' && (
-              <div className="ml-1">
-                <AvatarDropdown
-                  user={{
-                    name: user.name,
-                    username: user.username,
-                    avatarUrl: user.avatarUrl,
-                  }}
-                  onLogout={onLogout}
-                />
-              </div>
-            )}
+            <div className="ml-1">
+              <AvatarDropdown
+                user={{
+                  name: user.name,
+                  username: user.username,
+                  avatarUrl: user.avatarUrl,
+                }}
+                onLogout={onLogout}
+              />
+            </div>
           </>
         ) : (
           <>
-            {/* Auth buttons — compact on mobile */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/login')}
-              className="hidden xs:inline-flex"
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
               Sign In
             </Button>
-            {/* Minimal label on very small screens */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/login')}
-              className="xs:hidden !px-2 text-xs"
-            >
-              Login
-            </Button>
-
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => navigate('/signup')}
-              className="hidden sm:inline-flex"
-            >
-              Join Community
-            </Button>
-            {/* Icon + short label on mobile */}
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => navigate('/signup')}
-              className="sm:hidden text-xs !px-2.5"
-            >
+            <Button variant="primary" size="sm" onClick={() => navigate('/signup')}>
               Join
             </Button>
           </>

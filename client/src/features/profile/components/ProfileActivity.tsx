@@ -1,138 +1,279 @@
-import { ProfileTab, PostPreviewCard } from '../components'
+import {
+  ProfileTab,
+  PostPreviewCard,
+} from '../components'
 import { Card } from '@/components/ui'
 import { useNavigate } from 'react-router-dom'
-import { cn } from '@/lib/utils'
-import { getRelativeTime } from '@/lib/utils'
+import { cn, getRelativeTime } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
+import { Post } from '@/features/posts/types'
+import type {
+  UserComment,
+  UserSpace,
+} from '../services/userService'
 
 interface ProfileActivityProps {
   activeTab: ProfileTab
-  posts: any[]
-  comments: any[]
-  spaces: any[]
-  upvotedPosts: any[]
+  posts: Post[]
+  comments: UserComment[]
+  spaces: UserSpace[]
+  upvotedPosts: Post[]
 }
 
-export const ProfileActivity = ({ 
-  activeTab, 
-  posts,
-  comments,
-  spaces,
-  upvotedPosts,
-}: ProfileActivityProps) => {
-  const navigate = useNavigate()
+/** Only render images with valid http(s) URLs. */
+function SafeImg({
+  node,
+  ...props
+}: any) {
+  const src = props.src ?? ''
+  try {
+    const url = new URL(src)
+    const isHttp =
+      url.protocol === 'http:'
+      || url.protocol === 'https:'
+    if (!isHttp) return null
+  } catch {
+    return null
+  }
 
-  if (activeTab === 'Comments') {
-    if (comments.length === 0) {
-      return (
-        <Card className="p-10 text-center text-gray-500">
-          No comments yet.
-        </Card>
-      )
-    }
+  return (
+    <img
+      {...props}
+      loading="lazy"
+      className={cn(
+        'max-w-full rounded',
+        props.className,
+      )}
+      onError={(e) => {
+        e.currentTarget.style.display = 'none'
+      }}
+    />
+  )
+}
+
+function SafeLink({ node, ...props }: any) {
+  return (
+    <a
+      {...props}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary hover:underline"
+      onClick={(e) => e.stopPropagation()}
+    />
+  )
+}
+
+const MD_COMPONENTS = {
+  a: SafeLink,
+  img: SafeImg,
+}
+
+const MD_REMARK = [remarkGfm]
+const MD_REHYPE = [rehypeRaw]
+
+function CommentsList({
+  comments,
+  navigate,
+}: {
+  comments: UserComment[]
+  navigate: ReturnType<typeof useNavigate>
+}) {
+  const valid = comments.filter(
+    (c) => c.post,
+  )
+
+  if (valid.length === 0) {
     return (
-      <div className="space-y-3">
-        {comments.map((comment: any) => (
+      <Card
+        className={cn(
+          'p-10 text-center text-gray-500',
+        )}
+      >
+        No comments yet.
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      {valid.map((comment) => {
+        const postId =
+          comment.post?._id
+          ?? comment.postId
+          ?? comment.postId
+
+        return (
           <Card
-            key={comment._id}
+            key={comment._id ?? comment.id}
             className={cn(
               'p-4 cursor-pointer',
-              'hover:border-primary/50 transition-colors'
+              'hover:border-primary/50',
+              'transition-colors',
             )}
-            onClick={() => navigate(`/post/${comment.postId}`)}
+            onClick={() =>
+              navigate(`/post/${postId}`)
+            }
           >
-            {comment.post && (
-              <p className="text-xs text-primary font-medium mb-1">
-                {comment.post.space} • {comment.post.title}
-              </p>
-            )}
-            <div className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 prose prose-sm dark:prose-invert max-w-none">
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm]} 
-                rehypePlugins={[rehypeRaw]}
-                components={{
-                  a: ({ node, ...props }) => (
-                    <a 
-                      {...props} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-primary hover:underline"
-                      onClick={(e) => e.stopPropagation()} 
-                    />
-                  )
-                }}
+            <p
+              className={cn(
+                'text-xs text-primary',
+                'font-medium mb-1',
+              )}
+            >
+              {comment.post?.space}
+              {' • '}
+              {comment.post?.title}
+            </p>
+
+            <div
+              className={cn(
+                'text-sm text-gray-700',
+                'dark:text-gray-300',
+                'line-clamp-2 prose',
+                'prose-sm',
+                'dark:prose-invert',
+                'max-w-none',
+              )}
+            >
+              <ReactMarkdown
+                remarkPlugins={MD_REMARK}
+                rehypePlugins={MD_REHYPE}
+                components={MD_COMPONENTS}
               >
                 {comment.content}
               </ReactMarkdown>
             </div>
-            <p className="text-xs text-gray-400 mt-2">
-              {getRelativeTime(comment.createdAt)}
+
+            <p
+              className={cn(
+                'text-xs text-gray-400',
+                'mt-2',
+              )}
+            >
+              {getRelativeTime(
+                comment.createdAt,
+              )}
             </p>
           </Card>
-        ))}
-      </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function SpacesList({
+  spaces,
+  navigate,
+}: {
+  spaces: UserSpace[]
+  navigate: ReturnType<typeof useNavigate>
+}) {
+  if (spaces.length === 0) {
+    return (
+      <Card
+        className={cn(
+          'p-10 text-center text-gray-500',
+        )}
+      >
+        Not a member of any spaces.
+      </Card>
     )
   }
 
-  if (activeTab === 'Spaces') {
-    if (spaces.length === 0) {
-      return (
-        <Card className="p-10 text-center text-gray-500">
-          Not a member of any spaces.
-        </Card>
-      )
-    }
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {spaces.map((space: any) => (
-          <Card
-            key={space._id || space.name}
+  return (
+    <div
+      className={cn(
+        'grid grid-cols-1',
+        'sm:grid-cols-2 gap-4',
+      )}
+    >
+      {spaces.map((space) => (
+        <Card
+          key={space._id ?? space.name}
+          className={cn(
+            'p-4 cursor-pointer',
+            'hover:border-primary/50',
+            'transition-colors',
+          )}
+          onClick={
+            () => navigate(`/r/${space.name}`)
+          }
+        >
+          <p
             className={cn(
-              'p-4 cursor-pointer',
-              'hover:border-primary/50 transition-colors'
+              'font-semibold',
+              'text-gray-900 dark:text-white',
             )}
-            onClick={() => navigate(`/r/${space.name}`)}
           >
-            <p className="font-semibold text-gray-900 dark:text-white">
-              r/{space.name}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {space.displayName}
-            </p>
-            {space.description && (
-              <p className="text-xs text-gray-400 mt-2 line-clamp-2">
-                {space.description}
-              </p>
+            r/{space.name}
+          </p>
+          <p
+            className={cn(
+              'text-sm text-gray-500',
+              'dark:text-gray-400 mt-1',
             )}
-          </Card>
-        ))}
-      </div>
-    )
-  }
-
-  if (activeTab === 'Upvoted') {
-    if (upvotedPosts.length === 0) {
-      return (
-        <Card className="p-10 text-center text-gray-500">
-          No upvoted posts yet.
+          >
+            {space.displayName}
+          </p>
+          {space.description && (
+            <p
+              className={cn(
+                'text-xs text-gray-400',
+                'mt-2 line-clamp-2',
+              )}
+            >
+              {space.description}
+            </p>
+          )}
         </Card>
-      )
-    }
+      ))}
+    </div>
+  )
+}
+
+function UpvotedList({
+  upvotedPosts,
+}: {
+  upvotedPosts: Post[]
+}) {
+  if (upvotedPosts.length === 0) {
     return (
-      <div className="space-y-4">
-        {upvotedPosts.map((post: any) => (
-          <PostPreviewCard key={post.id} post={post} />
-        ))}
-      </div>
+      <Card
+        className={cn(
+          'p-10 text-center text-gray-500',
+        )}
+      >
+        No upvoted posts yet.
+      </Card>
     )
   }
 
-  // Overview and Posts both show posts list
+  return (
+    <div className="space-y-4">
+      {upvotedPosts.map((post) => (
+        <PostPreviewCard
+          key={post.id}
+          post={post}
+        />
+      ))}
+    </div>
+  )
+}
+
+function PostsList({
+  posts,
+}: {
+  posts: Post[]
+}) {
   if (posts.length === 0) {
     return (
-      <Card className="p-10 text-center text-gray-500">
+      <Card
+        className={cn(
+          'p-10 text-center text-gray-500',
+        )}
+      >
         No posts yet.
       </Card>
     )
@@ -140,9 +281,198 @@ export const ProfileActivity = ({
 
   return (
     <div className="space-y-4">
-      {posts.map((post: any) => (
-        <PostPreviewCard key={post.id} post={post} />
+      {posts.map((post) => (
+        <PostPreviewCard
+          key={post.id}
+          post={post}
+        />
       ))}
     </div>
   )
+}
+
+function OverviewTab({
+  posts,
+  comments,
+  spaces,
+  navigate,
+}: {
+  posts: Post[]
+  comments: UserComment[]
+  spaces: UserSpace[]
+  navigate: ReturnType<typeof useNavigate>
+}) {
+  const hasNone =
+    posts.length === 0
+    && comments.length === 0
+    && spaces.length === 0
+
+  if (hasNone) {
+    return (
+      <Card
+        className={cn(
+          'p-10 text-center text-gray-500',
+        )}
+      >
+        No activity yet.
+      </Card>
+    )
+  }
+
+  const topPosts = posts.slice(0, 5)
+  const topComments = comments
+    .filter((c) => c.post)
+    .slice(0, 5)
+  const topSpaces = spaces.slice(0, 5)
+
+  return (
+    <div className="space-y-6">
+      {topPosts.length > 0 && (
+        <section>
+          <h3
+            className={cn(
+              'text-sm font-bold uppercase',
+              'tracking-wide text-gray-400',
+              'mb-3',
+            )}
+          >
+            Posts
+          </h3>
+          <div className="space-y-4">
+            {topPosts.map((post) => (
+              <PostPreviewCard
+                key={post.id}
+                post={post}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {topComments.length > 0 && (
+        <section>
+          <h3
+            className={cn(
+              'text-sm font-bold uppercase',
+              'tracking-wide text-gray-400',
+              'mb-3',
+            )}
+          >
+            Recent Comments
+          </h3>
+          <CommentsList
+            comments={topComments}
+            navigate={navigate}
+          />
+        </section>
+      )}
+
+      {topSpaces.length > 0 && (
+        <section>
+          <h3
+            className={cn(
+              'text-sm font-bold uppercase',
+              'tracking-wide text-gray-400',
+              'mb-3',
+            )}
+          >
+            Spaces
+          </h3>
+          <div
+            className={cn(
+              'grid grid-cols-1',
+              'sm:grid-cols-2 gap-3',
+            )}
+          >
+            {topSpaces.map((space) => (
+              <Card
+                key={
+                  space._id
+                  ?? space.name
+                }
+                hover
+                onClick={
+                  () => navigate(
+                    `/r/${space.name}`,
+                  )
+                }
+                className="p-4"
+              >
+                <p
+                  className={cn(
+                    'font-semibold',
+                    'text-gray-900',
+                    'dark:text-white',
+                  )}
+                >
+                  r/{space.name}
+                </p>
+                {space.displayName && (
+                  <p
+                    className={cn(
+                      'text-xs',
+                      'text-gray-500',
+                      'dark:text-gray-400',
+                      'mt-0.5',
+                    )}
+                  >
+                    {space.displayName}
+                  </p>
+                )}
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+export const ProfileActivity = ({
+  activeTab,
+  posts,
+  comments,
+  spaces,
+  upvotedPosts,
+}: ProfileActivityProps) => {
+  const navigate = useNavigate()
+
+  if (activeTab === 'Overview') {
+    return (
+      <OverviewTab
+        posts={posts}
+        comments={comments}
+        spaces={spaces}
+        navigate={navigate}
+      />
+    )
+  }
+
+  if (activeTab === 'Comments') {
+    return (
+      <CommentsList
+        comments={comments}
+        navigate={navigate}
+      />
+    )
+  }
+
+  if (activeTab === 'Spaces') {
+    return (
+      <SpacesList
+        spaces={spaces}
+        navigate={navigate}
+      />
+    )
+  }
+
+  if (activeTab === 'Upvoted') {
+    return (
+      <UpvotedList
+        upvotedPosts={upvotedPosts}
+      />
+    )
+  }
+
+  return <PostsList posts={posts} />
 }

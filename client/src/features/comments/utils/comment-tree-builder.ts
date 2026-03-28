@@ -1,5 +1,9 @@
-
-import { Comment, CommentWithAuthor, CommentTreeNode } from '../types'
+import {
+  Comment,
+  CommentWithAuthor,
+  CommentTreeNode,
+  CommentCardProps,
+} from '../types'
 
 /**
  * Build comment tree from flat array
@@ -138,32 +142,55 @@ export function calculateDepth(parentComment: Comment | null): number {
 /**
  * Convert CommentTreeNode to CommentCardProps (for backwards compatibility)
  */
-export function treeToLegacyFormat(tree: CommentTreeNode[]): any[] {
+export function treeToLegacyFormat(
+  tree: CommentTreeNode[],
+  postAuthorId?: string,
+): CommentCardProps[] {
   return tree.map(node => {
 
-    const isDeleted = node.deletedAt !== null
+    const isDeleted =
+      node.deletedAt !== null
+
+    const isOP =
+      !isDeleted
+      && !!postAuthorId
+      && node.authorId === postAuthorId
 
     return {
       id: node._id,
-      content:  isDeleted ? '[deleted]' : node.content,
+      content: isDeleted
+        ? '[deleted]'
+        : node.content,
       author: isDeleted ? {
         id: 'deleted',
         name: '[deleted]',
         username: 'deleted',
-        avatar: undefined 
+        avatar: undefined,
       } : {
         id: node.authorId,
         name: node.author.displayName,
         username: node.author.username,
-        avatar: node.author.avatar
+        avatar: node.author.avatar,
       },
       upvotes: Math.max(0, node.voteScore),
-      downvotes: Math.max(0, -node.voteScore),
-      createdAt: formatTimeAgo(node.createdAt),
-      editedAt: node.editedAt ? formatTimeAgo(node.editedAt) : undefined,
+      downvotes: Math.max(
+        0, -node.voteScore,
+      ),
+      createdAt: formatTimeAgo(
+        node.createdAt,
+      ),
+      editedAt: node.editedAt
+        ? formatTimeAgo(node.editedAt)
+        : undefined,
       isDeleted: isDeleted,
+      isOP,
       depth: node.depth,
-      replies: node.replies.length > 0 ? treeToLegacyFormat(node.replies) : undefined
+      replies: node.replies.length > 0
+        ? treeToLegacyFormat(
+          node.replies,
+          postAuthorId,
+        )
+        : undefined,
     }
   })
 }

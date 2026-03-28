@@ -5,6 +5,7 @@ import { useSpaces } from '@/features/spaces/hooks'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import { SpaceCardsSkeleton } from '@/components/shared'
+import { DefaultLeftSidebar } from '@/components/layout'
 
 import {
   YourSpacesWidget,
@@ -30,16 +31,11 @@ const SpacesDirectory = () => {
   } = useSpaces()
 
   return (
-    <MainLayout
-      maxWidth="max-w-6xl"
-      leftSidebar={
-        <div className="flex flex-col gap-6">
-          <SidebarNav />
-          <div className="h-px bg-gray-200 dark:bg-gray-800" />
-          <YourSpacesWidget />
-        </div>
-      }
-    >
+		<MainLayout maxWidth="max-w-6xl" 
+			leftSidebar={
+				<DefaultLeftSidebar/>
+			}
+		>
       <div className="space-y-8">
         <SpaceDirectoryHeader onCreateSpace={goToCreateSpace} />
         <SpaceFilters

@@ -16,6 +16,7 @@ import spaceRoutes from './routes/spaceRoutes.js';
 import voteRoutes from './routes/voteRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import statsRoutes from './routes/statsRoutes.js';
+import searchRoutes from './routes/searchRoutes.js'
 
 dotenv.config();
 
@@ -26,7 +27,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
@@ -45,7 +46,9 @@ app.use(session({
     collectionName: 'sessions'
   }),
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 // 1 day default — overridden by rememberMe in authRoutes
+    maxAge: 1000 * 60 * 60 * 24, // 1 day default — overridden by rememberMe in authRoutes
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
@@ -61,6 +64,7 @@ app.use('/api/spaces', spaceRoutes);
 app.use('/api/votes', voteRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/search', searchRoutes)
 
 const PORT = process.env.PORT || 3000;
 

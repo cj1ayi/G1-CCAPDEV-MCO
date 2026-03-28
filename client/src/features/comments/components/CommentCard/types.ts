@@ -83,4 +83,5 @@ export interface CommentMenuProps {
 export interface CommentReplyFormProps {
   onSubmit: (content: string) => Promise<void>
   onCancel: () => void
+  isSubmitting?: boolean
 }

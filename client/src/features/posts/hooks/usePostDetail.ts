@@ -1,129 +1,110 @@
-// Location: client/src/features/posts/hooks/usePostDetail.ts
-
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { postService } from '../services'
 import { Post } from '../types'
-import { useVoting } from '@/features/votes/VotingContext'
-import { getCurrentUser } from '@/features/auth/services/authService'
-import { useLoadingBar } from '@/hooks'
+import {
+  useVoting,
+} from '@/features/votes/VotingContext'
 import { useToast } from '@/hooks/ToastContext'
+import {
+  usePostDetailQuery,
+} from './usePostDetailQuery'
+import {
+  queryClient,
+} from '@/lib/QueryProvider'
 
 interface UsePostDetailOptions {
   postId: string | undefined
   backUrl?: string
 }
 
-export const usePostDetail = ({ 
-  postId, 
-  backUrl = '/explore' 
+export const usePostDetail = ({
+  postId,
+  backUrl = '/explore',
 }: UsePostDetailOptions) => {
   const navigate = useNavigate()
-  const [post, setPost] = useState<Post | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const { startLoading, stopLoading } = useLoadingBar()
   const { votes, toggleVote } = useVoting()
-  const { error: showError, success: showSuccess } = useToast()
+  const {
+    error: showError,
+    success: showSuccess,
+  } = useToast()
 
-  useEffect(() => {
-    const loadPost = async () => {
-      if (!postId) {
-        setIsLoading(false)
-        stopLoading()
-        return
-      }
+  const {
+    data: post,
+    isLoading,
+  } = usePostDetailQuery(postId)
 
-      startLoading()
-      setIsLoading(true)
+  const [
+    isDeleteModalOpen,
+    setIsDeleteModalOpen,
+  ] = useState(false)
 
-      try {
-        const fetchedPost = await postService.getPostById(postId)
-
-        if (fetchedPost) {
-          const currentUser = await getCurrentUser()
-          setPost({
-            ...fetchedPost,
-            isOwner: currentUser
-              ? fetchedPost.author.id === currentUser.id ||
-                fetchedPost.authorId === currentUser.id
-              : false,
-          })
-        } else {
-          setPost(null)
-        }
-      } catch (error) {
-        console.error('Failed to load post:', error)
-        setPost(null)
-      } finally {
-        setIsLoading(false)
-        stopLoading()
-      }
-    }
-
-    loadPost()
-  }, [postId, startLoading, stopLoading])
+  // ── Edit ────────────────────────
 
   const handleEdit = () => {
-    if (post) navigate(`/post/${post.id}/edit`)
+    if (!post) return
+    navigate(`/post/${post.id}/edit`)
   }
+
+  // ── Delete ──────────────────────
 
   const handleDelete = async () => {
     if (!post) return
     try {
       await postService.deletePost(post.id)
-      showSuccess('Post deleted successfully')
+      showSuccess('Post deleted.')
+      queryClient.invalidateQueries({
+        queryKey: ['feed'],
+      })
       navigate(backUrl)
-    } catch (error) {
-      console.error('Failed to delete post:', error)
-      showError('Failed to delete post. Please try again.')
+    } catch {
+      showError(
+        'Could not delete post.'
+        + ' Please try again.',
+      )
     }
   }
 
-  const handleVote = async (voteType: 'up' | 'down') => {
+  // ── Vote ────────────────────────
+
+  const handleVote = async (
+    voteType: 'up' | 'down',
+  ) => {
     if (!post) return
 
-    const previousVote = votes[`post:${post.id}`] ?? null
-    await toggleVote(post.id, 'post', voteType)
+    const ok = await toggleVote(
+      post.id,
+      'post',
+      voteType,
+    )
+    if (!ok) return
 
-    setPost(prev => {
-      if (!prev) return prev
-      let { upvotes, downvotes } = prev
-
-      if (voteType === 'up') {
-        if (previousVote === 'up') upvotes = Math.max(0, upvotes - 1)
-        else if (previousVote === 'down') { upvotes += 1; downvotes = Math.max(0, downvotes - 1) }
-        else upvotes += 1
-      } else {
-        if (previousVote === 'down') downvotes = Math.max(0, downvotes - 1)
-        else if (previousVote === 'up') { downvotes += 1; upvotes = Math.max(0, upvotes - 1) }
-        else downvotes += 1
-      }
-
-      return { ...prev, upvotes, downvotes }
+    queryClient.invalidateQueries({
+      queryKey: ['post', postId],
     })
   }
+
+  // ── Space click ─────────────────
 
   const handleSpaceClick = () => {
     if (post) navigate(`/r/${post.space}`)
   }
 
-  // Use local post state directly — no voteDeltas dependency
+  // ── Derived vote state ──────────
+
   const upvotes = post?.upvotes ?? 0
   const downvotes = post?.downvotes ?? 0
   const score = upvotes - downvotes
 
-  const voteKey = post ? `post:${post.id}` : ''
-  const currentVote = voteKey ? votes[voteKey] : null
-
-  const onUpvote = () => handleVote('up')
-  const onDownvote = () => handleVote('down')
-
-  const openDeleteModal = () => setIsDeleteModalOpen(true)
-  const closeDeleteModal = () => setIsDeleteModalOpen(false)
+  const voteKey = post
+    ? `post:${post.id}`
+    : ''
+  const currentVote = voteKey
+    ? votes[voteKey]
+    : null
 
   return {
-    post,
+    post: post ?? null,
     isLoading,
     isDeleteModalOpen,
     setIsDeleteModalOpen,
@@ -136,10 +117,12 @@ export const usePostDetail = ({
     downvotes,
     isUpvoted: currentVote === 'up',
     isDownvoted: currentVote === 'down',
-    onUpvote,
-    onDownvote,
-    openDeleteModal,
-    closeDeleteModal,
-    navigate
+    onUpvote: () => handleVote('up'),
+    onDownvote: () => handleVote('down'),
+    openDeleteModal: () =>
+      setIsDeleteModalOpen(true),
+    closeDeleteModal: () =>
+      setIsDeleteModalOpen(false),
+    navigate,
   }
 }
