@@ -5,6 +5,11 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import connectDB from './config/db.js';
 import './config/passport.js';
@@ -71,9 +76,18 @@ app.use('/api/search', searchRoutes)
 
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-  res.send('AnimoSpaces API is running...');
-});
+// Serve React frontend in production
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.join(__dirname, '../../client/dist');
+  app.use(express.static(clientDist));
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
+} else {
+  app.get('/', (_req, res) => {
+    res.send('AnimoSpaces API is running...');
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
