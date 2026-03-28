@@ -27,7 +27,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
@@ -46,7 +46,9 @@ app.use(session({
     collectionName: 'sessions'
   }),
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 // 1 day default — overridden by rememberMe in authRoutes
+    maxAge: 1000 * 60 * 60 * 24, // 1 day default — overridden by rememberMe in authRoutes
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
