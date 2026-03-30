@@ -18,11 +18,11 @@ export const createComment = async (req: Request, res: Response) => {
 
     await Post.findByIdAndUpdate(postId, { $inc: { commentCount: 1 } });
 
-    const author = await User.findById(newComment.authorId).select('username avatar');
+    const author = await User.findById(newComment.authorId).select('username avatar badges');
 
     const formatted = {
       ...newComment.toObject(),
-      author: author ? { username: author.username, avatar: author.avatar } : null
+      author: author ? { username: author.username, avatar: author.avatar, badges: author.badges } : null
     };
 
     res.status(201).json(formatted);
@@ -38,9 +38,9 @@ export const getCommentsByPostId = async (req: Request, res: Response) => {
     const comments = await Comment.find({ postId }).sort({ createdAt: 1 });
 
     const authorIds = [...new Set(comments.map(c => c.authorId.toString()))];
-    const authors = await User.find({ _id: { $in: authorIds } }).select('username avatar');
+    const authors = await User.find({ _id: { $in: authorIds } }).select('username avatar badges');
     const authorMap = new Map(
-      authors.map(a => [a._id.toString(), { username: a.username, avatar: a.avatar }])
+      authors.map(a => [a._id.toString(), { username: a.username, avatar: a.avatar, badges: a.badges }])
     );
 
     const formatted = comments.map(comment => {
@@ -75,11 +75,11 @@ export const updateComment = async (req: Request, res: Response) => {
     comment.editedAt = new Date()
     await comment.save();
 
-    const author = await User.findById(comment.authorId).select('username avatar');
+    const author = await User.findById(comment.authorId).select('username avatar badges');
 
     const formatted = {
       ...comment.toObject(),
-      author: author ? { username: author.username, avatar: author.avatar } : null
+      author: author ? { username: author.username, avatar: author.avatar, badges: author.badges } : null
     };
 
     res.json(formatted);
@@ -156,11 +156,11 @@ export const voteComment = async (req: Request, res: Response) => {
     const comment = await Comment.findById(commentId);
     if (!comment) return res.status(404).json({ message: 'Comment not found' });
 
-    const author = await User.findById(comment.authorId).select('username avatar');
+    const author = await User.findById(comment.authorId).select('username avatar badges');
 
     const formatted = {
       ...comment.toObject(),
-      author: author ? { username: author.username, avatar: author.avatar } : null
+      author: author ? { username: author.username, avatar: author.avatar, badges: author.badges } : null
     };
 
     res.json(formatted);

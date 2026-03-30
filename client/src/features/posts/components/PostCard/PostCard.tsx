@@ -70,6 +70,7 @@ const PostCard = ({
             createdAt={post.createdAt}
             flair={post.flair}
             isOwner={post.isOwner}
+            isSpaceOwner={post.isSpaceOwner}
             onEdit={onEdit}
             onDelete={onDelete}
           />

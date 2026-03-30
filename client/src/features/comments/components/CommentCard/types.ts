@@ -1,18 +1,6 @@
-/**
- * CommentCard Component Types
- * 
- * Local types specific to CommentCard components.
- */
+import type { Author } from '@/types/author'
 
-/**
- * Author information
- */
-export interface Author {
-  id: string | number
-  username: string
-  name?: string
-  avatar?: string
-}
+export type { Author }
 
 /**
  * Props for CommentHeader component
@@ -22,8 +10,8 @@ export interface CommentHeaderProps {
   createdAt: string
   editedAt?: string
   isOP?: boolean
+  isSpaceOwner?: boolean
   isDeleted?: boolean
-  badge?: string
   depth: number
 }
 

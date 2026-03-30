@@ -145,6 +145,7 @@ export function calculateDepth(parentComment: Comment | null): number {
 export function treeToLegacyFormat(
   tree: CommentTreeNode[],
   postAuthorId?: string,
+  spaceOwnerId?: string,
 ): CommentCardProps[] {
   return tree.map(node => {
 
@@ -155,6 +156,11 @@ export function treeToLegacyFormat(
       !isDeleted
       && !!postAuthorId
       && node.authorId === postAuthorId
+
+    const isSpaceOwner =
+      !isDeleted
+      && !!spaceOwnerId
+      && node.authorId === spaceOwnerId
 
     return {
       id: node._id,
@@ -171,6 +177,7 @@ export function treeToLegacyFormat(
         name: node.author.displayName,
         username: node.author.username,
         avatar: node.author.avatar,
+        badges: node.author.badges ?? [],
       },
       upvotes: Math.max(0, node.voteScore),
       downvotes: Math.max(
@@ -184,11 +191,13 @@ export function treeToLegacyFormat(
         : undefined,
       isDeleted: isDeleted,
       isOP,
+      isSpaceOwner,
       depth: node.depth,
       replies: node.replies.length > 0
         ? treeToLegacyFormat(
           node.replies,
           postAuthorId,
+          spaceOwnerId,
         )
         : undefined,
     }

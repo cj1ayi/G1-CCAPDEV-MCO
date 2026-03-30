@@ -7,7 +7,7 @@ import {
   spaceService,
   SortOption,
 } from '../services'
-import { isSpaceOwner } from '../utils'
+import { isSpaceOwner, resolveId } from '../utils'
 import {
   useVoting,
 } from '@/features/votes/VotingContext'
@@ -183,6 +183,10 @@ export const useSpacePage = (
     && !!space
     && isSpaceOwner(space, user.id)
 
+  const spaceOwnerId = space
+    ? resolveId(space.owner as unknown as { id?: string; _id?: string })
+    : null
+
   const postsWithVotes = rawPosts.map(
     (post) => ({
       ...post,
@@ -192,6 +196,9 @@ export const useSpacePage = (
       isDownvoted:
         votes[`post:${post.id}`]
           === 'down',
+      isSpaceOwner:
+        !!spaceOwnerId
+        && post.author.id === spaceOwnerId,
     }),
   )
 

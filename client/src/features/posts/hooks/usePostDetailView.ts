@@ -17,6 +17,7 @@ import {
   spaceService,
   Space,
 } from '@/features/spaces/services'
+import { resolveId } from '@/features/spaces/utils'
 
 function sortCommentsByScore(
   comments: CommentCardProps[],
@@ -61,6 +62,8 @@ export function usePostDetailView(postId?: string) {
     deleteComment,
   } = useComments({
     postId: postId || '',
+    postAuthorId: postDetail.post?.authorId,
+    spaceOwnerId: space ? resolveId(space.owner as unknown as { id?: string; _id?: string }) : undefined,
   })
 
   const { addVoteHandlers } = useCommentVoting()

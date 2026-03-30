@@ -66,8 +66,12 @@ export const getUserPosts = async (req: Request, res: Response) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const posts = await Post.find({ author: req.params.id })
-      .populate('author', 'username avatar')
+    const existingSpaceNames = await Space.distinct('name');
+    const posts = await Post.find({
+      author: req.params.id,
+      space: { $in: existingSpaceNames },
+    })
+      .populate('author', 'username avatar badges')
       .sort({ createdAt: -1 });
 
     res.json(posts);
@@ -130,7 +134,7 @@ export const getUserUpvotedPosts = async (req: Request, res: Response) => {
 
     const postIds = upvotes.map(v => v.targetId);
     const posts = await Post.find({ _id: { $in: postIds } })
-      .populate('author', 'username avatar')
+      .populate('author', 'username avatar badges')
       .sort({ createdAt: -1 });
 
     res.json(posts);

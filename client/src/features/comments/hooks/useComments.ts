@@ -36,9 +36,11 @@ function sortCommentsByBest(
   }))
 }
 
-export function useComments({ 
-  postId, 
-  voteState 
+export function useComments({
+  postId,
+  postAuthorId,
+  spaceOwnerId,
+  voteState
 }: UseCommentsOptions): UseCommentsReturn {
   const [rawComments, setRawComments] = useState<CommentCardProps[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -55,7 +57,7 @@ export function useComments({
         if (!silent) setIsLoading(true)
         const data =
           await commentService
-            .getCommentsByPostId(postId)
+            .getCommentsByPostId(postId, postAuthorId, spaceOwnerId)
         setRawComments(data)
       } catch {
         if (!silent) {
@@ -67,7 +69,7 @@ export function useComments({
         if (!silent) setIsLoading(false)
       }
     },
-    [postId, showError],
+    [postId, postAuthorId, spaceOwnerId, showError],
   )
 
   useEffect(() => {

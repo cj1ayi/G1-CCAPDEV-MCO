@@ -7,6 +7,7 @@ import {
   API_BASE_URL,
   fetchWithAuth,
 } from '@/lib/apiUtils'
+import { type RawAuthor, mapRawAuthor } from '@/types/author'
 
 export interface CreatePostDto {
   title: string
@@ -54,40 +55,14 @@ class PostService {
   private populateAuthor(
     post: StoredPost,
   ): Post {
-    const raw = post as unknown as {
-      author?: {
-        username: string
-        avatar?: string
-        badges?: string[]
-      }
-    }
+    const raw = post as unknown as { author?: RawAuthor }
     const backendAuthor = raw.author
-
-    if (backendAuthor) {
-      return {
-        ...post,
-        author: {
-          id: post.authorId,
-          name: backendAuthor.username,
-          username:
-            backendAuthor.username,
-          avatar:
-            backendAuthor.avatar || '',
-          badges:
-            backendAuthor.badges || [],
-        },
-      } as Post
-    }
 
     return {
       ...post,
-      author: {
-        id: post.authorId,
-        name: 'Deleted User',
-        username: 'deleted',
-        avatar: '',
-        badges: [],
-      },
+      author: backendAuthor
+        ? mapRawAuthor(backendAuthor, post.authorId)
+        : { id: post.authorId, name: 'Deleted User', username: 'deleted', avatar: '', badges: [] },
     } as Post
   }
 

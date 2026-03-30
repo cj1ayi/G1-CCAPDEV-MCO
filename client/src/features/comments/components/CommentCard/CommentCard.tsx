@@ -36,8 +36,8 @@ export const CommentCard = ({
   isDownvoted = false,
   isOwner = false,
   isOP = false,
+  isSpaceOwner = false,
   isDeleted = false,
-  badge,
   onUpvote,
   onDownvote,
   onReply,
@@ -228,8 +228,8 @@ export const CommentCard = ({
               createdAt={createdAt}
               editedAt={editedAt}
               isOP={isOP}
+              isSpaceOwner={isSpaceOwner}
               isDeleted={isDeleted}
-              badge={badge}
               depth={depth}
             />
             <CommentMenu

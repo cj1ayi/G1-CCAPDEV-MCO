@@ -9,18 +9,13 @@ import { getCurrentUser as getAuthUser } from '@/features/auth/services'
 import { buildCommentTree, treeToLegacyFormat } from '../utils/comment-tree-builder'
 import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
 import { formatTimeAgo } from '@/lib/dateUtils'
-
-interface RawAuthor {
-  username: string
-  avatar?: string
-  badges?: string[]
-  displayName?: string
-}
+import { type RawAuthor, mapRawAuthor } from '@/types/author'
 
 class CommentService {
   async getCommentsByPostId(
     postId: string,
     postAuthorId?: string,
+    spaceOwnerId?: string,
   ): Promise<CommentCardProps[]> {
     try {
       const response = await fetch(
@@ -64,6 +59,7 @@ class CommentService {
         await this.flatToLegacyFormat(
           flatComments,
           postAuthorId,
+          spaceOwnerId,
         )
       return legacy
     } catch (err) {
@@ -156,6 +152,7 @@ class CommentService {
   private async flatToLegacyFormat(
     flatComments: Comment[],
     postAuthorId?: string,
+    spaceOwnerId?: string,
   ): Promise<CommentCardProps[]> {
     const currentUser = await getAuthUser()
 
@@ -206,6 +203,7 @@ class CommentService {
     const legacy = treeToLegacyFormat(
       tree,
       postAuthorId,
+      spaceOwnerId,
     )
 
     return this.deriveOwnership(
@@ -224,14 +222,7 @@ class CommentService {
       }).author
 
     const author = backendAuthor
-      ? {
-          id: comment.authorId,
-          name: backendAuthor.username,
-          username:
-            backendAuthor.username,
-          avatar:
-            backendAuthor.avatar || '',
-        }
+      ? mapRawAuthor(backendAuthor, comment.authorId)
       : {
           id: comment.authorId,
           name: '[deleted]',
