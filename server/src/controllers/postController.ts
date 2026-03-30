@@ -1,6 +1,8 @@
 import { Request, Response } from 'express'
 import Post from '../models/Post.js'
 import Space from '../models/Space.js'
+import Comment from '../models/Comment.js'
+import Vote from '../models/Vote.js'
 import mongoose from 'mongoose'
 
 type PostDoc =
@@ -182,6 +184,16 @@ export const deletePost = async (
     if (post.author.toString() !== (req.user as any)._id.toString())
       return res.status(403).json({ message: 'Not authorized' })
 
+    // Cascade: delete all comments and votes tied to this post
+    const comments = await Comment.find({ postId: post._id }).select('_id')
+    const commentIds = comments.map(c => c._id)
+
+    if (commentIds.length > 0)
+      await Vote.deleteMany({ targetId: { $in: commentIds }, targetType: 'Comment' })
+
+    await Comment.deleteMany({ postId: post._id })
+    await Vote.deleteMany({ targetId: post._id, targetType: 'Post' })
+
     await post.deleteOne()
     res.json({ message: 'Post removed' })
   } catch (error) {
@@ -205,13 +217,24 @@ export const updatePost = async (
     if (post.author.toString() !== (req.user as any)._id.toString())
       return res.status(403).json({ message: 'Not authorized' })
 
-    const { title, content, imageUrl, tags, flair } = req.body
+    const { 
+      title, 
+      content, 
+      imageUrl, 
+      tags, 
+      flair 
+    } = req.body
 
-    if (title) post.title = title
-    if (content) post.content = content
-    if (imageUrl !== undefined) post.imageUrl = imageUrl
-    if (tags) post.tags = tags
-    if (flair) post.flair = flair
+    if (title) 
+      post.title = title
+    if (content) 
+      post.content = content
+    if (imageUrl !== undefined) 
+      post.imageUrl = imageUrl
+    if (tags) 
+      post.tags = tags
+    if (flair) 
+      post.flair = flair
     post.isEdited = true
 
     await post.save()
