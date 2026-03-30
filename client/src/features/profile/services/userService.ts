@@ -8,6 +8,7 @@ import {
   API_BASE_URL,
   fetchWithAuth,
 } from '@/lib/apiUtils'
+import { mapRawAuthor } from '@/types/author'
 
 /** Comment with post context from /users/:id/comments */
 export interface UserComment {
@@ -63,27 +64,13 @@ class UserService {
 
   private mapPost(data: RawData): Post {
     const c = convertObjectId(data)
+    const authorId = c.author?.id ?? c.authorId ?? ''
     return {
       ...c,
-      authorId:
-        c.author?.id ?? c.authorId,
+      authorId,
       author: c.author
-        ? {
-          id: c.author.id,
-          name:
-            c.author.name
-            ?? c.author.username,
-          username: c.author.username,
-          avatar: c.author.avatar,
-          badges: c.author.badges || [],
-        }
-        : {
-          id: c.authorId ?? '',
-          name: 'Deleted User',
-          username: 'deleted',
-          avatar: '',
-          badges: [],
-        },
+        ? mapRawAuthor(c.author, authorId)
+        : { id: authorId, name: 'Deleted User', username: 'deleted', avatar: '', badges: [] },
     }
   }
 
