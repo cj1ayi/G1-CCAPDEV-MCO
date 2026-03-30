@@ -11,6 +11,7 @@ export const PostCardHeader = ({
   createdAt,
   flair,
   isOwner = false,
+  isSpaceOwner = false,
   onEdit,
   onDelete,
 }: PostCardHeaderProps) => (
@@ -72,6 +73,22 @@ export const PostCardHeader = ({
       >
         u/{author.username}
       </span>
+
+      {author.badges?.includes('dev') && (
+        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 whitespace-nowrap">
+          dev
+        </span>
+      )}
+      {author.badges?.includes('beta-tester') && (
+        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 whitespace-nowrap">
+          beta-tester
+        </span>
+      )}
+      {isSpaceOwner && (
+        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 whitespace-nowrap">
+          owner
+        </span>
+      )}
 
       <span>&bull;</span>
 

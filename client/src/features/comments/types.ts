@@ -1,3 +1,7 @@
+import type { Author } from '@/types/author'
+
+export type { Author }
+
 /**
  * Base Comment - Flat storage structure
  */
@@ -25,6 +29,7 @@ export interface CommentWithAuthor extends Comment {
     username: string
     displayName: string
     avatar: string
+    badges?: string[]
   }
   voteScore: number
   userVote: 'up' | 'down' | null
@@ -41,12 +46,7 @@ export interface CommentTreeNode extends CommentWithAuthor {
 export interface CommentCardProps {
   id: string
   content: string
-  author: {
-    id: string
-    name: string
-    username: string
-    avatar?: string
-  }
+  author: Author
   upvotes: number
   downvotes: number
   createdAt: string
@@ -55,8 +55,8 @@ export interface CommentCardProps {
   isDownvoted?: boolean
   isOwner?: boolean
   isOP?: boolean
+  isSpaceOwner?: boolean
   isDeleted?: boolean
-  badge?: string
   onUpvote?: () => void
   onDownvote?: () => void
   onReply?: (content: string) => void | Promise<void>
@@ -103,6 +103,8 @@ export interface UseCommentVotingReturn {
 
 export interface UseCommentsOptions {
   postId: string
+  postAuthorId?: string
+  spaceOwnerId?: string
   voteState?: Record<string, 'up' | 'down' | null>
 }
 
