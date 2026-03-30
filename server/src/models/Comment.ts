@@ -8,6 +8,8 @@ export interface IComment extends Document {
   depth: number;
   isDeleted: boolean;
   editedAt?: Date;
+  upvotes: number;
+  downvotes: number;
 }
 
 const CommentSchema: Schema = new Schema({
@@ -17,7 +19,9 @@ const CommentSchema: Schema = new Schema({
   content: { type: String, required: true },
   depth: { type: Number, default: 0 },
   isDeleted: { type: Boolean, default: false }, // For soft deletes
-  editedAt: { type: Date }
+  editedAt: { type: Date },
+  upvotes: { type: Number, default: 0 },
+  downvotes: { type: Number, default: 0 },
 }, {
   timestamps: true
 });
