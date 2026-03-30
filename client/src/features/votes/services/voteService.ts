@@ -4,7 +4,6 @@ import { convertObjectId, API_BASE_URL, fetchWithAuth } from '@/lib/apiUtils'
 
 class VoteService {
   async getVoteStats(targetId: string, targetType: 'Post' | 'Comment'): Promise<VoteStats> {
-    // Backend doesn't have this endpoint - votes come from post.upvotes/downvotes
     return {
       upvotes: 0,
       downvotes: 0,
@@ -15,24 +14,19 @@ class VoteService {
 
   async toggleVote(dto: VoteDto): Promise<Vote | null> {
     try {
-
       const response = await fetchWithAuth(`${API_BASE_URL}/votes`, {
         method: 'POST',
         body: JSON.stringify({
           targetId: dto.targetId,
-          // Capitalize: 'post' → 'Post', 'comment' → 'Comment'
-          targetType:
-            (dto.targetType as string)
-              .charAt(0).toUpperCase()
-            + (dto.targetType as string)
-              .slice(1),
-          value: dto.voteType // 1 or -1
+          targetType: (dto.targetType as string).charAt(0).toUpperCase()+ (
+            dto.targetType as string).slice(1),
+          value: dto.voteType
         })
       })
 
       const data = await response.json()
-
-      if (!data || data.voteType === 'none') return null
+      if (!data || data.voteType === 'none') 
+        return null
 
       const converted = convertObjectId(data)
 
@@ -50,14 +44,14 @@ class VoteService {
       throw new Error(`Failed to toggle vote: ${(err as Error).message}`)
     }
   }
+
   async getUserVote(targetId: string, targetType: 'Post' | 'Comment'): Promise<1 | -1 | null> {
     try {
       const currentUser = await getCurrentUser()
-      if (!currentUser) return null
+      if (!currentUser) 
+        return null
 
-      const response = await fetch(`${API_BASE_URL}/votes/me`, {
-        credentials: 'include'
-      })
+      const response = await fetchWithAuth(`${API_BASE_URL}/votes/me`)
       const data = await response.json()
 
       const vote = data.find((v: Record<string, string>) => {
