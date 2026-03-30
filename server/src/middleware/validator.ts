@@ -54,7 +54,10 @@ export const commentValidationRules = [
     .notEmpty().withMessage('Comment cannot be empty')
     .isLength({ max: 10000 }).withMessage('Comment must be at most 10,000 characters'),
   body('postId')
-    .isMongoId().withMessage('Invalid Post ID')
+    .isMongoId().withMessage('Invalid Post ID'),
+  body('parentId')
+    .optional({ values: 'falsy' })
+    .isMongoId().withMessage('Invalid parent comment ID'),
 ];
 
 export const spaceValidationRules = [
