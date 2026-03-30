@@ -2,12 +2,25 @@ import { Request, Response } from 'express';
 import Comment from '../models/Comment.js';
 import Post from '../models/Post.js';
 import User from '../models/User.js';
+import Vote from '../models/Vote.js';
 
 export const createComment = async (req: Request, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    if (!req.user) 
+      return res.status(401).json({ message: 'Unauthorized' });
 
-    const { postId, content, parentId } = req.body;
+    const { 
+      postId, 
+      content, 
+      parentId 
+    } = req.body;
+
+    const post = await Post.findById(postId)
+
+    if (!post) 
+      return res.status(404).json({ 
+        message: 'Post not found' 
+      })
 
     const newComment = await Comment.create({
       content,
@@ -18,11 +31,11 @@ export const createComment = async (req: Request, res: Response) => {
 
     await Post.findByIdAndUpdate(postId, { $inc: { commentCount: 1 } });
 
-    const author = await User.findById(newComment.authorId).select('username avatar');
+    const author = await User.findById(newComment.authorId).select('username avatar badges');
 
     const formatted = {
       ...newComment.toObject(),
-      author: author ? { username: author.username, avatar: author.avatar } : null
+      author: author ? { username: author.username, avatar: author.avatar, badges: author.badges } : null
     };
 
     res.status(201).json(formatted);
@@ -38,9 +51,9 @@ export const getCommentsByPostId = async (req: Request, res: Response) => {
     const comments = await Comment.find({ postId }).sort({ createdAt: 1 });
 
     const authorIds = [...new Set(comments.map(c => c.authorId.toString()))];
-    const authors = await User.find({ _id: { $in: authorIds } }).select('username avatar');
+    const authors = await User.find({ _id: { $in: authorIds } }).select('username avatar badges');
     const authorMap = new Map(
-      authors.map(a => [a._id.toString(), { username: a.username, avatar: a.avatar }])
+      authors.map(a => [a._id.toString(), { username: a.username, avatar: a.avatar, badges: a.badges }])
     );
 
     const formatted = comments.map(comment => {
@@ -75,11 +88,11 @@ export const updateComment = async (req: Request, res: Response) => {
     comment.editedAt = new Date()
     await comment.save();
 
-    const author = await User.findById(comment.authorId).select('username avatar');
+    const author = await User.findById(comment.authorId).select('username avatar badges');
 
     const formatted = {
       ...comment.toObject(),
-      author: author ? { username: author.username, avatar: author.avatar } : null
+      author: author ? { username: author.username, avatar: author.avatar, badges: author.badges } : null
     };
 
     res.json(formatted);
@@ -136,6 +149,7 @@ export const deleteComment = async (req: Request, res: Response) => {
       await comment.save();
     } else {
       const parentId = comment.parentId ? comment.parentId.toString() : null;
+      await Vote.deleteMany({ targetId: commentId, targetType: 'Comment' });
       await comment.deleteOne();
       await Post.findByIdAndUpdate(postId, { $inc: { commentCount: -1 } });
       await cleanupAncestors(parentId, postId);
@@ -149,22 +163,48 @@ export const deleteComment = async (req: Request, res: Response) => {
 
 export const voteComment = async (req: Request, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    if (!req.user) 
+      return res.status(401).json({ message: 'Unauthorized' })
 
     const commentId = req.params.id as string
+    const { value } = req.body
 
-    const comment = await Comment.findById(commentId);
-    if (!comment) return res.status(404).json({ message: 'Comment not found' });
+    const comment = await Comment.findById(commentId)
 
-    const author = await User.findById(comment.authorId).select('username avatar');
+    if (!comment) 
+      return res.status(404).json({ message: 'Comment not found' })
 
-    const formatted = {
-      ...comment.toObject(),
-      author: author ? { username: author.username, avatar: author.avatar } : null
-    };
+    const userId = (req.user as any)._id
 
-    res.json(formatted);
+    await Vote.deleteOne({ 
+      targetId: commentId, 
+      targetType: 'Comment', 
+      userId 
+    })
+
+    if (value === 1 || value === -1) 
+      await Vote.create({ 
+        targetId: commentId, 
+        targetType: 'Comment', 
+        userId, value 
+      })
+
+    const [upvotes, downvotes, userVote] = await Promise.all([
+      Vote.countDocuments({ targetId: commentId, targetType: 'Comment', value: 1 }),
+      Vote.countDocuments({ targetId: commentId, targetType: 'Comment', value: -1 }),
+      Vote.findOne({ targetId: commentId, targetType: 'Comment', userId })
+    ])
+
+    res.json({ 
+      success: true, 
+      voteType: value === 1 ? 'up' : value === -1 ? 'down' : 'none',
+      upvotes,
+      downvotes,
+      userVote: userVote ? userVote.value : null
+    })
   } catch (error) {
-    res.status(400).json({ message: (error as Error).message });
+    res.status(400).json({ 
+      message: (error as Error).message 
+    })
   }
-};
+}

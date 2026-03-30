@@ -1,11 +1,8 @@
 export type { PostCardProps } from '../../types'
 
-export interface Author {
-  id: string | number
-  username: string
-  name?: string
-  avatar?: string
-}
+import type { Author } from '@/types/author'
+
+export type { Author }
 
 export interface PostCardVotingProps {
   upvotes: number
@@ -23,6 +20,7 @@ export interface PostCardHeaderProps {
   createdAt: string
   flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
   isOwner?: boolean
+  isSpaceOwner?: boolean
   onEdit?: () => void
   onDelete?: () => void
 }

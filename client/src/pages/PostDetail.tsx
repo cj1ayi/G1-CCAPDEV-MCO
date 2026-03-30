@@ -13,6 +13,7 @@ import {
   SpaceAboutWidget,
   RulesWidget,
 } from '@/features/spaces/components'
+import { resolveId } from '@/features/spaces/utils'
 import {
   ErrorState,
   PostDetailSkeleton,
@@ -115,6 +116,11 @@ export default function PostDetail() {
           downvotes={postActions.downvotes}
           isUpvoted={postActions.isUpvoted}
           isDownvoted={postActions.isDownvoted}
+          isSpaceOwner={
+            !!space &&
+            !!space.owner &&
+            resolveId(space.owner as unknown as { id?: string; _id?: string }) === post.authorId
+          }
           onUpvote={postActions.onUpvote}
           onDownvote={postActions.onDownvote}
         />

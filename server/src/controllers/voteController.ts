@@ -24,6 +24,11 @@ export const toggleVote = async (
 
     const { targetId, targetType, value } =
       req.body
+
+    if (targetType !== 'Post' && targetType !== 'Comment') {
+      return res.status(400).json({ message: 'Invalid targetType' })
+    }
+
     const userId = (req.user as any)._id
     const Model = getTargetModel(targetType)
 

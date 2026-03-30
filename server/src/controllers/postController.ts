@@ -1,5 +1,8 @@
 import { Request, Response } from 'express'
 import Post from '../models/Post.js'
+import Space from '../models/Space.js'
+import Comment from '../models/Comment.js'
+import Vote from '../models/Vote.js'
 import mongoose from 'mongoose'
 
 type PostDoc =
@@ -11,11 +14,12 @@ const formatPost = (post: PostDoc) => {
 
   return {
     ...obj,
-    authorId: author._id.toString(),
-    author: {
+    authorId: author ? author._id.toString() : obj.author?.toString() ?? '',
+    author: author ? {
       username: author.username,
       avatar: author.avatar,
-    },
+      badges: author.badges ?? [],
+    } : { username: '[deleted]', avatar: '', badges: [] },
   }
 }
 
@@ -24,11 +28,8 @@ export const createPost = async (
   res: Response,
 ) => {
   try {
-    if (!req.user) {
-      return res
-        .status(401)
-        .json({ message: 'Unauthorized' })
-    }
+    if (!req.user)
+      return res.status(401).json({ message: 'Unauthorized' })
 
     const {
       title,
@@ -38,6 +39,10 @@ export const createPost = async (
       tags,
       flair,
     } = req.body
+
+    const existingSpace = await Space.findOne({ name: space })
+    if (!existingSpace)
+      return res.status(400).json({ message: `Space '${space}' does not exist` })
 
     const newPost = await Post.create({
       title,
@@ -49,15 +54,10 @@ export const createPost = async (
       author: (req.user as any)._id,
     })
 
-    await newPost.populate(
-      'author',
-      'username avatar',
-    )
+    await newPost.populate('author', 'username avatar badges')
     res.status(201).json(formatPost(newPost))
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: (error as Error).message })
+    res.status(400).json({ message: (error as Error).message })
   }
 }
 
@@ -81,20 +81,15 @@ export const getPosts = async (
       ? { space: space as string }
       : {}
 
-    // 'new' sorts by date only
     if (sort === 'new') {
-      const [total, results] =
-        await Promise.all([
-          Post.countDocuments(query),
-          Post.find(query)
-            .sort({ createdAt: -1 })
-            .skip(offset)
-            .limit(limit)
-            .populate(
-              'author',
-              'username avatar',
-            ),
-        ])
+      const [total, results] = await Promise.all([
+        Post.countDocuments(query),
+        Post.find(query)
+          .sort({ createdAt: -1 })
+          .skip(offset)
+          .limit(limit)
+          .populate('author', 'username avatar badges'),
+      ])
 
       return res.json({
         data: results.map(formatPost),
@@ -107,18 +102,13 @@ export const getPosts = async (
       })
     }
 
-    // Score-based sort via aggregation
-    const total =
-      await Post.countDocuments(query)
+    const total = await Post.countDocuments(query)
     const results = await Post.aggregate([
       { $match: query },
       {
         $addFields: {
           score: {
-            $subtract: [
-              '$upvotes',
-              '$downvotes',
-            ],
+            $subtract: ['$upvotes', '$downvotes'],
           },
         },
       },
@@ -136,12 +126,11 @@ export const getPosts = async (
       { $unwind: '$authorData' },
       {
         $addFields: {
-          authorId: {
-            $toString: '$authorData._id',
-          },
+          authorId: { $toString: '$authorData._id' },
           author: {
             username: '$authorData.username',
             avatar: '$authorData.avatar',
+            badges: '$authorData.badges',
           },
         },
       },
@@ -158,9 +147,7 @@ export const getPosts = async (
       },
     })
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: (error as Error).message })
+    res.status(500).json({ message: (error as Error).message })
   }
 }
 
@@ -169,21 +156,15 @@ export const getPostById = async (
   res: Response,
 ) => {
   try {
-    const post = await Post.findById(
-      req.params.id,
-    ).populate('author', 'username avatar')
+    const post = await Post.findById(req.params.id)
+      .populate('author', 'username avatar badges')
 
-    if (!post) {
-      return res
-        .status(404)
-        .json({ message: 'Post not found' })
-    }
+    if (!post)
+      return res.status(404).json({ message: 'Post not found' })
 
     res.json(formatPost(post))
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Invalid Post ID' })
+    res.status(500).json({ message: 'Invalid Post ID' })
   }
 }
 
@@ -192,28 +173,31 @@ export const deletePost = async (
   res: Response,
 ) => {
   try {
+    if (!req.user)
+      return res.status(401).json({ message: 'Unauthorized' })
+
     const post = await Post.findById(req.params.id)
 
-    if (!post) {
-      return res
-        .status(404)
-        .json({ message: 'Post not found' })
-    }
+    if (!post)
+      return res.status(404).json({ message: 'Post not found' })
 
-    const uid =
-      (req.user as any)._id.toString()
-    if (post.author.toString() !== uid) {
-      return res
-        .status(403)
-        .json({ message: 'Not authorized' })
-    }
+    if (post.author.toString() !== (req.user as any)._id.toString())
+      return res.status(403).json({ message: 'Not authorized' })
+
+    // Cascade: delete all comments and votes tied to this post
+    const comments = await Comment.find({ postId: post._id }).select('_id')
+    const commentIds = comments.map(c => c._id)
+
+    if (commentIds.length > 0)
+      await Vote.deleteMany({ targetId: { $in: commentIds }, targetType: 'Comment' })
+
+    await Comment.deleteMany({ postId: post._id })
+    await Vote.deleteMany({ targetId: post._id, targetType: 'Post' })
 
     await post.deleteOne()
     res.json({ message: 'Post removed' })
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: (error as Error).message })
+    res.status(500).json({ message: (error as Error).message })
   }
 }
 
@@ -222,49 +206,42 @@ export const updatePost = async (
   res: Response,
 ) => {
   try {
+    if (!req.user)
+      return res.status(401).json({ message: 'Unauthorized' })
+
     const post = await Post.findById(req.params.id)
 
-    if (!post) {
-      return res
-        .status(404)
-        .json({ message: 'Post not found' })
-    }
+    if (!post)
+      return res.status(404).json({ message: 'Post not found' })
 
-    const uid =
-      (req.user as any)._id.toString()
-    if (post.author.toString() !== uid) {
-      return res
-        .status(403)
-        .json({ message: 'Not authorized' })
-    }
+    if (post.author.toString() !== (req.user as any)._id.toString())
+      return res.status(403).json({ message: 'Not authorized' })
 
-    const {
-      title,
-      content,
-      imageUrl,
-      tags,
-      flair,
+    const { 
+      title, 
+      content, 
+      imageUrl, 
+      tags, 
+      flair 
     } = req.body
 
-    if (title) post.title = title
-    if (content) post.content = content
-    if (imageUrl !== undefined) {
+    if (title) 
+      post.title = title
+    if (content) 
+      post.content = content
+    if (imageUrl !== undefined) 
       post.imageUrl = imageUrl
-    }
-    if (tags) post.tags = tags
-    if (flair) post.flair = flair
+    if (tags) 
+      post.tags = tags
+    if (flair) 
+      post.flair = flair
     post.isEdited = true
 
     await post.save()
-    await post.populate(
-      'author',
-      'username avatar',
-    )
+    await post.populate('author', 'username avatar badges')
 
     res.json(formatPost(post))
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: (error as Error).message })
+    res.status(400).json({ message: (error as Error).message })
   }
 }

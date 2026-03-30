@@ -4,6 +4,7 @@ import {
 import {
   getCurrentUser,
 } from '@/features/auth/services/authService'
+import { type Author, type RawAuthor, mapRawAuthor } from '@/types/author'
 
 export type SearchTab =
   | 'posts'
@@ -40,13 +41,7 @@ export interface SearchPostResult {
     | 'Marketplace'
     | 'Discussion'
   )
-  author: {
-    id: string
-    username: string
-    name: string
-    avatar: string
-    badges?: string[]
-  }
+  author: Author
   authorId: string
   upvotes: number
   downvotes: number
@@ -97,12 +92,7 @@ interface RawPost {
   content?: string
   space?: string
   flair?: string
-  author?: {
-    username: string
-    name?: string
-    avatar?: string
-    badges?: string[]
-  }
+  author?: RawAuthor
   authorId?: string
   upvotes?: number
   downvotes?: number
@@ -139,24 +129,12 @@ function mapSearchPost(
   const id = extractId(
     raw as Record<string, unknown>,
   )
-  const authorId = raw.authorId ?? ''
+  const authorId = String(raw.authorId ?? '')
   const a = raw.author
 
-  const author = a
-    ? {
-      id: String(authorId),
-      username: a.username,
-      name: a.name ?? a.username,
-      avatar: a.avatar ?? '',
-      badges: a.badges ?? [],
-    }
-    : {
-      id: String(authorId),
-      username: 'deleted',
-      name: 'Deleted User',
-      avatar: '',
-      badges: [] as string[],
-    }
+  const author: Author = a
+    ? mapRawAuthor(a, authorId)
+    : { id: authorId, name: 'Deleted User', username: 'deleted', avatar: '', badges: [] }
 
   return {
     id,

@@ -9,6 +9,7 @@ export interface IUser extends Document {
   bio?: string
   location?: string
   joinedAt: Date
+  badges: string[]
 }
 
 const UserSchema: Schema = new Schema(
@@ -37,6 +38,7 @@ const UserSchema: Schema = new Schema(
     avatar: { type: String },
     bio: { type: String, default: '' },
     location: { type: String, default: '' },
+    badges: { type: [String], default: [] },
     joinedAt: {
       type: Date,
       default: Date.now,

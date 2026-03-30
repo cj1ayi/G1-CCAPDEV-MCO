@@ -1,13 +1,14 @@
 import {
   useState,
   useCallback,
+  useEffect,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   spaceService,
   SortOption,
 } from '../services'
-import { isSpaceOwner } from '../utils'
+import { isSpaceOwner, resolveId } from '../utils'
 import {
   useVoting,
 } from '@/features/votes/VotingContext'
@@ -58,16 +59,10 @@ export const useSpacePage = (
     isLoadingPosts,
   } = useSpaceQuery(spaceName, sortBy)
 
-  // Sync joined state from query
-  if (
-    space
-    && space.isJoined !== undefined
-    && isJoined !== space.isJoined
-  ) {
-    setIsJoined(space.isJoined)
-  }
-
-  // ── Join / Leave ──────────────
+  useEffect(() => {
+    if (space && space.isJoined !== undefined && isJoined !== space.isJoined) 
+      setIsJoined(space.isJoined)
+  }, [space?.isJoined])
 
   const toggleJoin = async () => {
     if (!space) return
@@ -183,6 +178,10 @@ export const useSpacePage = (
     && !!space
     && isSpaceOwner(space, user.id)
 
+  const spaceOwnerId = space
+    ? resolveId(space.owner as unknown as { id?: string; _id?: string })
+    : null
+
   const postsWithVotes = rawPosts.map(
     (post) => ({
       ...post,
@@ -192,6 +191,9 @@ export const useSpacePage = (
       isDownvoted:
         votes[`post:${post.id}`]
           === 'down',
+      isSpaceOwner:
+        !!spaceOwnerId
+        && post.author.id === spaceOwnerId,
     }),
   )
 

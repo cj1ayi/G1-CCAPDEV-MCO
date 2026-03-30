@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import Space from '../models/Space.js';
+import Post from '../models/Post.js';
+import Comment from '../models/Comment.js';
+import Vote from '../models/Vote.js';
 
 export const createSpace = async (req: Request, res: Response) => {
   try {
@@ -52,12 +55,15 @@ export const getSpaceByName = async (req: Request, res: Response) => {
 
 export const updateSpace = async (req: Request, res: Response) => {
   try {
-    const space = await Space.findById(req.params.id)
-    if (!space) return res.status(404).json({ message: 'Space not found' })
+    if (!req.user)
+      return res.status(401).json({ message: 'Unauthorized' })
 
-    if (space.owner.toString() !== (req.user as any)._id.toString()) {
+    const space = await Space.findById(req.params.id)
+    if (!space) 
+      return res.status(404).json({ message: 'Space not found' })
+
+    if (space.owner.toString() !== (req.user as any)._id.toString()) 
       return res.status(403).json({ message: 'Not authorized' })
-    }
 
     const { displayName, description, category, icon, rules } = req.body
 
@@ -68,7 +74,6 @@ export const updateSpace = async (req: Request, res: Response) => {
     space.rules = rules ?? space.rules
 
     await space.save()
-    // Re-populate after save
     await space.populate('owner', 'username name avatar');
     
     res.json(space)
@@ -109,6 +114,21 @@ export const deleteSpace = async (req: Request, res: Response) => {
 
     if (space.owner.toString() !== (req.user as any)._id.toString()) {
       return res.status(403).json({ message: 'Not authorized' })
+    }
+
+    // Cascade: delete all posts in this space and their comments/votes
+    const posts = await Post.find({ space: space.name }).select('_id')
+    const postIds = posts.map(p => p._id)
+
+    if (postIds.length > 0) {
+      const comments = await Comment.find({ postId: { $in: postIds } }).select('_id')
+      const commentIds = comments.map(c => c._id)
+      if (commentIds.length > 0) {
+        await Vote.deleteMany({ targetId: { $in: commentIds }, targetType: 'Comment' })
+      }
+      await Comment.deleteMany({ postId: { $in: postIds } })
+      await Vote.deleteMany({ targetId: { $in: postIds }, targetType: 'Post' })
+      await Post.deleteMany({ space: space.name })
     }
 
     await space.deleteOne()

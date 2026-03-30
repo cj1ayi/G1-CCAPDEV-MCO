@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import type { CommentCardProps } from '../types'
 import { commentService } from '../services/'
 import { getCurrentUser as getAuthUser } from '@/features/auth/services/'
@@ -36,14 +37,17 @@ function sortCommentsByBest(
   }))
 }
 
-export function useComments({ 
-  postId, 
-  voteState 
+export function useComments({
+  postId,
+  postAuthorId,
+  spaceOwnerId,
+  voteState
 }: UseCommentsOptions): UseCommentsReturn {
   const [rawComments, setRawComments] = useState<CommentCardProps[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { error: showError , success: showSuccess} = useToast()
+  const queryClient = useQueryClient()
 
   const comments = useMemo(() => {
     return sortCommentsByBest(rawComments, voteState)
@@ -55,7 +59,7 @@ export function useComments({
         if (!silent) setIsLoading(true)
         const data =
           await commentService
-            .getCommentsByPostId(postId)
+            .getCommentsByPostId(postId, postAuthorId, spaceOwnerId)
         setRawComments(data)
       } catch {
         if (!silent) {
@@ -67,7 +71,7 @@ export function useComments({
         if (!silent) setIsLoading(false)
       }
     },
-    [postId, showError],
+    [postId, postAuthorId, spaceOwnerId, showError],
   )
 
   useEffect(() => {
@@ -108,6 +112,7 @@ export function useComments({
         { postId, content, parentId },
       )
       showSuccess('Comment posted!')
+      queryClient.invalidateQueries({ queryKey: ['post', postId] })
       // Silent sync — update temp ID
       // without showing skeleton
       loadComments(true)
@@ -154,6 +159,7 @@ export function useComments({
         commentId,
       )
       showSuccess('Comment deleted!')
+      queryClient.invalidateQueries({ queryKey: ['post', postId] })
       loadComments(true)
     } catch {
       showError(

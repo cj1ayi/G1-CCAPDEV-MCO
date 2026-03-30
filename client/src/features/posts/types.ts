@@ -1,7 +1,6 @@
-// Post types with proper separation
-// Location: client/src/features/posts/types.ts
+import type { Author } from '@/types/author'
 
-import strict from "node:assert/strict"
+export type { Author }
 
 // What's stored in DB/localStorage (no author object)
 export interface StoredPost {
@@ -24,13 +23,9 @@ export interface StoredPost {
 
 // What the UI receives (populated with author object)
 export interface Post extends StoredPost {
-  author: {
-    id: string
-    name: string
-    username: string
-    avatar?: string
-  }
+  author: Author
   isOwner?: boolean
+  isSpaceOwner?: boolean
 }
 
 // Component Props
@@ -38,12 +33,7 @@ export interface PostCardProps {
   id: string
   title: string
   content?: string
-  author: {
-    id: string
-    name: string
-    username: string
-    avatar?: string
-  }
+  author: Author
   space: string
   spaceIcon?: string
   flair?: 'Question' | 'News' | 'Marketplace' | 'Discussion'
@@ -78,6 +68,7 @@ export interface PostDetailContentProps {
   downvotes: number  // live value from voting context
   isUpvoted: boolean
   isDownvoted: boolean
+  isSpaceOwner?: boolean
   onUpvote: () => void
   onDownvote: () => void
 }
