@@ -16,10 +16,10 @@ const CommentSchema: Schema = new Schema({
   parentId: { type: Schema.Types.ObjectId, ref: 'Comment', default: null },
   content: { type: String, required: true },
   depth: { type: Number, default: 0 },
-  isDeleted: { type: Boolean, default: false }, // For soft deletes
-  editedAt: { type: Date }
+  isDeleted: { type: Boolean, default: false },
+  editedAt: { type: Date },
 }, {
   timestamps: true
-});
+})
 
 export default mongoose.model<IComment>('Comment', CommentSchema);
