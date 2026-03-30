@@ -15,6 +15,7 @@ const formatPost = (post: PostDoc) => {
     author: {
       username: author.username,
       avatar: author.avatar,
+      badges: author.badges ?? [],
     },
   }
 }
@@ -51,7 +52,7 @@ export const createPost = async (
 
     await newPost.populate(
       'author',
-      'username avatar',
+      'username avatar badges',
     )
     res.status(201).json(formatPost(newPost))
   } catch (error) {
@@ -92,7 +93,7 @@ export const getPosts = async (
             .limit(limit)
             .populate(
               'author',
-              'username avatar',
+              'username avatar badges',
             ),
         ])
 
@@ -142,6 +143,7 @@ export const getPosts = async (
           author: {
             username: '$authorData.username',
             avatar: '$authorData.avatar',
+            badges: '$authorData.badges',
           },
         },
       },
@@ -171,7 +173,7 @@ export const getPostById = async (
   try {
     const post = await Post.findById(
       req.params.id,
-    ).populate('author', 'username avatar')
+    ).populate('author', 'username avatar badges')
 
     if (!post) {
       return res
@@ -258,7 +260,7 @@ export const updatePost = async (
     await post.save()
     await post.populate(
       'author',
-      'username avatar',
+      'username avatar badges',
     )
 
     res.json(formatPost(post))

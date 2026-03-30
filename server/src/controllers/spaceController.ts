@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import Space from '../models/Space.js';
+import Post from '../models/Post.js';
+import Comment from '../models/Comment.js';
+import Vote from '../models/Vote.js';
 
 export const createSpace = async (req: Request, res: Response) => {
   try {
@@ -109,6 +112,16 @@ export const deleteSpace = async (req: Request, res: Response) => {
 
     if (space.owner.toString() !== (req.user as any)._id.toString()) {
       return res.status(403).json({ message: 'Not authorized' })
+    }
+
+    // Cascade: delete all posts in this space and their comments/votes
+    const posts = await Post.find({ space: space.name }).select('_id')
+    const postIds = posts.map(p => p._id)
+
+    if (postIds.length > 0) {
+      await Comment.deleteMany({ postId: { $in: postIds } })
+      await Vote.deleteMany({ targetId: { $in: postIds }, targetType: 'Post' })
+      await Post.deleteMany({ space: space.name })
     }
 
     await space.deleteOne()

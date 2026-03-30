@@ -62,7 +62,7 @@ async function searchPosts(
       .sort({ createdAt: -1 })
       .skip(offset)
       .limit(limit)
-      .populate('author', 'username avatar'),
+      .populate('author', 'username avatar badges'),
   ])
 
   const data = results.map((post) => {
@@ -76,6 +76,7 @@ async function searchPosts(
         username:
           author?.username ?? 'deleted',
         avatar: author?.avatar ?? '',
+        badges: author?.badges ?? [],
       },
     }
   })
