@@ -20,6 +20,7 @@ export const PostDetailContent = ({
   downvotes,
   isUpvoted,
   isDownvoted,
+  isSpaceOwner = false,
   onUpvote,
   onDownvote,
 }: PostDetailContentProps) => {
@@ -113,19 +114,33 @@ export const PostDetailContent = ({
               src={post.author.avatar}
             />
             <div>
-              <p
-                className={cn(
-                  'text-sm font-semibold',
-                  'text-gray-900 dark:text-white'
-                )}
-              >
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span
-                  className="hover:underline cursor-pointer font-semibold"
+                  className={cn(
+                    'text-sm font-semibold',
+                    'text-gray-900 dark:text-white',
+                    'hover:underline cursor-pointer'
+                  )}
                   onClick={goToAuthor}
                 >
                   u/{post.author.username}
                 </span>
-              </p>
+                {post.author.badges?.includes('dev') && (
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                    dev
+                  </span>
+                )}
+                {post.author.badges?.includes('beta-tester') && (
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                    beta-tester
+                  </span>
+                )}
+                {isSpaceOwner && (
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                    owner
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {formatTimeAgo(post.createdAt)}
               </p>
