@@ -55,12 +55,15 @@ export const getSpaceByName = async (req: Request, res: Response) => {
 
 export const updateSpace = async (req: Request, res: Response) => {
   try {
-    const space = await Space.findById(req.params.id)
-    if (!space) return res.status(404).json({ message: 'Space not found' })
+    if (!req.user)
+      return res.status(401).json({ message: 'Unauthorized' })
 
-    if (space.owner.toString() !== (req.user as any)._id.toString()) {
+    const space = await Space.findById(req.params.id)
+    if (!space) 
+      return res.status(404).json({ message: 'Space not found' })
+
+    if (space.owner.toString() !== (req.user as any)._id.toString()) 
       return res.status(403).json({ message: 'Not authorized' })
-    }
 
     const { displayName, description, category, icon, rules } = req.body
 
@@ -71,7 +74,6 @@ export const updateSpace = async (req: Request, res: Response) => {
     space.rules = rules ?? space.rules
 
     await space.save()
-    // Re-populate after save
     await space.populate('owner', 'username name avatar');
     
     res.json(space)
