@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { postService } from '../services'
 import { useToast } from '@/hooks/ToastContext'
 import type {
@@ -9,6 +10,7 @@ import type {
 
 export function useEditPost(postId?: string) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const {
     error: showError,
     warning: showWarning,
@@ -149,6 +151,7 @@ export function useEditPost(postId?: string) {
         tags: formData.tags,
         flair: formData.flair,
       })
+      await queryClient.invalidateQueries({ queryKey: ['post', postId] })
       showSuccess('Post updated successfully')
       navigate(`/post/${postId}`)
     } catch (err) {
