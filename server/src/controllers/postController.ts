@@ -11,12 +11,12 @@ const formatPost = (post: PostDoc) => {
 
   return {
     ...obj,
-    authorId: author._id.toString(),
-    author: {
+    authorId: author ? author._id.toString() : obj.author?.toString() ?? '',
+    author: author ? {
       username: author.username,
       avatar: author.avatar,
       badges: author.badges ?? [],
-    },
+    } : { username: '[deleted]', avatar: '', badges: [] },
   }
 }
 
