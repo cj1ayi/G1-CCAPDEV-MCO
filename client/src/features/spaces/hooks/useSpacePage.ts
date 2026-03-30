@@ -1,6 +1,7 @@
 import {
   useState,
   useCallback,
+  useEffect,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -58,16 +59,10 @@ export const useSpacePage = (
     isLoadingPosts,
   } = useSpaceQuery(spaceName, sortBy)
 
-  // Sync joined state from query
-  if (
-    space
-    && space.isJoined !== undefined
-    && isJoined !== space.isJoined
-  ) {
-    setIsJoined(space.isJoined)
-  }
-
-  // ── Join / Leave ──────────────
+  useEffect(() => {
+    if (space && space.isJoined !== undefined && isJoined !== space.isJoined) 
+      setIsJoined(space.isJoined)
+  }, [space?.isJoined])
 
   const toggleJoin = async () => {
     if (!space) return
