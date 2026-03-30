@@ -118,6 +118,7 @@ export default function PostDetail() {
           isDownvoted={postActions.isDownvoted}
           isSpaceOwner={
             !!space &&
+            !!space.owner &&
             resolveId(space.owner as unknown as { id?: string; _id?: string }) === post.authorId
           }
           onUpvote={postActions.onUpvote}

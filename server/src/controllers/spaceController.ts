@@ -119,6 +119,11 @@ export const deleteSpace = async (req: Request, res: Response) => {
     const postIds = posts.map(p => p._id)
 
     if (postIds.length > 0) {
+      const comments = await Comment.find({ postId: { $in: postIds } }).select('_id')
+      const commentIds = comments.map(c => c._id)
+      if (commentIds.length > 0) {
+        await Vote.deleteMany({ targetId: { $in: commentIds }, targetType: 'Comment' })
+      }
       await Comment.deleteMany({ postId: { $in: postIds } })
       await Vote.deleteMany({ targetId: { $in: postIds }, targetType: 'Post' })
       await Post.deleteMany({ space: space.name })

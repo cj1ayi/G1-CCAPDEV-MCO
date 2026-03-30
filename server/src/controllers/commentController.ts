@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Comment from '../models/Comment.js';
 import Post from '../models/Post.js';
 import User from '../models/User.js';
+import Vote from '../models/Vote.js';
 
 export const createComment = async (req: Request, res: Response) => {
   try {
@@ -136,6 +137,7 @@ export const deleteComment = async (req: Request, res: Response) => {
       await comment.save();
     } else {
       const parentId = comment.parentId ? comment.parentId.toString() : null;
+      await Vote.deleteMany({ targetId: commentId, targetType: 'Comment' });
       await comment.deleteOne();
       await Post.findByIdAndUpdate(postId, { $inc: { commentCount: -1 } });
       await cleanupAncestors(parentId, postId);
