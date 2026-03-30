@@ -28,7 +28,6 @@ router.route('/')
 
 router.get('/:name', getSpaceByName);
 router.post('/:id/toggle-join', ensureAuth, toggleJoinSpace);
-router.delete('/:id', ensureAuth, deleteSpace)
 router.route('/:id')
   .patch(ensureAuth, updateSpace)
   .delete(ensureAuth, deleteSpace)
