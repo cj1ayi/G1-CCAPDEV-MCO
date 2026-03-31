@@ -76,17 +76,20 @@ export const updateComment = async (req: Request, res: Response) => {
     const { content } = req.body;
 
     const comment = await Comment.findById(commentId);
-    if (!comment) return res.status(404).json({ message: 'Comment not found' });
+    if (!comment) 
+      return res.status(404).json({ message: 'Comment not found' });
 
-    if (comment.isDeleted) return res.status(403).json({ message: 'Cannot edit a deleted comment' });
+    if (comment.isDeleted) 
+      return res.status(403).json({ message: 'Cannot edit a deleted comment' });
 
     if (comment.authorId.toString() !== (req.user as any)._id.toString()) {
       return res.status(403).json({ message: 'Not authorized to edit this comment' });
     }
 
-    comment.content = content;
+    comment.content = content
     comment.editedAt = new Date()
-    await comment.save();
+    comment.isEdited = true
+    await comment.save()
 
     const author = await User.findById(comment.authorId).select('username avatar badges');
 
