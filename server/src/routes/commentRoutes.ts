@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { ensureAuth } from '../middleware/auth.js';
 
 import { 
   createComment, 
@@ -13,11 +14,6 @@ import {
 } from '../middleware/validator.js';
 
 const router = Router();
-
-const ensureAuth = (req: any, res: any, next: any) => {
-  if (req.isAuthenticated()) return next();
-  res.status(401).json({ message: 'Unauthorized' });
-};
 
 // Base route: /api/comments
 router.post('/', ensureAuth, commentValidationRules, validate, createComment);
