@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { ensureAuth } from '../middleware/auth.js';
 
 import { 
   createSpace, 
@@ -16,11 +17,6 @@ import {
 
 
 const router = Router();
-
-const ensureAuth = (req: any, res: any, next: any) => {
-  if (req.isAuthenticated()) return next();
-  res.status(401).json({ message: 'Unauthorized' });
-};
 
 router.route('/')
   .get(getSpaces)

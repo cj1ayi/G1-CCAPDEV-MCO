@@ -1,13 +1,14 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose'
 
 export interface IComment extends Document {
-  postId: mongoose.Types.ObjectId;
-  authorId: mongoose.Types.ObjectId;
-  parentId: mongoose.Types.ObjectId | null;
-  content: string;
-  depth: number;
-  isDeleted: boolean;
-  editedAt?: Date;
+  postId: mongoose.Types.ObjectId
+  authorId: mongoose.Types.ObjectId
+  parentId: mongoose.Types.ObjectId | null
+  content: string
+  depth: number
+  isDeleted: boolean
+  editedAt?: Date
+  isEdited: boolean
 }
 
 const CommentSchema: Schema = new Schema({
@@ -18,8 +19,12 @@ const CommentSchema: Schema = new Schema({
   depth: { type: Number, default: 0 },
   isDeleted: { type: Boolean, default: false },
   editedAt: { type: Date },
+  isEdited: { type: Boolean, default: false },
 }, {
   timestamps: true
 })
 
-export default mongoose.model<IComment>('Comment', CommentSchema);
+CommentSchema.index({ postId: 1, createdAt: 1 })
+CommentSchema.index({ parentId: 1, createdAt: 1 })
+
+export default mongoose.model<IComment>('Comment', CommentSchema)
