@@ -7,6 +7,9 @@ import passport from 'passport'
 import cookieParser from 'cookie-parser'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
+import mongoSanitize from 'express-mongo-sanitize'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -27,7 +30,7 @@ dotenv.config()
 
 const sessionSecret = process.env.SESSION_SECRET
 
-if (!sessionSecret) 
+if (!sessionSecret)
   throw new Error('SESSION_SECRET is required')
 
 const app = express()
@@ -62,6 +65,33 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
+app.use(helmet())
+app.use(mongoSanitize())
+
+app.use('/api/', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many requests, please try again later' }
+}))
+
+app.use('/api/search', rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many search requests, please slow down' }
+}))
+
+app.use('/api/auth/google', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many login attempts, please try again later' }
+}))
+
 app.use('/api/auth', authRoutes)
 app.use('/api/posts', postRoutes)
 app.use('/api/comments', commentRoutes)
@@ -70,6 +100,14 @@ app.use('/api/votes', voteRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/stats', statsRoutes)
 app.use('/api/search', searchRoutes)
+
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack)
+  const isDev = process.env.NODE_ENV !== 'production'
+  res.status(err.status || 500).json({
+    message: isDev ? err.message : 'Internal server error'
+  })
+})
 
 const PORT = process.env.PORT || 3000
 
