@@ -235,18 +235,6 @@ export const Header = ({
           </button>
         )}
 
-        {onToggleDarkMode && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleDarkMode}
-            className="!px-2"
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
-        )}
-
         {user ? (
           <>
             {variant !== 'landing' && (
