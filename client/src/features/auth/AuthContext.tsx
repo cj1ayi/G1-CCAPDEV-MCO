@@ -31,6 +31,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true)
   const hasFetched = useRef(false)
 
+
+
   useEffect(() => {
     if (hasFetched.current) return
     hasFetched.current = true
@@ -72,11 +74,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     dispatchAuthChange()
   }, [])
 
+  const refreshUser = useCallback(async () => {
+    const fetched = await getCurrentUser()
+    setUser(fetched)
+  }, [])
+
   const contextValue: AuthContextType = {
     user,
     isLoading,
     login,
     logout,
+    refreshUser,
   }
 
   return (
