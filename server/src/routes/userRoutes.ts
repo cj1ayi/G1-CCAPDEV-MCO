@@ -4,6 +4,7 @@ import { ensureAuth } from '../middleware/auth.js';
 import {
   getUserById,
   getUserByUsername,
+  getUsersByBadge,
   updateUser,
   getUserPosts,
   getUserComments,
@@ -13,7 +14,10 @@ import {
 
 const router = Router();
 
-// GET /api/users/username/:username  — must be before /:id to avoid conflict
+// GET /api/users/badge/:badge — fetch all users with a given badge
+router.get('/badge/:badge', getUsersByBadge);
+
+// GET /api/users/username/:username — must be before /:id to avoid conflict
 router.get('/username/:username', getUserByUsername);
 
 // GET /api/users/:id
