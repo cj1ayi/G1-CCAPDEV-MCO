@@ -12,51 +12,63 @@ export const DarkModeToggle = ({
   onToggle,
   className,
 }: DarkModeToggleProps) => {
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onToggle()
-  }
-
   return (
     <div
+      role="group"
+      aria-label="Color theme"
       className={cn(
-        'inline-flex items-center rounded-lg p-1 gap-0.5',
+        'relative inline-flex items-center rounded-full p-1',
         'bg-gray-100 dark:bg-surface-darker',
         'border border-border-light dark:border-border-dark',
         className,
       )}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Light segment */}
+      {/* Sliding pill indicator */}
+      <span
+        aria-hidden
+        className={cn(
+          'pointer-events-none absolute top-1 bottom-1 rounded-full',
+          'bg-white dark:bg-surface-dark',
+          'shadow-sm border border-border-light dark:border-border-dark',
+          'transition-transform duration-200 ease-in-out',
+          isDark ? 'translate-x-full' : 'translate-x-0',
+        )}
+        style={{ left: '4px', width: 'calc(50% - 4px)' }}
+      />
+
+      {/* Light option */}
       <button
         type="button"
         aria-label="Light mode"
-        onClick={handleClick}
+        aria-pressed={!isDark}
+        onClick={(e) => { e.stopPropagation(); if (isDark) onToggle() }}
         className={cn(
-          'flex items-center gap-1.5 rounded-md px-3 py-1.5',
-          'text-xs font-semibold transition-all duration-150 select-none',
+          'relative z-10 flex items-center gap-1.5 rounded-full px-3 py-1.5',
+          'text-xs font-semibold transition-colors duration-150 select-none',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
           !isDark
-            ? 'bg-white dark:bg-surface-dark text-gray-900 dark:text-white shadow-sm border border-border-light dark:border-border-dark'
-            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
+            ? 'text-gray-900 dark:text-white'
+            : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300',
         )}
       >
         <Sun className="h-3.5 w-3.5" />
         <span>Light</span>
       </button>
 
-      {/* Dark segment */}
+      {/* Dark option */}
       <button
         type="button"
         aria-label="Dark mode"
-        onClick={handleClick}
+        aria-pressed={isDark}
+        onClick={(e) => { e.stopPropagation(); if (!isDark) onToggle() }}
         className={cn(
-          'flex items-center gap-1.5 rounded-md px-3 py-1.5',
-          'text-xs font-semibold transition-all duration-150 select-none',
+          'relative z-10 flex items-center gap-1.5 rounded-full px-3 py-1.5',
+          'text-xs font-semibold transition-colors duration-150 select-none',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
           isDark
-            ? 'bg-white dark:bg-surface-dark text-gray-900 dark:text-white shadow-sm border border-border-light dark:border-border-dark'
-            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
+            ? 'text-gray-900 dark:text-white'
+            : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300',
         )}
       >
         <Moon className="h-3.5 w-3.5" />
