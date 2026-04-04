@@ -7,6 +7,7 @@ import {
 import { 
   Camera, 
   LogOut,
+  Info
 } from 'lucide-react'
 
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
@@ -65,6 +66,14 @@ export const AvatarDropdown = ({
           </div>
         </div>
       </div>
+
+      <DropdownItem
+        icon={<Info className="h-4 w-4" />}
+        onClick={() => navigate('/about')}
+      >
+        About Us
+      </DropdownItem>
+
 
       {/* Actions */}
       <DropdownItem

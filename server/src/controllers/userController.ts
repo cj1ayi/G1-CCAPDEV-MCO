@@ -142,3 +142,15 @@ export const getUserUpvotedPosts = async (req: Request, res: Response) => {
     res.status(500).json({ message: (error as Error).message });
   }
 };
+
+export const getUsersByBadge = async (req: Request, res: Response) => {
+  try {
+    const { badge } = req.params
+    const users = await User.find(
+      { badges: badge },
+    ).select('username name avatar bio badges joinedAt')
+    res.json(users)
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message })
+  }
+}

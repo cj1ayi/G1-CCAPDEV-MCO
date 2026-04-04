@@ -19,7 +19,8 @@ class AuthService {
   async getCurrentUser(): Promise<AuthUser | null> {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
-        credentials: 'include'
+        credentials: 'include',
+        headers: { 'Cache-Control': 'no-cache' }
       })
 
       if (!response.ok) return null

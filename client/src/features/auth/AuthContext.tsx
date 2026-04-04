@@ -43,6 +43,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     })
   }, [])
 
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        getCurrentUser().then((fetchedUser) => {
+          setUser(fetchedUser)
+        })
+      }
+    }
+
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [])
+
   // Re-fetch user when profile is edited
   useEffect(() => {
     const refetch = () => {
@@ -72,6 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await logoutService()
     setUser(null)
     dispatchAuthChange()
+    window.location.href = '/'
   }, [])
 
   const refreshUser = useCallback(async () => {

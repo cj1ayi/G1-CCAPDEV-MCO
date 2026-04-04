@@ -68,6 +68,10 @@ const Signup = lazy(
 const Search = lazy(
   () => import('./pages/Search'),
 )
+const About = lazy(
+  () => import('./pages/About'),
+)
+
 
 // ── Routes ──────────────────────
 
@@ -139,6 +143,11 @@ const AppRoutes = () => {
         path="/search"
         element={<Search />}
       />
+      <Route
+        path="/about"
+        element={<About />}
+      />
+ 
     </Routes>
   )
 }
