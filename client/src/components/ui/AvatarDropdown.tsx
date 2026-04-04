@@ -1,19 +1,15 @@
 import { 
   Dropdown, 
-  DropdownItem, 
-  DropdownSeparator,
+  DropdownItem,
   Avatar 
 } from '@/components/ui'
 
 import { 
-  User, 
   Camera, 
   LogOut,
-  Settings,
-  Moon,
-  Sun
 } from 'lucide-react'
 
+import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 import { useDarkMode } from '@/hooks/useDarkMode'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
@@ -39,35 +35,38 @@ export const AvatarDropdown = ({
       align="right"
       trigger={
         <Avatar 
-          src={user.avatarUrl} 
-          alt={user.name} 
-          fallback={user.name.charAt(0).toUpperCase()} 
+          src={user.avatarUrl}
+          name={user.name}
+          alt={user.name}
           size="sm"
-          className={cn(
-            "cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
-          )} 
+          className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
         />
       }
     >
-      {/* Profile Section */}
-      <div className={cn(
-        "px-3 py-2 border-b border-gray-200 dark:border-gray-700"
-        )}
+      {/* Profile section — avatar + name/username */}
+      <div
+        className="px-3 py-2 border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+        onClick={() => navigate(`/profile/${user.username || user.name}`)}
       >
-        <DropdownItem
-          icon={<User className="h-4 w-4" />}
-          onClick={() => navigate(`/profile/${user.username || user.name}`)}
-        >
+        <div className="flex items-center gap-3">
+          <Avatar
+            src={user.avatarUrl}
+            name={user.name}
+            alt={user.name}
+            size="md"
+          />
           <div>
-            <div className="font-semibold">View Profile</div>
+            <div className="font-semibold text-sm text-gray-900 dark:text-white">
+              View Profile
+            </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
               u/{user.username || user.name}
             </div>
           </div>
-        </DropdownItem>
+        </div>
       </div>
 
-      {/* Main Actions */}
+      {/* Actions */}
       <DropdownItem
         icon={<Camera className="h-4 w-4" />}
         onClick={() => navigate('/profile/edit')}
@@ -75,23 +74,24 @@ export const AvatarDropdown = ({
         Edit Avatar
       </DropdownItem>
 
-      <DropdownItem
-        icon={isDark 
-          ? <Sun className="h-4 w-4" /> 
-          : <Moon className="h-4 w-4" />
-        }
-        onClick={toggleDarkMode}
+      {/* Theme toggle */}
+      <div
+        className="px-4 py-2 border-t border-gray-200 dark:border-gray-700"
+        onClick={(e) => e.stopPropagation()}
       >
-        Display Mode
-      </DropdownItem>
+        <DarkModeToggle isDark={isDark} onToggle={toggleDarkMode} />
+      </div>
 
-      <DropdownItem
-        icon={<LogOut className="h-4 w-4" />}
-        onClick={onLogout}
-        destructive
-      >
-        Log Out
-      </DropdownItem>
+      {/* Destructive — always last */}
+      <div className="border-t border-gray-200 dark:border-gray-700">
+        <DropdownItem
+          icon={<LogOut className="h-4 w-4" />}
+          onClick={onLogout}
+          destructive
+        >
+          Log Out
+        </DropdownItem>
+      </div>
     </Dropdown>
   )
 }
