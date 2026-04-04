@@ -165,20 +165,30 @@ class SpaceService {
     return posts.length
   }
 
+
   private sortPosts(posts: Post[], sortBy: SortOption): Post[] {
     const sorted = [...posts]
+
     const byScore = (a: Post, b: Post) =>
       (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)
+
     const byDate = (a: Post, b: Post) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 
+    const filterByWindow = (days: number): Post[] => {
+      const cutoff = Date.now() - days * 24 * 60 * 60 * 1000
+      return sorted
+        .filter((p) => new Date(p.createdAt).getTime() >= cutoff)
+        .sort(byScore)
+    }
+
     switch (sortBy) {
-      case 'new': return sorted.sort(byDate)
+      case 'new':   return sorted.sort(byDate)
+      case 'week':  return filterByWindow(7)
+      case 'month': return filterByWindow(30)
+      case 'year':  return filterByWindow(365)
       case 'hot':
-      case 'week':
-      case 'month':
-      case 'year':
-      default: return sorted.sort(byScore)
+      default:      return sorted.sort(byScore)
     }
   }
 }
