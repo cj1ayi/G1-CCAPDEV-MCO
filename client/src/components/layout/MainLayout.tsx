@@ -28,7 +28,7 @@ export const MainLayout = ({
   })
   
   const { isDark, toggleDarkMode } = useDarkMode()
-  const { user, logout } = useAuth()
+  const { user, logout, isLoading } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -51,7 +51,7 @@ export const MainLayout = ({
     )}>
       <Header
         variant={headerVariant}
-        user={headerVariant === 'landing' ? undefined : user
+        user={isLoading ? undefined : user
           ? { 
               name: user.name, 
               id: Number(user.id), 
@@ -60,6 +60,7 @@ export const MainLayout = ({
             }
           : undefined
         }
+        isLoading={isLoading}
         isDark={isDark}
         onToggleDarkMode={toggleDarkMode}
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -67,7 +68,6 @@ export const MainLayout = ({
         onToggleDesktopSidebar={toggleDesktopSidebar}
         onLogout={handleLogout}
       />
-
       <div className="flex flex-1 w-full relative">
         {leftSidebar && (
           <>
@@ -82,7 +82,6 @@ export const MainLayout = ({
                 }
               </aside>
             )}
-
             {isMobileMenuOpen && (
               <>
                 <div
@@ -103,20 +102,17 @@ export const MainLayout = ({
             )}
           </>
         )}
-
         <main className="flex-1 p-4 md:p-6 min-w-0">
           <div className={cn("mx-auto", maxWidth)}>
             {children}
           </div>
         </main>
-
         {rightSidebar && (
           <aside className="hidden xl:block w-80 sticky top-16 h-fit p-4">
             {rightSidebar}
           </aside>
         )}
       </div>
-
       {headerVariant === 'landing' && <Footer />}
     </div>
   )

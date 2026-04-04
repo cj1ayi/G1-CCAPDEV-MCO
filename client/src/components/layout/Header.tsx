@@ -41,6 +41,7 @@ interface HeaderProps {
   onToggleDesktopSidebar?: () => void
   isDark?: boolean
   onToggleDarkMode?: () => void
+  isLoading?: boolean
 }
 
 export const Header = ({
@@ -57,6 +58,7 @@ export const Header = ({
   onToggleDesktopSidebar,
   isDark = false,
   onToggleDarkMode,
+  isLoading = false,
 }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
@@ -128,8 +130,8 @@ export const Header = ({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 ref={mobileSearchInputRef}
-                id="mobile-search-input" // FIXED: Added ID
-                name="q"                 // FIXED: Added Name
+                id="mobile-search-input"
+                name="q"
                 type="text"
                 placeholder="Search AnimoForums..."
                 value={searchQuery}
@@ -203,8 +205,8 @@ export const Header = ({
         >
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
-            id="desktop-search-input" // FIXED: Added ID
-            name="q"                  // FIXED: Added Name
+            id="desktop-search-input"
+            name="q"
             type="text"
             placeholder="Search AnimoForums..."
             value={searchQuery}
@@ -235,7 +237,9 @@ export const Header = ({
           </button>
         )}
 
-        {user ? (
+        {isLoading ? (
+          <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse ml-1" />
+        ) : user ? (
           <>
             {variant !== 'landing' && (
               <>

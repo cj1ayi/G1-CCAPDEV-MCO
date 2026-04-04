@@ -1,8 +1,5 @@
 import { 
   Heart, 
-  ShieldCheck, 
-  LifeBuoy, 
-  AlertCircle 
 } from 'lucide-react'
 
 import AnimoForumsLogoHat from '@/assets/logo/AnimoForumsLogoHat.svg'
@@ -38,11 +35,15 @@ export const Footer = () => {
               "font-bold text-base md:text-lg leading-none dark:text-white")}>
               Animo<span className="text-primary">Forums</span>
             </span>
-            <span className={cn(
-              "text-[9px] md:text-[10px] text-gray-500",
-              "font-medium uppercase tracking-tighter")}>
-              DLSU Community Hub
-            </span>
+            <a 
+              href="/about" 
+              className={cn(
+                "text-[9px] md:text-[10px] text-primary hover:underline",
+                "font-medium uppercase tracking-tighter"
+              )}
+            >
+              About Us
+            </a>
           </div>
         </div>
 

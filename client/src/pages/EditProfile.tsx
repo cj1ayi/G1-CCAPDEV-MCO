@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState , useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   userService,
 } from '@/features/profile/services'
@@ -10,11 +11,9 @@ import { MainLayout } from '@/components/layout/MainLayout'
 import { SidebarNav } from '@/features/navigation/components'
 import { YourSpacesWidget } from '@/features/spaces/components'
 import { Camera, Save, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/useToast'
 import { Toast } from '@/components/ui/Toast'
 import { RichTextEditor } from '@/components/ui/RichTextEditor'
-import { dispatchAuthChange } from '@/features/auth/AuthContext'
 
 import { 
   Card, 
@@ -26,13 +25,14 @@ import {
 } from '@/components/ui'
 
 const EditProfile = () => {
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const {
     toasts,
     error: showError,
     removeToast,
   } = useToast()
-  const { user, isLoading: authLoading } =
+  const { user, isLoading: authLoading, refreshUser } =
     useAuth()
   const [isSaving, setIsSaving] =
     useState(false)
@@ -49,6 +49,10 @@ const EditProfile = () => {
     github: '',
     linkedin: '',
   })
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [])
 
   // Redirect if not logged in
   if (!authLoading && !user) {
@@ -89,7 +93,8 @@ const EditProfile = () => {
     setIsSaving(true)
     try {
       await userService.updateUser(user.id, formData)
-      dispatchAuthChange()
+      await refreshUser()
+      queryClient.invalidateQueries({ queryKey: ['profile', formData.username] })
       navigate(`/profile/${formData.username}`)
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -98,7 +103,6 @@ const EditProfile = () => {
       setIsSaving(false)
     }
   }
-
   if (isLoading) return <MainLayout><div className="flex items-center justify-center min-h-[50vh]"><p className="text-gray-500">Loading...</p></div></MainLayout>
   if (!user) return <MainLayout><div className="flex items-center justify-center min-h-[50vh]"><p className="text-gray-500">User not found</p></div></MainLayout>
 

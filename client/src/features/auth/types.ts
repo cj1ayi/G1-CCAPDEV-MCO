@@ -23,4 +23,5 @@ export interface AuthContextType {
   isLoading: boolean
   login: () => void
   logout: () => void
+  refreshUser: () => Promise<void>
 }

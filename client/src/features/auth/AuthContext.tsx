@@ -31,6 +31,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true)
   const hasFetched = useRef(false)
 
+
+
   useEffect(() => {
     if (hasFetched.current) return
     hasFetched.current = true
@@ -39,6 +41,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(fetchedUser)
       setIsLoading(false)
     })
+  }, [])
+
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        getCurrentUser().then((fetchedUser) => {
+          setUser(fetchedUser)
+        })
+      }
+    }
+
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
   }, [])
 
   // Re-fetch user when profile is edited
@@ -70,6 +85,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await logoutService()
     setUser(null)
     dispatchAuthChange()
+    window.location.href = '/'
+  }, [])
+
+  const refreshUser = useCallback(async () => {
+    const fetched = await getCurrentUser()
+    setUser(fetched)
   }, [])
 
   const contextValue: AuthContextType = {
@@ -77,6 +98,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isLoading,
     login,
     logout,
+    refreshUser,
   }
 
   return (
