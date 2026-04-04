@@ -23,6 +23,8 @@ import {
 } from '@/features/profile/components'
 import { cn } from '@/lib/utils'
 
+import { useEffect } from 'react'
+
 const LeftSidebar = () => (
   <div className="flex flex-col gap-6 px-4">
     <SidebarNav />
@@ -57,6 +59,10 @@ const Profile = () => {
       || currentUser.username
         === user.username)
   )
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [])
 
   if (isLoading) {
     return (
