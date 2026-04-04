@@ -9,7 +9,7 @@ interface SpaceFiltersProps {
   onSortChange: (sort: string) => void
 }
 
-const FILTERS = ['All Spaces', 'Trending', 'Academic', 'Lifestyle', 'Interest', 'Batch']
+const FILTERS = ['All Spaces', 'Academic', 'Lifestyle', 'Interest']
 
 export const SpaceFilters = ({
   activeFilter,
