@@ -1,6 +1,5 @@
 <div align="center">
-  <img src="client/dist/assets/AnimoForumsLogoHat-g6xzmLVF.svg" alt="AnimoForums Logo" width="80"/>
-  <h1>AnimoForums</h1>
+  <img src=" client/src/assets/logo/AnimoForumsLogoCombined.svg" alt="AnimoForums Logo" width="600"/>
   <p>A community forum platform built exclusively for De La Salle University students.</p>
 
   [![Live Demo](https://img.shields.io/badge/Live%20Demo-animoforums.onrender.com-046A38?style=flat-square)](https://animoforums.onrender.com/)
