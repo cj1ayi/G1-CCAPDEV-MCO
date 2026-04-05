@@ -1,90 +1,128 @@
-# AnimoForums
+<div align="center">
+  <img src="client/dist/assets/AnimoForumsLogoHat-g6xzmLVF.svg" alt="AnimoForums Logo" width="80"/>
+  <h1>AnimoForums</h1>
+  <p>A community forum platform built exclusively for De La Salle University students.</p>
 
-A Reddit-style web forum platform designed specifically for DLSU students to 
-centralize campus discussions in a unified, searchable environment.
+  [![Live Demo](https://img.shields.io/badge/Live%20Demo-animoforums.onrender.com-046A38?style=flat-square)](https://animoforums.onrender.com/)
+  [![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react&logoColor=white)](https://reactjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+  [![MongoDB](https://img.shields.io/badge/MongoDB-Local-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+</div>
 
-[![React](https://img.shields.io/badge/React-19.x-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+---
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Application](#running-the-application)
-- [Project Structure](#project-structure)
-- [Development](#development)
-  - [Git Workflow](#git-workflow)
-  - [Coding Standards](#coding-standards)
-- [License](#license)
-- [Team](#team)
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Technology Stack](#technology-stack)
+4. [Dependencies](#dependencies)
+5. [Live Deployment](#live-deployment)
+6. [Local Setup](#local-setup)
+   - [Prerequisites](#prerequisites)
+   - [Installation](#installation)
+   - [Running the Application](#running-the-application)
+7. [Test Credentials & Grading Bypass](#test-credentials--grading-bypass)
+8. [Project Structure](#project-structure)
+9. [Development Guidelines](#development-guidelines)
+   - [Git Workflow](#git-workflow)
+   - [Branch Naming Conventions](#branch-naming-conventions)
+   - [Commit Message Conventions](#commit-message-conventions)
+10. [License](#license)
+11. [Team](#team)
+
+---
 
 ## Overview
 
-AnimoForums addresses the fragmentation of student communication across multiple 
-platforms (Discord servers, Messenger groups, Facebook groups) by providing a 
-centralized, organized discussion platform. The application features 
-interest-based Spaces, threaded conversations, a voting system, and 
-comprehensive search functionality.
+AnimoForums addresses the fragmentation of student communication across multiple informal platforms — Discord servers, Messenger groups, and Facebook groups — by providing a centralized, organized discussion environment tailored to the DLSU community.
 
-**Key Benefits:**
-- Centralized campus discussions in one platform
-- Organized, topic-based communities (Spaces)
-- Persistent, searchable conversation history
-- Community-curated content through voting
-- Structured threaded discussions
+Students can participate in interest-based communities called Spaces, engage in threaded discussions, vote on content, and search across the entire platform — all in one place.
+
+---
 
 ## Features
 
 ### Discussion System
-- Create and share posts with text, images, and links
-- **Rich Text Editor:** WYSIWYG editing with Markdown support (TipTap)
+- Create posts with rich text, images, and links via a WYSIWYG editor (TipTap) with Markdown support
 - Nested comment threads with unlimited depth
-- Upvote/downvote system for posts and comments
-- Real-time trending content discovery
+- Upvote and downvote system for both posts and comments
+- Trending content discovery on the home feed
 
 ### Community Organization
-- Interest-based Spaces (communities)
-- Space discovery and search
-- Custom space rules and moderation
+- Interest-based Spaces with custom rules and moderation
+- Space discovery, search, and directory browsing
+- Join and manage multiple Spaces per user
+
+### User Profiles
+- Editable profile pages with activity history
+- Per-user post and comment statistics
+- Dark mode support
+
+### Search
+- Platform-wide search across posts, comments, and Spaces
+
+---
 
 ## Technology Stack
 
 ### Frontend
-| Technology | Purpose |
-|------------|---------|
-| React 19.x | UI Library |
-| TypeScript | Type-safe Development |
-| Vite | Build Tool & Dev Server |
-| TailwindCSS | Utility-first Styling |
-| React Router | Client-side Routing |
+
+| Technology | Version | Purpose |
+|---|---|---|
+| React | 19.x | UI Library |
+| TypeScript | 5.x | Type-safe Development |
+| Vite | 5.x | Build Tool and Dev Server |
+| TailwindCSS | 3.x | Utility-first Styling |
+| React Router | — | Client-side Routing |
+| TipTap | — | Rich Text Editor |
+| TanStack Query | — | Server State Management |
 
 ### Backend
-| Technology | Purpose |
-|------------|---------|
-| Node.js | Runtime Environment |
-| Express | Web Framework |
-| MongoDB | NoSQL Database |
-| Mongoose | ODM for MongoDB |
-| Passport.js | Authentication Middleware |
 
-## Getting Started
+| Technology | Version | Purpose |
+|---|---|---|
+| Node.js | 18+ | Runtime Environment |
+| Express | — | Web Framework |
+| MongoDB | — | NoSQL Database |
+| Mongoose | — | ODM for MongoDB |
+| Passport.js | — | Authentication Middleware |
+
+---
+
+## Dependencies
+
+For a full list of all npm packages and third-party libraries used in this project, refer to the application's About page:
+
+**https://animoforums.onrender.com/about**
+
+---
+
+## Live Deployment
+
+The application is deployed and accessible at:
+
+**https://animoforums.onrender.com/**
+
+No local setup is required to access the deployed version. Note that the initial load may take up to 30 seconds if the server has spun down due to inactivity (Render free tier behavior).
+
+---
+
+## Local Setup
 
 ### Prerequisites
 
-Ensure the following are installed on your system:
+Ensure the following are installed on your system before proceeding:
 
-- **Node.js** v18.x or higher ([Download](https://nodejs.org/))
-- **npm** v9.x or higher (included with Node.js)
-- **MongoDB** (Local instance) ([Download](https://www.mongodb.com/try/download/community))
-- **Git** ([Download](https://git-scm.com/))
+| Requirement | Version | Download |
+|---|---|---|
+| Node.js | v18.x or higher | https://nodejs.org/ |
+| npm | v9.x or higher | Included with Node.js |
+| MongoDB | Latest Community | https://www.mongodb.com/try/download/community |
+| Git | Any recent version | https://git-scm.com/ |
 
-Verify installations:
+Verify your installations:
 
 ```bash
 node --version
@@ -94,33 +132,63 @@ git --version
 
 ### Installation
 
-1. Clone the repository:
+**1. Clone the repository:**
 
 ```bash
 git clone https://github.com/cj1ayi/G1-CCAPDEV-MCO.git
 cd G1-CCAPDEV-MCO
 ```
 
-2. Install frontend dependencies:
+**2. Install frontend dependencies:**
 
 ```bash
 cd client
 npm install
 ```
 
-3. For backend setup and database seeding, follow the steps in the 
-[server README](server/README.md).
+**3. Install backend dependencies:**
+
+```bash
+cd ../server
+npm install
+```
+
+**4. Configure environment variables:**
+
+Create a `.env` file inside the `server` directory with the following contents:
+
+```env
+PORT=3000
+MONGODB_URI=mongodb://localhost:27017/animospaces
+SESSION_SECRET=any_random_string
+
+# Google OAuth (optional for local testing — see Grading Bypass below)
+GOOGLE_CLIENT_ID=your_id
+GOOGLE_CLIENT_SECRET=your_secret
+CALLBACK_URL=http://localhost:3000/api/auth/google/callback
+```
+
+**5. Seed the database:**
+
+This populates the required users, posts, spaces, and comments into your local MongoDB instance.
+
+```bash
+cd server
+npm run seed
+```
 
 ### Running the Application
 
-1. Start the backend server:
+Start the backend and frontend in two separate terminal sessions.
+
+**Terminal 1 — Backend:**
 
 ```bash
 cd server
 npm run dev
 ```
 
-2. In a separate terminal, start the frontend:
+**Terminal 2 — Frontend:**
 
 ```bash
 cd client
@@ -128,423 +196,145 @@ npm run dev
 ```
 
 The application will be available at:
-- **Frontend:** http://localhost:5173
-- **Backend API:** http://localhost:3000
 
-> For login instructions and test credentials, see the 
-[server README](server/README.md).
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:3000 |
+
+---
+
+## Test Credentials & Grading Bypass
+
+Since Google OAuth requires specific API credentials and authorized redirect domains, a grading bypass has been implemented to allow full access to all features without OAuth configuration.
+
+**Steps:**
+
+1. Ensure both the frontend and backend servers are running.
+2. Open your browser and navigate to:
+
+```
+http://localhost:3000/api/auth/grading-login
+```
+
+3. You will be automatically authenticated as the seeded user **tiamlee** and redirected to the Explore page.
+4. From there, all features are accessible: creating posts, voting, joining Spaces, and editing the profile.
+
+---
 
 ## Project Structure
 
 ```
 .
-├── client
-│   ├── eslint.config.mjs
-│   ├── index.html
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── postcss.config.ts
-│   ├── README.md
+├── client                          # Frontend application (React + Vite)
 │   ├── src
-│   │   ├── App.tsx
-│   │   ├── assets
-│   │   │   ├── homeImage
-│   │   │   │   └── LSHall.png
-│   │   │   ├── loginpics
-│   │   │   │   ├── DoroteoJose.png
-│   │   │   │   ├── henrychairs.jpg
-│   │   │   │   ├── legendsyuch.jpg
-│   │   │   │   ├── lssunrise.png
-│   │   │   │   ├── StMigs.jpg
-│   │   │   │   ├── sundownhenry.jpg
-│   │   │   │   ├── sunerisehenry.jpg
-│   │   │   │   ├── sunrisestmig.jpg
-│   │   │   │   └── YuchHall.png
-│   │   │   ├── logo
-│   │   │   │   ├── AnimoForumsLogoCombined.svg
-│   │   │   │   ├── AnimoForumsLogoHat.svg
-│   │   │   │   └── AnimoForumsLogoWhite.svg
-│   │   │   ├── pfp
-│   │   │   │   ├── callo.png
-│   │   │   │   ├── default.png
-│   │   │   │   ├── diane.png
-│   │   │   │   ├── enzo.gif
-│   │   │   │   ├── gabb.png
-│   │   │   │   ├── karl.png
-│   │   │   │   ├── pring.gif
-│   │   │   │   └── tiamlee.png
-│   │   │   └── post
-│   │   │       ├── car.jpg
-│   │   │       └── shark.jpg
 │   │   ├── components
-│   │   │   ├── layout
-│   │   │   │   ├── DefaultLeftSidebar.tsx
-│   │   │   │   ├── DefaultRightSidebar.tsx
-│   │   │   │   ├── Footer.tsx
-│   │   │   │   ├── Header.tsx
-│   │   │   │   ├── index.ts
-│   │   │   │   └── MainLayout.tsx
-│   │   │   ├── shared
-│   │   │   │   ├── CommentSkeleton.tsx
-│   │   │   │   ├── EmptyState.tsx
-│   │   │   │   ├── ErrorState.tsx
-│   │   │   │   ├── FeedSkeleton.tsx
-│   │   │   │   ├── index.ts
-│   │   │   │   ├── LoadingBar.tsx
-│   │   │   │   ├── LoadingSpinner.tsx
-│   │   │   │   ├── PostCardSkeleton.tsx
-│   │   │   │   ├── PostDetailSkeleton.tsx
-│   │   │   │   ├── ProfileHeaderSkeleton.tsx
-│   │   │   │   ├── Skeleton.tsx
-│   │   │   │   ├── SpaceCardSkeleton.tsx
-│   │   │   │   └── Spaceheaderskeleton.tsx
-│   │   │   └── ui
-│   │   │       ├── Avatar.tsx
-│   │   │       ├── AvatarDropdown.tsx
-│   │   │       ├── Badge.tsx
-│   │   │       ├── Button.tsx
-│   │   │       ├── Card.tsx
-│   │   │       ├── Checkbox.tsx
-│   │   │       ├── ConfirmDeleteModal.tsx
-│   │   │       ├── Dropdown.tsx
-│   │   │       ├── index.ts
-│   │   │       ├── Input.tsx
-│   │   │       ├── MarkdownToolbar.tsx
-│   │   │       ├── Modal.tsx
-│   │   │       ├── PasswordInput.tsx
-│   │   │       ├── RichTextEditor.tsx
-│   │   │       ├── Select.tsx
-│   │   │       ├── Textarea.tsx
-│   │   │       ├── Toast.tsx
-│   │   │       └── VoteButtons.tsx
+│   │   │   ├── layout              # Page layout wrappers (Header, Footer, Sidebars)
+│   │   │   ├── shared              # Reusable skeleton loaders and state components
+│   │   │   └── ui                  # Base UI primitives (Button, Input, Modal, etc.)
 │   │   ├── features
-│   │   │   ├── auth
-│   │   │   │   ├── AuthContext.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── useAuth.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── authService.ts
-│   │   │   │   │   └── index.ts
-│   │   │   │   └── types.ts
-│   │   │   ├── comments
-│   │   │   │   ├── components
-│   │   │   │   │   ├── CommentCard
-│   │   │   │   │   │   ├── CommentActions.tsx
-│   │   │   │   │   │   ├── CommentCard.tsx
-│   │   │   │   │   │   ├── CommentContent.tsx
-│   │   │   │   │   │   ├── CommentHeader.tsx
-│   │   │   │   │   │   ├── CommentMenu.tsx
-│   │   │   │   │   │   ├── CommentReplyForm.tsx
-│   │   │   │   │   │   ├── CommentVoting.tsx
-│   │   │   │   │   │   ├── index.ts
-│   │   │   │   │   │   └── types.ts
-│   │   │   │   │   ├── CommentInput.tsx
-│   │   │   │   │   ├── CommentSection.tsx
-│   │   │   │   │   ├── DeleteCommentModal.tsx
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── useComments.ts
-│   │   │   │   │   └── useCommentVoting.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── commentService.ts
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── types.ts
-│   │   │   │   └── utils
-│   │   │   │       ├── comment-tree-builder.ts
-│   │   │   │       ├── comment-utils.ts
-│   │   │   │       └── seedComments.ts
-│   │   │   ├── explore
-│   │   │   │   ├── components
-│   │   │   │   │   ├── Feed.tsx
-│   │   │   │   │   ├── Filter.tsx
-│   │   │   │   │   └── index.ts
-│   │   │   │   └── types.ts
-│   │   │   ├── landing
-│   │   │   │   ├── components
-│   │   │   │   │   ├── CarouselCard.tsx
-│   │   │   │   │   ├── Hero.tsx
-│   │   │   │   │   ├── HeroPostCard.tsx
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── Stats.tsx
-│   │   │   │   │   └── TrendingCarousel.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── useStats.ts
-│   │   │   │   │   ├── useThumbnails.ts
-│   │   │   │   │   └── useTrendingPosts.ts
-│   │   │   │   ├── types.ts
-│   │   │   │   └── utils
-│   │   │   │       └── imageUtils.ts
-│   │   │   ├── navigation
-│   │   │   │   └── components
-│   │   │   │       ├── index.ts
-│   │   │   │       └── SidebarNav.tsx
-│   │   │   ├── posts
-│   │   │   │   ├── components
-│   │   │   │   │   ├── CreatePostForm.tsx
-│   │   │   │   │   ├── DeletePostModal.tsx
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── PostAction.tsx
-│   │   │   │   │   ├── PostCard
-│   │   │   │   │   │   ├── index.ts
-│   │   │   │   │   │   ├── PostCard.tsx
-│   │   │   │   │   │   ├── PostCardContent.tsx
-│   │   │   │   │   │   ├── PostCardHeader.tsx
-│   │   │   │   │   │   ├── PostCardVoting.tsx
-│   │   │   │   │   │   └── types.ts
-│   │   │   │   │   ├── PostDetailActions.tsx
-│   │   │   │   │   ├── PostDetailBreadcrumbs.tsx
-│   │   │   │   │   ├── PostDetailContent.tsx
-│   │   │   │   │   ├── PostDetailHeader.tsx
-│   │   │   │   │   ├── PostDetailVoteColumn.tsx
-│   │   │   │   │   ├── PostForm.tsx
-│   │   │   │   │   ├── PostImage.tsx
-│   │   │   │   │   └── TrendingWidget.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── useCreatePost.ts
-│   │   │   │   │   ├── usePostDetail.ts
-│   │   │   │   │   ├── usePostDetailView.ts
-│   │   │   │   │   └── useVoting.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── postService.ts
-│   │   │   │   └── types.ts
-│   │   │   ├── profile
-│   │   │   │   ├── components
-│   │   │   │   │   ├── AboutWidget.tsx
-│   │   │   │   │   ├── ActivityFeed.tsx
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── PostPreviewCard.tsx
-│   │   │   │   │   ├── ProfileActivity.tsx
-│   │   │   │   │   ├── ProfileHeader.tsx
-│   │   │   │   │   ├── ProfileNavbar.tsx
-│   │   │   │   │   ├── ProfilePostsList.tsx
-│   │   │   │   │   ├── ProfileSidebar.tsx
-│   │   │   │   │   ├── SpacesWidget.tsx
-│   │   │   │   │   └── StatsWidget.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── useProfileView.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── userService.ts
-│   │   │   │   └── types.ts
-│   │   │   ├── search
-│   │   │   │   └── components
-│   │   │   │       ├── index.ts
-│   │   │   │       └── SearchResults.tsx
-│   │   │   ├── spaces
-│   │   │   │   ├── components
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── rules
-│   │   │   │   │   │   ├── index.ts
-│   │   │   │   │   │   ├── RuleEditor.tsx
-│   │   │   │   │   │   ├── RulesList.tsx
-│   │   │   │   │   │   └── RulesWidget.tsx
-│   │   │   │   │   ├── SpaceAboutWidget.tsx
-│   │   │   │   │   ├── SpaceCard.tsx
-│   │   │   │   │   ├── SpaceDeleteModal.tsx
-│   │   │   │   │   ├── SpaceDirectoryHeader.tsx
-│   │   │   │   │   ├── SpaceEmptyState.tsx
-│   │   │   │   │   ├── SpaceFilters.tsx
-│   │   │   │   │   ├── SpaceForm.tsx
-│   │   │   │   │   ├── SpaceHeader.tsx
-│   │   │   │   │   ├── SpaceSortBar.tsx
-│   │   │   │   │   └── YourSpacesWidget.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   ├── useCreateSpace.ts
-│   │   │   │   │   ├── useDeleteSpace.ts
-│   │   │   │   │   ├── useEditSpace.ts
-│   │   │   │   │   ├── useSpacePage.ts
-│   │   │   │   │   └── useSpaces.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── spaceService.ts
-│   │   │   │   └── utils
-│   │   │   │       ├── index.ts
-│   │   │   │       ├── spaceHelpers.ts
-│   │   │   │       └── spaceValidation.ts
-│   │   │   └── votes
-│   │   │       ├── services
-│   │   │       │   └── voteService.ts
-│   │   │       ├── types.ts
-│   │   │       └── VotingContext.tsx
-│   │   ├── hooks
-│   │   │   ├── index.ts
-│   │   │   ├── ToastContext.tsx
-│   │   │   ├── useDarkMode.ts
-│   │   │   ├── useImageRotation.ts
-│   │   │   ├── useLoadingBar.ts
-│   │   │   ├── usePasswordStrength.ts
-│   │   │   └── useToast.ts
-│   │   ├── index.css
-│   │   ├── lib
-│   │   │   ├── apiUtils.ts
-│   │   │   ├── dateUtils.ts
-│   │   │   └── utils.ts
-│   │   ├── main.tsx
-│   │   ├── pages
-│   │   │   ├── CreatePost.tsx
-│   │   │   ├── CreateSpace.tsx
-│   │   │   ├── EditPost.tsx
-│   │   │   ├── EditProfile.tsx
-│   │   │   ├── EditSpace.tsx
-│   │   │   ├── Explore.tsx
-│   │   │   ├── Home.tsx
-│   │   │   ├── index.ts
-│   │   │   ├── Login.tsx
-│   │   │   ├── PostDetail.tsx
-│   │   │   ├── Profile.tsx
-│   │   │   ├── Search.tsx
-│   │   │   ├── Signup.tsx
-│   │   │   ├── Space.tsx
-│   │   │   └── SpacesDirectory.tsx
-│   │   └── vite-env.d.ts
-│   ├── tailwind.config.ts
-│   ├── tsconfig.json
-│   └── vite.config.ts
-├── README.md
-└── server
-    ├── package-lock.json
-    ├── package.json
-    ├── README.md
-    ├── src
-    │   ├── app.ts
-    │   ├── config
-    │   │   ├── db.ts
-    │   │   └── passport.ts
-    │   ├── controllers
-    │   │   ├── commentController.ts
-    │   │   ├── postController.ts
-    │   │   ├── spaceController.ts
-    │   │   ├── statsController.ts
-    │   │   ├── userController.ts
-    │   │   └── voteController.ts
-    │   ├── index.ts
-    │   ├── middleware
-    │   │   └── validator.ts
-    │   ├── models
-    │   │   ├── Comment.ts
-    │   │   ├── Post.ts
-    │   │   ├── Space.ts
-    │   │   ├── User.ts
-    │   │   └── Vote.ts
-    │   ├── routes
-    │   │   ├── authRoutes.ts
-    │   │   ├── commentRoutes.ts
-    │   │   ├── postRoutes.ts
-    │   │   ├── spaceRoutes.ts
-    │   │   ├── statsRoutes.ts
-    │   │   ├── userRoutes.ts
-    │   │   └── voteRoutes.ts
-    │   ├── seed.ts
-    │   └── types
-    └── tsconfig.json
+│   │   │   ├── auth                # Authentication context, hooks, and services
+│   │   │   ├── comments            # Comment components, hooks, and tree utilities
+│   │   │   ├── explore             # Explore feed and filter components
+│   │   │   ├── landing             # Landing page hero and trending carousel
+│   │   │   ├── posts               # Post creation, display, voting, and detail view
+│   │   │   ├── profile             # User profile components and activity feed
+│   │   │   ├── search              # Search results components and service
+│   │   │   ├── spaces              # Space components, hooks, and validation
+│   │   │   └── votes               # Voting context and utilities
+│   │   ├── hooks                   # Global hooks (dark mode, toast, loading bar)
+│   │   ├── lib                     # API utilities, date formatting, query provider
+│   │   └── pages                   # Top-level route pages
+│   └── dist                        # Production build output
+│
+└── server                          # Backend application (Express + MongoDB)
+    └── src
+        ├── config                  # Database connection and Passport configuration
+        ├── controllers             # Request handlers for each resource
+        ├── middleware              # Authentication guards and request validation
+        ├── models                  # Mongoose schemas (User, Post, Comment, Space, Vote)
+        ├── routes                  # Express route definitions
+        └── seed.ts                 # Database seeding script
 ```
-
-## Development
-
-### Git Workflow
-
-We use a strict branching strategy to ensure stability. **Never commit directly 
-to `main` or `develop`.**
-
-1.  **Update Local Develop:** Always start by ensuring your local `develop` 
-    branch is up to date.
-    ```bash
-    git checkout develop
-    git pull origin develop
-    ```
-
-2.  **Create a Branch:** Always branch off of `develop`. Avoid branching off 
-    other feature or refactor branches.
-    ```bash
-    git checkout -b feature/your-feature-name
-    ```
-
-3.  **Work and Commit:** Follow the [Coding Standards](#coding-standards) for 
-    commit messages.
-
-4.  **Final Sync (Sanity Tip):** Before merging, pull the latest `develop` and 
-    rebase your branch onto it one last time to ensure a clean history.
-    ```bash
-    git fetch origin
-    git rebase origin/develop
-    ```
-
-5.  **Merge and Push:** You have two options to integrate your changes into 
-    `develop`:
-
-    - **Option A: Local Merge (Manual Flow)**
-      Switch to `develop` and merge using the `--no-ff` flag. This ensures a 
-      merge commit is created, documenting the integration.
-      ```bash
-      git checkout develop
-      git merge --no-ff feature/your-feature-name
-      git push origin develop
-      ```
-
-    - **Option B: Pull Request (GitHub Flow)**
-      Push your branch to remote and open a Pull Request against `develop` on 
-      GitHub.
-      ```bash
-      git push origin feature/your-feature-name
-      ```
-
-### Branch Naming Conventions
-
-| Branch Type | Purpose | Sample Branch Name |
-|:---|:---|:---|
-| **`main`** | Production branch (stable code) | `main` |
-| **`develop`** | Integration branch for features | `develop` |
-| **`feature/`** | New features or UI improvements | `feature/rich-text-editor` |
-| **`refactor/`** | Code restructuring without changing behavior | `refactor/auth-logic` |
-| **`fix/`** | Bug fixes | `fix/comment-deletion` |
-| **`chore/`** | Maintenance or configuration | `chore/update-packages` |
-| **`documentation/`** | README or wiki updates | `documentation/setup-guide` |
-
-### Coding Standards
-
-#### Conventional Commit Types
-
-| Type | Purpose | Sample Commit Message |
-|:---|:---|:---|
-| **`feat`** | Add a new feature | `feat: implement TipTap editor` |
-| **`fix`** | Fix a bug | `fix: update count on delete` |
-| **`refactor`** | Improve code without changing behavior | `refactor: simplify auth logic` |
-| **`merge`** | Merging branches | `merge: feature/voting into develop` |
-| **`perf`** | Optimize performance | `perf: optimize image loading` |
-| **`style`** | Formatting changes (indentation, etc.) | `style: fix indentation in Header` |
-| **`test`** | Add or update test cases | `test: add unit tests for voting` |
-| **`build`** | Modify build system or config | `build: update vite config` |
-| **`docs`** | Update README, specs, or comments | `docs: update setup instructions` |
-| **`chore`** | Non-code maintenance | `chore: bump dependencies` |
-
-> [See conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
-for details.
-
-## Team
-
-**G1 CCAPDEV MCO**
-
-| Name | GitHub |
-|------|--------|
-| Calupig, Evan Riley Lopez | [@yaraikun](https://github.com/yaraikun) |
-| Panganiban, Diane Benedict | [@Teehee](https://github.com/Teeheene) |
-| Ranara, Ramil Carlos Bulaclac | [@Floranaras](https://github.com/Floranaras) |
-| Tan, Roberta Netanya Sy | [@cj1ayi](https://github.com/cj1ayi) |
 
 ---
 
-**De La Salle University**  
-Computer Concepts and Application Development (CCAPDEV)
+## Development Guidelines
 
-© G1 CCAPDEV MCO
+### Git Workflow
+
+This project uses a protected branching strategy. Direct commits to `main` or `develop` are not permitted.
+
+**Standard workflow:**
+
+```bash
+# 1. Sync your local develop branch
+git checkout develop
+git pull origin develop
+
+# 2. Create a feature branch off develop
+git checkout -b feature/your-feature-name
+
+# 3. Work and commit using conventional commits (see below)
+
+# 4. Rebase onto the latest develop before merging
+git fetch origin
+git rebase origin/develop
+
+# 5a. Option A — Local merge with merge commit
+git checkout develop
+git merge --no-ff feature/your-feature-name
+git push origin develop
+
+# 5b. Option B — Open a Pull Request on GitHub
+git push origin feature/your-feature-name
+```
+
+### Branch Naming Conventions
+
+| Prefix | Purpose | Example |
+|---|---|---|
+| `main` | Production branch (stable) | `main` |
+| `develop` | Integration branch for features | `develop` |
+| `feature/` | New features or UI improvements | `feature/rich-text-editor` |
+| `refactor/` | Code restructuring without behavior changes | `refactor/auth-logic` |
+| `fix/` | Bug fixes | `fix/comment-deletion` |
+| `chore/` | Maintenance or configuration updates | `chore/update-packages` |
+| `documentation/` | README or wiki updates | `documentation/setup-guide` |
+
+### Commit Message Conventions
+
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+
+| Type | Purpose | Example |
+|---|---|---|
+| `feat` | Add a new feature | `feat: implement TipTap editor` |
+| `fix` | Fix a bug | `fix: update count on delete` |
+| `refactor` | Improve code without changing behavior | `refactor: simplify auth logic` |
+| `merge` | Merging branches | `merge: feature/voting into develop` |
+| `perf` | Optimize performance | `perf: optimize image loading` |
+| `style` | Formatting changes only | `style: fix indentation in Header` |
+| `test` | Add or update tests | `test: add unit tests for voting` |
+| `build` | Modify build system or configuration | `build: update vite config` |
+| `docs` | Update documentation | `docs: update setup instructions` |
+| `chore` | Non-code maintenance | `chore: bump dependencies` |
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Team
+
+**G1 — CCAPDEV MCO**  
+De La Salle University — Computer Concepts and Application Development
+
+| Name | GitHub |
+|---|---|
+| Calupig, Evan Riley Lopez | [@yaraikun](https://github.com/yaraikun) |
+| Panganiban, Diane Benedict | [@Teeheene](https://github.com/Teeheene) |
+| Ranara, Ramil Carlos Bulaclac | [@Floranaras](https://github.com/Floranaras) |
+| Tan, Roberta Netanya Sy | [@cj1ayi](https://github.com/cj1ayi) |
