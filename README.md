@@ -1,5 +1,5 @@
 <div align="center">
-  <img src=" client/src/assets/logo/AnimoForumsLogoCombined.svg" alt="AnimoForums Logo" width="600"/>
+  <img src="https://raw.githubusercontent.com/cj1ayi/G1-CCAPDEV-MCO/main/client/src/assets/logo/AnimoForumsLogoCombined.svg" alt="AnimoForums Logo" width="600"/>
   <p>A community forum platform built exclusively for De La Salle University students.</p>
 
   [![Live Demo](https://img.shields.io/badge/Live%20Demo-animoforums.onrender.com-046A38?style=flat-square)](https://animoforums.onrender.com/)
